@@ -1,3 +1,4 @@
+/// Status 0xC (Program Change) message.
 public struct ProgramChange: Equatable {
     public let group: Uint4
     public let channel: Uint4

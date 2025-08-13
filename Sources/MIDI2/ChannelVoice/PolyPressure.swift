@@ -1,3 +1,4 @@
+/// Status 0xA (Polyphonic Key Pressure) message.
 public struct PolyPressure: Equatable {
     public let group: Uint4
     public let channel: Uint4

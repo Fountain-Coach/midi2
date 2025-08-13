@@ -1,3 +1,4 @@
+/// Status 0xE (Pitch Bend) message.
 public struct PitchBend: Equatable {
     public let group: Uint4
     public let channel: Uint4

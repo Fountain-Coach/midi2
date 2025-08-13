@@ -1,3 +1,4 @@
+/// Single 32-bit Universal MIDI Packet.
 public struct UmpPacket32: Equatable {
     public let word: UInt32
 

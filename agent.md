@@ -29,14 +29,18 @@ For each `$def` in the schema:
 5. Add doc comments from schema `description`.
 6. Add at least one test case (roundtrip + golden vector).
 
-Example table (fill in while coding):
+## Implementation Matrix
+
 | Schema Type | Swift Type | Encoder | Decoder | Tests |
 |-------------|------------|---------|---------|-------|
-| Ump32       | `struct Ump32` | ✅ | ✅ | ✅ |
-| NoteOn      | `struct NoteOn` | ✅ | ✅ | ✅ |
-| NoteOff     | `struct NoteOff` | ✅ | ✅ | ✅ |
-| FlexDataTempo | `struct FlexDataTempo` | ✅ | ✅ | ✅ |
-| ...         | ...        | ...     | ...     | ...   |
+| UmpPacket32 | `struct UmpPacket32` | ✅ | ✅ | ❌ |
+| Midi1ChannelVoice | `enum Midi1ChannelVoiceMessage` | ✅ | ✅ | ❌ |
+| Midi2NRPNAddress | `enum Midi2NRPNAddress` | ✅ | ✅ | ❌ |
+| Uint7 | `struct Uint7` | ✅ | ✅ | ❌ |
+| Midi2NoteOn | `struct Midi2NoteOn` | ❌ | ❌ | ❌ |
+| Midi2ChannelPressure | `struct Midi2ChannelPressure` | ❌ | ❌ | ❌ |
+| SysEx7Packet | `struct SysEx7Packet` | ❌ | ❌ | ❌ |
+| MidiCiEnvelope | `struct MidiCiEnvelope` | ❌ | ❌ | ❌ |
 
 ## Inline Examples
 

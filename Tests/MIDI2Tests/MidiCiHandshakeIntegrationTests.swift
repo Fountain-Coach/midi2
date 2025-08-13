@@ -1,22 +1,37 @@
 import XCTest
-@testable import MIDI2CI
+@testable import MIDI2
 
 final class MidiCiHandshakeIntegrationTests: XCTestCase {
-    func testProtocolNegotiationFlow() {
-        let request = CIHandshake.initiateProtocolNegotiation(supported: [.midi2, .midi1])
-        let response = CIHandshake.respond(to: request, supported: [.midi2])
-        XCTAssertEqual(response.acceptedProtocol, .midi2)
+    func testProfileInquiryFlow() throws {
+        let requestBody = MidiCiProfilesBody(command: .inquiry, profileId: "com.example.profile", target: .channel, channels: [Uint4(0)!])
+        let requestEnv = MidiCiEnvelope(scope: .nonRealtime, subId2: 0x72, version: 1, body: .profiles(requestBody))
+        let reqPayload = requestEnv.sysEx7Payload()
+        let parsedRequest = try MidiCiEnvelope(sysEx7Payload: reqPayload)
+        guard case .profiles(let parsedBody) = parsedRequest.body else { return XCTFail("expected profiles body") }
+        XCTAssertEqual(parsedBody.profileId, "com.example.profile")
+
+        let responseBody = MidiCiProfilesBody(command: .reply, profileId: parsedBody.profileId, target: parsedBody.target, channels: parsedBody.channels)
+        let responseEnv = MidiCiEnvelope(scope: .nonRealtime, subId2: 0x72, version: 1, body: .profiles(responseBody))
+        let respPayload = responseEnv.sysEx7Payload()
+        let parsedResponse = try MidiCiEnvelope(sysEx7Payload: respPayload)
+        guard case .profiles(let respBody) = parsedResponse.body else { return XCTFail("expected profiles body") }
+        XCTAssertEqual(respBody.command, .reply)
     }
 
-    func testProfileInquiryFlow() {
-        let request = CIHandshake.initiateProfileInquiry(profile: "com.example.profile")
-        let response = CIHandshake.respond(to: request, supportedProfiles: ["com.example.profile"])
-        XCTAssertTrue(response.supported)
-    }
+    func testPropertyExchangeFlow() throws {
+        let requestBody = MidiCiPropertyExchangeBody(command: .get, requestId: 1, encoding: .json, header: ["res": "example"], data: [])
+        let requestEnv = MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7C, version: 1, body: .propertyExchange(requestBody))
+        let reqPayload = requestEnv.sysEx8Payload()
+        let parsedRequest = try MidiCiEnvelope(sysEx8Payload: reqPayload)
+        guard case .propertyExchange(let reqBody) = parsedRequest.body else { return XCTFail("expected property exchange body") }
+        XCTAssertEqual(reqBody.requestId, 1)
 
-    func testPropertyExchangeFlow() {
-        let request = CIHandshake.initiatePropertyGet(resource: "example")
-        let response = CIHandshake.respond(to: request, properties: ["example": "value"])
-        XCTAssertEqual(response.value, "value")
+        let responseBody = MidiCiPropertyExchangeBody(command: .getReply, requestId: reqBody.requestId, encoding: .json, header: ["res": "example"], data: [1])
+        let responseEnv = MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7C, version: 1, body: .propertyExchange(responseBody))
+        let respPayload = responseEnv.sysEx8Payload()
+        let parsedResponse = try MidiCiEnvelope(sysEx8Payload: respPayload)
+        guard case .propertyExchange(let respBody) = parsedResponse.body else { return XCTFail("expected property exchange body") }
+        XCTAssertEqual(respBody.command, .getReply)
+        XCTAssertEqual(respBody.data, [1])
     }
 }

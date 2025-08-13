@@ -1,0 +1,2 @@
+public struct Uint32 {
+}

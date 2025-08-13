@@ -1,70 +1,51 @@
-/// Body of a single SysEx7 UMP packet.
-///
-/// The packet is represented as the status nibble, the byte count and up to six
-/// bytes of payload data.  Encoding and decoding operate on ``UmpPacket64``
-/// values as SysEx7 packets are 64 bits wide.
+/// Sequence of SysEx7 packets representing a complete SysEx7 message.
 public struct SysEx7Body: Equatable {
-    /// Status nibble (0 = complete, 1 = start, 2 = continue, 3 = end).
-    public enum Status: UInt8, Equatable {
-        case complete = 0x0
-        case start    = 0x1
-        case `continue` = 0x2
-        case end      = 0x3
+    /// Ordered packets forming the SysEx7 transfer.
+    public var packets: [SysEx7Packet]
+
+    /// Creates a body from already constructed packets.
+    public init(packets: [SysEx7Packet]) {
+        self.packets = packets
     }
 
-    /// Status of the packet.
-    public var status: Status
-    /// Payload data (0–6 bytes).
-    public var data: [UInt8]
-
-    /// Creates a new body.
-    public init(status: Status, data: [UInt8]) {
-        precondition(data.count <= 6)
-        self.status = status
-        self.data = data
+    /// Creates a body by encoding a manufacturer ID and payload into SysEx7 packets.
+    /// - Parameters:
+    ///   - manufacturerID: 1- or 3-byte manufacturer identifier.
+    ///   - payload: SysEx payload bytes excluding manufacturer ID.
+    ///   - group: UMP group for all resulting packets.
+    /// - Throws: ``SysEx7.StreamError`` if the manufacturer ID or payload are invalid.
+    public init(manufacturerID: [UInt8], payload: [UInt8], group: Uint4) throws {
+        let raw = try SysEx7.fragment(manufacturerID: manufacturerID, payload: payload, group: group.rawValue)
+        self.packets = try raw.map { try SysEx7Packet(parsing: $0) }
     }
 
-    /// Encodes the body into a ``UmpPacket64`` using the supplied group.
-    public func ump(group: Uint4) -> UmpPacket64 {
-        var bytes: [UInt8] = [0x30 | group.rawValue,
-                              (status.rawValue << 4) | UInt8(data.count)]
-        bytes.append(contentsOf: data)
-        if data.count < 6 {
-            bytes.append(contentsOf: Array(repeating: 0, count: 6 - data.count))
+    /// Raw 8-byte packets.
+    public var rawPackets: [[UInt8]] { packets.map { $0.rawBytes } }
+
+    /// Packets as ``UmpPacket64`` values.
+    public var umps: [UmpPacket64] { packets.map { $0.ump } }
+
+    /// Creates a body from raw 8-byte packets. Fails if any packet is invalid.
+    public init?(rawPackets: [[UInt8]]) {
+        var result: [SysEx7Packet] = []
+        result.reserveCapacity(rawPackets.count)
+        for bytes in rawPackets {
+            guard let pkt = SysEx7Packet(rawBytes: bytes) else { return nil }
+            result.append(pkt)
         }
-        return UmpPacket64(rawBytes: bytes)!
+        self.packets = result
     }
 
-    /// Decodes a body from a ``UmpPacket64``.
-    public init?(ump: UmpPacket64) {
-        let bytes = ump.rawBytes
-        let mt = bytes[0] >> 4
-        guard mt == 0x3 else { return nil }
-        let statusNibble = bytes[1] >> 4
-        guard let status = Status(rawValue: statusNibble) else { return nil }
-        let count = Int(bytes[1] & 0x0F)
-        guard count <= 6 else { return nil }
-        let payload = Array(bytes[2..<(2 + count)])
-        self.init(status: status, data: payload)
+    /// Creates a body from UMP packets. Fails if any packet is invalid.
+    public init?(umps: [UmpPacket64]) {
+        self.init(rawPackets: umps.map { $0.rawBytes })
     }
 
-    /// Failable initialiser that throws ``MIDIError`` for malformed packets.
-    public init(parsingUMP ump: UmpPacket64) throws {
-        let bytes = ump.rawBytes
-        let mt = bytes[0] >> 4
-        guard mt == 0x3 else {
-            throw MIDIError.malformedPacket("expected mt 0x3 but got \(mt)")
-        }
-        let statusNibble = bytes[1] >> 4
-        guard let status = Status(rawValue: statusNibble) else {
-            throw MIDIError.malformedPacket("invalid SysEx7 status 0x\(String(statusNibble, radix: 16))")
-        }
-        let count = Int(bytes[1] & 0x0F)
-        guard count <= 6 else {
-            throw MIDIError.malformedPacket("invalid byte count \(count)")
-        }
-        let payload = Array(bytes[2..<(2 + count)])
-        self.init(status: status, data: payload)
+    /// Reassembles the manufacturer ID and payload from the contained packets.
+    /// - Returns: Manufacturer ID and payload bytes.
+    /// - Throws: ``SysEx7.StreamError`` if the packet sequence is malformed.
+    public func manufacturerAndPayload() throws -> (manufacturerID: [UInt8], payload: [UInt8]) {
+        try SysEx7.reassemble(rawPackets)
     }
 }
 

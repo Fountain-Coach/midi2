@@ -14,7 +14,7 @@ final class UmpPacket128Tests: XCTestCase {
     }
 
     func testHeader() {
-        let headerWord: UInt32 = 0x41234567
+        let headerWord: UInt32 = 0x51234567 // mt=0x5 SysEx8
         let packet = UmpPacket128(
             word0: headerWord,
             word1: 0x89ABCDEF,

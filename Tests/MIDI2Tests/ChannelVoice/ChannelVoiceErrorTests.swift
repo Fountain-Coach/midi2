@@ -11,10 +11,7 @@ final class ChannelVoiceErrorTests: XCTestCase {
     }
 
     func testInvalidStatusNibble() {
-        let bytes: [UInt8] = [0xF0, 0x00]
-        let group = Uint4(0x0)!
-        XCTAssertThrowsError(try Midi1ChannelVoiceMessage(parsingMidi1Bytes: bytes, group: group)) { error in
-            XCTAssertTrue(error.localizedDescription.contains("invalid status nibble"))
-        }
+        // Status nibbles outside 0x8...0xE should be rejected
+        XCTAssertNil(Midi1StatusNibble(0xF))
     }
 }

@@ -33,12 +33,12 @@ For each `$def` in the schema:
 
 | Schema Type | Swift Type | Encoder | Decoder | Tests |
 |-------------|------------|---------|---------|-------|
-| UmpPacket32 | `struct UmpPacket32` | ✅ | ✅ | ❌ |
-| Midi1ChannelVoice | `enum Midi1ChannelVoiceMessage` | ✅ | ✅ | ❌ |
-| Midi2NRPNAddress | `enum Midi2NRPNAddress` | ✅ | ✅ | ❌ |
-| Uint7 | `struct Uint7` | ✅ | ✅ | ❌ |
-| Midi2NoteOn | `struct Midi2NoteOn` | ❌ | ❌ | ❌ |
-| Midi2ChannelPressure | `struct Midi2ChannelPressure` | ❌ | ❌ | ❌ |
+| UmpPacket32 | `struct UmpPacket32` | ✅ | ✅ | ✅ |
+| Midi1ChannelVoice | `enum Midi1ChannelVoiceMessage` | ✅ | ✅ | ✅ |
+| Midi2NRPNAddress | `enum Midi2NRPNAddress` | ✅ | ✅ | ✅ |
+| Uint7 | `struct Uint7` | ✅ | ✅ | ✅ |
+| Midi2NoteOn | `struct Midi2NoteOn` | ✅ | ✅ | ✅ |
+| Midi2ChannelPressure | `struct Midi2ChannelPressure` | ✅ | ✅ | ✅ |
 | SysEx7Packet | `struct SysEx7Packet` | ❌ | ❌ | ❌ |
 | MidiCiEnvelope | `struct MidiCiEnvelope` | ❌ | ❌ | ❌ |
 

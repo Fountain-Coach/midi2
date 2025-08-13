@@ -14,6 +14,12 @@ public struct UmpPacket64: Equatable, UniversalPacket {
         self.word1 = word1
     }
 
+    /// Creates a packet from a header and payload word.
+    public init(header: UmpHeader64, word1: UInt32) {
+        self.word0 = header.word
+        self.word1 = word1
+    }
+
     /// Creates a packet from an array of two 32-bit words.
     public init?(words: [UInt32]) {
         guard words.count == 2 else { return nil }
@@ -22,4 +28,7 @@ public struct UmpPacket64: Equatable, UniversalPacket {
 
     /// Returns the raw 32-bit words making up this packet.
     public var words: [UInt32] { [word0, word1] }
+
+    /// Header view of the packet.
+    public var header: UmpHeader64 { UmpHeader64(word: word0)! }
 }

@@ -2,14 +2,26 @@
 public struct UmpPacket32: Equatable {
     public let word: UInt32
 
+    /// Creates a packet from a raw 32-bit word.
     public init(word: UInt32) {
         self.word = word
     }
 
+    /// Creates a packet from a header.
+    public init(header: UmpHeader32) {
+        self.word = header.word
+    }
+
+    /// Convenience initializer using individual fields.
     public init(mt: UInt8, group: Uint4, status: UInt8, data1: UInt8, data2: UInt8) {
-        let byte0 = UInt32(mt << 4 | group.rawValue)
-        let word = (byte0 << 24) | (UInt32(status) << 16) | (UInt32(data1) << 8) | UInt32(data2)
-        self.word = word
+        let header = UmpHeader32(
+            messageType: mt,
+            group: group,
+            status: status,
+            byte1: data1,
+            byte2: data2
+        )!
+        self.init(header: header)
     }
 
     public init?(midi1Bytes bytes: [UInt8], group: Uint4) {
@@ -19,6 +31,9 @@ public struct UmpPacket32: Equatable {
         let data2: UInt8 = bytes.count > 2 ? bytes[2] : 0
         self.init(mt: 0x2, group: group, status: status, data1: data1, data2: data2)
     }
+
+    /// Header view of the packet.
+    public var header: UmpHeader32 { UmpHeader32(word: word)! }
 
     public func midi1Bytes() -> [UInt8]? {
         let mt = UInt8((word >> 28) & 0xF)

@@ -15,6 +15,14 @@ public struct Ump128: UniversalPacket {
         self.word3 = word3
     }
 
+    /// Creates a packet from a 128-bit header and three payload words.
+    public init(header: UmpHeader128, word1: UInt32, word2: UInt32, word3: UInt32) {
+        self.word0 = header.word
+        self.word1 = word1
+        self.word2 = word2
+        self.word3 = word3
+    }
+
     /// Creates a packet from an array of words. Fails if count is not 4.
     public init?(words: [UInt32]) {
         guard words.count == Self.wordCount else { return nil }
@@ -26,6 +34,9 @@ public struct Ump128: UniversalPacket {
 
     /// The raw words composing the packet.
     public var words: [UInt32] { [word0, word1, word2, word3] }
+
+    /// Header view of the packet.
+    public var header: UmpHeader128 { UmpHeader128(word: word0)! }
 }
 
 public extension Ump128 {

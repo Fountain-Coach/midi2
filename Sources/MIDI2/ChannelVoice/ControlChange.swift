@@ -1,4 +1,4 @@
-/// Status 0xB (Control Change) message.
+/// Status 0xB (CC).
 public struct ControlChange: Equatable {
     public let group: Uint4
     public let channel: Uint4

@@ -1,7 +1,4 @@
-/// Common 64-bit layout for MIDI 2.0 Channel Voice messages.
-///
-/// Provides access to the generic fields shared by all channel voice messages
-/// and convenience decoding into strongly typed variants.
+/// Only fields relevant to the specific status are present.
 public struct Midi2ChannelVoiceBody: Equatable {
     public let group: Uint4
     public let status: UInt8

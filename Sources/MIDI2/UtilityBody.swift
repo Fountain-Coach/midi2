@@ -1,8 +1,4 @@
-/// Body payload for UMP message type ``0x0`` Utility packets.
-///
-/// Utility packets are _groupless_ and contain a single opcode in the status
-/// byte followed by two data bytes that are interpreted according to the
-/// opcode.  The body therefore stores the opcode and the raw 16‑bit value.
+/// UMP Type 0x0 Utility messages (groupless).
 public struct UtilityBody: Equatable {
     /// The opcode describing the utility message.
     public var opcode: UtilityOpcode

@@ -1,8 +1,4 @@
-/// Body for UMP message type ``0xF`` Stream packets.
-///
-/// Stream packets are used during endpoint discovery and configuration.  Each
-/// packet carries an opcode followed by two data bytes whose meaning depends on
-/// the opcode.
+/// Endpoint discovery, protocol selection, and FB info.
 public struct StreamBody: Equatable {
     /// Stream message opcode.
     public var opcode: StreamOpcode

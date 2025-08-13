@@ -1,4 +1,4 @@
-/// Sequence of SysEx7 packets representing a complete SysEx7 message.
+/// 7-bit clean stream framed in 32-bit UMP words (up to 6 bytes per word).
 public struct SysEx7Body: Equatable {
     /// Ordered packets forming the SysEx7 transfer.
     public var packets: [SysEx7Packet]

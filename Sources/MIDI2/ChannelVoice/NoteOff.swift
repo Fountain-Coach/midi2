@@ -1,4 +1,4 @@
-/// Status 0x8 (Note Off) message.
+/// Status 0x8 (Note Off).
 public struct NoteOff: Equatable {
     public let group: Uint4
     public let channel: Uint4

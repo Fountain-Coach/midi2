@@ -1,7 +1,4 @@
-/// Body for UMP message type ``0x1`` carrying System Common or Real‑Time data.
-///
-/// The message header provides the group nibble while this body models the
-/// status byte and the two following data bytes.
+/// UMP 0x1 System Common & Real-Time.
 public struct SystemCommonRealtimeBody: Equatable {
     /// MIDI system status byte.
     public var status: SystemStatus

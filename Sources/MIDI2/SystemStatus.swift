@@ -1,9 +1,4 @@
-/// All status bytes that are considered valid for UMP System Common and
-/// System Real‑Time messages.
-///
-/// The values correspond directly to the 8‑bit status byte found in the
-/// second byte of a message type ``0x1`` UMP packet.  Both System Common and
-/// System Real‑Time messages share this enumeration.
+/// MIDI System Common/Real-Time per UMP.
 public enum SystemStatus: UInt8, Equatable {
     // System Common
     case mtcQuarterFrame     = 0xF1

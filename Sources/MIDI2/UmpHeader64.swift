@@ -1,8 +1,4 @@
-/// 64-bit UMP header for MIDI 2.0 Channel Voice messages.
-///
-/// The first word encodes message type ``0x4``, a group nibble, status nibble,
-/// channel, and two data bytes.  The remaining word contains additional payload
-/// data.
+/// 64-bit UMP header for MIDI 2.0 Channel Voice.
 public struct UmpHeader64: Equatable {
     /// Raw 32-bit word representing the header.
     public let word: UInt32

@@ -1,9 +1,4 @@
-/// Common 32-bit UMP header (messageType + group + status + two data bytes).
-///
-/// The first 32-bit word of many UMP packet types share this layout.  The
-/// leading nibble is the message type, followed by a 4-bit group.  The next
-/// byte is the status field and the final two bytes are typically payload
-/// data or counts depending on the message type.
+/// Common 32-bit UMP header (messageType + optional group).
 public struct UmpHeader32: Equatable {
     /// Raw 32-bit word representing the header.
     public let word: UInt32

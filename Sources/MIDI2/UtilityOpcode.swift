@@ -1,9 +1,4 @@
-/// Opcode values for UMP Utility messages.
-///
-/// These opcodes occupy the status byte of a message type ``0x0`` packet and
-/// determine how the remaining 16 bits of the packet should be interpreted.
-/// The library only defines the three opcodes currently specified by the
-/// standard.
+/// 0=NOOP,1=JR Clock,2=JR Timestamp
 public enum UtilityOpcode: UInt8, Equatable {
     /// No operation.  Used for padding.
     case noop        = 0x00

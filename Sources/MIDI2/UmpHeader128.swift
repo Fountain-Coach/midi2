@@ -1,8 +1,4 @@
-/// 128-bit UMP header for Data (SysEx8/MDS) and Flex Data messages.
-///
-/// The first word encodes the message type (``0x5`` for SysEx8 or ``0xD`` for
-/// Flex Data), an optional group, an 8-bit status field and two data bytes that
-/// commonly represent byte counts.
+/// 128-bit UMP header for Data (SysEx8/MDS) and Flex Data.
 public struct UmpHeader128: Equatable {
     /// Raw 32-bit word representing the header.
     public let word: UInt32

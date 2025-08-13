@@ -19,4 +19,9 @@ final class FlexDataTempoTests: XCTestCase {
         guard let decoded = FlexDataTempo.decode(packet) else { return XCTFail("decode failed") }
         XCTAssertEqual(decoded.beatsPerMinute, 120, accuracy: 0.0001)
     }
+
+    func testMalformedDecode() {
+        let bad = Ump128(word0: 0, word1: 0, word2: 0, word3: 0)!
+        XCTAssertNil(FlexDataTempo.decode(bad))
+    }
 }

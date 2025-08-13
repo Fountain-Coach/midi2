@@ -1,5 +1,5 @@
 /// Flex: Set Tempo (heuristic mapping to BPM).
-public struct FlexDataTempo {
+public struct FlexDataTempo: Equatable {
     public var beatsPerMinute: Double
 
     public init(beatsPerMinute: Double) {

@@ -73,6 +73,51 @@ public extension Midi1ChannelVoiceMessage {
         }
     }
 
+    init(parsingUMP ump: UmpPacket32) throws {
+        let mt = UInt8((ump.word >> 28) & 0xF)
+        guard mt == 0x2 else {
+            throw MIDIError.malformedPacket("expected mt 0x2 but got \(mt)")
+        }
+        let group = try Uint4(validating: UInt8((ump.word >> 24) & 0xF))
+        let statusByte = UInt8((ump.word >> 16) & 0xFF)
+        let statusNibble = statusByte >> 4
+        guard let status = Midi1StatusNibble(statusNibble) else {
+            throw MIDIError.malformedPacket("invalid status nibble 0x\(String(statusNibble, radix: 16))")
+        }
+        let channel = try Uint4(validating: statusByte & 0x0F)
+        let data1 = UInt8((ump.word >> 8) & 0xFF)
+        let data2 = UInt8(ump.word & 0xFF)
+
+        switch status {
+        case .noteOff:
+            let note = try Uint7(validating: data1)
+            let velocity = try Uint7(validating: data2)
+            self = .noteOff(group: group, channel: channel, note: note, velocity: velocity)
+        case .noteOn:
+            let note = try Uint7(validating: data1)
+            let velocity = try Uint7(validating: data2)
+            self = .noteOn(group: group, channel: channel, note: note, velocity: velocity)
+        case .polyPressure:
+            let note = try Uint7(validating: data1)
+            let pressure = try Uint7(validating: data2)
+            self = .polyPressure(group: group, channel: channel, note: note, pressure: pressure)
+        case .controlChange:
+            let control = try Uint7(validating: data1)
+            let value = try Uint7(validating: data2)
+            self = .controlChange(group: group, channel: channel, control: control, value: value)
+        case .programChange:
+            let program = try Uint7(validating: data1)
+            self = .programChange(group: group, channel: channel, program: program)
+        case .channelPressure:
+            let pressure = try Uint7(validating: data1)
+            self = .channelPressure(group: group, channel: channel, pressure: pressure)
+        case .pitchBend:
+            let value14 = UInt16(data2) << 7 | UInt16(data1)
+            let bend = try Uint14(validating: value14)
+            self = .pitchBend(group: group, channel: channel, value: bend)
+        }
+    }
+
     func midi1Bytes() -> [UInt8] {
         switch self {
         case let .noteOff(_, channel, note, velocity):
@@ -125,6 +170,49 @@ public extension Midi1ChannelVoiceMessage {
         case .pitchBend:
             let value14 = UInt16(data2) << 7 | UInt16(data1)
             guard let bend = Uint14(value14) else { return nil }
+            self = .pitchBend(group: group, channel: channel, value: bend)
+        }
+    }
+
+    init(parsingMidi1Bytes bytes: [UInt8], group: Uint4) throws {
+        guard bytes.count >= 2 else {
+            throw MIDIError.malformedPacket("MIDI 1 Channel Voice requires at least 2 bytes")
+        }
+        let statusByte = bytes[0]
+        let statusNibble = statusByte >> 4
+        guard let status = Midi1StatusNibble(statusNibble) else {
+            throw MIDIError.malformedPacket("invalid status nibble 0x\(String(statusNibble, radix: 16))")
+        }
+        let channel = try Uint4(validating: statusByte & 0x0F)
+        let data1 = bytes[1]
+        let data2: UInt8 = bytes.count > 2 ? bytes[2] : 0
+
+        switch status {
+        case .noteOff:
+            let note = try Uint7(validating: data1)
+            let velocity = try Uint7(validating: data2)
+            self = .noteOff(group: group, channel: channel, note: note, velocity: velocity)
+        case .noteOn:
+            let note = try Uint7(validating: data1)
+            let velocity = try Uint7(validating: data2)
+            self = .noteOn(group: group, channel: channel, note: note, velocity: velocity)
+        case .polyPressure:
+            let note = try Uint7(validating: data1)
+            let pressure = try Uint7(validating: data2)
+            self = .polyPressure(group: group, channel: channel, note: note, pressure: pressure)
+        case .controlChange:
+            let control = try Uint7(validating: data1)
+            let value = try Uint7(validating: data2)
+            self = .controlChange(group: group, channel: channel, control: control, value: value)
+        case .programChange:
+            let program = try Uint7(validating: data1)
+            self = .programChange(group: group, channel: channel, program: program)
+        case .channelPressure:
+            let pressure = try Uint7(validating: data1)
+            self = .channelPressure(group: group, channel: channel, pressure: pressure)
+        case .pitchBend:
+            let value14 = UInt16(data2) << 7 | UInt16(data1)
+            let bend = try Uint14(validating: value14)
             self = .pitchBend(group: group, channel: channel, value: bend)
         }
     }

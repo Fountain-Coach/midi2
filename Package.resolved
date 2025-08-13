@@ -1,0 +1,42 @@
+{
+  "originHash" : "db38be34e87d3097c0815afd462b9bf972be6122a5756f0227ea7995ceb92b91",
+  "pins" : [
+    {
+      "identity" : "chalk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/mxcl/Chalk.git",
+      "state" : {
+        "revision" : "a7f58e47a08ca5a84f73acc4bcf6c2c19d990609",
+        "version" : "0.5.0"
+      }
+    },
+    {
+      "identity" : "filecheck",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/llvm-swift/FileCheck.git",
+      "state" : {
+        "revision" : "f7c5f1a9479b33a876a6f5632ca2b92a7ce4b667",
+        "version" : "0.2.6"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "309a47b2b1d9b5e991f36961c983ecec72275be3",
+        "version" : "1.6.1"
+      }
+    },
+    {
+      "identity" : "swiftcheck",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/typelift/SwiftCheck.git",
+      "state" : {
+        "revision" : "077c096c3ddfc38db223ac8e525ad16ffb987138",
+        "version" : "0.12.0"
+      }
+    }
+  ],
+  "version" : 3
+}

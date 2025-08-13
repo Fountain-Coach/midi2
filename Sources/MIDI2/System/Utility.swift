@@ -48,4 +48,27 @@ public enum Utility: Equatable {
             return nil
         }
     }
+
+    public init(parsingUMP ump: UmpPacket32) throws {
+        let mt = UInt8((ump.word >> 28) & 0xF)
+        guard mt == 0x0 else {
+            throw MIDIError.malformedPacket("expected mt 0x0 but got \(mt)")
+        }
+        let byte0 = UInt8((ump.word >> 24) & 0xFF)
+        guard (byte0 & 0x0F) == 0 else {
+            throw MIDIError.malformedPacket("utility messages must have group nibble 0")
+        }
+        let status = UInt8((ump.word >> 16) & 0xFF)
+        let data = UInt16(ump.word & 0xFFFF)
+        switch status {
+        case 0x00:
+            self = .noop
+        case 0x01:
+            self = .jrClock(data)
+        case 0x02:
+            self = .jrTimestamp(data)
+        default:
+            throw MIDIError.malformedPacket("unsupported utility status 0x\(String(status, radix: 16))")
+        }
+    }
 }

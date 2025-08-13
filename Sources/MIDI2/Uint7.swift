@@ -1,3 +1,4 @@
+/// Unsigned 7-bit integer value (0-127) as defined in the MIDI 2.0 schema.
 public struct Uint7: Equatable, Hashable {
     public let rawValue: UInt8
 

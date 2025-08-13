@@ -2,6 +2,7 @@ import Foundation
 
 /// Helpers for streaming SysEx8 data in UMP packets.
 public enum SysEx8 {
+    /// Errors thrown by the SysEx8 streaming helpers.
     public enum StreamError: Error {
         case invalidManufacturerID
         case payloadTooLong

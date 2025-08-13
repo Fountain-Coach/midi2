@@ -1,3 +1,4 @@
+/// Unsigned 14-bit integer value (0-16_383) as defined in the MIDI 2.0 schema.
 public struct Uint14: Equatable, Hashable {
     public let rawValue: UInt16
 

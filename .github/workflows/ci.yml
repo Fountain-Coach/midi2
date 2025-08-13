@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Swift
+        uses: swift-actions/setup-swift@v1
+        with:
+          swift-version: '6.0'
+
+      - name: Cache SwiftPM
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.swiftpm
+            .build
+          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
+
+      - name: Lint with swiftformat
+        run: |
+          if command -v swiftformat >/dev/null; then
+            swiftformat --lint .
+          else
+            echo 'swiftformat not installed; skipping'
+          fi
+
+      - name: Lint with SwiftLint
+        run: |
+          if command -v swiftlint >/dev/null; then
+            swiftlint
+          else
+            echo 'swiftlint not installed; skipping'
+          fi
+
+      - name: Run tests with coverage
+        run: swift test --enable-code-coverage
+
+      - name: Report coverage
+        run: |
+          if command -v llvm-cov >/dev/null; then
+            profdata=$(swift test --show-codecov-path)
+            binaries=$(find .build -name "*.xctest" -type f | tr '\n' ' ')
+            if [ -n "$binaries" ]; then
+              llvm-cov report $binaries --instr-profile "$profdata"
+            else
+              echo 'No test binaries found for coverage'
+            fi
+          else
+            echo 'llvm-cov not installed; skipping coverage report'
+          fi

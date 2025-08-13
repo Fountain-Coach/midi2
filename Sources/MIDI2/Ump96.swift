@@ -13,6 +13,13 @@ public struct Ump96: UniversalPacket {
         self.word2 = word2
     }
 
+    /// Creates a packet from a 32-bit header and two payload words.
+    public init(header: UmpHeader32, word1: UInt32, word2: UInt32) {
+        self.word0 = header.word
+        self.word1 = word1
+        self.word2 = word2
+    }
+
     /// Creates a packet from an array of words. Fails if count is not 3.
     public init?(words: [UInt32]) {
         guard words.count == Self.wordCount else { return nil }
@@ -23,6 +30,9 @@ public struct Ump96: UniversalPacket {
 
     /// The raw words composing the packet.
     public var words: [UInt32] { [word0, word1, word2] }
+
+    /// Header view of the packet.
+    public var header: UmpHeader32 { UmpHeader32(word: word0)! }
 }
 
 public extension Ump96 {

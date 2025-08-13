@@ -34,6 +34,7 @@ Example table (fill in while coding):
 |-------------|------------|---------|---------|-------|
 | Ump32       | `struct Ump32` | ✅ | ✅ | ✅ |
 | NoteOn      | `struct NoteOn` | ✅ | ✅ | ✅ |
+| NoteOff     | `struct NoteOff` | ✅ | ✅ | ✅ |
 | FlexDataTempo | `struct FlexDataTempo` | ✅ | ✅ | ✅ |
 | ...         | ...        | ...     | ...     | ...   |
 

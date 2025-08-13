@@ -8,7 +8,15 @@ final class SystemCommonErrorTests: XCTestCase {
         let word = (byte0 << 24) | (status << 16)
         let ump = UmpPacket32(word: word)
         XCTAssertThrowsError(try SystemCommon(parsingUMP: ump)) { error in
-            XCTAssertTrue(error.localizedDescription.contains("unsupported system common status"))
+            XCTAssertTrue(error.localizedDescription.contains("invalid system status"))
+        }
+    }
+
+    func testInvalidMessageType() {
+        let word = UInt32(0x2 << 28)
+        let ump = UmpPacket32(word: word)
+        XCTAssertThrowsError(try SystemCommon(parsingUMP: ump)) { error in
+            XCTAssertTrue(error.localizedDescription.contains("expected mt 0x1"))
         }
     }
 }

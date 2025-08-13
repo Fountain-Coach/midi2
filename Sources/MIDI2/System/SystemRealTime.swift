@@ -16,22 +16,21 @@ public enum SystemRealTime: Equatable {
         }
     }
 
-    private var status: UInt8 {
+    private var status: SystemStatus {
         switch self {
-        case .timingClock: return 0xF8
-        case .start: return 0xFA
-        case .continue: return 0xFB
-        case .stop: return 0xFC
-        case .activeSensing: return 0xFE
-        case .systemReset: return 0xFF
+        case .timingClock: return .timingClock
+        case .start: return .start
+        case .continue: return .continue
+        case .stop: return .stop
+        case .activeSensing: return .activeSensing
+        case .systemReset: return .systemReset
         }
     }
 
     /// Encodes the message into a 32-bit UMP packet.
     public func ump() -> UmpPacket32 {
-        let byte0 = UInt32(0x1 << 4 | group.rawValue)
-        let word = (byte0 << 24) | (UInt32(status) << 16)
-        return UmpPacket32(word: word)
+        let body = SystemCommonRealtimeBody(status: status)
+        return body.ump(group: group)
     }
 
     /// Decodes a 32-bit UMP packet.
@@ -40,16 +39,37 @@ public enum SystemRealTime: Equatable {
         guard mt == 0x1 else { return nil }
         let byte0 = UInt8((ump.word >> 24) & 0xFF)
         guard let group = Uint4(byte0 & 0x0F) else { return nil }
-        let status = UInt8((ump.word >> 16) & 0xFF)
-        guard status >> 4 == 0xF else { return nil }
-        switch status {
-        case 0xF8: self = .timingClock(group: group)
-        case 0xFA: self = .start(group: group)
-        case 0xFB: self = .continue(group: group)
-        case 0xFC: self = .stop(group: group)
-        case 0xFE: self = .activeSensing(group: group)
-        case 0xFF: self = .systemReset(group: group)
+        guard let body = SystemCommonRealtimeBody(ump: ump) else { return nil }
+        switch body.status {
+        case .timingClock: self = .timingClock(group: group)
+        case .start: self = .start(group: group)
+        case .continue: self = .continue(group: group)
+        case .stop: self = .stop(group: group)
+        case .activeSensing: self = .activeSensing(group: group)
+        case .systemReset: self = .systemReset(group: group)
         default: return nil
+        }
+    }
+
+    /// Failable initialiser that performs validation and throws `MIDIError` on
+    /// malformed packets.
+    public init(parsingUMP ump: UmpPacket32) throws {
+        let mt = UInt8((ump.word >> 28) & 0xF)
+        guard mt == 0x1 else {
+            throw MIDIError.malformedPacket("expected mt 0x1 but got \(mt)")
+        }
+        let byte0 = UInt8((ump.word >> 24) & 0xFF)
+        let group = try Uint4(validating: byte0 & 0x0F)
+        let body = try SystemCommonRealtimeBody(parsingUMP: ump)
+        switch body.status {
+        case .timingClock: self = .timingClock(group: group)
+        case .start: self = .start(group: group)
+        case .continue: self = .continue(group: group)
+        case .stop: self = .stop(group: group)
+        case .activeSensing: self = .activeSensing(group: group)
+        case .systemReset: self = .systemReset(group: group)
+        default:
+            throw MIDIError.malformedPacket("unsupported system realtime status 0x\(String(body.status.rawValue, radix: 16))")
         }
     }
 }

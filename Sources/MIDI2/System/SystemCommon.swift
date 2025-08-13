@@ -74,4 +74,35 @@ public enum SystemCommon: Equatable {
             return nil
         }
     }
+
+    public init(parsingUMP ump: UmpPacket32) throws {
+        let mt = UInt8((ump.word >> 28) & 0xF)
+        guard mt == 0x1 else {
+            throw MIDIError.malformedPacket("expected mt 0x1 but got \(mt)")
+        }
+        let byte0 = UInt8((ump.word >> 24) & 0xFF)
+        let group = try Uint4(validating: byte0 & 0x0F)
+        let status = UInt8((ump.word >> 16) & 0xFF)
+        guard status >> 4 == 0xF else {
+            throw MIDIError.malformedPacket("invalid system common status 0x\(String(status, radix: 16))")
+        }
+        let data1 = UInt8((ump.word >> 8) & 0xFF)
+        let data2 = UInt8(ump.word & 0xFF)
+        switch status {
+        case 0xF1:
+            let msg = try Uint7(validating: data1)
+            self = .mtcQuarterFrame(group: group, message: msg)
+        case 0xF2:
+            let value = UInt16(data1 & 0x7F) | (UInt16(data2 & 0x7F) << 7)
+            let pos = try Uint14(validating: value)
+            self = .songPositionPointer(group: group, position: pos)
+        case 0xF3:
+            let song = try Uint7(validating: data1)
+            self = .songSelect(group: group, song: song)
+        case 0xF6:
+            self = .tuneRequest(group: group)
+        default:
+            throw MIDIError.malformedPacket("unsupported system common status 0x\(String(status, radix: 16))")
+        }
+    }
 }

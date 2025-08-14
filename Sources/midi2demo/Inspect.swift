@@ -13,6 +13,9 @@ struct InspectCommand: ParsableCommand {
     var words: [String]
 
     func run() throws {
+        guard !words.isEmpty else {
+            throw ValidationError("Provide at least one word")
+        }
         let parsedWords = try parse(words: words)
         switch parsedWords.count {
         case 1:

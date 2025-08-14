@@ -47,6 +47,13 @@ Placeholder for Flex Data ruby messages.
 .TP
 .B ci-handshake
 Simulate MIDI-CI protocol negotiation, profile inquiry, and property exchange.
+Flags allow simulating failures:
+.B --no-common-protocol
+forces negotiation to fail,
+.B --unsupported-profile
+forces profile inquiry failure, and
+.B --missing-property
+makes property exchange return no value.
 .TP
 .B inspect
 Decode a Universal MIDI Packet from hexadecimal words.
@@ -61,6 +68,27 @@ SysEx7 payload for a 1-byte manufacturer ID:
 .PP
 .nf
 swift run midi2demo sysex7 --group 0 --manufacturer 7D "01 02 03"
+.fi
+.PP
+SysEx8 payload for a 3-byte manufacturer ID:
+.PP
+.nf
+swift run midi2demo sysex8 --group 0 --manufacturer 00,20,33 "01 02 03 04"
+.fi
+.PP
+Flex Data examples:
+.PP
+.nf
+swift run midi2demo flex tempo --group 0 120
+swift run midi2demo flex time --group 0 4 4
+swift run midi2demo flex key --group 0 C#m
+swift run midi2demo flex lyric --group 0 "Hello world"
+.fi
+.PP
+Run a handshake with failure simulation:
+.PP
+.nf
+swift run midi2demo ci-handshake --no-common-protocol --unsupported-profile --missing-property
 .fi
 .PP
 Inspect a UMP word:

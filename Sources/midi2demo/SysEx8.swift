@@ -19,13 +19,16 @@ struct SysEx8Command: ParsableCommand {
     var payload: String
 
     func run() throws {
+        guard let g = Uint4(group) else {
+            throw ValidationError("Group out of range")
+        }
         let manufacturerID = try parseManufacturer(manufacturer)
         let payloadBytes = try parsePayload(payload)
 
         let packets = try SysEx8.fragment(
             manufacturerID: manufacturerID,
             payload: payloadBytes,
-            group: group
+            group: g.rawValue
         )
 
         for packet in packets {
@@ -49,6 +52,9 @@ struct SysEx8Command: ParsableCommand {
         guard bytes.count == parts.count else {
             throw ValidationError("Invalid manufacturer ID")
         }
+        guard bytes.count == 1 || bytes.count == 3 else {
+            throw ValidationError("Manufacturer ID must be 1 or 3 bytes")
+        }
         return bytes
     }
 
@@ -61,6 +67,9 @@ struct SysEx8Command: ParsableCommand {
             let bytes = parts.compactMap { UInt8($0, radix: 16) }
             guard bytes.count == parts.count else {
                 throw ValidationError("Invalid payload hex")
+            }
+            guard !bytes.isEmpty else {
+                throw ValidationError("Payload cannot be empty")
             }
             return bytes
         } else {
@@ -78,6 +87,9 @@ struct SysEx8Command: ParsableCommand {
                 }
                 bytes.append(byte)
                 index = next
+            }
+            guard !bytes.isEmpty else {
+                throw ValidationError("Payload cannot be empty")
             }
             return bytes
         }

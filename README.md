@@ -6,6 +6,10 @@ OpenAPI definitions and currently provides core UMP structures, SysEx7/SysEx8
 streaming utilities, MIDI‑CI envelope helpers, and an evolving
 `midi2demo` CLI for experimenting with the specification.
 
+## Status Quo
+
+(maintained)
+
 ## Features
 
 - Core UMP message structures with binary encoder/decoder.

@@ -8,7 +8,7 @@ streaming utilities, MIDI‑CI envelope helpers, and an evolving
 
 ## Status Quo
 
-Active development: core UMP structures and SysEx helpers exist; `midi2demo` CLI currently implements the `note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect` commands. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. Full spec coverage, additional CLI subcommands, and comprehensive tests remain in progress.
+Active development: core UMP structures and SysEx helpers exist. The `midi2demo` CLI now implements all planned subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. Full spec coverage and comprehensive tests remain in progress.
 
 ## Features
 
@@ -42,14 +42,37 @@ import MIDI2
 
 ## midi2demo CLI
 
-Build and run the teaching-oriented CLI to experiment with MIDI 2.0 messages:
+Build and run the teaching-oriented CLI to experiment with MIDI 2.0 messages.
+Examples:
 
-```
+```bash
 swift run midi2demo note-on 60 100
+swift run midi2demo sysex7 --manufacturer 7D "01 02 03"
+swift run midi2demo sysex8 --manufacturer 00,20,33 "01 02 03 04"
+swift run midi2demo flex tempo --group 0 120
+swift run midi2demo ci-handshake
+swift run midi2demo inspect 0x40107D00 0x00640000
 ```
 
-The command prints the encoded Universal MIDI Packet and decodes it back to
+Each command prints the encoded Universal MIDI Packet and decodes it back to
 human-readable fields.
+
+### Man page
+
+Install the man page:
+
+```bash
+sudo install -m 0644 Sources/midi2demo/midi2demo.1 /usr/local/share/man/man1/
+man midi2demo
+```
+
+### CLI tests
+
+Run the CLI tests with SwiftPM:
+
+```bash
+swift test --filter midi2demo
+```
 
 ## Examples
 

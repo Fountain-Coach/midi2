@@ -44,7 +44,13 @@ struct NoteOn: ParsableCommand {
 struct Midi2Demo: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "Teaching-oriented MIDI 2.0 demo CLI",
-        subcommands: [NoteOn.self, SysEx7Command.self, SysEx8Command.self, Flex.self]
+        subcommands: [
+            NoteOn.self,
+            SysEx7Command.self,
+            SysEx8Command.self,
+            Flex.self,
+            CIHandshakeCommand.self
+        ]
     )
 }
 

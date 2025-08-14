@@ -3,21 +3,22 @@
 Work‑in‑progress Swift 6 library for building and parsing **MIDI 2.0 Universal MIDI
 Packets (UMP)**. The package is generated from the normative JSON Schema and
 OpenAPI definitions and currently provides core UMP structures, SysEx7/SysEx8
-streaming utilities, and MIDI‑CI envelope helpers. Coverage of the full
-specification and a teaching‑oriented CLI are still in progress.
+streaming utilities, MIDI‑CI envelope helpers, and an evolving
+`midi2demo` CLI for experimenting with the specification.
 
 ## Features
 
 - Core UMP message structures with binary encoder/decoder.
 - SysEx7 and SysEx8 streaming helpers.
 - MIDI‑CI envelope support.
+- Teaching‑oriented `midi2demo` CLI.
 - Examples and XCTest test suite.
 
 ## Roadmap
 
 - Expand implementation to cover the entire MIDI 2.0 specification.
-- Provide a `midi2demo` CLI showcasing encoding, streaming, Flex Data,
-  MIDI‑CI handshake, and packet inspection.
+- Expand the `midi2demo` CLI with streaming, Flex Data, MIDI‑CI handshake,
+  and packet inspection commands.
 - Harden the codebase with additional documentation and integration tests.
 
 ## Installation
@@ -35,6 +36,17 @@ Then import the library:
 ```swift
 import MIDI2
 ```
+
+## midi2demo CLI
+
+Build and run the teaching-oriented CLI to experiment with MIDI 2.0 messages:
+
+```
+swift run midi2demo note-on 60 100
+```
+
+The command prints the encoded Universal MIDI Packet and decodes it back to
+human-readable fields.
 
 ## Examples
 

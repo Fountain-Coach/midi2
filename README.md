@@ -8,7 +8,7 @@ streaming utilities, MIDI‑CI envelope helpers, and an evolving
 
 ## Status Quo
 
-Active development: core UMP structures and SysEx helpers exist; `midi2demo` CLI currently implements the `note-on` and `sysex7` commands. Full spec coverage, additional CLI subcommands, and comprehensive tests remain in progress.
+Active development: core UMP structures and SysEx helpers exist; `midi2demo` CLI currently implements the `note-on`, `sysex7`, and `sysex8` commands. Full spec coverage, additional CLI subcommands, and comprehensive tests remain in progress.
 
 ## Features
 

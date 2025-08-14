@@ -2,6 +2,18 @@ import XCTest
 @testable import MIDI2
 
 final class Midi1ChannelVoiceBodyTests: XCTestCase {
+    func testBodyEncodeDecode() throws {
+        let g = Uint4(0)!
+        let body = Midi1ChannelVoiceBody(statusNibble: .noteOn,
+                                         channel: Uint4(0)!,
+                                         noteNumber: Uint7(0x3C)!,
+                                         velocity7: Uint7(0x40)!)
+        let packet = body.ump(group: g)
+        XCTAssertEqual(packet.word, 0x20903C40)
+        XCTAssertEqual(Midi1ChannelVoiceBody(ump: packet), body)
+        XCTAssertEqual(try Midi1ChannelVoiceBody(parsingUMP: packet), body)
+    }
+
     func testRoundTrip() throws {
         let g = Uint4(0)!
         let msg = Midi1ChannelVoiceMessage.noteOn(group: g, channel: Uint4(0)!, note: Uint7(0x3C)!, velocity: Uint7(0x40)!)

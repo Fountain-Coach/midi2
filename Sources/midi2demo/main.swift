@@ -49,7 +49,8 @@ struct Midi2Demo: ParsableCommand {
             SysEx7Command.self,
             SysEx8Command.self,
             Flex.self,
-            CIHandshakeCommand.self
+            CIHandshakeCommand.self,
+            InspectCommand.self
         ]
     )
 }

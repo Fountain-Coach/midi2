@@ -1,17 +1,24 @@
 # MIDI2 Swift Library
 
-Swift 6 library for building and parsing **MIDI 2.0 Universal MIDI Packets (UMP)**.
-The package is generated from the normative JSON Schema and OpenAPI definition and
-offers strongly typed models for MIDI 2.0 messages, utilities for SysEx7/SysEx8
-streaming, and helpers for MIDI-CI workflows.
+Work‑in‑progress Swift 6 library for building and parsing **MIDI 2.0 Universal MIDI
+Packets (UMP)**. The package is generated from the normative JSON Schema and
+OpenAPI definitions and currently provides core UMP structures, SysEx7/SysEx8
+streaming utilities, and MIDI‑CI envelope helpers. Coverage of the full
+specification and a teaching‑oriented CLI are still in progress.
 
 ## Features
 
-- Full MIDI 2.0 UMP message support.
-- Binary encoder/decoder.
-- MIDI-CI message support.
-- SysEx7, SysEx8, MDS, Flex Data support.
-- XCTest test suite.
+- Core UMP message structures with binary encoder/decoder.
+- SysEx7 and SysEx8 streaming helpers.
+- MIDI‑CI envelope support.
+- Examples and XCTest test suite.
+
+## Roadmap
+
+- Expand implementation to cover the entire MIDI 2.0 specification.
+- Provide a `midi2demo` CLI showcasing encoding, streaming, Flex Data,
+  MIDI‑CI handshake, and packet inspection.
+- Harden the codebase with additional documentation and integration tests.
 
 ## Installation
 

@@ -1,3 +1,149 @@
+/// MIDI 1.0 Channel Voice message body used by the schema.
+///
+/// This type mirrors the `Midi1ChannelVoiceBody` definition in the official
+/// MIDI 2.0 JSON schema by carrying a status nibble, channel and the relevant
+/// 7‑ or 14‑bit data fields. Use ``ump(group:)`` to encode the body to a
+/// 32‑bit Universal MIDI Packet and the failable ``init(ump:)`` to decode.
+public struct Midi1ChannelVoiceBody: Equatable {
+    public var statusNibble: Midi1StatusNibble
+    public var channel: Uint4
+    public var noteNumber: Uint7?
+    public var velocity7: Uint7?
+    public var pressure7: Uint7?
+    public var control: Uint7?
+    public var value7: Uint7?
+    public var program: Uint7?
+    public var pitchBend14: Uint14?
+
+    public init(statusNibble: Midi1StatusNibble,
+                channel: Uint4,
+                noteNumber: Uint7? = nil,
+                velocity7: Uint7? = nil,
+                pressure7: Uint7? = nil,
+                control: Uint7? = nil,
+                value7: Uint7? = nil,
+                program: Uint7? = nil,
+                pitchBend14: Uint14? = nil) {
+        self.statusNibble = statusNibble
+        self.channel = channel
+        self.noteNumber = noteNumber
+        self.velocity7 = velocity7
+        self.pressure7 = pressure7
+        self.control = control
+        self.value7 = value7
+        self.program = program
+        self.pitchBend14 = pitchBend14
+    }
+
+    /// Encode the body into a 32‑bit UMP packet using the supplied group.
+    public func ump(group: Uint4) -> UmpPacket32 {
+        let statusByte = statusNibble.rawValue << 4 | channel.rawValue
+        let data1: UInt8
+        let data2: UInt8
+        switch statusNibble {
+        case .noteOff, .noteOn:
+            data1 = noteNumber?.rawValue ?? 0
+            data2 = velocity7?.rawValue ?? 0
+        case .polyPressure:
+            data1 = noteNumber?.rawValue ?? 0
+            data2 = pressure7?.rawValue ?? 0
+        case .controlChange:
+            data1 = control?.rawValue ?? 0
+            data2 = value7?.rawValue ?? 0
+        case .programChange:
+            data1 = program?.rawValue ?? 0
+            data2 = 0
+        case .channelPressure:
+            data1 = pressure7?.rawValue ?? 0
+            data2 = 0
+        case .pitchBend:
+            let val = pitchBend14?.rawValue ?? 0
+            data1 = UInt8(val & 0x7F)
+            data2 = UInt8((val >> 7) & 0x7F)
+        }
+        return UmpPacket32(mt: 0x2, group: group, status: statusByte, data1: data1, data2: data2)
+    }
+
+    /// Decode a body from a 32‑bit UMP packet.
+    public init?(ump: UmpPacket32) {
+        let mt = UInt8((ump.word >> 28) & 0xF)
+        guard mt == 0x2 else { return nil }
+        let statusByte = UInt8((ump.word >> 16) & 0xFF)
+        let nib = statusByte >> 4
+        guard let status = Midi1StatusNibble(nib),
+              let channel = Uint4(statusByte & 0x0F) else { return nil }
+        let d1 = UInt8((ump.word >> 8) & 0xFF)
+        let d2 = UInt8(ump.word & 0xFF)
+        switch status {
+        case .noteOff, .noteOn:
+            guard let n = Uint7(d1), let v = Uint7(d2) else { return nil }
+            self.init(statusNibble: status, channel: channel,
+                      noteNumber: n, velocity7: v)
+        case .polyPressure:
+            guard let n = Uint7(d1), let p = Uint7(d2) else { return nil }
+            self.init(statusNibble: status, channel: channel,
+                      noteNumber: n, pressure7: p)
+        case .controlChange:
+            guard let c = Uint7(d1), let v = Uint7(d2) else { return nil }
+            self.init(statusNibble: status, channel: channel,
+                      control: c, value7: v)
+        case .programChange:
+            guard let p = Uint7(d1) else { return nil }
+            self.init(statusNibble: status, channel: channel, program: p)
+        case .channelPressure:
+            guard let p = Uint7(d1) else { return nil }
+            self.init(statusNibble: status, channel: channel, pressure7: p)
+        case .pitchBend:
+            let val = UInt16(d2) << 7 | UInt16(d1)
+            guard let bend = Uint14(val) else { return nil }
+            self.init(statusNibble: status, channel: channel, pitchBend14: bend)
+        }
+    }
+
+    /// Failable initialiser that throws on malformed packets.
+    public init(parsingUMP ump: UmpPacket32) throws {
+        let mt = UInt8((ump.word >> 28) & 0xF)
+        guard mt == 0x2 else {
+            throw MIDIError.malformedPacket("expected mt 0x2 but got \(mt)")
+        }
+        let statusByte = UInt8((ump.word >> 16) & 0xFF)
+        let nib = statusByte >> 4
+        guard let status = Midi1StatusNibble(nib),
+              let channel = Uint4(statusByte & 0x0F) else {
+            throw MIDIError.malformedPacket("invalid MIDI 1 status 0x\(String(statusByte, radix: 16))")
+        }
+        let d1 = UInt8((ump.word >> 8) & 0xFF)
+        let d2 = UInt8(ump.word & 0xFF)
+        switch status {
+        case .noteOff, .noteOn:
+            let n = try Uint7(validating: d1)
+            let v = try Uint7(validating: d2)
+            self.init(statusNibble: status, channel: channel,
+                      noteNumber: n, velocity7: v)
+        case .polyPressure:
+            let n = try Uint7(validating: d1)
+            let p = try Uint7(validating: d2)
+            self.init(statusNibble: status, channel: channel,
+                      noteNumber: n, pressure7: p)
+        case .controlChange:
+            let c = try Uint7(validating: d1)
+            let v = try Uint7(validating: d2)
+            self.init(statusNibble: status, channel: channel,
+                      control: c, value7: v)
+        case .programChange:
+            let p = try Uint7(validating: d1)
+            self.init(statusNibble: status, channel: channel, program: p)
+        case .channelPressure:
+            let p = try Uint7(validating: d1)
+            self.init(statusNibble: status, channel: channel, pressure7: p)
+        case .pitchBend:
+            let val = UInt16(d2) << 7 | UInt16(d1)
+            let bend = try Uint14(validating: val)
+            self.init(statusNibble: status, channel: channel, pitchBend14: bend)
+        }
+    }
+}
+
 /// MIDI 1.0 Channel Voice messages translated to 32-bit UMP packets.
 public enum Midi1ChannelVoiceMessage: Equatable {
     case noteOff(group: Uint4, channel: Uint4, note: Uint7, velocity: Uint7)

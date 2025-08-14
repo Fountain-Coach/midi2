@@ -8,7 +8,7 @@ streaming utilities, MIDI‑CI envelope helpers, and an evolving
 
 ## Status Quo
 
-Active development: core UMP structures and SysEx helpers exist; `midi2demo` CLI currently implements the `note-on`, `sysex7`, and `sysex8` commands. Full spec coverage, additional CLI subcommands, and comprehensive tests remain in progress.
+Active development: core UMP structures and SysEx helpers exist; `midi2demo` CLI currently implements the `note-on`, `sysex7`, `sysex8`, and `ci-handshake` commands. Full spec coverage, additional CLI subcommands, and comprehensive tests remain in progress.
 
 ## Features
 
@@ -21,8 +21,7 @@ Active development: core UMP structures and SysEx helpers exist; `midi2demo` CLI
 ## Roadmap
 
 - Expand implementation to cover the entire MIDI 2.0 specification.
-- Expand the `midi2demo` CLI with streaming, Flex Data, MIDI‑CI handshake,
-  and packet inspection commands.
+- Expand the `midi2demo` CLI with additional streaming, Flex Data, and packet inspection commands.
 - Harden the codebase with additional documentation and integration tests.
 
 ## Installation

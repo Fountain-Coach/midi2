@@ -3,38 +3,40 @@
 Work‑in‑progress Swift 6 library for building and parsing **MIDI 2.0 Universal MIDI
 Packets (UMP)**. The package is generated from the normative JSON Schema and
 OpenAPI definitions and currently provides core UMP structures, SysEx7/SysEx8
-streaming utilities, and MIDI‑CI envelope helpers. Coverage of the full
-specification and a teaching‑oriented CLI are still in progress.
+streaming utilities, MIDI‑CI envelope helpers, and an evolving
+`midi2demo` CLI for experimenting with the specification.
+
+## Status
+
+- Swift 6 package `MIDI2` with library targets `MIDI2` and `MIDI2CI`, plus examples and tests.
+- Core UMP structures, SysEx helpers, and MIDI‑CI envelope implementations exist.
+- Teaching‑oriented `midi2demo` CLI currently demonstrates encoding/decoding a Note On message.
 
 ## Features
 
 - Core UMP message structures with binary encoder/decoder.
 - SysEx7 and SysEx8 streaming helpers.
 - MIDI‑CI envelope support.
+- Teaching‑oriented `midi2demo` CLI.
 - Examples and XCTest test suite.
 
 ## Roadmap
 
 - Expand implementation to cover the entire MIDI 2.0 specification.
-- Provide a `midi2demo` CLI showcasing encoding, streaming, Flex Data,
-  MIDI‑CI handshake, and packet inspection.
+- Expand the `midi2demo` CLI with streaming, Flex Data, MIDI‑CI handshake,
+  and packet inspection commands.
 - Harden the codebase with additional documentation and integration tests.
 
-## Installation
+## midi2demo CLI
 
-Add `MIDI2` to your project using the [Swift Package Manager](https://www.swift.org/package-manager/):
+Build and run the teaching-oriented CLI to experiment with MIDI 2.0 messages:
 
-```swift
-dependencies: [
-    .package(url: "https://example.com/midi2.git", from: "0.1.0")
-]
+```
+swift run midi2demo note-on 60 100
 ```
 
-Then import the library:
-
-```swift
-import MIDI2
-```
+The command prints the encoded Universal MIDI Packet and decodes it back to
+human-readable fields.
 
 ## Examples
 
@@ -46,25 +48,4 @@ See the `Examples/` directory for Swift Playgrounds demonstrating common tasks:
 - [Mixed Data Set chunk transfer](Examples/MDS.playground)
 - [Flex tempo message](Examples/FlexTiming.playground)
 - [MIDI-CI handshake](Examples/MIDICIHandshake.playground)
-
-### Encoding a Channel Voice Message
-
-```swift
-import MIDI2
-
-let group = Uint4(0)!
-let channel = Uint4(0)!
-let control = Uint7(64)!
-let message = ControlChange(group: group, channel: channel, control: control, value: 0x7F)
-let ump = message.ump()
-```
-
-### Streaming SysEx7 Data
-
-```swift
-import MIDI2
-
-let payload: [UInt8] = [0x7D, 0x01, 0x02]
-let packets = try SysEx7.fragment(manufacturerID: [0x7D], payload: payload)
-```
 

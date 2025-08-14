@@ -1,9 +1,8 @@
 # Codex Agent: MIDI2 Demo CLI Implementation Roadmap
 
-## Status quo
-- Swift 6 package `MIDI2` with library targets `MIDI2` and `MIDI2CI`, plus examples and tests.
-- Core UMP structures, SysEx helpers, and MIDI-CI envelope implementations exist.
-- No user-facing command-line demo application.
+## Status
+The current project status is tracked in [README.md](README.md). Update that file's
+"Status" section whenever significant changes occur.
 
 ## Gap to finish line
 - Deliver a complete, canonical implementation of the entire MIDI 2.0 specification—every message type, schema, encoder/decoder, and helper must exist in the library.

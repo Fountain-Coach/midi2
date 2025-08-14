@@ -5,7 +5,9 @@ import Foundation
 struct InspectCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "inspect",
-        abstract: "Decode a Universal MIDI Packet from hex words.")
+        abstract: "Decode a Universal MIDI Packet from hex words.",
+        discussion: "Provide one, two, or four hexadecimal words representing a 32-, 64-, or 128-bit UMP. The packet is decoded into a human-readable form. See midi2demo(1) for examples."
+    )
 
     @Argument(help: "One or more hex words (8 or 16 digits each)")
     var words: [String]

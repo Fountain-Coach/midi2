@@ -16,11 +16,17 @@ let package = Package(
     targets: [
         .target(name: "MIDI2"),
         .target(name: "MIDI2CI", dependencies: ["MIDI2"]),
-        .executableTarget(name: "midi2demo", dependencies: [
-            "MIDI2",
-            "MIDI2CI",
-            .product(name: "ArgumentParser", package: "swift-argument-parser")
-        ]),
+        .executableTarget(
+            name: "midi2demo",
+            dependencies: [
+                "MIDI2",
+                "MIDI2CI",
+                .product(name: "ArgumentParser", package: "swift-argument-parser")
+            ],
+            resources: [
+                .copy("midi2demo.1")
+            ]
+        ),
         .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")
     ]

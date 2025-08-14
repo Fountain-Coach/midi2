@@ -1,0 +1,72 @@
+.TH midi2demo 1 "April 2024" "MIDI2" "User Commands"
+.SH NAME
+midi2demo \- teaching-oriented MIDI 2.0 demo CLI
+.SH SYNOPSIS
+.B midi2demo
+.I command
+[options] [arguments]
+.SH DESCRIPTION
+.B midi2demo
+exercises the MIDI 2.0 Swift library.  Each subcommand encodes or decodes a
+specific Universal MIDI Packet (UMP) construct.  Run
+.B midi2demo \fIcommand\fR --help
+for option details.  The commands are:
+.TP
+.B note-on
+Encode and decode a MIDI 2.0 Note On message.
+.TP
+.B sysex7
+Fragment and reassemble a 7-bit System Exclusive payload.
+.TP
+.B sysex8
+Fragment and reassemble an 8-bit System Exclusive payload.
+.TP
+.B flex tempo
+Emit a Flex Data tempo message.
+.TP
+.B flex time
+Emit a Flex Data time signature message.
+.TP
+.B flex key
+Emit a Flex Data key signature message.
+.TP
+.B flex lyric
+Emit a Flex Data lyric message.
+.TP
+.B flex metronome
+Placeholder for Flex Data metronome messages.
+.TP
+.B flex chord
+Placeholder for Flex Data chord name messages.
+.TP
+.B flex text
+Placeholder for Flex Data text messages.
+.TP
+.B flex ruby
+Placeholder for Flex Data ruby messages.
+.TP
+.B ci-handshake
+Simulate MIDI-CI protocol negotiation, profile inquiry, and property exchange.
+.TP
+.B inspect
+Decode a Universal MIDI Packet from hexadecimal words.
+.SH EXAMPLES
+Note On for middle C on channel 1 with velocity 100:
+.PP
+.nf
+swift run midi2demo note-on --group 0 --channel 0 60 100
+.fi
+.PP
+SysEx7 payload for a 1-byte manufacturer ID:
+.PP
+.nf
+swift run midi2demo sysex7 --group 0 --manufacturer 7D "01 02 03"
+.fi
+.PP
+Inspect a UMP word:
+.PP
+.nf
+swift run midi2demo inspect 0x40107D00 0x00640000
+.fi
+.SH SEE ALSO
+The project repository includes Swift playgrounds and README examples.

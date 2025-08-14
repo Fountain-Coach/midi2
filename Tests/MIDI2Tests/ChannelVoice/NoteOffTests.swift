@@ -8,7 +8,7 @@ final class NoteOffTests: XCTestCase {
             channel: Uint4(0x2)!,
             noteNumber: Uint7(0x3C)!,
             velocity: 0x1234,
-            attributeType: NoteAttributeType(0x56),
+            attributeType: NoteAttributeType(0x56)!,
             attributeData: 0x789A
         )
         let packet = message.ump()

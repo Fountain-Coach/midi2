@@ -41,7 +41,7 @@ public struct NoteOff: Equatable {
         let byte2 = UInt8((ump.word0 >> 8) & 0xFF)
         guard let noteNumber = Uint7(byte2) else { return nil }
         let byte3 = UInt8(ump.word0 & 0xFF)
-        let attributeType = NoteAttributeType(byte3)
+        guard let attributeType = NoteAttributeType(byte3) else { return nil }
         let byte4 = UInt8((ump.word1 >> 24) & 0xFF)
         let byte5 = UInt8((ump.word1 >> 16) & 0xFF)
         let byte6 = UInt8((ump.word1 >> 8) & 0xFF)

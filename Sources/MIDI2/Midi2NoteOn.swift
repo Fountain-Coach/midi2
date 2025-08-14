@@ -45,7 +45,7 @@ public struct Midi2NoteOn: Equatable {
         guard ((ump.word0 >> 20) & 0xF) == 0x9 else { return nil }
         guard let channel = Uint4(UInt8((ump.word0 >> 16) & 0xF)) else { return nil }
         guard let note = Uint7(UInt8((ump.word0 >> 8) & 0xFF)) else { return nil }
-        let attrType = NoteAttributeType(UInt8(ump.word0 & 0xFF))
+        guard let attrType = NoteAttributeType(UInt8(ump.word0 & 0xFF)) else { return nil }
         let velocity = UInt16((ump.word1 >> 16) & 0xFFFF)
         let attrData = UInt16(ump.word1 & 0xFFFF)
         self.init(group: group, channel: channel, note: note, velocity: velocity, attributeType: attrType, attributeData: attrData)
@@ -63,7 +63,7 @@ public struct Midi2NoteOn: Equatable {
         let group = try Uint4(validating: UInt8((ump.word0 >> 24) & 0xF))
         let channel = try Uint4(validating: UInt8((ump.word0 >> 16) & 0xF))
         let note = try Uint7(validating: UInt8((ump.word0 >> 8) & 0xFF))
-        let attrType = NoteAttributeType(UInt8(ump.word0 & 0xFF))
+        let attrType = try NoteAttributeType(validating: UInt8(ump.word0 & 0xFF))
         let velocity = UInt16((ump.word1 >> 16) & 0xFFFF)
         let attrData = UInt16(ump.word1 & 0xFFFF)
         self.init(group: group, channel: channel, note: note, velocity: velocity, attributeType: attrType, attributeData: attrData)

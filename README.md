@@ -8,7 +8,7 @@ streaming utilities, MIDI‑CI envelope helpers, and an evolving
 
 ## Status Quo
 
-Active development: core UMP structures and SysEx helpers exist. The `midi2demo` CLI now implements all planned subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. The library adds a schema-aligned `Midi1ChannelVoiceBody` struct for generic MIDI 1 channel voice handling. Full spec coverage and comprehensive tests remain in progress.
+Active development: core UMP structures and SysEx helpers exist. The `midi2demo` CLI now implements all planned subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. The library adds a schema-aligned `Midi1ChannelVoiceBody` struct for generic MIDI 1 channel voice handling. Integration tests spawn the `midi2demo` executable to exercise success and failure paths for every subcommand. Full spec coverage and comprehensive tests remain in progress.
 
 ## Features
 

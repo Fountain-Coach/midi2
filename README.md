@@ -77,6 +77,18 @@ Run the CLI tests with SwiftPM:
 swift test --filter midi2demo
 ```
 
+### Code Coverage
+
+Generate a coverage report using the Swift toolchain's `llvm-cov` to avoid
+profile format mismatches:
+
+```bash
+swift test --enable-code-coverage
+LLVM_COV="$(dirname $(dirname $(which swift)))/usr/bin/llvm-cov"
+$LLVM_COV report .build/x86_64-unknown-linux-gnu/debug/MIDI2PackageTests.xctest \
+  --instr-profile .build/x86_64-unknown-linux-gnu/debug/codecov/default.profdata
+```
+
 ## Examples
 
 See the `Examples/` directory for Swift Playgrounds demonstrating common tasks:

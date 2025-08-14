@@ -31,7 +31,14 @@ import MIDI2
 
 ## Examples
 
-See the `Examples/` directory for Swift Playgrounds demonstrating common tasks.
+See the `Examples/` directory for Swift Playgrounds demonstrating common tasks:
+
+- [Basic usage](Examples/BasicUsage.playground)
+- [Streaming SysEx7 data](Examples/SysEx7.playground)
+- [Streaming SysEx8 data](Examples/SysEx8.playground)
+- [Mixed Data Set chunk transfer](Examples/MDS.playground)
+- [Flex tempo message](Examples/FlexTiming.playground)
+- [MIDI-CI handshake](Examples/MIDICIHandshake.playground)
 
 ### Encoding a Channel Voice Message
 

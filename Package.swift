@@ -1,6 +1,8 @@
 // swift-tools-version: 6.1
 import PackageDescription
 
+let packageVersion = "0.2.0"
+
 let package = Package(
     name: "MIDI2",
     platforms: [.macOS(.v13), .iOS(.v16)],
@@ -11,7 +13,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.3.0")
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.6.1")
     ],
     targets: [
         .target(name: "MIDI2"),

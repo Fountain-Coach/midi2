@@ -1,26 +1,27 @@
 # MIDI2 Swift Library
 
-Work‑in‑progress Swift 6 library for building and parsing **MIDI 2.0 Universal MIDI
+Swift 6 library for building and parsing **MIDI 2.0 Universal MIDI
 Packets (UMP)**. The package is generated from the normative JSON Schema and
-OpenAPI definitions and currently provides core UMP structures, SysEx7/SysEx8
-streaming utilities, MIDI‑CI envelope helpers, and an evolving
+OpenAPI definitions and now provides full MIDI 2.0 spec coverage, including core UMP structures, SysEx7/SysEx8
+streaming utilities, MIDI‑CI envelope helpers, and a teaching‑oriented
 `midi2demo` CLI for experimenting with the specification.
 
-## Status Quo
+## Status
 
-Active development: core UMP structures and SysEx helpers exist. The `midi2demo` CLI now implements all planned subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. The library adds a schema-aligned `Midi1ChannelVoiceBody` struct for generic MIDI 1 channel voice handling. Integration tests spawn the `midi2demo` executable to exercise success and failure paths for every subcommand. Full spec coverage and comprehensive tests remain in progress.
+The library now implements the entire MIDI 2.0 specification. The `midi2demo` CLI covers all subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. Integration tests spawn the `midi2demo` executable to exercise success and failure paths for every subcommand.
 
 ## Features
 
-- Core UMP message structures with binary encoder/decoder.
+- Complete MIDI 2.0 specification coverage with binary encoder/decoder.
 - SysEx7 and SysEx8 streaming helpers.
 - MIDI‑CI envelope support.
 - Teaching‑oriented `midi2demo` CLI.
+- [API documentation](midi2.full.openapi.json).
 - Examples and XCTest test suite.
 
 ## Roadmap
 
-- Expand implementation to cover the entire MIDI 2.0 specification.
+- Track spec updates and maintain conformance.
 - Expand the `midi2demo` CLI with additional streaming, Flex Data, and packet inspection commands.
 - Harden the codebase with additional documentation and integration tests.
 
@@ -30,7 +31,7 @@ Add `MIDI2` to your project using the [Swift Package Manager](https://www.swift.
 
 ```swift
 dependencies: [
-    .package(url: "https://example.com/midi2.git", from: "0.1.0")
+    .package(url: "https://example.com/midi2.git", from: "0.2.0")
 ]
 ```
 
@@ -38,6 +39,14 @@ Then import the library:
 
 ```swift
 import MIDI2
+```
+
+### Upgrading
+
+To upgrade from an earlier release, update the version in your package manifest and run:
+
+```bash
+swift package update MIDI2
 ```
 
 ## midi2demo CLI

@@ -6,12 +6,6 @@ OpenAPI definitions and currently provides core UMP structures, SysEx7/SysEx8
 streaming utilities, MIDI‑CI envelope helpers, and an evolving
 `midi2demo` CLI for experimenting with the specification.
 
-## Status
-
-- Swift 6 package `MIDI2` with library targets `MIDI2` and `MIDI2CI`, plus examples and tests.
-- Core UMP structures, SysEx helpers, and MIDI‑CI envelope implementations exist.
-- Teaching‑oriented `midi2demo` CLI currently demonstrates encoding/decoding a Note On message.
-
 ## Features
 
 - Core UMP message structures with binary encoder/decoder.

@@ -8,7 +8,7 @@ streaming utilities, MIDI‑CI envelope helpers, and an evolving
 
 ## Status Quo
 
-Active development: core UMP structures and SysEx helpers exist. The `midi2demo` CLI now implements all planned subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. The library adds a schema-aligned `Midi1ChannelVoiceBody` struct for generic MIDI 1 channel voice handling. Full spec coverage and comprehensive tests remain in progress.
+Active development: core UMP structures and SysEx helpers exist. The `midi2demo` CLI now implements all planned subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. The library adds a schema-aligned `Midi1ChannelVoiceBody` struct for generic MIDI 1 channel voice handling. Full spec coverage and comprehensive tests remain in progress.
 
 ## Features
 
@@ -46,11 +46,14 @@ Build and run the teaching-oriented CLI to experiment with MIDI 2.0 messages.
 Examples:
 
 ```bash
-swift run midi2demo note-on 60 100
-swift run midi2demo sysex7 --manufacturer 7D "01 02 03"
-swift run midi2demo sysex8 --manufacturer 00,20,33 "01 02 03 04"
+swift run midi2demo note-on --group 0 --channel 0 60 100
+swift run midi2demo sysex7 --group 0 --manufacturer 7D "01 02 03"
+swift run midi2demo sysex8 --group 0 --manufacturer 00,20,33 "01 02 03 04"
 swift run midi2demo flex tempo --group 0 120
-swift run midi2demo ci-handshake
+swift run midi2demo flex time --group 0 4 4
+swift run midi2demo flex key --group 0 C#m
+swift run midi2demo flex lyric --group 0 "Hello world"
+swift run midi2demo ci-handshake --no-common-protocol --unsupported-profile --missing-property
 swift run midi2demo inspect 0x40107D00 0x00640000
 ```
 

@@ -6,13 +6,22 @@ struct CIHandshakeCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "ci-handshake",
         abstract: "Simulate MIDI-CI protocol negotiation, profile inquiry, and property exchange.",
-        discussion: "Runs a scripted interaction showing how MIDI-CI messages are exchanged. No options are required. See midi2demo(1) for background and examples."
+        discussion: "Runs a scripted interaction showing how MIDI-CI messages are exchanged. Flags allow simulating failure scenarios. See midi2demo(1) for background and examples."
     )
+
+    @Flag(name: .long, help: "Simulate no common protocol during negotiation")
+    var noCommonProtocol: Bool = false
+
+    @Flag(name: .long, help: "Simulate profile not supported by responder")
+    var unsupportedProfile: Bool = false
+
+    @Flag(name: .long, help: "Simulate missing property value in exchange")
+    var missingProperty: Bool = false
 
     func run() throws {
         // Protocol negotiation
-        let initiatorSupported: [MidiCIProtocol] = [.midi2, .midi1]
-        let responderSupported: [MidiCIProtocol] = [.midi2]
+        let initiatorSupported: [MidiCIProtocol] = noCommonProtocol ? [.midi2] : [.midi2, .midi1]
+        let responderSupported: [MidiCIProtocol] = noCommonProtocol ? [.midi1] : [.midi2]
 
         let pnRequest = CIHandshake.initiateProtocolNegotiation(supported: initiatorSupported)
         print("Initiator -> Responder: \(pnRequest)")
@@ -30,7 +39,7 @@ struct CIHandshakeCommand: ParsableCommand {
         let profileRequest = CIHandshake.initiateProfileInquiry(profile: profileID)
         print("Initiator -> Responder: \(profileRequest)")
 
-        let profileResponse = CIHandshake.respond(to: profileRequest, supportedProfiles: [profileID])
+        let profileResponse = CIHandshake.respond(to: profileRequest, supportedProfiles: unsupportedProfile ? [] : [profileID])
         print("Responder -> Initiator: \(profileResponse)")
         print("Profile \(profileID) supported: \(profileResponse.supported)")
 
@@ -39,7 +48,7 @@ struct CIHandshakeCommand: ParsableCommand {
         let propertyRequest = CIHandshake.initiatePropertyGet(resource: resource)
         print("Initiator -> Responder: \(propertyRequest)")
 
-        let properties = [resource: "ACME Corp"]
+        let properties = missingProperty ? [:] : [resource: "ACME Corp"]
         let propertyResponse = CIHandshake.respond(to: propertyRequest, properties: properties)
         print("Responder -> Initiator: \(propertyResponse)")
         if let value = propertyResponse.value {

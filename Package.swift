@@ -27,7 +27,7 @@ let package = Package(
                 .copy("midi2demo.1")
             ]
         ),
-        .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI"]),
+        .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "midi2demo"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")
     ]
 )

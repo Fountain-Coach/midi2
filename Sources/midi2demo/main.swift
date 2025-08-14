@@ -28,6 +28,10 @@ struct NoteOn: ParsableCommand {
             throw ValidationError("Group, channel, or note out of range")
         }
 
+        guard velocity <= UInt16.max else {
+            throw ValidationError("Velocity out of range")
+        }
+
         let message = Midi2NoteOn(
             group: groupVal,
             channel: channelVal,

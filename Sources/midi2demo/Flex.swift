@@ -34,8 +34,14 @@ extension Flex {
         var bpm: Double
 
         func run() throws {
+            guard let g = Uint4(group) else {
+                throw ValidationError("Group out of range")
+            }
+            guard bpm >= 1 else {
+                throw ValidationError("Tempo must be at least 1 BPM")
+            }
             let tempo = FlexDataTempo(beatsPerMinute: bpm)
-            let packet = tempo.encode(group: group)
+            let packet = tempo.encode(group: g.rawValue)
             print(String(format: "UMP: 0x%08X 0x%08X 0x%08X 0x%08X",
                          packet.word0, packet.word1, packet.word2, packet.word3))
             if let decoded = FlexDataTempo.decode(packet) {
@@ -115,6 +121,9 @@ extension Flex {
             guard let g = Uint4(group) else {
                 throw ValidationError("Group out of range")
             }
+            guard !key.isEmpty else {
+                throw ValidationError("Key signature cannot be empty")
+            }
             let address: FlexKeySignature.Address
             if let chVal = channel {
                 guard let ch = Uint4(chVal) else {
@@ -157,6 +166,9 @@ extension Flex {
         func run() throws {
             guard let g = Uint4(group) else {
                 throw ValidationError("Group out of range")
+            }
+            guard !text.isEmpty else {
+                throw ValidationError("Lyric text cannot be empty")
             }
             let address: FlexLyric.Address
             if let chVal = channel {

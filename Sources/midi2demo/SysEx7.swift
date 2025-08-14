@@ -5,7 +5,8 @@ import Foundation
 struct SysEx7Command: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "sysex7",
-        abstract: "Fragment and reassemble a SysEx7 payload."
+        abstract: "Fragment and reassemble a SysEx7 payload.",
+        discussion: "Specify the target group with --group and the manufacturer ID with --manufacturer using comma-separated hex bytes. Provide the payload as hex bytes or a continuous hex string. See midi2demo(1) for examples."
     )
 
     @Option(name: .long, help: "Group number (0-15).")

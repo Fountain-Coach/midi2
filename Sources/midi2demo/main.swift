@@ -5,7 +5,8 @@ import MIDI2CI
 struct NoteOn: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "note-on",
-        abstract: "Encode and decode a MIDI 2.0 Note On message."
+        abstract: "Encode and decode a MIDI 2.0 Note On message.",
+        discussion: "Use --group and --channel to target a destination. Provide the note number and velocity as positional arguments. See midi2demo(1) for detailed examples."
     )
 
     @Option(name: [.short, .long], help: "Group number (0-15).")
@@ -44,6 +45,7 @@ struct NoteOn: ParsableCommand {
 struct Midi2Demo: ParsableCommand {
     static let configuration = CommandConfiguration(
         abstract: "Teaching-oriented MIDI 2.0 demo CLI",
+        discussion: "Run 'midi2demo <command> --help' for more information. The midi2demo(1) man page provides complete documentation and examples.",
         subcommands: [
             NoteOn.self,
             SysEx7Command.self,

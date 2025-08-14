@@ -5,7 +5,8 @@ import Foundation
 struct CIHandshakeCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "ci-handshake",
-        abstract: "Simulate MIDI-CI protocol negotiation, profile inquiry, and property exchange."
+        abstract: "Simulate MIDI-CI protocol negotiation, profile inquiry, and property exchange.",
+        discussion: "Runs a scripted interaction showing how MIDI-CI messages are exchanged. No options are required. See midi2demo(1) for background and examples."
     )
 
     func run() throws {

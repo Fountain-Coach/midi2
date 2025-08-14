@@ -6,6 +6,7 @@ struct Flex: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "flex",
         abstract: "Emit Flex Data messages",
+        discussion: "Choose a subcommand to send a specific Flex Data message. See midi2demo(1) for a complete list of messages and examples.",
         subcommands: [
             Tempo.self,
             TimeSignature.self,
@@ -22,7 +23,8 @@ struct Flex: ParsableCommand {
 extension Flex {
     struct Tempo: ParsableCommand {
         static let configuration = CommandConfiguration(
-            abstract: "Send a Flex Tempo message"
+            abstract: "Send a Flex Tempo message",
+            discussion: "Use --group to choose the destination group and provide the tempo in BPM as an argument. See midi2demo(1) for examples."
         )
 
         @Option(name: .long, help: "Group number (0-15).")
@@ -45,7 +47,8 @@ extension Flex {
     struct TimeSignature: ParsableCommand {
         static let configuration = CommandConfiguration(
             commandName: "time",
-            abstract: "Send a Flex Time Signature message"
+            abstract: "Send a Flex Time Signature message",
+            discussion: "Use --group to choose the destination group and optionally --channel. Provide the numerator and denominator as arguments; the denominator must be a power of two. See midi2demo(1) for examples."
         )
 
         @Option(name: .long, help: "Group number (0-15).")
@@ -95,7 +98,8 @@ extension Flex {
 
     struct Key: ParsableCommand {
         static let configuration = CommandConfiguration(
-            abstract: "Send a Flex Key Signature message"
+            abstract: "Send a Flex Key Signature message",
+            discussion: "Use --group to choose the destination group and optionally --channel. Provide the key signature text (e.g. C, Gm) as an argument. See midi2demo(1) for examples."
         )
 
         @Option(name: .long, help: "Group number (0-15).")
@@ -137,7 +141,8 @@ extension Flex {
 
     struct Lyric: ParsableCommand {
         static let configuration = CommandConfiguration(
-            abstract: "Send a Flex Lyric message"
+            abstract: "Send a Flex Lyric message",
+            discussion: "Use --group to choose the destination group and optionally --channel. Provide the lyric text as an argument. See midi2demo(1) for examples."
         )
 
         @Option(name: .long, help: "Group number (0-15).")
@@ -180,7 +185,8 @@ extension Flex {
     // Placeholder subcommands for future extensions
     struct Metronome: ParsableCommand {
         static let configuration = CommandConfiguration(
-            abstract: "Flex Metronome (not yet implemented)"
+            abstract: "Flex Metronome (not yet implemented)",
+            discussion: "Placeholder for future Metronome Flex Data support. See midi2demo(1) for current capabilities."
         )
         func run() throws {
             print("Metronome command not implemented yet")
@@ -189,7 +195,10 @@ extension Flex {
 
     struct ChordName: ParsableCommand {
         static let configuration = CommandConfiguration(
-            commandName: "chord", abstract: "Flex Chord Name (not yet implemented)")
+            commandName: "chord",
+            abstract: "Flex Chord Name (not yet implemented)",
+            discussion: "Placeholder for future Chord Name Flex Data support. See midi2demo(1) for current capabilities."
+        )
         func run() throws {
             print("ChordName command not implemented yet")
         }
@@ -197,7 +206,8 @@ extension Flex {
 
     struct Text: ParsableCommand {
         static let configuration = CommandConfiguration(
-            abstract: "Flex Text (not yet implemented)"
+            abstract: "Flex Text (not yet implemented)",
+            discussion: "Placeholder for future Text Flex Data support. See midi2demo(1) for current capabilities."
         )
         func run() throws {
             print("Text command not implemented yet")
@@ -206,7 +216,8 @@ extension Flex {
 
     struct Ruby: ParsableCommand {
         static let configuration = CommandConfiguration(
-            abstract: "Flex Ruby (not yet implemented)"
+            abstract: "Flex Ruby (not yet implemented)",
+            discussion: "Placeholder for future Ruby annotation Flex Data support. See midi2demo(1) for current capabilities."
         )
         func run() throws {
             print("Ruby command not implemented yet")

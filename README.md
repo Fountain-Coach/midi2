@@ -8,7 +8,7 @@ streaming utilities, MIDI‑CI envelope helpers, and a teaching‑oriented
 
 ## Status
 
-The library now implements the entire MIDI 2.0 specification and is tagged for its first stable release, 0.2.0, ready for consumption via Swift Package Manager. The `midi2demo` CLI covers all subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. Integration tests spawn the `midi2demo` executable to exercise success and failure paths for every subcommand. Initial scaffolding for an Apple-native Core MIDI adapter (`TeatroAppleBridge`) is now included.
+The library now implements the entire MIDI 2.0 specification and is tagged for its first stable release, 0.2.0, ready for consumption via Swift Package Manager. The `midi2demo` CLI covers all subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. Integration tests spawn the `midi2demo` executable to exercise success and failure paths for every subcommand. A cross-platform `TeatroAppleBridge` package now offers a Core MIDI–style API with unit tests and command-line demos.
 
 ## Features
 
@@ -98,6 +98,22 @@ $LLVM_COV report .build/x86_64-unknown-linux-gnu/debug/MIDI2PackageTests.xctest 
   --instr-profile .build/x86_64-unknown-linux-gnu/debug/codecov/default.profdata
 ```
 
+## TeatroAppleBridge (Core MIDI adapter)
+
+`TeatroAppleBridge` is a small package that bridges the library's Universal MIDI
+Packet model to Apple's Core MIDI and MusicSequence APIs. It exposes
+`AppleMIDIBridge` for sending or publishing UMP, `AppleMIDIReceiver` for
+receiving via a handler block, and `AppleSequencerBridge` for offline sequence
+export.
+
+### Demos
+
+The `Examples/` folder contains command-line demos:
+
+- `SendCCDemo` – send CC ramps and a note burst to a destination.
+- `VirtualSourceDemo` – publish a virtual source and echo incoming events.
+- `SequenceExportDemo` – build a sequence and write a `.mid` file.
+
 ## Jitter Reduction
 
 MIDI 2.0 introduces Jitter Reduction (JR) Clock and Timestamp messages to
@@ -126,6 +142,12 @@ See the `Examples/` directory for Swift Playgrounds demonstrating common tasks:
 - [Mixed Data Set chunk transfer](Examples/MDS.playground)
 - [Flex tempo message](Examples/FlexTiming.playground)
 - [MIDI-CI handshake](Examples/MIDICIHandshake.playground)
+
+CLI demos built with `TeatroAppleBridge`:
+
+- [SendCCDemo](Examples/SendCCDemo)
+- [VirtualSourceDemo](Examples/VirtualSourceDemo)
+- [SequenceExportDemo](Examples/SequenceExportDemo)
 
 ### Encoding a Channel Voice Message
 

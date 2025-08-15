@@ -98,6 +98,24 @@ $LLVM_COV report .build/x86_64-unknown-linux-gnu/debug/MIDI2PackageTests.xctest 
   --instr-profile .build/x86_64-unknown-linux-gnu/debug/codecov/default.profdata
 ```
 
+## Jitter Reduction
+
+MIDI 2.0 introduces Jitter Reduction (JR) Clock and Timestamp messages to
+preserve precise scheduling over links that may introduce transmission
+variation. The library exposes these as `Utility.jrClock` and
+`Utility.jrTimestamp`, which encode 16‑bit values representing a sender’s
+timebase and per‑message offsets for jitter‑corrected playback.
+
+Run the demo executable to observe the packets and their reconstructed times:
+
+```bash
+swift run jitterdemo
+```
+
+For background on the JR mechanism, see the MIDI 2.0 Universal MIDI Packet
+specification (Section 4, “Jitter Reduction (JR) Clock and Timestamps”) in
+`M2-104-UM_v1-1-2_UMP_and_MIDI_2-0_Protocol_Specification.pdf`.
+
 ## Examples
 
 See the `Examples/` directory for Swift Playgrounds demonstrating common tasks:

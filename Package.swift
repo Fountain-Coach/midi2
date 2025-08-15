@@ -9,7 +9,8 @@ let package = Package(
     products: [
         .library(name: "MIDI2", targets: ["MIDI2"]),
         .library(name: "MIDI2CI", targets: ["MIDI2CI"]),
-        .executable(name: "midi2demo", targets: ["midi2demo"])
+        .executable(name: "midi2demo", targets: ["midi2demo"]),
+        .executable(name: "jitterdemo", targets: ["jitterdemo"])
     ],
     dependencies: [
         .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
@@ -29,6 +30,7 @@ let package = Package(
                 .copy("midi2demo.1")
             ]
         ),
+        .executableTarget(name: "jitterdemo", dependencies: ["MIDI2"]),
         .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "midi2demo"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")
     ]

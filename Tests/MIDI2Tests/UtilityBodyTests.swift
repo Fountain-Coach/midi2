@@ -11,4 +11,14 @@ final class UtilityBodyTests: XCTestCase {
         // throwing variant
         XCTAssertNoThrow(try UtilityBody(parsingUMP: packet))
     }
+
+    func testRoundTripJRTimestamp() throws {
+        let body = UtilityBody(opcode: .jrTimestamp, value: 0x2345)
+        let packet = body.ump()
+        let decoded = UtilityBody(ump: packet)
+        XCTAssertEqual(decoded, body)
+
+        // throwing variant
+        XCTAssertNoThrow(try UtilityBody(parsingUMP: packet))
+    }
 }

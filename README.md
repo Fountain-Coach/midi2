@@ -8,7 +8,7 @@ streaming utilities, MIDI‑CI envelope helpers, and a teaching‑oriented
 
 ## Status
 
-The library now implements the entire MIDI 2.0 specification and is tagged for its first stable release, 0.2.0, ready for consumption via Swift Package Manager. The `midi2demo` CLI covers all subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. Integration tests spawn the `midi2demo` executable to exercise success and failure paths for every subcommand. A cross-platform `TeatroAppleBridge` package now offers a Core MIDI–style API with unit tests and command-line demos.
+The library implements the entire MIDI 2.0 specification and now ships with the `TeatroAppleBridge` Core MIDI adapter, accompanying command-line demos, and unit tests. Version 0.3.0 is ready for consumption via Swift Package Manager. The `midi2demo` CLI covers all subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. Integration tests spawn the `midi2demo` executable to exercise success and failure paths for every subcommand.
 
 ## Features
 
@@ -31,7 +31,7 @@ Add `MIDI2` to your project using the [Swift Package Manager](https://www.swift.
 
 ```swift
 dependencies: [
-    .package(url: "https://example.com/midi2.git", from: "0.2.0")
+    .package(url: "https://example.com/midi2.git", from: "0.3.0")
 ]
 ```
 

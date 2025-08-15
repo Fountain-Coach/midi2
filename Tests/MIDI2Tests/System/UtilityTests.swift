@@ -9,6 +9,13 @@ final class UtilityTests: XCTestCase {
         XCTAssertEqual(decoded, msg)
     }
 
+    func testRoundTripJRTimestamp() {
+        let msg = Utility.jrTimestamp(0x2345)
+        let ump = msg.ump()
+        let decoded = Utility(ump: ump)
+        XCTAssertEqual(decoded, msg)
+    }
+
     func testMalformedGroupNibble() {
         // group nibble must be zero for utility messages
         let byte0 = UInt32(0x0 << 4 | 0x1) // mt=0, group=1 -> invalid

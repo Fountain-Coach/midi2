@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+### Added
+- Introduced `TeatroAppleBridge` package scaffolding with grid and clock helpers for Apple Core MIDI integration.
+
 ## [0.2.0] - 2025-08-14
 ### Added
 - Full implementation of the MIDI 2.0 specification.

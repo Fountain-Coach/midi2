@@ -1,4 +1,5 @@
 import XCTest
+import Foundation
 @testable import TeatroAppleBridge
 
 final class SequencerTests: XCTestCase {
@@ -12,5 +13,19 @@ final class SequencerTests: XCTestCase {
 
         let host = MIDIClock.secondsToHostTime(seconds)
         XCTAssertEqual(Double(host) / 1_000_000_000, seconds, accuracy: 0.0001)
+    }
+
+    func testExportSMFWritesData() throws {
+        let seq = AppleSequencerBridge()
+        seq.setTempoMap([TempoEvent(beat: 0, bpm: 120)])
+        seq.addMarker(beat: 0, text: "Start")
+        seq.addLyric(beat: 1, text: "La")
+        seq.addNote(track: 0, channel: 0, note: 60, velocity: 100,
+                    startBeat: 0, durationBeats: 1)
+
+        let url = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("test.mid")
+        try seq.exportSMF(url: url)
+        let data = try Data(contentsOf: url)
+        XCTAssertGreaterThan(data.count, 0)
     }
 }

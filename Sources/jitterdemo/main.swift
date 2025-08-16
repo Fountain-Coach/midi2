@@ -3,7 +3,7 @@ import MIDI2
 
 @main
 struct JitterDemo {
-    static func main() {
+    static func main() throws {
         let period: UInt16 = 1000 // arbitrary units
         var clock: UInt16 = 0
 

@@ -1,249 +1,290 @@
-# agent.md — Codex Agent Plan for `midi2` (Apple‑native bridge)
-
-**Goal:** Equip the `midi2` Swift library with a thin, official **Core MIDI** adapter so Teatro and any Apple host (Logic/Motion/hardware) interoperate seamlessly. 
-
-This agent creates a small Swift package inside the `midi2` repo, maps our **bar:beat:tick** timeline to Apple timestamps, and exposes **sender / virtual source / receiver** APIs using Apple’s protocol‑aware calls.  
-
-Status target: **Apple‑native, MIDI‑2.0‑first** with **MIDI‑1.0 UMP fallback**.
+# Codex Agent: Semantic Browser & Dissector (Swift-only)
+**Goal:** Implement the OpenAPI 3.1 “Semantic Browser & Dissector API” as a Swift 6.1, concurrency-safe service on FountainAI infrastructure — no Python, no Docker, no Vapor. The agent builds a CLI-first tool with an optional HTTP kernel generated from the OpenAPI.
 
 ---
 
-## 0) Constraints & style
-
-- Language: **Swift 6** only. No external binaries.
-- Platforms: **macOS 13+** first; **iOS/iPadOS 16+** optional.
-- Safety: no blocking I/O or allocations in real‑time paths; keep RT code minimal.
-- Keep adapters thin; the **`midi2` packet model remains the truth** (UMP structs, CI helpers).
-- Tests must run **headless** (no GUI, no hardware required).
+## 0) Operating Principles
+- **Swift-only:** Swift 6.1, async/await, `Sendable` types, `actor` isolation.  
+- **CLI-first:** Deterministic command(s) Codex can run locally/CI.  
+- **HTTP is optional:** If needed, use our Swift OpenAPI kernel to expose the same core.  
+- **JS-capable:** Headless browser via **Chrome DevTools Protocol (CDP)**; JS executes, SPA data captured.  
+- **Typesense used only as an index** (derived, rebuildable).  
+- **No new persistence:** Artifacts to `--out` folder; Snapshots/Analyses can be re-indexed anytime.
 
 ---
 
-## 1) Deliverables (what Codex must produce)
-
-1. **Swift Package** `TeatroAppleBridge` inside the `midi2` repo:
+## 1) Repository Plan (SPM Workspace)
+Create a new top-level directory `semantic-browser` (or `sb`) in the FountainAI mono-repo.
 
 ```
-
-midi2/
-├─ Packages/
-│  └─ TeatroAppleBridge/
-│     ├─ Package.swift
-│     ├─ Sources/TeatroAppleBridge/
-│     │  ├─ AppleMIDIBridge.swift        # sender + virtual source
-│     │  ├─ AppleMIDIReceiver.swift      # input receive block → our UMP parser
-│     │  ├─ AppleSequencerBridge.swift   # MusicSequence builder (tempo, TS, markers, notes/CC/lyrics)
-│     │  ├─ GridTime.swift               # bar:beat:tick → beats/seconds/hostTime
-│     │  └─ MIDIClock.swift              # host clock helpers
-│     └─ Tests/TeatroAppleBridgeTests/
-│        ├─ SenderTests.swift
-│        ├─ ReceiverTests.swift
-│        └─ SequencerTests.swift
-└─ docs/agent.md  (this file)
-
+sb/
+├── Package.swift
+├── Sources/
+│   ├── SBCLI/                           # CLI entrypoints (browse/analyze/index)
+│   │   ├── main.swift
+│   │   └── Commands/
+│   │       ├── BrowseCommand.swift
+│   │       ├── AnalyzeCommand.swift
+│   │       └── IndexCommand.swift
+│   ├── SBCore/                          # Domain core, actors, models
+│   │   ├── SB.swift                     # façade for end-to-end run
+│   │   ├── Models/                      # OpenAPI-aligned data models
+│   │   │   ├── Snapshot.swift
+│   │   │   ├── Analysis.swift
+│   │   │   ├── Blocks.swift
+│   │   │   ├── Entities.swift
+│   │   │   ├── Claims.swift
+│   │   │   ├── IndexDocs.swift
+│   │   │   └── WaitPolicy.swift
+│   │   ├── Ports/                       # Hexagonal ports (protocols)
+│   │   │   ├── Navigating.swift
+│   │   │   ├── Dissecting.swift
+│   │   │   ├── Indexing.swift
+│   │   │   └── ArtifactStore.swift
+│   │   └── Pipeline/
+│   │       └── Orchestrator.swift       # browse → snapshot → analyze → ind
 ```
 
-2. **Minimal API docs** (DocC comments) for each public symbol.
-3. **Examples** under `Examples/`:
-- `SendCCDemo/` (CLI): send CC ramps & note bursts to a named destination.
-- `VirtualSourceDemo/` (CLI): publish a virtual source and echo incoming events.
-- `SequenceExportDemo/` (CLI): build `.mid` from sample YAML and write to disk.
-4. **CI tasks** (SwiftPM test + lint) wired into existing repo workflow.
+**Third-party Swift deps (SPM):**
+- CDP WebSocket JSON-RPC (tiny internal implementation; no Chrome embedding)
+- `Yams` (YAML) only if you choose YAML config; not required for core
+- No HTML parsing dependency is required for snapshot (we rely on rendered HTML from CDP). If you want DOM utilities, add a lightweight HTML parser; keep it optional.
 
 ---
 
-## 2) High‑level behavior (compliance with Apple guidance)
+## 2) OpenAPI → Swift Bindings (HTTP Kernel is Optional)
+- Keep the OpenAPI spec at `sb/openapi/semantic-browser.openapi.yaml` (the version produced in the previous step).
+- Generate Swift server stubs using your **Swift OpenAPI kernel** (already used in other services).
+- Route implementations in `SBHTTPKernel/Kernel.swift` should delegate to `SBCore.SB` façade.
 
-- Use **protocol‑aware** Core MIDI APIs: create ports/endpoints **with protocol** (2.0 preferred; 1.0 as needed).
-- Build and send **`MIDIEventList`** carrying UMP words via **`MIDISendEventList`**.
-- For input, use **`MIDIInputPortCreateWithProtocol(..., MIDIReceiveBlock)`**.
-- Timestamp outbound events with **future host time** for precise scheduling.
-- Provide optional **MIDI‑CI** path (profile negotiation, property exchange).
-- For offline/DAW workflows, generate **MusicSequence** (tempo, time signature, markers, notes/CC/lyrics) and export **SMF**.
+> If you choose to run CLI-only, Codex interacts with `SBCLI` and skips the HTTP kernel.
 
 ---
 
-## 3) Public API (surface area)
-
-### 3.1 Sender / Virtual Source
+## 3) Domain Interfaces (Ports)
+Define the hexagonal ports in `SBCore/Ports/`:
 
 ```swift
-public struct MIDIDestinationSelector {
- public var matchContains: String      // e.g., "IAC Driver" or device name
- public var group: UInt8 = 0           // UMP group (0..15)
- public var protocol: MIDIProtocolID = ._2_0  // prefer 2.0
+public protocol Navigating: Sendable {
+    func snapshot(url: URL, wait: WaitPolicy, store: ArtifactStore?) async throws -> Snapshot
 }
 
-public final class AppleMIDIBridge {
- public init(clientName: String = "TeatroClient") throws
- public func selectDestination(_ selector: MIDIDestinationSelector) throws
- public func sendUMP(words: [UInt32], hostTime: UInt64) throws        // 1–4 words per event
- public func sendCC(channel: UInt8, cc: UInt8, value: UInt8,
-                    group: UInt8 = 0, hostTime: UInt64) throws        // convenience
- public func sendNoteOn(channel: UInt8, note: UInt8, velocity: UInt16,
-                        group: UInt8 = 0, hostTime: UInt64) throws
- public func sendNoteOff(channel: UInt8, note: UInt8, velocity: UInt16,
-                         group: UInt8 = 0, hostTime: UInt64) throws
- // Virtual source for other apps to subscribe
- public func startVirtualSource(name: String, protocol: MIDIProtocolID) throws
- public func publishUMP(words: [UInt32], hostTime: UInt64) throws
+public protocol Dissecting: Sendable {
+    func analyze(from snapshot: Snapshot, mode: DissectionMode, store: ArtifactStore?) async throws -> Analysis
+}
+
+public protocol Indexing: Sendable {
+    func upsert(analysis: Analysis, options: IndexOptions) async throws -> IndexResult
+}
+
+public protocol ArtifactStore: Sendable {
+    func writeSnapshot(_ snap: Snapshot) async throws
+    func writeAnalysis(_ analysis: Analysis) async throws
+    func readSnapshot(id: String) async throws -> Snapshot?
 }
 ```
 
+Coordinator / façade:
 
-### 3.2 Receiver
+```swift
+public actor SB {
+    let navigator: any Navigating
+    let dissector: any Dissecting
+    let indexer: any Indexing
+    let store: ArtifactStore?
 
-```
-public final class AppleMIDIReceiver {
-    public typealias Handler = (_ group: UInt8, _ words: [UInt32], _ hostTime: UInt64) -> Void
-    public init(clientName: String = "TeatroClient") throws
-    public func openInput(nameMatch: String, protocol: MIDIProtocolID, handler: @escaping Handler) throws
+    public init(navigator: any Navigating, dissector: any Dissecting,
+                indexer: any Indexing, store: ArtifactStore?) {
+        self.navigator = navigator; self.dissector = dissector
+        self.indexer = indexer; self.store = store
+    }
+
+    public func browseAndDissect(url: URL, wait: WaitPolicy, mode: DissectionMode,
+                                 index: IndexOptions?) async throws -> (Snapshot, Analysis?, IndexResult?) {
+        let snap = try await navigator.snapshot(url: url, wait: wait, store: store)
+        let analysis = try await dissector.analyze(from: snap, mode: mode, store: store)
+        let res = (index?.enabled ?? false) ? try await indexer.upsert(analysis: analysis, options: index!) : nil
+        return (snap, analysis, res)
+    }
 }
 ```
 
-### 3.3 Sequencer (MusicSequence)
+---
 
+## 4) Browser Capability (CDP)
+Implement SBBrowser:
+- **BrowserPool (actor):** manages Chromium processes with `--headless=new --remote-debugging-port=0`.
+- **HostGate (actor):** per-host throttling, random jitter, and backoff on 429.
+- **CDPClient:** JSON-RPC over WebSocket. Use domains: Target, Page, Network, DOM, Runtime.
+
+Snapshot steps (per URL):
+1. Target.createTarget and attach.
+2. Network.enable, Page.enable, DOM.enable.
+3. Page.navigate.
+4. Wait by policy:
+   - domContentLoaded OR
+   - networkIdle with quiescence window OR
+   - selector using Runtime.evaluate("document.querySelector('...')").
+5. Collect:
+   - DOM.getDocument + DOM.getOuterHTML → rendered.html
+   - Runtime.evaluate("document.documentElement.innerText") → rendered.text
+   - Network.responseReceived + Network.getResponseBody for XHR/Fetch payloads (truncated with size cap)
+   - meta tags (Runtime.evaluate)
+6. Build Snapshot (OpenAPI schema compliant) and optionally persist via ArtifactStore.
+
+Civility & Policy:
+- Honor robots.txt.
+- Constrain per-host concurrency (e.g., 2) and apply minimum delay between navigations per host.
+- User-agent and optional session cookies are configurable via env/CLI.
+
+---
+
+## 5) Dissector (Semantics)
+Implement SBDissector aligned to OpenAPI schemas:
+- Segmentation: compute blocks[] from rendered.html + rendered.text.  
+  Use simple rules:
+  - Headings (<h1..h6>) → kind=heading, level
+  - Paragraphs → kind=paragraph
+  - Code blocks (pre/code) → kind=code
+  - Captions near images/figures → kind=caption
+  - Tables (<table>) → kind=table with normalized rows and optional columns
+- All blocks carry [start,end) spans into rendered.text (span-level citations rule)
+- Entities: start with rule-based NER (proper noun heuristics + dictionaries), then upgrade to model calls via your Swift SDK when ready.
+- Claims (deep mode): shallow declarative sentence splitting + pattern heuristics for “X is Y / achieves / reports …” with evidence pointing to one or more block spans. Mark unknown/uncertain with hedge: MEDIUM/HIGH.
+- Summaries: multi-granularity (abstract, keyPoints, tl;dr); always cite evidence spans in internal notes (not required in the field itself, but ensure derivability).
+
+---
+
+## 6) Typesense Indexer
+Implement SBTypesense:
+- Collections (create on first use if absent):
+  - pages (page doc)
+  - segments (block doc)
+  - entities (canonical entity doc)
+  - tables (optional)
+- Client: small HTTP wrapper with API key header, timeouts, retry with jitter.
+- IDs: stable, content-based (e.g., sha1(finalUrl|fetchedAt) for pages; sha1(pageId|blockId) for segments).
+- Upsert: batch in groups of 50–200 to respect rate limits.
+
+---
+
+## 7) CLI Commands
+SBCLI/main.swift wires subcommands; all flags mirror OpenAPI requests.
+
+### 7.1 sb browse
 ```
-public struct TempoEvent { public let beat: Double; public let bpm: Double }
-public struct TimeSignature { public let numerator: UInt8; public let denominatorPow2: UInt8 } // e.g., 4/4 → (4,2)
-
-public final class AppleSequencerBridge {
-    public init(ppq: Int = 480, timeSignature: TimeSignature = .init(numerator:4, denominatorPow2:2))
-    public func setTempoMap(_ events: [TempoEvent])
-    public func addMarker(beat: Double, text: String)
-    public func addLyric(beat: Double, text: String)
-    public func addNote(track: Int, channel: UInt8, note: UInt8, velocity: UInt8,
-                        startBeat: Double, durationBeats: Double)
-    public func exportSMF(url: URL) throws
-}
-```
-
-### 3.4 Grid & Clock helpers
-
-```
-public struct GridSpec {
-    public let beatsPerBar: Int    // 4 for 4/4
-    public let ticksPerBeat: Int   // e.g., 480
-    public let firstBarStartSec: Double // e.g., 2.0 for a 1-bar count-in @ 120 bpm
-}
-
-public enum GridTime {
-    public static func barBeatTickToBeats(bar: Int, beat: Int, tick: Int,
-                                          beatsPerBar: Int, ticksPerBeat: Int) -> Double
-    public static func beatsToSeconds(_ beats: Double, tempoBPM: Double) -> Double
-}
-
-public enum MIDIClock {
-    public static func nowHostTime() -> UInt64
-    public static func secondsToHostTime(_ seconds: Double) -> UInt64
-}
-```
-
-⸻
-
-## 4) Implementation plan (step‑by‑step)
-
-    1.    Package skeleton (generate)
-    •    Create Packages/TeatroAppleBridge/Package.swift with platforms: [.macOS(.v13)].
-    •    Product type: .library(name: "TeatroAppleBridge").
-    2.    Sender (AppleMIDIBridge.swift)
-    •    MIDIClientCreateWithBlock + MIDIOutputPortCreate.
-    •    Destination discovery: iterate MIDIGetNumberOfDestinations(); match by name.
-    •    Build MIDIEventList (protocol 2.0 default) and call MIDISendEventList.
-    •    Add virtual source path (MIDISourceCreateWithProtocol, MIDIReceivedEventList).
-    •    Provide CC/Note convenience functions building UMP (2.0) and MIDI‑1.0‑in‑UMP.
-    3.    Receiver (AppleMIDIReceiver.swift)
-    •    MIDIInputPortCreateWithProtocol(..., MIDIReceiveBlock); parse UMP words and pass to handler.
-    •    Unit test with loopback to our virtual source.
-    4.    Sequencer (AppleSequencerBridge.swift)
-    •    Build MusicSequence; add tempo (ExtendedTempo), time signature (meta 0x58), key sig (optional).
-    •    Track per part (or single track); add notes/lyrics/markers; export SMF with PPQ.
-    5.    Grid/Clock (GridTime.swift, MIDIClock.swift)
-    •    Deterministic bar:beat:tick → beats → seconds → host time.
-    •    Use mach_absolute_time mapping via AudioGetCurrentHostTime() / AudioConvertHostTimeToNanos.
-    6.    Examples & Tests
-    •    SenderTests: start virtual source, send 100 CC events timestamped 100ms in the future; assert reception order/time monotonicity.
-    •    ReceiverTests: open input, echo back to ensure parsing of multi‑word UMP.
-    •    SequencerTests: create sequence with tempo+TS; export .mid; parse back with MusicSequenceFileLoad and verify event counts.
-
-⸻
-
-## 5) Mapping from Teatro cue YAML
-
-    •    Tempo map: from meta.default_tempo_bpm and any changes → Sequencer tempo events.
-    •    Time signature: from meta.timesig (e.g., 4/4) → meta 0x58.
-    •    Count‑in: if grid.first_bar_at > 0, treat as pre‑roll; events still use bar‑based math.
-    •    Timeline MIDI: map note, chord, lyric to MusicSequence events (offline) or live UMP (sender).
-    •    Visual IDs: add meta markers with cue IDs for DAW rulers.
-
-⸻
-
-## 6) Example: send a ramp and a chord (live)
-
-```
-import TeatroAppleBridge
-
-let bridge = try AppleMIDIBridge()
-try bridge.selectDestination(.init(matchContains: "IAC", group: 0, protocol: ._1_0)) // legacy path
-let start = MIDIClock.nowHostTime()
-
-// CC ramp 0→127 over 0.8s @ 30 Hz
-for i in 0..<24 {
-    let t = Double(i) * (0.8 / 24.0)
-    try bridge.sendCC(channel: 0, cc: 21, value: UInt8(Double(i) * (127.0/23.0)),
-                      group: 0, hostTime: MIDIClock.secondsToHostTime(t) + start)
-}
-
-// C# minor chord at +1.0s
-let at = MIDIClock.secondsToHostTime(1.0) + start
-try bridge.sendNoteOn(channel: 0, note: 61, velocity: 100, group: 0, hostTime: at)
-try bridge.sendNoteOn(channel: 0, note: 64, velocity: 100, group: 0, hostTime: at)
-try bridge.sendNoteOn(channel: 0, note: 68, velocity: 100, group: 0, hostTime: at)
+sps browse   --url "https://example.com"   --wait "networkIdle:500,maxWait:15000"   --mode standard   --out ./out   [--index true] [--typesense-url ...] [--typesense-key ...]
 ```
 
-⸻
+- Produces snapshot.json, rendered.html, text.txt, analysis.json under --out.
+- If --index → upserts to Typesense and prints a compact summary.
 
-## 7) Acceptance criteria
+### 7.2 sb snapshot
+```
+sps snapshot --url ... --wait ... --out ./out
+```
 
-    •    ✅ Can create ports/endpoints with protocol 2.0 or 1.0 and send UMP via MIDISendEventList.
-    •    ✅ Can start a virtual source and publish UMP with MIDIReceivedEventList.
-    •    ✅ Can receive via MIDIReceiveBlock, parse multi‑word UMP, and hand it to our library.
-    •    ✅ Sequencer exports a valid SMF with tempo, time signature, notes/lyrics/markers; Logic shows markers at correct bars.
-    •    ✅ Grid conversion (bar:beat:tick) is exact and stable across tempo changes.
-    •    ✅ Unit tests are green on CI; examples compile and run on macOS.
+### 7.3 sb analyze
+```
+sps analyze --snapshot ./out/snapshot.json --mode deep --out ./out
+```
 
-⸻
+### 7.4 sb index
+```
+sps index --analysis ./out/analysis.json           --typesense-url http://localhost:8108           --typesense-key ${TYPESENSE_API_KEY}
+```
+Exit codes: 0 success; 2 bad args; 3 upstream (Typesense) unavailable; 4 navigation failed; 5 analysis error.
 
-## 8) Non‑goals / guardrails
+---
 
-    •    No GUI, no DAW automation, no FxPlug. This is Core MIDI / AudioToolbox plumbing only.
-    •    Don’t block in receive blocks; don’t allocate in inner loops.
-    •    No third‑party MIDI wrappers; rely on Apple frameworks + our midi2 structures.
+## 8) Configuration & Env
+- SPS_HEADLESS (default true)
+- SPS_MAX_HOST_CONCURRENCY (default 2)
+- SPS_USER_AGENT (default generic)
+- SPS_TYPESENSE_URL, SPS_TYPESENSE_API_KEY (optional)
+- SPS_MAX_BODY_BYTES (e.g., 2_000_000 for XHR body capture)
+- SPS_SNAPSHOT_TEXT_TRUNCATE (safety cap for innerText)
 
-⸻
+---
 
-## 9) How Codex proceeds (task list)
+## 9) Concurrency, Safety, and Backpressure
+- All public models struct + Codable + Sendable.
+- Shared components (BrowserPool, HostGate, TSClient) are actors.
+- Use TaskGroup for URL batches; per-host gates to avoid burst traffic.
+- Timeouts & cancellation at every awaited boundary (withTimeout wrappers).
 
-    1.    Scaffold Packages/TeatroAppleBridge with Package.swift.
-    2.    Implement AppleMIDIBridge.swift (send, virtual source).
-    3.    Implement AppleMIDIReceiver.swift (receive block).
-    4.    Implement GridTime.swift + MIDIClock.swift.
-    5.    Implement AppleSequencerBridge.swift, export .mid.
-    6.    Add unit tests + Examples/ CLIs.
-    7.    Add DocC comments and a short README in the package root.
-    8.    Update root docs to mention Apple‑native bridge and usage patterns (live vs offline).
+---
 
-⸻
+## 10) Testing Strategy
+Golden fixtures under Tests/SBCoreTests/Golden/:
+- sample.html (headings/paras/code/table)
+- sample.md
+- sample.pdf (text-selectable)
+- sample.json (array/object tables)
+- sample.feed.xml (RSS/Atom)
 
-## 10) Future extensions (optional)
+Test suites:
+- SnapshotTests: DOM/text/meta populated; wait policies honored.
+- AnalysisTests: blocks count; spans valid; tables normalized; entities present.
+- IndexingTests: Typesense upsert payload shape; batch sizing; retry on 429.
+- ConcurrencyTests: multiple URLs; host gating respected; no data races.
 
-    •    MIDI‑CI profile exchange wrappers for device‑adaptive mappings.
-    •    iOS/iPadOS target for on‑device performance control.
-    •    AVAudioEngine example hosting AUv3 + scheduleParameterBlock ramps (no MIDI path).
+Static checks:
+- Compile with -warnings-as-errors.
+- Verify all public types are Sendable or @unchecked Sendable with justification.
 
-⸻
+---
 
-This file lives at midi2/docs/agent.md. 
+## 11) Security & Civility
+- Honor robots.txt; optional allowlist.
+- Cap network capture sizes; redact cookies/headers in stored artifacts.
+- User-provided session cookies stored in memory only (no disk), unless explicitly allowed by an option.
+- Respect Retry-After and exponential backoff on 429/abuse responses.
 
-Codex, create the package, compile on macOS 13+, and run tests headless.
+---
 
+## 12) Telemetry (Optional)
+- Print concise JSON logs to stdout: phase timings, bytes, host, status, backoff events.
+- No PII by default; redact query strings if configured.
 
+---
+
+## 13) Delivery Steps (Codex runbook)
+1. Scaffold SPM targets as per tree above; add Package.swift with strict tools version // swift-tools-version: 6.1.
+2. Add Models in SBCore/Models/ directly mirroring OpenAPI schemas.
+3. Implement Ports and empty stubs for adapters; unit-compile.
+4. Implement BrowserPool + CDPClient (connect, navigate, wait policies, capture).
+5. Implement SnapshotBuilder (DOM/innerText/meta/XHR bodies → Snapshot).
+6. Implement Dissector (Segmenter, Entities, Tables, Summarizer) for quick → standard → deep.
+7. Implement Typesense client (collections + upsert).
+8. Wire CLI commands; print JSON on stdout and write artifacts to --out.
+9. (Optional) Generate HTTP kernel from OpenAPI; bind handlers to SBCore.SB.
+10. Add tests + golden fixtures; ensure swift test passes locally and in CI.
+11. Docs: add README.md and this agent.md; document CLI usage and OpenAPI URL.
+
+Commit/PR conventions:
+- PR title: feat(sps): semantic browser & dissector (swift-only, cli-first)
+- Labels: swift, cli, cdp, typesense, semantics
+- Changelist order: scaffolding → browser → snapshot → dissector → indexer → CLI → tests.
+
+---
+
+## 14) Acceptance Criteria
+- sps browse --url https://example.com --mode quick --out ./out
+- Produces snapshot.json, rendered.html, text.txt, analysis.json.
+- analysis.json always contains blocks with valid [start,end) spans into rendered.text.
+- --index upserts at least a page and per-block segment docs to Typesense.
+- Concurrency limits & backoff enforced (no more than configured parallel tabs per host).
+- Tests pass; no data races with TSAN; all public types Sendable.
+
+---
+
+## 15) Future Hooks (non-blocking)
+- Pre-render hook for sites that need auth or special selectors.
+- OCR fallback for image-only PDFs (behind a feature flag).
+- Cross-page contradiction detection via entity-linked claims.
+
+---
+
+End of agent brief.
+Codex: follow the runbook, keep commits focused, and ensure all models match the OpenAPI schemas exactly.

@@ -1,19 +1,20 @@
 import Foundation
 import MIDI2
 
-@main
-struct JitterDemo {
-    static func main() throws {
-        let period: UInt16 = 1000 // arbitrary units
+/// Actor responsible for running the jitter demonstration.
+actor JitterApp {
+    func run() async throws {
+        let period: UInt16 = 1000 // microseconds
         var clock: UInt16 = 0
 
         for cycle in 0..<3 {
             let clockMsg = Utility.jrClock(clock)
             let clockWord = clockMsg.ump().word
-            print("cycle \(cycle) clock 0x\(String(clock, radix:16)) ->", String(format: "%08X", clockWord))
+            print("cycle \(cycle) clock 0x\(String(clock, radix: 16)) ->", String(format: "%08X", clockWord))
 
             for offset in [UInt16(10), UInt16(50)] {
-                usleep(useconds_t(UInt32.random(in: 0...5000)))
+                let delay = UInt64(UInt32.random(in: 0...5000)) * 1_000 // microseconds → nanoseconds
+                try await Task.sleep(nanoseconds: delay)
                 let tsMsg = Utility.jrTimestamp(offset)
                 let abs = clock &+ offset
                 let tsWord = tsMsg.ump().word
@@ -21,7 +22,7 @@ struct JitterDemo {
             }
 
             clock &+= period
-            usleep(useconds_t(period))
+            try await Task.sleep(nanoseconds: UInt64(period) * 1_000) // microseconds → nanoseconds
         }
     }
 }

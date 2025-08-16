@@ -30,7 +30,17 @@ let package = Package(
                 .copy("midi2demo.1")
             ]
         ),
-        .executableTarget(name: "jitterdemo", dependencies: ["MIDI2"]),
+        .executableTarget(
+            name: "jitterdemo",
+            dependencies: ["MIDI2"],
+            swiftSettings: [
+                .unsafeFlags([
+                    "-Xfrontend", "-strict-concurrency=complete",
+                    "-Xfrontend", "-enable-actor-data-race-checks",
+                    "-Xfrontend", "-warn-concurrency"
+                ], .when(configuration: .debug))
+            ]
+        ),
         .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "midi2demo"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")
     ]

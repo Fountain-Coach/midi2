@@ -14,10 +14,11 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.6.1")
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.6.1"),
+        .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0")
     ],
     targets: [
-        .target(name: "MIDI2"),
+        .target(name: "MIDI2", dependencies: [.product(name: "Numerics", package: "swift-numerics")]),
         .target(name: "MIDI2CI", dependencies: ["MIDI2"]),
         .executableTarget(
             name: "midi2demo",

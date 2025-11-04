@@ -1,13 +1,19 @@
-# 🎛️ MIDI 2.0 Compliance Validation Rig (Drop-in Package)
+# 🎛️ MIDI 2.0 Compliance Validation Rig (Local + Headless)
 
-This folder can be dropped into your `midi2` repo root and installed with:
+This folder provides two complementary ways to generate a compliance-style report for your MIDI 2.0 implementation:
+
+1) A fast, deterministic Swift runner (`midi2compliance`) that exercises key conformance flows without GUI.
+2) A headless Electron + Playwright rig that automates your fork of the MIDI 2.0 Workbench to produce an exported JSON report.
+
+Install with:
 
 ```bash
 bash midi2-compliance/scripts/install.sh
 ```
 
 It will:
-- Install Node/Playwright dependencies (without sudo).
+- Provide a Swift local runner executable: `swift run midi2compliance --export out/report.json`.
+- Install Node/Playwright dependencies (without sudo) for Workbench automation.
 - Clone your **fork** of the MIDI 2.0 Workbench into `.workbench/` (configurable).
 - Provide a **headless controller** (`ci/run-workbench-tests.js`) to run the **MIDI 2.0 Compliance** suite and export a JSON report.
 - Set up **GitHub Actions** to run on every push/PR and upload the compliance report.
@@ -16,7 +22,17 @@ It will:
 
 > **Note:** This uses a headless Electron automation approach. If your Workbench fork exposes a native CLI like `--headless --export`, adjust `scripts/run_local.sh` and workflow steps accordingly for a simpler setup.
 
-## Quick Start
+## Quick Start (Swift local runner)
+
+Run a fast, hermetic test suite against the library:
+
+```bash
+swift run midi2compliance --export out/report.json
+python3 midi2-compliance/tools/badge_from_report.py out/report.json out/badge.svg
+open out/report.json
+```
+
+## Quick Start (Workbench headless)
 
 1. Drop `midi2-compliance/` into your repo root (`Fountain-Coach/midi2`).  
 2. Edit **config** in `scripts/install.sh` if needed:
@@ -26,7 +42,7 @@ It will:
    ```bash
    bash midi2-compliance/scripts/install.sh
    ```
-4. (Optional) Run locally:
+4. (Optional) Run Workbench locally (headless):
    ```bash
    bash midi2-compliance/scripts/run_local.sh
    ```

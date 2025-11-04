@@ -10,7 +10,8 @@ let package = Package(
         .library(name: "MIDI2", targets: ["MIDI2"]),
         .library(name: "MIDI2CI", targets: ["MIDI2CI"]),
         .executable(name: "midi2demo", targets: ["midi2demo"]),
-        .executable(name: "jitterdemo", targets: ["jitterdemo"])
+        .executable(name: "jitterdemo", targets: ["jitterdemo"]),
+        .executable(name: "midi2compliance", targets: ["midi2compliance"])
     ],
     dependencies: [
         .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
@@ -41,6 +42,10 @@ let package = Package(
                     "-Xfrontend", "-warn-concurrency"
                 ], .when(configuration: .debug))
             ]
+        ),
+        .executableTarget(
+            name: "midi2compliance",
+            dependencies: ["MIDI2", "MIDI2CI"]
         ),
         .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "midi2demo"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")

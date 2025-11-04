@@ -44,7 +44,7 @@ Add `MIDI2` to your project using the [Swift Package Manager](https://www.swift.
 
 ```swift
 dependencies: [
-    .package(url: "https://example.com/midi2.git", from: "0.4.1")
+    .package(url: "https://example.com/midi2.git", from: "0.6.1")
 ]
 ```
 

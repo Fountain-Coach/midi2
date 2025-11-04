@@ -1,0 +1,23 @@
+[
+  {
+    "command": "set",
+    "requestId": 42,
+    "encoding": "json",
+    "header": {"res": "/clip/title", "total": "6", "offset": "0", "length": "3", "more": "1"},
+    "dataHex": "010203"
+  },
+  {
+    "command": "set",
+    "requestId": 42,
+    "encoding": "json",
+    "header": {"res": "/clip/title", "total": "6", "offset": "3", "length": "3", "more": "0"},
+    "dataHex": "040506"
+  },
+  {
+    "command": "setReply",
+    "requestId": 42,
+    "encoding": "json",
+    "header": {"res": "/clip/title", "ok": "1"},
+    "dataHex": ""
+  }
+]

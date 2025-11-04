@@ -1,0 +1,16 @@
+[
+  {
+    "command": "getReply",
+    "requestId": 100,
+    "encoding": "json",
+    "header": {"res": "/clip/title", "total": "8", "offset": "0", "length": "4", "more": "1"},
+    "dataHex": "00010203"
+  },
+  {
+    "command": "getReply",
+    "requestId": 100,
+    "encoding": "json",
+    "header": {"res": "/clip/title", "total": "8", "offset": "4", "length": "4", "more": "0"},
+    "dataHex": "04050607"
+  }
+]

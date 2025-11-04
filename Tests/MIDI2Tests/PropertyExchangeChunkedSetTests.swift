@@ -86,6 +86,7 @@ final class PropertyExchangeChunkedSetTests: XCTestCase {
         XCTAssertEqual(r2.count, 1)
         XCTAssertEqual(r2.first?.command, .setReply)
         XCTAssertEqual(r2.first?.header["ok"], "0")
+        XCTAssertEqual(r2.first?.header["err"], "wrong_resource_or_encoding")
     }
 
     func testChunkedSetMismatchedResourceFails() throws {
@@ -104,6 +105,7 @@ final class PropertyExchangeChunkedSetTests: XCTestCase {
         XCTAssertEqual(r2.count, 1)
         XCTAssertEqual(r2.first?.command, .setReply)
         XCTAssertEqual(r2.first?.header["ok"], "0")
+        XCTAssertEqual(r2.first?.header["err"], "wrong_resource_or_encoding")
     }
 
     func testChunkedSetMismatchedEncodingFails() throws {
@@ -121,6 +123,7 @@ final class PropertyExchangeChunkedSetTests: XCTestCase {
         XCTAssertEqual(r2.count, 1)
         XCTAssertEqual(r2.first?.command, .setReply)
         XCTAssertEqual(r2.first?.header["ok"], "0")
+        XCTAssertEqual(r2.first?.header["err"], "total_mismatch")
     }
 
     func testChunkedSetMismatchedTotalFails() throws {

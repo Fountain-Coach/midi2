@@ -254,6 +254,14 @@ public final class PropertyExchangeSession {
 
     /// Handle a single request and return zero or more reply/notify messages.
     public func handle(_ request: MidiCiPropertyExchangeBody) -> [MidiCiPropertyExchangeBody] {
+        func failureSetReply(_ res: String, _ req: MidiCiPropertyExchangeBody, code: String, msg: String) -> [MidiCiPropertyExchangeBody] {
+            let replyHeader = ["res": res, "ok": "0", "err": code, "msg": msg]
+            return [MidiCiPropertyExchangeBody(command: .setReply,
+                                               requestId: req.requestId,
+                                               encoding: req.encoding,
+                                               header: replyHeader,
+                                               data: [])]
+        }
         switch request.command {
         case .get:
             let res = request.header["res"] ?? ""
@@ -293,20 +301,17 @@ public final class PropertyExchangeSession {
                                                                                buffer: [])
                 // Validate consistency
                 if acc.resource != res || acc.encoding != request.encoding {
-                    let replyHeader = ["res": res, "ok": "0"]
-                    return [MidiCiPropertyExchangeBody(command: .setReply, requestId: request.requestId, encoding: request.encoding, header: replyHeader, data: [])]
+                    return failureSetReply(res, request, code: "wrong_resource_or_encoding", msg: "resource or encoding mismatch across chunks")
                 }
                 if let expected = acc.expectedTotal, expected != total {
-                    let replyHeader = ["res": res, "ok": "0"]
-                    return [MidiCiPropertyExchangeBody(command: .setReply, requestId: request.requestId, encoding: request.encoding, header: replyHeader, data: [])]
+                    return failureSetReply(res, request, code: "total_mismatch", msg: "declared total changed across chunks")
                 }
                 if acc.expectedTotal == nil {
                     acc.expectedTotal = total
                     acc.buffer.reserveCapacity(total)
                 }
                 guard offset == acc.nextOffset, length == request.data.count else {
-                    let replyHeader = ["res": res, "ok": "0"]
-                    return [MidiCiPropertyExchangeBody(command: .setReply, requestId: request.requestId, encoding: request.encoding, header: replyHeader, data: [])]
+                    return failureSetReply(res, request, code: "offset_length_mismatch", msg: "invalid offset or length")
                 }
                 acc.buffer.append(contentsOf: request.data)
                 acc.nextOffset += length
@@ -339,12 +344,7 @@ public final class PropertyExchangeSession {
                         }
                         return replies
                     } else {
-                        let replyHeader = ["res": res, "ok": "0"]
-                        return [MidiCiPropertyExchangeBody(command: .setReply,
-                                                           requestId: request.requestId,
-                                                           encoding: request.encoding,
-                                                           header: replyHeader,
-                                                           data: [])]
+                        return failureSetReply(res, request, code: "commit_failed", msg: "total mismatch or policy denied")
                     }
                 }
             } else {
@@ -369,12 +369,7 @@ public final class PropertyExchangeSession {
                     }
                     return replies
                 } else {
-                    let replyHeader = ["res": res, "ok": "0"]
-                    return [MidiCiPropertyExchangeBody(command: .setReply,
-                                                       requestId: request.requestId,
-                                                       encoding: request.encoding,
-                                                       header: replyHeader,
-                                                       data: [])]
+                    return failureSetReply(res, request, code: "policy_denied", msg: "set not allowed")
                 }
             }
         case .subscribe:

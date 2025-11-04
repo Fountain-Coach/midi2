@@ -18,17 +18,28 @@ struct PropertyExchangeDemo: ParsableCommand {
     @Option(name: .long, help: "Max bytes per message (chunk)")
     var chunk: Int = 50
 
+    @Option(name: .long, help: "Encoding (json|jsonZlib|binary|binaryZlib)")
+    var encoding: String = "json"
+
     func run() throws {
         var size = max(0, size)
         let chunkSize = max(1, chunk)
-        let enc: MidiCiPropertyExchangeBody.Encoding = .json
+        let enc: MidiCiPropertyExchangeBody.Encoding
+        switch encoding.lowercased() {
+        case "json": enc = .json
+        case "jsonzlib": enc = .jsonZlib
+        case "binary": enc = .binary
+        case "binaryzlib": enc = .binaryZlib
+        default: throw ValidationError("Invalid encoding")
+        }
         let session = PropertyExchangeSession(initialStore: [:], maxDataPerMessage: chunkSize)
 
         // Subscribe
         _ = session.handle(PropertyExchangeBuilder.makeSubscribe(resource: resource, requestId: 1, encoding: enc))
 
         // Build payload
-        let payload = Array(0..<size).map { UInt8($0 & 0xFF) }
+        let clear = Array(0..<size).map { UInt8($0 & 0xFF) }
+        let payload = PropertyExchangeCodec.encode(clear, using: enc)
         let total = payload.count
         let reqId: UInt32 = 42
 
@@ -83,7 +94,7 @@ struct PropertyExchangeDemo: ParsableCommand {
             getDone = try rxGet.ingest(reply: r)
         }
         print("GET reassembled: done=\(getDone) bytes=\(rxGet.buffer.count)")
-        if rxGet.buffer == payload { print("OK: payloads match") } else { print("ERROR: payloads differ") }
+        let decodedGet = PropertyExchangeCodec.decode(rxGet.buffer, using: enc)
+        if decodedGet == clear { print("OK: payloads match") } else { print("ERROR: payloads differ") }
     }
 }
-

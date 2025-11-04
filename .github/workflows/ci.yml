@@ -18,16 +18,20 @@ jobs:
       - name: Coverage report
         run: |
           swift test --enable-code-coverage
-          xcrun llvm-cov report .build/*/debug/MIDI2PackageTests.xctest/Contents/MacOS/MIDI2PackageTests --instr-profile .build/*/debug/codecov/default.profdata || true
+          xcrun llvm-cov report \
+            .build/*/debug/MIDI2PackageTests.xctest/Contents/MacOS/MIDI2PackageTests \
+            --instr-profile .build/*/debug/codecov/default.profdata \
+            --ignore-filename-regex='(Tests/|^\.|/\.)' || true
       - name: Enforce coverage gate (>=80%)
         run: |
           set -e
           swift test --enable-code-coverage
           BIN=$(ls .build/*/debug/MIDI2PackageTests.xctest/Contents/MacOS/MIDI2PackageTests | head -n1)
           PROF=$(ls .build/*/debug/codecov/default.profdata | head -n1)
-          REPORT=$(xcrun llvm-cov report "$BIN" --instr-profile "$PROF")
+          REPORT=$(xcrun llvm-cov report "$BIN" --instr-profile "$PROF" --ignore-filename-regex='(Tests/|^\.|/\.)')
           echo "$REPORT"
-          PCT=$(echo "$REPORT" | awk '/TOTAL/{print $(NF-1)}' | tr -d '%')
+          # Extract the Lines cover percentage (10th column in TOTAL row)
+          PCT=$(echo "$REPORT" | awk '/^TOTAL/{print $10}' | tr -d '%')
           echo "Coverage: ${PCT}%"
           if [ -z "$PCT" ]; then echo "Coverage parse failed"; exit 1; fi
           PCT_INT=${PCT%.*}

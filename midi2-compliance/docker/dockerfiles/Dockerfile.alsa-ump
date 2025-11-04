@@ -1,0 +1,14 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    alsa-utils libasound2 libasound2-dev kmod \
+    build-essential pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+# Init script attempts to load snd-seq and snd-aloop; creates a loopback client
+COPY midi2-compliance/docker/scripts/init-alsa-ump.sh /usr/local/bin/init-alsa-ump.sh
+RUN chmod +x /usr/local/bin/init-alsa-ump.sh
+
+WORKDIR /work
+

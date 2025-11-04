@@ -1,0 +1,20 @@
+FROM node:20-bullseye
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb libnss3 libgtk-3-0 libxss1 libxtst6 libx11-xcb1 libxcb-dri3-0 \
+    libdrm2 libgbm1 libxdamage1 libxcomposite1 libxrandr2 \
+    libpangocairo-1.0-0 libatk1.0-0 libcups2 libxkbcommon0 libnotify4 \
+    git python3 jq \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /work
+
+# Install Playwright dependencies + browsers (for Electron controller)
+RUN npm install -g playwright @playwright/test && npx playwright install --with-deps
+
+# Copy headless runner script from repo
+COPY midi2-compliance/ci/run-workbench-tests.js /usr/local/bin/run-workbench-tests.js
+COPY midi2-compliance/docker/scripts/run-workbench-headless.sh /usr/local/bin/run-workbench-headless.sh
+RUN chmod +x /usr/local/bin/run-workbench-headless.sh
+

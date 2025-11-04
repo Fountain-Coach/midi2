@@ -1,0 +1,29 @@
+version: '3.9'
+
+services:
+  alsa-ump:
+    build:
+      context: ../..
+      dockerfile: midi2-compliance/docker/dockerfiles/Dockerfile.alsa-ump
+    container_name: midi2-alsa-ump
+    privileged: true
+    environment:
+      - ALSA_CARD=0
+    volumes:
+      - ../../out:/work/out
+    command: ["/usr/local/bin/init-alsa-ump.sh"]
+
+  workbench:
+    build:
+      context: ../..
+      dockerfile: midi2-compliance/docker/dockerfiles/Dockerfile.workbench
+    container_name: midi2-workbench
+    depends_on:
+      - alsa-ump
+    environment:
+      - WORKBENCH_FORK_URL=${WORKBENCH_FORK_URL:-https://github.com/Fountain-Coach/MIDI2.0Workbench}
+      - DISPLAY=:99
+    volumes:
+      - ../../out:/work/out
+    command: ["/usr/local/bin/run-workbench-headless.sh"]
+

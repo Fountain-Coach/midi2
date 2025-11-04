@@ -37,4 +37,8 @@ final class Midi2DemoCLITests: XCTestCase {
     func testCIHandshakeFlags() {
         XCTAssertNoThrow(try CIHandshakeCommand.parse(["--no-common-protocol", "--unsupported-profile", "--missing-property"]).run())
     }
+
+    func testStreamConfigHandshakeRuns() {
+        XCTAssertNoThrow(try StreamHandshake.parse(["--group", "0"]).run())
+    }
 }

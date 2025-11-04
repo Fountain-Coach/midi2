@@ -12,9 +12,9 @@ public struct EndpointDiscoveryMessage: Equatable {
         self.data2 = data2
     }
 
-    // Provisional field mapping (spec §5):
+    // Spec-aligned nibble mapping (schema §StreamBody.endpointDiscovery):
     // - data1: [major:4][minor:4]
-    // - data2: [capabilities:4][numGroups:4]
+    // - data2: [reserved:4][maxGroups:4]
     public var majorVersion: UInt8 {
         get { (data1 >> 4) & 0x0F }
         set { data1 = (newValue & 0x0F) << 4 | (data1 & 0x0F) }
@@ -23,18 +23,18 @@ public struct EndpointDiscoveryMessage: Equatable {
         get { data1 & 0x0F }
         set { data1 = (data1 & 0xF0) | (newValue & 0x0F) }
     }
-    public var capabilitiesNibble: UInt8 {
+    public var reservedHighNibble: UInt8 {
         get { (data2 >> 4) & 0x0F }
         set { data2 = (newValue & 0x0F) << 4 | (data2 & 0x0F) }
     }
-    public var numGroups: UInt8 {
+    public var maxGroups: UInt8 {
         get { data2 & 0x0F }
         set { data2 = (data2 & 0xF0) | (newValue & 0x0F) }
     }
 
-    public init(majorVersion: UInt8, minorVersion: UInt8, capabilitiesNibble: UInt8, numGroups: UInt8) {
+    public init(majorVersion: UInt8, minorVersion: UInt8, maxGroups: UInt8) {
         self.data1 = ((majorVersion & 0x0F) << 4) | (minorVersion & 0x0F)
-        self.data2 = ((capabilitiesNibble & 0x0F) << 4) | (numGroups & 0x0F)
+        self.data2 = 0x00 | (maxGroups & 0x0F)
     }
 
     /// Encode to a 32-bit UMP in the given group.

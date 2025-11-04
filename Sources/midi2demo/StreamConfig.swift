@@ -36,7 +36,7 @@ struct StreamEndpoint: ParsableCommand {
         print(String(format: "UMP: 0x%08X", pkt.word))
         var parsed = try EndpointDiscoveryMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
-        print("  major=\(parsed.majorVersion) minor=\(parsed.minorVersion) caps=0x\(String(parsed.capabilitiesNibble, radix:16)) groups=\(parsed.numGroups)")
+        print("  major=\(parsed.majorVersion) minor=\(parsed.minorVersion) maxGroups=\(parsed.maxGroups)")
     }
 }
 
@@ -64,7 +64,7 @@ struct StreamConfigure: ParsableCommand {
         print(String(format: "UMP: 0x%08X", pkt.word))
         var parsed = try StreamConfigurationMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
-        print("  isReply=\(parsed.isReply) mode=0b\(String(parsed.mode, radix:2)) jr=\(parsed.jrRequested) proto=0b\(String(parsed.protocolSelection, radix:2)) groupMask=0x\(String(parsed.groupMask, radix:16))")
+        print("  isNotification=\(parsed.isNotification) jrTx=\(parsed.jrTimestampsTx) jrRx=\(parsed.jrTimestampsRx) proto=\(parsed.protocolSelection == .midi2 ? "midi2" : "midi1")")
     }
 }
 
@@ -92,7 +92,7 @@ struct StreamFunctionBlock: ParsableCommand {
         print(String(format: "UMP: 0x%08X", pkt.word))
         var parsed = try FunctionBlockMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
-        print("  kind=0b\(String(parsed.kind, radix:2)) index=\(parsed.index) flags=0b\(String(parsed.flags, radix:2)) count=\(parsed.count)")
+        print("  index=\(parsed.index) firstGroup=\(parsed.firstGroup) groupCount=\(parsed.groupCount)")
     }
 }
 

@@ -12,29 +12,25 @@ public struct FunctionBlockMessage: Equatable {
         self.data2 = data2
     }
 
-    // Provisional field mapping (spec §5.4):
-    // data1: [kind:2][index:6] where kind=mt flags, index=function block index
-    // data2: [flags:2][count:6] where flags may encode direction or active
-    public var kind: UInt8 {
-        get { (data1 >> 6) & 0x03 }
-        set { data1 = (data1 & 0x3F) | ((newValue & 0x03) << 6) }
-    }
+    // Spec-aligned nibble mapping (schema §StreamBody.functionBlockInfo):
+    // data1: index (UInt8)
+    // data2: [firstGroup:4][groupCount:4]
     public var index: UInt8 {
-        get { data1 & 0x3F }
-        set { data1 = (data1 & 0xC0) | (newValue & 0x3F) }
+        get { data1 }
+        set { data1 = newValue }
     }
-    public var flags: UInt8 {
-        get { (data2 >> 6) & 0x03 }
-        set { data2 = (data2 & 0x3F) | ((newValue & 0x03) << 6) }
+    public var firstGroup: UInt8 {
+        get { (data2 >> 4) & 0x0F }
+        set { data2 = (data2 & 0x0F) | ((newValue & 0x0F) << 4) }
     }
-    public var count: UInt8 {
-        get { data2 & 0x3F }
-        set { data2 = (data2 & 0xC0) | (newValue & 0x3F) }
+    public var groupCount: UInt8 {
+        get { data2 & 0x0F }
+        set { data2 = (data2 & 0xF0) | (newValue & 0x0F) }
     }
 
-    public init(kind: UInt8, index: UInt8, flags: UInt8, count: UInt8) {
-        self.data1 = ((kind & 0x03) << 6) | (index & 0x3F)
-        self.data2 = ((flags & 0x03) << 6) | (count & 0x3F)
+    public init(index: UInt8, firstGroup: UInt8, groupCount: UInt8) {
+        self.data1 = index
+        self.data2 = ((firstGroup & 0x0F) << 4) | (groupCount & 0x0F)
     }
 
     public func ump(group: Uint4) -> UmpPacket32 {

@@ -47,17 +47,52 @@ function getArg(name, defVal) {
     if (process.env.MIDI2_LOG_CONSOLE === '1') console.log(`[wb] ${line}`);
   });
 
-  // wait for main UI ready (adjust selector to your fork)
-  await win.waitForSelector(startSelector, { timeout: 120000 });
+  // wait for main UI ready (adjust selector to your fork). Try a few fallbacks.
+  const startCandidates = [
+    startSelector,
+    'button:has-text("Run")',
+    'button:has-text("Start")',
+    'text=Run Tests',
+    'text=Start Tests'
+  ];
+  let started = false;
+  for (const sel of startCandidates) {
+    try {
+      await win.waitForSelector(sel, { timeout: 10000 });
+      console.log(`[midi2-compliance] Starting suite with selector: ${sel}`);
+      await win.click(sel);
+      started = true;
+      break;
+    } catch (e) {
+      // try next candidate
+    }
+  }
+  if (!started) {
+    throw new Error(`[midi2-compliance] Could not find start control. Tried: ${startCandidates.join(', ')}`);
+  }
 
-  console.log("[midi2-compliance] Starting full compliance suite...");
-  await win.click(startSelector);
-
-  // suite can take a while
-  await win.waitForSelector(exportSelector, { timeout: 15 * 60 * 1000 });
-
-  console.log("[midi2-compliance] Exporting JSON report...");
-  await win.click(exportSelector);
+  // suite can take a while, then attempt export via a few selector fallbacks.
+  const exportCandidates = [
+    exportSelector,
+    'button:has-text("Export")',
+    'text=Export JSON',
+    'text=Export Report'
+  ];
+  let exported = false;
+  for (const sel of exportCandidates) {
+    try {
+      await win.waitForSelector(sel, { timeout: 15 * 60 * 1000 });
+      console.log(`[midi2-compliance] Exporting JSON report with selector: ${sel}`);
+      await win.click(sel);
+      exported = true;
+      break;
+    } catch (e) {
+      // try next candidate
+    }
+  }
+  if (!exported) {
+    throw new Error(`[midi2-compliance] Could not find export control. Tried: ${exportCandidates.join(', ')}`);
+  }
 
   // fetch report object from window (ensure fork sets this global)
   const json = await win.evaluate(() => {

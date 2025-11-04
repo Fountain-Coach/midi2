@@ -41,4 +41,8 @@ final class Midi2DemoCLITests: XCTestCase {
     func testStreamConfigHandshakeRuns() {
         XCTAssertNoThrow(try StreamHandshake.parse(["--group", "0"]).run())
     }
+
+    func testPropertyExchangeDemoRuns() {
+        XCTAssertNoThrow(try PropertyExchangeDemo.parse(["--resource", "/clip/title", "--size", "60", "--chunk", "25"]).run())
+    }
 }

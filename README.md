@@ -81,6 +81,20 @@ swift run midi2demo stream-config configure --group 0 --data1 0x01 --data2 0x00
 swift run midi2demo stream-config fb --group 0 --data1 0x80 --data2 0x01
 swift run midi2demo stream-config fb-discover --group 0 --filter 0xA5A5F00D
 swift run midi2demo stream-config gtb --group 0 0:0,4 1:4,4
+
+### Property Exchange (chunked Set/Get/Notify)
+
+Simulate a chunked Property Exchange flow using the in‑memory session:
+
+```bash
+swift run midi2demo pe-demo --resource /clip/title --size 120 --chunk 50
+```
+
+The demo:
+- Subscribes to the resource.
+- Sends a chunked Set that the session reassembles and stores.
+- Prints chunked Notify packets and reassembles them.
+- Issues a Get and reassembles the chunked GetReply to verify integrity.
 ```
 
 Each command prints the encoded Universal MIDI Packet and decodes it back to

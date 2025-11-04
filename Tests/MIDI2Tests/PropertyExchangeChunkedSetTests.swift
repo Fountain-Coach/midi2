@@ -87,5 +87,57 @@ final class PropertyExchangeChunkedSetTests: XCTestCase {
         XCTAssertEqual(r2.first?.command, .setReply)
         XCTAssertEqual(r2.first?.header["ok"], "0")
     }
-}
 
+    func testChunkedSetMismatchedResourceFails() throws {
+        let enc: MidiCiPropertyExchangeBody.Encoding = .json
+        let session = PropertyExchangeSession(initialStore: [:], maxDataPerMessage: 50)
+        let reqId: UInt32 = 10
+        // First chunk for /a
+        let h1 = ["res": "/a", "total": "6", "offset": "0", "length": "3", "more": "1"]
+        let b1 = MidiCiPropertyExchangeBody(command: .set, requestId: reqId, encoding: enc, header: h1, data: [1,2,3])
+        let r1 = session.handle(b1)
+        XCTAssertTrue(r1.isEmpty)
+        // Second chunk incorrectly switches to /b
+        let h2 = ["res": "/b", "total": "6", "offset": "3", "length": "3", "more": "0"]
+        let b2 = MidiCiPropertyExchangeBody(command: .set, requestId: reqId, encoding: enc, header: h2, data: [4,5,6])
+        let r2 = session.handle(b2)
+        XCTAssertEqual(r2.count, 1)
+        XCTAssertEqual(r2.first?.command, .setReply)
+        XCTAssertEqual(r2.first?.header["ok"], "0")
+    }
+
+    func testChunkedSetMismatchedEncodingFails() throws {
+        let session = PropertyExchangeSession(initialStore: [:], maxDataPerMessage: 50)
+        let reqId: UInt32 = 11
+        // First chunk encoding json
+        let h1 = ["res": "/a", "total": "4", "offset": "0", "length": "2", "more": "1"]
+        let b1 = MidiCiPropertyExchangeBody(command: .set, requestId: reqId, encoding: .json, header: h1, data: [1,2])
+        let r1 = session.handle(b1)
+        XCTAssertTrue(r1.isEmpty)
+        // Second chunk encoding binary -> should fail
+        let h2 = ["res": "/a", "total": "4", "offset": "2", "length": "2", "more": "0"]
+        let b2 = MidiCiPropertyExchangeBody(command: .set, requestId: reqId, encoding: .binary, header: h2, data: [3,4])
+        let r2 = session.handle(b2)
+        XCTAssertEqual(r2.count, 1)
+        XCTAssertEqual(r2.first?.command, .setReply)
+        XCTAssertEqual(r2.first?.header["ok"], "0")
+    }
+
+    func testChunkedSetMismatchedTotalFails() throws {
+        let enc: MidiCiPropertyExchangeBody.Encoding = .json
+        let session = PropertyExchangeSession(initialStore: [:], maxDataPerMessage: 50)
+        let reqId: UInt32 = 12
+        // First chunk declares total 10
+        let h1 = ["res": "/a", "total": "10", "offset": "0", "length": "5", "more": "1"]
+        let b1 = MidiCiPropertyExchangeBody(command: .set, requestId: reqId, encoding: enc, header: h1, data: [1,2,3,4,5])
+        let r1 = session.handle(b1)
+        XCTAssertTrue(r1.isEmpty)
+        // Second chunk claims total 9 (mismatch) -> should fail
+        let h2 = ["res": "/a", "total": "9", "offset": "5", "length": "5", "more": "0"]
+        let b2 = MidiCiPropertyExchangeBody(command: .set, requestId: reqId, encoding: enc, header: h2, data: [6,7,8,9,10])
+        let r2 = session.handle(b2)
+        XCTAssertEqual(r2.count, 1)
+        XCTAssertEqual(r2.first?.command, .setReply)
+        XCTAssertEqual(r2.first?.header["ok"], "0")
+    }
+}

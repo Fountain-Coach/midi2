@@ -56,6 +56,7 @@ struct Midi2Demo: ParsableCommand {
             SysEx8Command.self,
             Flex.self,
             CIHandshakeCommand.self,
+            PropertyExchangeDemo.self,
             InspectCommand.self,
             StreamConfig.self,
             StreamEndpoint.self,

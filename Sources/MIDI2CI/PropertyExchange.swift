@@ -71,6 +71,42 @@ public enum PropertyExchangeChunker {
         }
         return bodies
     }
+
+    /// Split arbitrary data for Notify into multiple NOTIFY bodies with chunk metadata.
+    /// Each chunk carries the same notification sequence number in header key "seq".
+    public static func chunkNotify(resource: String,
+                                   requestId: UInt32,
+                                   encoding: MidiCiPropertyExchangeBody.Encoding,
+                                   seq: Int,
+                                   data: [UInt8],
+                                   maxDataPerMessage: Int) -> [MidiCiPropertyExchangeBody] {
+        precondition(maxDataPerMessage > 0, "maxDataPerMessage must be > 0")
+        var offset = 0
+        var bodies: [MidiCiPropertyExchangeBody] = []
+        while offset < data.count {
+            let length = min(maxDataPerMessage, data.count - offset)
+            let chunk = Array(data[offset..<(offset + length)])
+            let more = (offset + length) < data.count
+            let header: [String: String] = [
+                "res": resource,
+                "seq": String(seq),
+                "total": String(data.count),
+                "offset": String(offset),
+                "length": String(length),
+                "more": more ? "1" : "0"
+            ]
+            let body = MidiCiPropertyExchangeBody(
+                command: .notify,
+                requestId: requestId,
+                encoding: encoding,
+                header: header,
+                data: chunk
+            )
+            bodies.append(body)
+            offset += length
+        }
+        return bodies
+    }
 }
 
 /// Accumulates chunked GET_REPLY messages and reassembles the full value.
@@ -197,6 +233,15 @@ public final class PropertyExchangeSession {
     private var notifySeq: Int = 0
     public var maxDataPerMessage: Int
     private let setAllowed: (String, [UInt8]) -> Bool
+    private struct SetAccumulator {
+        var requestId: UInt32
+        var resource: String
+        var encoding: MidiCiPropertyExchangeBody.Encoding
+        var expectedTotal: Int?
+        var nextOffset: Int
+        var buffer: [UInt8]
+    }
+    private var setAccumulators: [UInt32: SetAccumulator] = [:]
 
     public init(initialStore: [String: [UInt8]] = [:],
                 maxDataPerMessage: Int = 80,
@@ -232,32 +277,105 @@ public final class PropertyExchangeSession {
             }
         case .set:
             let res = request.header["res"] ?? ""
-            if setAllowed(res, request.data) {
-                store[res] = request.data
-                let replyHeader = ["res": res, "ok": "1"]
-                var replies = [MidiCiPropertyExchangeBody(command: .setReply,
-                                                         requestId: request.requestId,
-                                                         encoding: request.encoding,
-                                                         header: replyHeader,
-                                                         data: [])]
-                if subscriptions.contains(res) {
-                    notifySeq &+= 1
-                    let notifyHeader = ["res": res, "seq": String(notifySeq)]
-                    let notify = MidiCiPropertyExchangeBody(command: .notify,
-                                                            requestId: request.requestId,
-                                                            encoding: request.encoding,
-                                                            header: notifyHeader,
-                                                            data: request.data)
-                    replies.append(notify)
+            // Attempt to parse chunking headers if present
+            if let totalStr = request.header["total"],
+               let offStr = request.header["offset"],
+               let lenStr = request.header["length"],
+               let moreStr = request.header["more"],
+               let total = Int(totalStr), let offset = Int(offStr), let length = Int(lenStr),
+               (moreStr == "0" || moreStr == "1") {
+                // Chunked SET flow
+                var acc = setAccumulators[request.requestId] ?? SetAccumulator(requestId: request.requestId,
+                                                                               resource: res,
+                                                                               encoding: request.encoding,
+                                                                               expectedTotal: nil,
+                                                                               nextOffset: 0,
+                                                                               buffer: [])
+                // Validate consistency
+                if acc.resource != res || acc.encoding != request.encoding {
+                    let replyHeader = ["res": res, "ok": "0"]
+                    return [MidiCiPropertyExchangeBody(command: .setReply, requestId: request.requestId, encoding: request.encoding, header: replyHeader, data: [])]
                 }
-                return replies
+                if let expected = acc.expectedTotal, expected != total {
+                    let replyHeader = ["res": res, "ok": "0"]
+                    return [MidiCiPropertyExchangeBody(command: .setReply, requestId: request.requestId, encoding: request.encoding, header: replyHeader, data: [])]
+                }
+                if acc.expectedTotal == nil {
+                    acc.expectedTotal = total
+                    acc.buffer.reserveCapacity(total)
+                }
+                guard offset == acc.nextOffset, length == request.data.count else {
+                    let replyHeader = ["res": res, "ok": "0"]
+                    return [MidiCiPropertyExchangeBody(command: .setReply, requestId: request.requestId, encoding: request.encoding, header: replyHeader, data: [])]
+                }
+                acc.buffer.append(contentsOf: request.data)
+                acc.nextOffset += length
+                let more = (moreStr == "1")
+                if more {
+                    setAccumulators[request.requestId] = acc
+                    return []
+                } else {
+                    // final chunk: commit and clear
+                    setAccumulators.removeValue(forKey: request.requestId)
+                    // guard length matches expected total
+                    if let expected = acc.expectedTotal, acc.buffer.count == expected, setAllowed(res, acc.buffer) {
+                        store[res] = acc.buffer
+                        let replyHeader = ["res": res, "ok": "1"]
+                        var replies = [MidiCiPropertyExchangeBody(command: .setReply,
+                                                                 requestId: request.requestId,
+                                                                 encoding: request.encoding,
+                                                                 header: replyHeader,
+                                                                 data: [])]
+                        if subscriptions.contains(res) {
+                            notifySeq &+= 1
+                            // Chunk notify if needed
+                            let notifies = PropertyExchangeChunker.chunkNotify(resource: res,
+                                                                              requestId: request.requestId,
+                                                                              encoding: request.encoding,
+                                                                              seq: notifySeq,
+                                                                              data: acc.buffer,
+                                                                              maxDataPerMessage: maxDataPerMessage)
+                            replies.append(contentsOf: notifies)
+                        }
+                        return replies
+                    } else {
+                        let replyHeader = ["res": res, "ok": "0"]
+                        return [MidiCiPropertyExchangeBody(command: .setReply,
+                                                           requestId: request.requestId,
+                                                           encoding: request.encoding,
+                                                           header: replyHeader,
+                                                           data: [])]
+                    }
+                }
             } else {
-                let replyHeader = ["res": res, "ok": "0"]
-                return [MidiCiPropertyExchangeBody(command: .setReply,
-                                                   requestId: request.requestId,
-                                                   encoding: request.encoding,
-                                                   header: replyHeader,
-                                                   data: [])]
+                // Unchunked SET
+                if setAllowed(res, request.data) {
+                    store[res] = request.data
+                    let replyHeader = ["res": res, "ok": "1"]
+                    var replies = [MidiCiPropertyExchangeBody(command: .setReply,
+                                                             requestId: request.requestId,
+                                                             encoding: request.encoding,
+                                                             header: replyHeader,
+                                                             data: [])]
+                    if subscriptions.contains(res) {
+                        notifySeq &+= 1
+                        let notifies = PropertyExchangeChunker.chunkNotify(resource: res,
+                                                                          requestId: request.requestId,
+                                                                          encoding: request.encoding,
+                                                                          seq: notifySeq,
+                                                                          data: request.data,
+                                                                          maxDataPerMessage: maxDataPerMessage)
+                        replies.append(contentsOf: notifies)
+                    }
+                    return replies
+                } else {
+                    let replyHeader = ["res": res, "ok": "0"]
+                    return [MidiCiPropertyExchangeBody(command: .setReply,
+                                                       requestId: request.requestId,
+                                                       encoding: request.encoding,
+                                                       header: replyHeader,
+                                                       data: [])]
+                }
             }
         case .subscribe:
             let res = request.header["res"] ?? ""

@@ -112,6 +112,26 @@ swift run midi2demo profiles-psd --profile /org.midi/piano --target channel --ch
 ```
 
 Prints SysEx8 bytes and decodes them back.
+
+## Compliance (MIDI Association Workbench)
+
+Run conformance tests headlessly using the MIDI Association’s Workbench fork.
+
+- Install locally and set up CI:
+
+```bash
+bash midi2-compliance/scripts/install.sh
+```
+
+- Run locally (headless Electron via Playwright):
+
+```bash
+bash midi2-compliance/scripts/run_local.sh
+open out/report.json
+```
+
+- CI workflow: `.github/workflows/midi2-compliance.yml` runs on push/PR, uploads `out/report.json`, and generates a badge.
+- The rig clones your fork by default: `https://github.com/Fountain-Coach/MIDI2.0Workbench`. Override with `WORKBENCH_FORK_URL`.
 ```
 
 Each command prints the encoded Universal MIDI Packet and decodes it back to

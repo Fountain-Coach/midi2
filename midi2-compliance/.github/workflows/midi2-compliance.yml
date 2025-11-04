@@ -1,0 +1,56 @@
+name: midi2-compliance
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  compliance:
+    strategy:
+      matrix:
+        os: [ubuntu-24.04, macos-14]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Node + deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential libasound2-dev xvfb nodejs npm
+          npm install -g yarn || true
+
+      - name: Install Node + deps (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew update
+          brew install node yarn || true
+
+      - name: Install compliance rig
+        run: |
+          bash midi2-compliance/scripts/install.sh
+
+      - name: Start virtual endpoints (optional stub)
+        run: |
+          echo "TODO: Start midi2 device or virtual endpoints if needed"
+
+      - name: Run Workbench headless
+        run: |
+          bash midi2-compliance/scripts/run_local.sh
+
+      - name: Upload compliance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: midi2-compliance-${{ matrix.os }}
+          path: out/report.json
+
+      - name: Generate badge
+        run: |
+          python3 midi2-compliance/tools/badge_from_report.py out/report.json out/badge.svg || true
+
+      - name: Upload badge
+        uses: actions/upload-artifact@v4
+        with:
+          name: midi2-badge-${{ matrix.os }}
+          path: out/badge.svg

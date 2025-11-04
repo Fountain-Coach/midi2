@@ -247,22 +247,20 @@ struct StreamHandshake: ParsableCommand {
         let epPkt = epReq.ump(group: g)
         print(String(format: "Endpoint Discovery (req): 0x%08X", epPkt.word))
         print("  major=\(epReq.majorVersion) minor=\(epReq.minorVersion) maxGroups=\(epReq.maxGroups)")
+        let session = StreamNegotiationSession(responderCaps: .init(supportsMIDI2: true, jrTx: true, jrRx: true))
+        let epResp = session.onEndpointDiscovery(epReq)
+        let epRespPkt = epResp.ump(group: g)
+        print(String(format: "Endpoint Discovery (rsp): 0x%08X", epRespPkt.word))
 
         // 2) Stream Configuration Request (initiator → responder)
-        let scReq = StreamConfigurationMessage(isNotification: false,
-                                               jrTimestampsTx: true,
-                                               jrTimestampsRx: true,
-                                               protocolSelection: .midi2)
+        let scReq = StreamConfigurationMessage(isNotification: false, jrTimestampsTx: true, jrTimestampsRx: true, protocolSelection: .midi2)
         let scReqPkt = scReq.ump(group: g)
         print(String(format: "Stream Config (req):    0x%08X", scReqPkt.word))
         let scReqParsed = try StreamConfigurationMessage(parsingUMP: scReqPkt)
         print("  isNotification=\(scReqParsed.isNotification) jrTx=\(scReqParsed.jrTimestampsTx) jrRx=\(scReqParsed.jrTimestampsRx) proto=\(scReqParsed.protocolSelection == .midi2 ? "midi2" : "midi1")")
 
-        // 3) Stream Configuration Notification (responder → initiator)
-        let scReply = StreamConfigurationMessage(isNotification: true,
-                                                 jrTimestampsTx: true,
-                                                 jrTimestampsRx: true,
-                                                 protocolSelection: .midi2)
+        // 3) Stream Configuration Notification (responder → initiator) via session
+        let scReply = session.onStreamConfigRequest(scReq)
         let scPkt = scReply.ump(group: g)
         print(String(format: "Stream Config (reply):  0x%08X", scPkt.word))
         let scParsed = try StreamConfigurationMessage(parsingUMP: scPkt)

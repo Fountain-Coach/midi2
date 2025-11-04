@@ -133,6 +133,44 @@ struct StreamFunctionBlockDiscover: ParsableCommand {
     }
 }
 
+struct StreamGTB: ParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "gtb",
+        abstract: "Encode/decode Group Terminal Blocks using Function Block info packets"
+    )
+
+    @Option(name: .long, help: "Group (0-15)")
+    var group: Int = 0
+
+    @Argument(help: "Block specs 'index:firstGroup,count' ... (space-separated)")
+    var blocks: [String] = []
+
+    func parseBlock(_ spec: String) throws -> GroupTerminalBlock {
+        let parts = spec.split(separator: ":", maxSplits: 1).map(String.init)
+        guard parts.count == 2 else { throw ValidationError("Invalid block spec: \(spec)") }
+        guard let idx = UInt8(parts[0]) else { throw ValidationError("Invalid index in: \(spec)") }
+        let rg = parts[1].split(separator: ",", maxSplits: 1).map(String.init)
+        guard rg.count == 2, let fg = UInt8(rg[0]), let gc = UInt8(rg[1]), fg < 16, gc < 16 else {
+            throw ValidationError("Invalid firstGroup,count in: \(spec)")
+        }
+        return GroupTerminalBlock(index: idx, firstGroup: fg, groupCount: gc)
+    }
+
+    func run() throws {
+        guard let g = Uint4(UInt8(group)) else { throw ValidationError("Invalid group") }
+        let blocks: [GroupTerminalBlock] = try blocks.map(parseBlock)
+        let gtb = GroupTerminalBlocks(blocks: blocks)
+        let pkts = gtb.umps(group: g)
+        for (i, pkt) in pkts.enumerated() {
+            print(String(format: "GTB pkt%u: 0x%08X", i, pkt.word))
+        }
+        let parsed = try GroupTerminalBlocks(parsingUMPs: pkts)
+        for blk in parsed.blocks {
+            print("  index=\(blk.index) firstGroup=\(blk.firstGroup) groupCount=\(blk.groupCount)")
+        }
+    }
+}
+
 struct StreamHandshake: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "handshake",

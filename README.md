@@ -80,6 +80,7 @@ swift run midi2demo stream-config endpoint --group 0 --data1 0x12 --data2 0x34
 swift run midi2demo stream-config configure --group 0 --data1 0x01 --data2 0x00
 swift run midi2demo stream-config fb --group 0 --data1 0x80 --data2 0x01
 swift run midi2demo stream-config fb-discover --group 0 --filter 0xA5A5F00D
+swift run midi2demo stream-config gtb --group 0 0:0,4 1:4,4
 ```
 
 Each command prints the encoded Universal MIDI Packet and decodes it back to

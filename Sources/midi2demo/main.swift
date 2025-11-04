@@ -62,6 +62,7 @@ struct Midi2Demo: ParsableCommand {
             StreamConfigure.self,
             StreamFunctionBlock.self
             ,StreamFunctionBlockDiscover.self
+            ,StreamGTB.self
             ,StreamHandshake.self
         ]
     )

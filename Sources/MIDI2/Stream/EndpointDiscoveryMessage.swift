@@ -1,0 +1,35 @@
+/// Typed wrapper for Stream message opcode `.endpointDiscovery` (mt=0xF).
+///
+/// This message is used during endpoint discovery. The underlying format is a
+/// 32-bit UMP with two data bytes. Bit-level semantics should follow M2-104-UM §5;
+/// this wrapper preserves the two data bytes with a dedicated type to avoid opcode mixups.
+public struct EndpointDiscoveryMessage: Equatable {
+    public var data1: UInt8
+    public var data2: UInt8
+
+    public init(data1: UInt8 = 0, data2: UInt8 = 0) {
+        self.data1 = data1
+        self.data2 = data2
+    }
+
+    /// Encode to a 32-bit UMP in the given group.
+    public func ump(group: Uint4) -> UmpPacket32 {
+        StreamBody(opcode: .endpointDiscovery, data1: data1, data2: data2).ump(group: group)
+    }
+
+    /// Decode from a 32-bit UMP. Fails if the opcode does not match.
+    public init?(ump: UmpPacket32) {
+        guard let body = StreamBody(ump: ump), body.opcode == .endpointDiscovery else { return nil }
+        self.init(data1: body.data1, data2: body.data2)
+    }
+
+    /// Throwing decode from a 32-bit UMP that validates opcode.
+    public init(parsingUMP ump: UmpPacket32) throws {
+        let body = try StreamBody(parsingUMP: ump)
+        guard body.opcode == .endpointDiscovery else {
+            throw MIDIError.malformedPacket("expected endpointDiscovery opcode, got \(body.opcode)")
+        }
+        self.init(data1: body.data1, data2: body.data2)
+    }
+}
+

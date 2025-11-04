@@ -20,6 +20,7 @@ function getArg(name, defVal) {
 
 (async () => {
   const exportPath = getArg('--export', path.resolve(process.cwd(), 'out/report.json'));
+  const exportDir = path.dirname(exportPath);
   const workbenchCwd = process.cwd();
   const startSelector = process.env.MIDI2_START_SELECTOR || '#start-tests';
   const exportSelector = process.env.MIDI2_EXPORT_SELECTOR || '#export-json';
@@ -49,76 +50,48 @@ function getArg(name, defVal) {
 
   // Headless path: drive Workbench via IPC to open CI views and build report
   // 1) refresh devices and wait for UMP device cards
+  // Legit path: wait for Workbench to discover devices and open project
   console.log('[midi2-compliance] Refreshing UMP devices...');
-  await win.evaluate(() => {
-    try { require('electron').ipcRenderer.send('asynchronous-message', 'getAllUMPDevicesFunctionBlocks'); } catch (_) {}
-  });
-  // wait until at least one UMP device card appears
+  await win.evaluate(() => { try { require('electron').ipcRenderer.send('asynchronous-message', 'getAllUMPDevicesFunctionBlocks'); } catch (_) {} });
   await win.waitForSelector('[data-umpdev]', { timeout: 120000 });
-  const umpDevs = await win.evaluate(() => Array.from(document.querySelectorAll('[data-umpdev]')).map(el => el.getAttribute('data-umpdev')));
-  if (!umpDevs || umpDevs.length === 0) throw new Error('No UMP devices discovered');
-  const umpDev = umpDevs[0];
+  const umpDev = await win.evaluate(() => {
+    const list = Array.from(document.querySelectorAll('[data-umpdev]')).map(el => el.getAttribute('data-umpdev'));
+    return list && list.length ? list[0] : null;
+  });
+  if (!umpDev) {
+    console.error('[midi2-compliance] No UMP devices discovered by Workbench. Attach a USB MIDI 2.0 device.');
+    await app.close();
+    process.exit(3);
+  }
   console.log(`[midi2-compliance] Using device: ${umpDev}`);
 
-  // 2) open MIDI-CI project window (auto-pick MUID with -1)
-  await win.evaluate((d) => {
-    try { require('electron').ipcRenderer.send('asynchronous-message', 'openMIDICI', { umpDev: d, group: 1, muid: -1 }); } catch (_) {}
-  }, umpDev);
+  // Open project and generate PDF report (no DOM injection)
+  await win.evaluate((d) => { try { require('electron').ipcRenderer.send('asynchronous-message', 'openMIDICI', { umpDev: d, group: 1, muid: -1 }); } catch (_) {} }, umpDev);
   const proj = await app.waitForEvent('window', { timeout: 60000 });
   await proj.waitForLoadState('domcontentloaded');
   console.log('[midi2-compliance] Project window opened');
-
-  // 3) show certification (builds devData) and open report window for rendering
-  await proj.evaluate((d) => {
-    try { require('electron').ipcRenderer.send('asynchronous-message', 'showCertification', { umpDev: d, group: 1, muid: -1, openMIDICI: true }); } catch (_) {}
-  }, umpDev);
-  // allow devData to build
+  await proj.evaluate((d) => { try { require('electron').ipcRenderer.send('asynchronous-message', 'showCertification', { umpDev: d, group: 1, muid: -1, openMIDICI: true }); } catch (_) {} }, umpDev);
   await new Promise(r => setTimeout(r, 2000));
-  await proj.evaluate((d) => {
-    try { require('electron').ipcRenderer.send('asynchronous-message', 'openReport', { umpDev: d, group: 1, muid: -1 }); } catch (_) {}
-  }, umpDev);
-  const reportWin = await app.waitForEvent('window', { timeout: 60000 });
-  await reportWin.waitForLoadState('domcontentloaded');
-  console.log('[midi2-compliance] Report window opened');
+  await proj.evaluate((d) => { try { require('electron').ipcRenderer.send('asynchronous-message', 'generateReport', { umpDev: d, group: 1, muid: -1 }); } catch (_) {} }, umpDev);
+  await new Promise(r => setTimeout(r, 4000));
 
-  // 4) Extract a simple JSON summary from the report DOM (checked items)
-  const summary = await reportWin.evaluate(() => {
-    const checks = [];
-    document.querySelectorAll('input[type="checkbox"][data-path]').forEach((el) => {
-      const path = el.getAttribute('data-path');
-      const passed = !!el.checked;
-      checks.push({ path, passed });
-    });
-    const device = {
-      manufacturer: document.querySelector('[data-pathText="/device/manufacturer"]')?.textContent?.trim() || '',
-      model: document.querySelector('[data-pathText="/device/model"]')?.textContent?.trim() || ''
-    };
-    const passed = checks.some(c => c.passed);
-    const result = { device, passed, checks };
-    window.__MIDI2_LAST_REPORT__ = result;
-    return result;
-  });
-  console.log(`[midi2-compliance] Extracted summary: ${JSON.stringify(summary).slice(0,200)}...`);
-
-  // no explicit export control needed; JSON is placed on window.__MIDI2_LAST_REPORT__
-
-  // fetch report object from window (ensure fork sets this global)
-  const json = await win.evaluate(() => {
-    return typeof window.__MIDI2_LAST_REPORT__ !== 'undefined' ? window.__MIDI2_LAST_REPORT__ : null;
-  });
-
-  if (!json) {
-    console.error("[midi2-compliance] No JSON report found (window.__MIDI2_LAST_REPORT__ is null).");
-    await app.close();
-    process.exit(2);
+  // Copy PDF to out/workbench.pdf; write logs and a minimal metadata json
+  const os = require('os');
+  const pdfPath = path.join(os.homedir(), 'midi2workbench', String(umpDev), 'report.pdf');
+  fs.mkdirSync(exportDir, { recursive: true });
+  const destPDF = path.join(exportDir, 'workbench.pdf');
+  if (fs.existsSync(pdfPath)) {
+    fs.copyFileSync(pdfPath, destPDF);
+    console.log(`[midi2-compliance] PDF report copied to: ${destPDF}`);
+  } else {
+    console.warn(`[midi2-compliance] PDF not found at ${pdfPath}`);
   }
-
-  fs.mkdirSync(path.dirname(exportPath), { recursive: true });
-  fs.writeFileSync(exportPath, JSON.stringify(json, null, 2));
-  // also dump console logs
-  const logPath = path.resolve(path.dirname(exportPath), 'workbench.log');
+  const logPath = path.resolve(exportDir, 'workbench.log');
   fs.writeFileSync(logPath, logs.join('\n'));
-  console.log(`[midi2-compliance] Report saved to: ${exportPath}`);
+  // Minimal metadata (pointer to PDF) to keep downstream steps simple
+  const meta = { tool: 'MIDI2.0Workbench', device: umpDev, pdf: fs.existsSync(destPDF) ? 'workbench.pdf' : null };
+  fs.writeFileSync(exportPath, JSON.stringify(meta, null, 2));
+  console.log(`[midi2-compliance] Metadata saved to: ${exportPath}`);
 
   await app.close();
   process.exit(0);

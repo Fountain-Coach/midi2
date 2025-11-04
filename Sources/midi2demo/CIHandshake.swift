@@ -42,6 +42,7 @@ struct CIHandshakeCommand: ParsableCommand {
             categories: .init(profiles: true, propertyExchange: true, processInquiry: true),
             maxSysEx: 1024
         )
+        do { try discovery.validate() } catch { print("Discovery validation error: \(error)") }
         let ciPayload = discovery.sysEx8Bytes()
         print("Device Discovery (CI): sysEx8 bytes=\(ciPayload.map{String(format: "%02X", $0)}.joined(separator: " "))")
         if let parsed = MidiCiDiscoveryBody(sysEx8Bytes: ciPayload) {
@@ -83,11 +84,29 @@ struct CIHandshakeCommand: ParsableCommand {
         }
         // Details inquiry
         for r in session.handle(MidiCiProfilesBody(command: .detailsInquiry, profileId: "/org.midi/piano", target: .channel, channels: ch0)) {
-            print("Profiles -> \(r.command) details=\(r.details ?? [:])")
+            if let d = r.details {
+                let ver = d["ver"] ?? 0
+                let cmL = UInt16(d["cmL"] ?? 0)
+                let cmH = UInt16(d["cmH"] ?? 0)
+                let mask = (cmH << 8) | cmL
+                var list: [String] = []
+                for ch in 0..<16 { if (mask & (1 << ch)) != 0 { list.append(String(ch)) } }
+                print("Profiles -> detailsReply ver=\(ver) channels=\(list.joined(separator: ","))")
+            } else {
+                print("Profiles -> detailsReply (no details)")
+            }
         }
         // Disable
         for r in session.handle(MidiCiProfilesBody(command: .setOff, profileId: "/org.midi/piano", target: .channel, channels: ch0)) {
             print("Profiles -> \(r.command) details=\(r.details ?? [:])")
+        }
+
+        // Profile Specific Data (PSD) roundtrip
+        let psd = ProfileSpecificDataMessage(profileId: "/org.midi/piano", target: .channel, channels: ch0, data: [0x01, 0x02, 0x03])
+        let psdBytes = psd.sysEx8Bytes()
+        print("PSD SysEx8: \(psdBytes.map{String(format: "%02X", $0)}.joined(separator: " "))")
+        if let parsedPSD = ProfileSpecificDataMessage(sysEx8Bytes: psdBytes) {
+            print("PSD Decoded -> profile=\(parsedPSD.profileId) target=\(parsedPSD.target?.rawValue.description ?? "-") len=\(parsedPSD.data.count)")
         }
 
         // Property exchange (simple GET)

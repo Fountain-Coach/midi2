@@ -1,0 +1,10 @@
+{
+  "sequence": [
+    {"command": "setOn", "profileId": "/org.midi/piano", "target": "channel", "channels": [0]},
+    {"command": "enabledReport", "profileId": "/org.midi/piano", "details": {"ok": 1}},
+    {"command": "detailsInquiry", "profileId": "/org.midi/piano", "target": "channel", "channels": [0]},
+    {"command": "detailsReply", "profileId": "/org.midi/piano", "details": {"ver": 1, "cmL": 1, "cmH": 0}},
+    {"command": "setOff", "profileId": "/org.midi/piano", "target": "channel", "channels": [0]},
+    {"command": "disabledReport", "profileId": "/org.midi/piano", "details": {"ok": 1}}
+  ]
+}

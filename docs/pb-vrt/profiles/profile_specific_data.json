@@ -1,0 +1,7 @@
+{
+  "command": "profileSpecificData",
+  "profileId": "/org.midi/piano",
+  "target": "channel",
+  "channels": [0],
+  "dataHex": "010203"
+}

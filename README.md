@@ -103,6 +103,14 @@ swift run midi2demo profiles-demo --profile /org.midi/piano --channel 0
 ```
 
 Emits enabled/disabled reports and inquiry replies with supported/enabled flags.
+
+### Profiles: Profile Specific Data (PSD)
+
+```bash
+swift run midi2demo profiles-psd --profile /org.midi/piano --target channel --channels 0 01 02 03
+```
+
+Prints SysEx8 bytes and decodes them back.
 ```
 
 Each command prints the encoded Universal MIDI Packet and decodes it back to

@@ -41,6 +41,17 @@ public struct MidiCiDiscoveryBody: Equatable {
         self.maxSysEx = maxSysEx
     }
 
+    public func validate() throws {
+        // manufacturerId must be 1-byte (non-zero) or 3-byte starting with 0x00
+        if manufacturerId.count == 1 {
+            guard manufacturerId[0] != 0x00 else { throw MIDIError.malformedPacket("invalid 1-byte manufacturerId 0x00") }
+        } else if manufacturerId.count == 3 {
+            guard manufacturerId[0] == 0x00 else { throw MIDIError.malformedPacket("3-byte manufacturerId must start with 0x00") }
+        } else {
+            throw MIDIError.malformedPacket("manufacturerId must be 1 or 3 bytes")
+        }
+    }
+
     /// Serialize to SysEx7 payload bytes.
     public func sysEx7Bytes() -> [UInt8] {
         var bytes: [UInt8] = []

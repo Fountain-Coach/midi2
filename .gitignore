@@ -57,3 +57,11 @@ fastlane/test_output
 midi2-compliance/node_modules/
 midi2-compliance/.workbench/
 out/
+
+# Compliance VM and artifacts
+.workbench/
+out/
+node_modules/
+.midi2vm/
+.docker/
+**/.DS_Store

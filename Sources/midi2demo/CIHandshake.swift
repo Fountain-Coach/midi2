@@ -65,7 +65,7 @@ struct CIHandshakeCommand: ParsableCommand {
             print("No common protocol accepted")
         }
 
-        // Profile inquiry
+        // Profile inquiry + enable/disable flow
         let profileID = "org.midi.profile.piano"
         let profileRequest = CIHandshake.initiateProfileInquiry(profile: profileID)
         print("Initiator -> Responder: \(profileRequest)")
@@ -73,6 +73,22 @@ struct CIHandshakeCommand: ParsableCommand {
         let profileResponse = CIHandshake.respond(to: profileRequest, supportedProfiles: unsupportedProfile ? [] : [profileID])
         print("Responder -> Initiator: \(profileResponse)")
         print("Profile \(profileID) supported: \(profileResponse.supported)")
+
+        // Demonstrate enable/disable and details replies via Profiles session
+        let session = ProfileSession(supportedProfiles: unsupportedProfile ? [] : ["/org.midi/piano"]) // use slash-prefixed ID for SysEx body
+        let ch0 = [Uint4(0)!]
+        // Enable
+        for r in session.handle(MidiCiProfilesBody(command: .setOn, profileId: "/org.midi/piano", target: .channel, channels: ch0)) {
+            print("Profiles -> \(r.command) details=\(r.details ?? [:])")
+        }
+        // Details inquiry
+        for r in session.handle(MidiCiProfilesBody(command: .detailsInquiry, profileId: "/org.midi/piano", target: .channel, channels: ch0)) {
+            print("Profiles -> \(r.command) details=\(r.details ?? [:])")
+        }
+        // Disable
+        for r in session.handle(MidiCiProfilesBody(command: .setOff, profileId: "/org.midi/piano", target: .channel, channels: ch0)) {
+            print("Profiles -> \(r.command) details=\(r.details ?? [:])")
+        }
 
         // Property exchange (simple GET)
         let resource = "/device/manufacturer"

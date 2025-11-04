@@ -31,4 +31,32 @@ final class MidiCiDiscoveryBodyTests: XCTestCase {
         let parsed = MidiCiDiscoveryBody(sysEx8Bytes: bytes)
         XCTAssertEqual(parsed, body)
     }
+
+    func testManufacturerID3ByteParsingSysEx8() {
+        let body = MidiCiDiscoveryBody(
+            muid: 0x01020304,
+            manufacturerId: [0x00, 0x20, 0x33],
+            deviceFamily: 0x0001,
+            deviceModel: 0x0002,
+            softwareRev: 0x00000001,
+            categories: .init(profiles: true, propertyExchange: true, processInquiry: true),
+            maxSysEx: 256
+        )
+        let bytes = body.sysEx8Bytes()
+        let parsed = MidiCiDiscoveryBody(sysEx8Bytes: bytes)
+        XCTAssertEqual(parsed?.manufacturerId, [0x00, 0x20, 0x33])
+    }
+
+    func testManufacturerID1ByteParsingSysEx8() {
+        let body = MidiCiDiscoveryBody(
+            muid: 0x0,
+            manufacturerId: [0x7D],
+            deviceFamily: 0, deviceModel: 0, softwareRev: 0,
+            categories: .init(profiles: false, propertyExchange: false, processInquiry: false),
+            maxSysEx: 0
+        )
+        let bytes = body.sysEx8Bytes()
+        let parsed = MidiCiDiscoveryBody(sysEx8Bytes: bytes)
+        XCTAssertEqual(parsed?.manufacturerId, [0x7D])
+    }
 }

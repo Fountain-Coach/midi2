@@ -21,22 +21,30 @@ function getArg(name, defVal) {
 (async () => {
   const exportPath = getArg('--export', path.resolve(process.cwd(), 'out/report.json'));
   const workbenchCwd = process.cwd();
+  const startSelector = process.env.MIDI2_START_SELECTOR || '#start-tests';
+  const exportSelector = process.env.MIDI2_EXPORT_SELECTOR || '#export-json';
 
   console.log(`[midi2-compliance] Launching Workbench (cwd=${workbenchCwd})`);
   const app = await electron.launch({ args: ['.'], cwd: workbenchCwd, env: { MIDI2_HEADLESS: 'true' } });
   const win = await app.firstWindow();
+  const logs = [];
+  win.on('console', msg => {
+    const line = msg.text();
+    logs.push(line);
+    if (process.env.MIDI2_LOG_CONSOLE === '1') console.log(`[wb] ${line}`);
+  });
 
   // wait for main UI ready (adjust selector to your fork)
-  await win.waitForSelector('#start-tests', { timeout: 60000 });
+  await win.waitForSelector(startSelector, { timeout: 120000 });
 
   console.log("[midi2-compliance] Starting full compliance suite...");
-  await win.click('#start-tests');
+  await win.click(startSelector);
 
   // suite can take a while
-  await win.waitForSelector('#export-json', { timeout: 10 * 60 * 1000 });
+  await win.waitForSelector(exportSelector, { timeout: 15 * 60 * 1000 });
 
   console.log("[midi2-compliance] Exporting JSON report...");
-  await win.click('#export-json');
+  await win.click(exportSelector);
 
   // fetch report object from window (ensure fork sets this global)
   const json = await win.evaluate(() => {
@@ -51,6 +59,9 @@ function getArg(name, defVal) {
 
   fs.mkdirSync(path.dirname(exportPath), { recursive: true });
   fs.writeFileSync(exportPath, JSON.stringify(json, null, 2));
+  // also dump console logs
+  const logPath = path.resolve(path.dirname(exportPath), 'workbench.log');
+  fs.writeFileSync(logPath, logs.join('\n'));
   console.log(`[midi2-compliance] Report saved to: ${exportPath}`);
 
   await app.close();

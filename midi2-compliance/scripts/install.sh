@@ -4,7 +4,8 @@ set -euo pipefail
 # ---------- Config ----------
 WORKBENCH_FORK_URL="${WORKBENCH_FORK_URL:-https://github.com/Fountain-Coach/MIDI2.0Workbench}"
 WORKBENCH_DIR="${WORKBENCH_DIR:-.workbench}"
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+# Repo root is two levels up from this script (../../)
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 
 echo "[midi2-compliance] Repo root: $REPO_ROOT"
 echo "[midi2-compliance] Workbench fork: $WORKBENCH_FORK_URL"

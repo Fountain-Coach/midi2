@@ -14,22 +14,30 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Node + deps
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install OS deps (Linux)
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential libasound2-dev xvfb nodejs npm
+          sudo apt-get install -y build-essential libasound2-dev libusb-1.0-0-dev xvfb python3 make gcc g++ pkg-config
           npm install -g yarn || true
 
-      - name: Install Node + deps (macOS)
+      - name: Install OS deps (macOS)
         if: runner.os == 'macOS'
         run: |
           brew update
-          brew install node yarn || true
+          brew install yarn pkg-config automake libtool || true
 
       - name: Install compliance rig
         run: |
           bash midi2-compliance/scripts/install.sh
+        env:
+          WORKBENCH_FORK_URL: ${{ env.WORKBENCH_FORK_URL || 'https://github.com/Fountain-Coach/MIDI2.0Workbench' }}
 
       - name: Start virtual endpoints (optional stub)
         run: |
@@ -38,12 +46,18 @@ jobs:
       - name: Run Workbench headless
         run: |
           bash midi2-compliance/scripts/run_local.sh
+        env:
+          MIDI2_LOG_CONSOLE: '1'
+          MIDI2_START_SELECTOR: '#start-tests'
+          MIDI2_EXPORT_SELECTOR: '#export-json'
 
       - name: Upload compliance report
         uses: actions/upload-artifact@v4
         with:
           name: midi2-compliance-${{ matrix.os }}
-          path: out/report.json
+          path: |
+            out/report.json
+            out/workbench.log
 
       - name: Generate badge
         run: |

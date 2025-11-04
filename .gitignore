@@ -53,3 +53,7 @@ fastlane/test_output
 # Temporary files
 *.swp
 *.swo
+# Compliance rig artifacts
+midi2-compliance/node_modules/
+midi2-compliance/.workbench/
+out/

@@ -65,6 +65,9 @@ swift run midi2demo flex key --group 0 C#m
 swift run midi2demo flex lyric --group 0 "Hello world"
 swift run midi2demo ci-handshake --no-common-protocol --unsupported-profile --missing-property
 swift run midi2demo inspect 0x40107D00 0x00640000
+swift run midi2demo stream-config endpoint --group 0 --data1 0x12 --data2 0x34
+swift run midi2demo stream-config configure --group 0 --data1 0x01 --data2 0x00
+swift run midi2demo stream-config fb --group 0 --data1 0x80 --data2 0x01
 ```
 
 Each command prints the encoded Universal MIDI Packet and decodes it back to

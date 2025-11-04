@@ -12,6 +12,31 @@ public struct EndpointDiscoveryMessage: Equatable {
         self.data2 = data2
     }
 
+    // Provisional field mapping (spec §5):
+    // - data1: [major:4][minor:4]
+    // - data2: [capabilities:4][numGroups:4]
+    public var majorVersion: UInt8 {
+        get { (data1 >> 4) & 0x0F }
+        set { data1 = (newValue & 0x0F) << 4 | (data1 & 0x0F) }
+    }
+    public var minorVersion: UInt8 {
+        get { data1 & 0x0F }
+        set { data1 = (data1 & 0xF0) | (newValue & 0x0F) }
+    }
+    public var capabilitiesNibble: UInt8 {
+        get { (data2 >> 4) & 0x0F }
+        set { data2 = (newValue & 0x0F) << 4 | (data2 & 0x0F) }
+    }
+    public var numGroups: UInt8 {
+        get { data2 & 0x0F }
+        set { data2 = (data2 & 0xF0) | (newValue & 0x0F) }
+    }
+
+    public init(majorVersion: UInt8, minorVersion: UInt8, capabilitiesNibble: UInt8, numGroups: UInt8) {
+        self.data1 = ((majorVersion & 0x0F) << 4) | (minorVersion & 0x0F)
+        self.data2 = ((capabilitiesNibble & 0x0F) << 4) | (numGroups & 0x0F)
+    }
+
     /// Encode to a 32-bit UMP in the given group.
     public func ump(group: Uint4) -> UmpPacket32 {
         StreamBody(opcode: .endpointDiscovery, data1: data1, data2: data2).ump(group: group)
@@ -32,4 +57,3 @@ public struct EndpointDiscoveryMessage: Equatable {
         self.init(data1: body.data1, data2: body.data2)
     }
 }
-

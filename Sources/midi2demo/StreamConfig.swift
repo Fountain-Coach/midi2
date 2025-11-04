@@ -34,8 +34,9 @@ struct StreamEndpoint: ParsableCommand {
         let msg = EndpointDiscoveryMessage(data1: UInt8(data1), data2: UInt8(data2))
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
-        let parsed = try EndpointDiscoveryMessage(parsingUMP: pkt)
+        var parsed = try EndpointDiscoveryMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
+        print("  major=\(parsed.majorVersion) minor=\(parsed.minorVersion) caps=0x\(String(parsed.capabilitiesNibble, radix:16)) groups=\(parsed.numGroups)")
     }
 }
 
@@ -61,8 +62,9 @@ struct StreamConfigure: ParsableCommand {
         let msg = StreamConfigurationMessage(data1: UInt8(data1), data2: UInt8(data2))
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
-        let parsed = try StreamConfigurationMessage(parsingUMP: pkt)
+        var parsed = try StreamConfigurationMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
+        print("  isReply=\(parsed.isReply) mode=0b\(String(parsed.mode, radix:2)) jr=\(parsed.jrRequested) proto=0b\(String(parsed.protocolSelection, radix:2)) groupMask=0x\(String(parsed.groupMask, radix:16))")
     }
 }
 
@@ -88,8 +90,9 @@ struct StreamFunctionBlock: ParsableCommand {
         let msg = FunctionBlockMessage(data1: UInt8(data1), data2: UInt8(data2))
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
-        let parsed = try FunctionBlockMessage(parsingUMP: pkt)
+        var parsed = try FunctionBlockMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
+        print("  kind=0b\(String(parsed.kind, radix:2)) index=\(parsed.index) flags=0b\(String(parsed.flags, radix:2)) count=\(parsed.count)")
     }
 }
 

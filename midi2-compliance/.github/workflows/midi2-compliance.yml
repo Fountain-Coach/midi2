@@ -55,10 +55,14 @@ jobs:
       - name: Install Workbench deps
         run: |
           cd .workbench
+          export ELECTRON_MIRROR=https://artifacts.electronjs.org/
           if [ -f yarn.lock ]; then
             corepack enable || true
-            yarn install --frozen-lockfile || yarn install
+            yarn config set network-timeout 600000 -g || true
+            for i in 1 2 3; do yarn install --frozen-lockfile && break || sleep 5; done
           else
+            npm config set fetch-retry-maxtimeout 600000
+            npm config set fetch-retry-mintimeout 20000
             npm ci --ignore-scripts || npm install --no-fund --no-audit
           fi
 

@@ -1,0 +1,13 @@
+.git
+.build
+.swiftpm
+out
+node_modules
+**/.DS_Store
+**/*.dmg
+**/*.pdf
+midi2-compliance/.workbench
+Examples/
+docs/
+Packages/**/.build
+Packages/**/.swiftpm

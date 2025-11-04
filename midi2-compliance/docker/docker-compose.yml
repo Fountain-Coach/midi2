@@ -27,3 +27,14 @@ services:
       - ../../out:/work/out
     command: ["/usr/local/bin/run-workbench-headless.sh"]
 
+  ump-responder:
+    build:
+      context: ../..
+      dockerfile: midi2-compliance/docker/dockerfiles/Dockerfile.ump-responder
+    container_name: midi2-ump-responder
+    privileged: true
+    depends_on:
+      - alsa-ump
+    volumes:
+      - ../../out:/work/out
+    command: ["/usr/local/bin/run-ump-responder.sh"]

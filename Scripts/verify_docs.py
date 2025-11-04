@@ -47,7 +47,8 @@ def require_pbrvt_frames():
         'docs/pb-vrt/profiles/profile_specific_data.json',
         'docs/pb-vrt/jr/clock_timestamp.json',
         'docs/pb-vrt/sysex8/invalid_cases.json',
-        'docs/pb-vrt/mds/invalid_cases.json'
+        'docs/pb-vrt/mds/invalid_cases.json',
+        'docs/pb-vrt/process-inquiry/flows.json'
     ]
     ok = True
     for rel in required:

@@ -1,0 +1,9 @@
+{
+  "sequence": [
+    {"command": "capInquiry"},
+    {"command": "capReply", "filters": {"noteOn": 1, "clock": 1}},
+    {"command": "messageReport", "filters": {"sysex": 2, "ci": 1}},
+    {"command": "messageReportReply", "filters": {"sysex": 2, "ci": 1}},
+    {"command": "endReport"}
+  ]
+}

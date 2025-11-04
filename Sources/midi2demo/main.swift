@@ -59,6 +59,7 @@ struct Midi2Demo: ParsableCommand {
             PropertyExchangeDemo.self,
             ProfilesDemo.self,
             ProfilesPSD.self,
+            PIDemo.self,
             InspectCommand.self,
             StreamConfig.self,
             StreamEndpoint.self,

@@ -32,6 +32,24 @@ struct CIHandshakeCommand: ParsableCommand {
     var group: Int = 0
 
     func run() throws {
+        // Device discovery (CI) – advertise device info
+        let discovery = MidiCiDiscoveryBody(
+            muid: 0x01020304,
+            manufacturerId: [0x00, 0x20, 0x33],
+            deviceFamily: 0x1234,
+            deviceModel: 0x5678,
+            softwareRev: 0x00010002,
+            categories: .init(profiles: true, propertyExchange: true, processInquiry: true),
+            maxSysEx: 1024
+        )
+        let ciPayload = discovery.sysEx8Bytes()
+        print("Device Discovery (CI): sysEx8 bytes=\(ciPayload.map{String(format: "%02X", $0)}.joined(separator: " "))")
+        if let parsed = MidiCiDiscoveryBody(sysEx8Bytes: ciPayload) {
+            print(String(format: "Parsed MUID=0x%08X fam=0x%04X model=0x%04X rev=0x%08X maxSysEx=%u cats[p=%d,pe=%d,pi=%d]",
+                         parsed.muid, parsed.deviceFamily, parsed.deviceModel, parsed.softwareRev, parsed.maxSysEx,
+                         parsed.categories.profiles ? 1:0, parsed.categories.propertyExchange ? 1:0, parsed.categories.processInquiry ? 1:0))
+        }
+
         // Protocol negotiation
         let initiatorSupported: [MidiCIProtocol] = noCommonProtocol ? [.midi2] : [.midi2, .midi1]
         let responderSupported: [MidiCIProtocol] = noCommonProtocol ? [.midi1] : [.midi2]

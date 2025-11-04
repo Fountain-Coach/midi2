@@ -1,0 +1,7 @@
+{
+  "command": "enabledReport",
+  "profileId": "/org.midi/piano",
+  "target": "channel",
+  "channels": [0],
+  "details": {"ok": 1}
+}

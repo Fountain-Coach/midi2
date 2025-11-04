@@ -39,6 +39,10 @@ jobs:
           bash midi2-compliance/scripts/install.sh
         env:
           WORKBENCH_FORK_URL: ${{ env.WORKBENCH_FORK_URL || 'https://github.com/Fountain-Coach/MIDI2.0Workbench' }}
+      - name: Show workbench dir
+        run: |
+          ls -la
+          ls -la .workbench || true
 
       - name: Cache Workbench node_modules
         uses: actions/cache@v4

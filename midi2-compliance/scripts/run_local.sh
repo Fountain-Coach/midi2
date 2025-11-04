@@ -14,7 +14,7 @@ mkdir -p "$(dirname "$EXPORT_PATH")"
 # DEVICE_PID=$!
 # trap "kill $DEVICE_PID || true" EXIT
 
-pushd "$REPO_ROOT/$WORKBENCH_DIR" >/dev/null
+pushd "$WORKBENCH_DIR" >/dev/null || { echo "[midi2-compliance] Workbench dir not found: $WORKBENCH_DIR"; exit 1; }
 
 # On Linux, if no X server -> use xvfb-run
 if [[ "$OSTYPE" == "linux-gnu"* ]]; then

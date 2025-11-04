@@ -1,0 +1,163 @@
+# PB-VRT Quiet Frame Gap Closure Prompt
+
+meta:
+  repo: Fountain-Coach/midi2
+  owner: MIDI2 Maintainers
+  date: 2025-11-04
+  cadence: quarterly
+  goal: Close drift from MIDI 2.0 spec by codifying baselines and acceptance.
+
+areas:
+  property_exchange:
+    baseline_spec: M2-103-UM (v1.2) §§5–7
+    observed_implementation:
+      files:
+        - Sources/MIDI2/MidiCiPropertyExchangeBody.swift:1
+        - Sources/MIDI2CI/PropertyExchange.swift:1
+        - Sources/MIDI2CI/CIHandshake.swift:1
+      tests:
+        - Tests/MIDI2Tests/MidiCiHandshakeIntegrationTests.swift:23
+    drift:
+      - Only GET/GET_REPLY flow demonstrated; no Set/Subscribe/Notify state machine.
+      - No chunked payload transfer for large properties (§6).
+      - No schema-bound validation of JSON properties.
+    quiet_frame_goal:
+      - Implement full transaction state handling (Get/Set/Subscribe/Notify/Terminate).
+      - Add chunking helpers and reassembly for Property Exchange payloads.
+      - Bind spec JSON schema to Swift types with validation.
+    acceptance_criteria:
+      - Unit tests cover success/failure for Get/Set/Subscribe.
+      - Round-trip chunked transfers with boundary sizes.
+      - Schema validation rejects invalid payloads with clear errors.
+    tasks:
+      - code: Implement transaction manager and state machine.
+      - code: Add chunker/reassembler for Property Exchange.
+      - code: Generate Swift types from midi2.full.closed.schema.json.
+      - test: Add XCTest for all flows and chunk boundaries.
+
+  profiles_and_fb:
+    baseline_spec: M2-102-U (Profiles) and M2-104-UM §5 (Function Blocks)
+    observed_implementation:
+      files:
+        - Sources/MIDI2/MidiCiProfilesBody.swift:1
+        - Sources/MIDI2CI/ProfileInquiry.swift:1
+        - Sources/MIDI2/StreamOpcode.swift:1
+        - Sources/MIDI2/StreamBody.swift:1
+      tests:
+        - Tests/MIDI2Tests/MidiCiHandshakeIntegrationTests.swift:1
+    drift:
+      - No active enable/disable handlers or profile reports.
+      - No typed Function Block descriptors; only raw opcode + 2 bytes.
+    quiet_frame_goal:
+      - Implement profile enable/disable + report messages end-to-end.
+      - Define and parse Function Block discovery/info structures.
+    acceptance_criteria:
+      - Enable/disable flows with success/NAK test coverage.
+      - Function Block discovery parsing test vectors per spec examples.
+    tasks:
+      - code: Extend profiles model with reports and handlers.
+      - code: Add Function Block descriptor types and parser.
+      - test: Add XCTest covering discovery and configuration.
+
+  ump_stream_config:
+    baseline_spec: M2-104-UM §5 (Endpoint Discovery & Stream Config)
+    observed_implementation:
+      files:
+        - Sources/MIDI2/StreamOpcode.swift:1
+        - Sources/MIDI2/StreamBody.swift:1
+      tests:
+        - Tests/MIDI2Tests/StreamBodyTests.swift:1
+    drift:
+      - Missing Endpoint/Device Info typed structures.
+      - Missing Stream Configuration Request/Reply and validation.
+      - No Group Terminal Blocks (GTB) model.
+    quiet_frame_goal:
+      - Implement Endpoint/Device Info types and encoders/decoders.
+      - Implement Stream Configuration handshake (request/reply) and checks.
+      - Add GTB typed model and parsing.
+    acceptance_criteria:
+      - Round-trip encode/decode tests for each message.
+      - Negative tests for malformed fields and reserved bits.
+    tasks:
+      - code: Add stream config models and codecs.
+      - test: Provide exhaustive tests including invalid cases.
+
+  jr_clock:
+    baseline_spec: M2-104-UM §4 (JR Clock/Timestamp)
+    observed_implementation:
+      files:
+        - Sources/MIDI2/System/Utility.swift:1
+        - Sources/jitterdemo/JitterApp.swift:1
+      tests:
+        - Tests/MIDI2Tests/System/JitterReductionTests.swift:1
+    drift:
+      - No receiver synchronization logic in demos/tests.
+    quiet_frame_goal:
+      - Add receiver-side reconstruction and latency/jitter measurement.
+    acceptance_criteria:
+      - Demo computes expected absolute times from clock + offsets with tolerance.
+    tasks:
+      - code: Receiver model for JR sync.
+      - test: Deterministic tests using seeded delays.
+
+  sysex8:
+    baseline_spec: M2-104-UM §6 (SysEx8)
+    observed_implementation:
+      files:
+        - Sources/MIDI2/Data/SysEx8.swift:1
+      tests:
+        - Tests/MIDI2Tests/SysEx8Tests.swift:1
+    drift:
+      - Limited edge coverage for continuation/termination flags.
+    quiet_frame_goal:
+      - Expand tests for invalid sequences, multi-frame boundaries, and counts.
+    acceptance_criteria:
+      - Tests assert errors on all invalid sequences per §6.2.
+    tasks:
+      - test: Add exhaustive sequence tests.
+
+  ump_extensions:
+    baseline_spec: M2-104-UM §§4–6, Appendix A (Reserved IDs)
+    observed_implementation:
+      files:
+        - Sources/MIDI2/System/Utility.swift:1
+    drift:
+      - No placeholders for reserved message IDs; limited utility variants.
+    quiet_frame_goal:
+      - Define placeholder handling and enums for reserved ranges.
+    acceptance_criteria:
+      - Decoders ignore/flag reserved messages per policy with tests.
+    tasks:
+      - code: Extend enums and parsers.
+      - test: Add reserved-range tests.
+
+  testing_validation:
+    baseline_spec: Project quality bar
+    observed_implementation:
+      files:
+        - Tests/**
+        - Scripts/SchemaGen.swift:1
+        - Scripts/inject_schema_docs.py:1
+    drift:
+      - Limited CI negotiation and stream config tests.
+      - No PB-VRT visual baselines for CI messages.
+      - No hardware interop capture tests.
+    quiet_frame_goal:
+      - Add end-to-end CI and stream config tests; PB-VRT baselines; optional hardware fixtures.
+    acceptance_criteria:
+      - Coverage threshold set; CI passes; PB-VRT diffs stable.
+    tasks:
+      - test: Add E2E scenario tests.
+      - infra: Introduce PB-VRT baseline generation and review.
+
+timeline:
+  q1:
+    - property_exchange: state machine + chunking
+    - sysex8: edge-case tests
+  q2:
+    - ump_stream_config: endpoint/device info + requests
+    - profiles_and_fb: enable/disable flows
+  q3:
+    - ump_stream_config: GTB
+    - testing_validation: PB-VRT baselines
+

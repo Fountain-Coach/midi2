@@ -2,17 +2,17 @@
 
 Swift 6 library for building and parsing **MIDI 2.0 Universal MIDI
 Packets (UMP)**. The package is generated from the normative JSON Schema and
-OpenAPI definitions and now provides full MIDI 2.0 spec coverage, including core UMP structures, SysEx7/SysEx8
+OpenAPI definitions and provides broad MIDI 2.0 coverage, including core UMP structures, SysEx7/SysEx8
 streaming utilities, MIDI‑CI envelope helpers, and a teaching‑oriented
 `midi2demo` CLI for experimenting with the specification.
 
 ## Status
 
-The library implements the entire MIDI 2.0 specification and now ships with the `TeatroAppleBridge` Core MIDI adapter, accompanying command-line demos, and unit tests. Version 0.3.0 is ready for consumption via Swift Package Manager. The `midi2demo` CLI covers all subcommands—`note-on`, `sysex7`, `sysex8`, `flex` (tempo, time signature, key, lyric), `ci-handshake`, and `inspect`—with validation for edge cases and options to simulate MIDI-CI failures. A `midi2demo.1` man page and enhanced `--help` output accompany the tool. Integration tests spawn the `midi2demo` executable to exercise success and failure paths for every subcommand. The `jitterdemo` sample now builds with Swift 6.1 strict concurrency and actor data race checks.
+Core UMP encoding/decoding, SysEx7/SysEx8 streaming, MIDI‑CI envelope helpers, and demos/tests are implemented. Several MIDI‑CI and stream‑configuration features remain in progress (e.g., full Property Exchange transaction/state handling and chunking, Profile configuration reports, Function Block discovery, and UMP Stream Configuration §5 messages). See docs/conformance-checklist.md and docs/quiet-frame-gap-closure.yaml for the current conformance map and gap‑closure plan. The project also ships with the `TeatroAppleBridge` Core MIDI adapter and the `midi2demo` CLI covering `note-on`, `sysex7`, `sysex8`, `flex`, `ci-handshake`, and `inspect`.
 
 ## Features
 
-- Complete MIDI 2.0 specification coverage with binary encoder/decoder.
+- Broad MIDI 2.0 coverage with binary encoder/decoder (see docs/conformance-checklist.md).
 - SysEx7 and SysEx8 streaming helpers.
 - MIDI‑CI envelope support.
 - Teaching‑oriented `midi2demo` CLI.
@@ -21,6 +21,7 @@ The library implements the entire MIDI 2.0 specification and now ships with the 
 
 ## Roadmap
 
+- Close gaps identified in docs/quiet-frame-gap-closure.yaml (Property Exchange state + chunking; Stream Configuration §5; Function Blocks; Profile reports).
 - Track spec updates and maintain conformance.
 - Expand the `midi2demo` CLI with additional streaming, Flex Data, and packet inspection commands.
 - Harden the codebase with additional documentation and integration tests.
@@ -169,4 +170,3 @@ import MIDI2
 let payload: [UInt8] = [0x7D, 0x01, 0x02]
 let packets = try SysEx7.fragment(manufacturerID: [0x7D], payload: payload)
 ```
-

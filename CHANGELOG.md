@@ -3,6 +3,11 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+### Added
+- docs: Conformance checklist (docs/conformance-checklist.md).
+- docs: PB-VRT Quiet Frame Gap Closure Prompt (docs/quiet-frame-gap-closure.yaml).
+### Changed
+- README: Status section now reflects current conformance and links docs.
 
 ## [0.3.0] - 2025-08-15
 ### Added

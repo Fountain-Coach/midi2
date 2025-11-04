@@ -25,7 +25,13 @@ function getArg(name, defVal) {
   const exportSelector = process.env.MIDI2_EXPORT_SELECTOR || '#export-json';
 
   console.log(`[midi2-compliance] Launching Workbench (cwd=${workbenchCwd})`);
-  const app = await electron.launch({ args: ['.'], cwd: workbenchCwd, env: { MIDI2_HEADLESS: 'true' } });
+  let executablePath = process.env.ELECTRON_PATH || null;
+  if (!executablePath) {
+    try { executablePath = require('electron'); } catch (e) { /* ignore */ }
+  }
+  const launchOpts = { args: ['.'], cwd: workbenchCwd, env: { MIDI2_HEADLESS: 'true' } };
+  if (executablePath) launchOpts.executablePath = executablePath;
+  const app = await electron.launch(launchOpts);
   const win = await app.firstWindow();
   const logs = [];
   win.on('console', msg => {

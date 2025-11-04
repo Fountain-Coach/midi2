@@ -71,6 +71,14 @@ jobs:
             npm ci --ignore-scripts || npm install --no-fund --no-audit
           fi
 
+      - name: Ensure Electron installed
+        run: |
+          cd .workbench
+          export ELECTRON_MIRROR=https://artifacts.electronjs.org/
+          VER=$(node -e "try{let p=require('./package.json');console.log(p.devDependencies?.electron||p.dependencies?.electron||'latest')}catch(e){console.log('latest')}")
+          echo "Installing electron@${VER}"
+          for i in 1 2 3; do npm install -D electron@"$VER" --no-fund --no-audit && break || sleep 5; done
+
       - name: Electron rebuild (best-effort)
         run: |
           cd .workbench

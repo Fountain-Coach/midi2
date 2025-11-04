@@ -4,9 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
-- (none)
+- CI: Harden MIDI Association Workbench compliance runner
+  - Explicit Electron install and native module rebuild via @electron/rebuild
+  - Playwright system deps install on Linux; improved caching/retries
+  - Headless controller resolves Electron from Workbench tree
 ### Changed
-- (none)
+- Tests: Align JR receiver wrap semantics and Property Exchange error codes; update System Real-Time error expectation
 
 ## [0.4.0] - 2025-11-04
 ### Added

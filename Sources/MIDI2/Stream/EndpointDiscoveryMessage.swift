@@ -45,6 +45,8 @@ public struct EndpointDiscoveryMessage: Equatable {
     /// Decode from a 32-bit UMP. Fails if the opcode does not match.
     public init?(ump: UmpPacket32) {
         guard let body = StreamBody(ump: ump), body.opcode == .endpointDiscovery else { return nil }
+        // Reserved high nibble in data2 must be zero per spec
+        guard (body.data2 & 0xF0) == 0 else { return nil }
         self.init(data1: body.data1, data2: body.data2)
     }
 
@@ -53,6 +55,10 @@ public struct EndpointDiscoveryMessage: Equatable {
         let body = try StreamBody(parsingUMP: ump)
         guard body.opcode == .endpointDiscovery else {
             throw MIDIError.malformedPacket("expected endpointDiscovery opcode, got \(body.opcode)")
+        }
+        // Reserved high nibble in data2 must be zero per spec
+        guard (body.data2 & 0xF0) == 0 else {
+            throw MIDIError.malformedPacket("reserved bits non-zero")
         }
         self.init(data1: body.data1, data2: body.data2)
     }

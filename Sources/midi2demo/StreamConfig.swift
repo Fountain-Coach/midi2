@@ -114,8 +114,8 @@ struct StreamHandshake: ParsableCommand {
         print(String(format: "Endpoint Discovery (req): 0x%08X", epPkt.word))
 
         // 2) Stream Configuration (responder → initiator)
-        // Placeholder: data1 bit0 set to indicate 'reply', data2 0x01 indicates 'accepted'
-        let scReply = StreamConfigurationMessage(data1: 0x01, data2: 0x01)
+        // Spec-aligned example: bit0 set to indicate notification/reply, protocol=midi1, JR flags cleared.
+        let scReply = StreamConfigurationMessage(data1: 0x01, data2: 0x00)
         let scPkt = scReply.ump(group: g)
         print(String(format: "Stream Config (reply):   0x%08X", scPkt.word))
         let scParsed = try StreamConfigurationMessage(parsingUMP: scPkt)

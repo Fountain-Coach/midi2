@@ -63,6 +63,12 @@ public struct StreamConfigurationMessage: Equatable {
 
     public init?(ump: UmpPacket32) {
         guard let body = StreamBody(ump: ump), body.opcode == .streamConfiguration else { return nil }
+        // Validate reserved bits: data1 b3,b4,b7 must be 0; protocol must be 0 or 1; data2 must be 0
+        let reservedMask: UInt8 = 0b1001_1000 // b7, b4, b3
+        guard (body.data1 & reservedMask) == 0 else { return nil }
+        let protoField = (body.data1 >> 5) & 0x03
+        guard protoField == 0 || protoField == 1 else { return nil }
+        guard body.data2 == 0 else { return nil }
         self.init(data1: body.data1, data2: body.data2)
     }
 
@@ -70,6 +76,18 @@ public struct StreamConfigurationMessage: Equatable {
         let body = try StreamBody(parsingUMP: ump)
         guard body.opcode == .streamConfiguration else {
             throw MIDIError.malformedPacket("expected streamConfiguration opcode, got \(body.opcode)")
+        }
+        // Validate reserved bits: data1 b3,b4,b7 must be 0; protocol must be 0 or 1; data2 must be 0
+        let reservedMask: UInt8 = 0b1001_1000 // b7, b4, b3
+        guard (body.data1 & reservedMask) == 0 else {
+            throw MIDIError.malformedPacket("reserved bits non-zero")
+        }
+        let protoField = (body.data1 >> 5) & 0x03
+        guard protoField == 0 || protoField == 1 else {
+            throw MIDIError.malformedPacket("reserved bits non-zero")
+        }
+        guard body.data2 == 0 else {
+            throw MIDIError.malformedPacket("reserved bits non-zero")
         }
         self.init(data1: body.data1, data2: body.data2)
     }

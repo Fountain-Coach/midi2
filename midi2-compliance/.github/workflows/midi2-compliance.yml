@@ -26,6 +26,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential libasound2-dev libusb-1.0-0-dev xvfb python3 make gcc g++ pkg-config
           npm install -g yarn || true
+          sudo apt-get install -y jq
 
       - name: Install OS deps (macOS)
         if: runner.os == 'macOS'
@@ -39,6 +40,36 @@ jobs:
         env:
           WORKBENCH_FORK_URL: ${{ env.WORKBENCH_FORK_URL || 'https://github.com/Fountain-Coach/MIDI2.0Workbench' }}
 
+      - name: Cache Workbench node_modules
+        uses: actions/cache@v4
+        with:
+          path: .workbench/node_modules
+          key: ${{ runner.os }}-wb-node-${{ hashFiles('.workbench/package-lock.json', '.workbench/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-wb-node-
+
+      - name: Install Workbench deps
+        run: |
+          cd .workbench
+          if [ -f yarn.lock ]; then
+            corepack enable || true
+            yarn install --frozen-lockfile || yarn install
+          else
+            npm ci --ignore-scripts || npm install --no-fund --no-audit
+          fi
+
+      - name: Electron rebuild (best-effort)
+        run: |
+          cd .workbench
+          ELECTRON_VER=$(node -e "console.log(require('./package.json').devDependencies?.electron || require('./package.json').dependencies?.electron || '')")
+          echo "Electron version: $ELECTRON_VER"
+          npx electron-rebuild -f -v "$ELECTRON_VER" || true
+        env:
+          npm_config_python: python3
+          npm_config_build_from_source: false
+          OPENSSL_FIPS: ""
+          npm_config_runtime: electron
+
       - name: Start virtual endpoints (optional stub)
         run: |
           echo "TODO: Start midi2 device or virtual endpoints if needed"
@@ -50,6 +81,7 @@ jobs:
           MIDI2_LOG_CONSOLE: '1'
           MIDI2_START_SELECTOR: '#start-tests'
           MIDI2_EXPORT_SELECTOR: '#export-json'
+          WORKBENCH_DIR: .workbench
 
       - name: Upload compliance report
         uses: actions/upload-artifact@v4

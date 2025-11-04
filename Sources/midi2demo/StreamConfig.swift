@@ -109,21 +109,41 @@ struct StreamHandshake: ParsableCommand {
         guard let g = Uint4(UInt8(group)) else { throw ValidationError("Invalid group") }
 
         // 1) Endpoint Discovery (initiator → responder)
-        let epReq = EndpointDiscoveryMessage(data1: 0x10, data2: 0x00)
+        var epReq = EndpointDiscoveryMessage(majorVersion: 1, minorVersion: 0, maxGroups: 8)
         let epPkt = epReq.ump(group: g)
         print(String(format: "Endpoint Discovery (req): 0x%08X", epPkt.word))
+        print("  major=\(epReq.majorVersion) minor=\(epReq.minorVersion) maxGroups=\(epReq.maxGroups)")
 
-        // 2) Stream Configuration (responder → initiator)
-        // Spec-aligned example: bit0 set to indicate notification/reply, protocol=midi1, JR flags cleared.
-        let scReply = StreamConfigurationMessage(data1: 0x01, data2: 0x00)
+        // 2) Stream Configuration Request (initiator → responder)
+        let scReq = StreamConfigurationMessage(isNotification: false,
+                                               jrTimestampsTx: true,
+                                               jrTimestampsRx: true,
+                                               protocolSelection: .midi2)
+        let scReqPkt = scReq.ump(group: g)
+        print(String(format: "Stream Config (req):    0x%08X", scReqPkt.word))
+        let scReqParsed = try StreamConfigurationMessage(parsingUMP: scReqPkt)
+        print("  isNotification=\(scReqParsed.isNotification) jrTx=\(scReqParsed.jrTimestampsTx) jrRx=\(scReqParsed.jrTimestampsRx) proto=\(scReqParsed.protocolSelection == .midi2 ? "midi2" : "midi1")")
+
+        // 3) Stream Configuration Notification (responder → initiator)
+        let scReply = StreamConfigurationMessage(isNotification: true,
+                                                 jrTimestampsTx: true,
+                                                 jrTimestampsRx: true,
+                                                 protocolSelection: .midi2)
         let scPkt = scReply.ump(group: g)
-        print(String(format: "Stream Config (reply):   0x%08X", scPkt.word))
+        print(String(format: "Stream Config (reply):  0x%08X", scPkt.word))
         let scParsed = try StreamConfigurationMessage(parsingUMP: scPkt)
-        print("Decoded Stream Config -> d1: \(String(format: "0x%02X", scParsed.data1)) d2: \(String(format: "0x%02X", scParsed.data2))")
+        print("  isNotification=\(scParsed.isNotification) jrTx=\(scParsed.jrTimestampsTx) jrRx=\(scParsed.jrTimestampsRx) proto=\(scParsed.protocolSelection == .midi2 ? "midi2" : "midi1")")
 
-        // 3) Function Block discovery/information (responder → initiator)
-        let fbInfo = FunctionBlockMessage(data1: 0x80, data2: 0x01)
+        // 4) Function Block information (responder → initiator)
+        // Example: two function blocks
+        let fbInfo = FunctionBlockMessage(index: 0x00, firstGroup: 0x0, groupCount: 0x4)
         let fbPkt = fbInfo.ump(group: g)
-        print(String(format: "Function Block (info):   0x%08X", fbPkt.word))
+        print(String(format: "Function Block (info):  0x%08X", fbPkt.word))
+        print("  index=\(fbInfo.index) firstGroup=\(fbInfo.firstGroup) groupCount=\(fbInfo.groupCount)")
+
+        let fbInfo2 = FunctionBlockMessage(index: 0x01, firstGroup: 0x4, groupCount: 0x4)
+        let fbPkt2 = fbInfo2.ump(group: g)
+        print(String(format: "Function Block (info):  0x%08X", fbPkt2.word))
+        print("  index=\(fbInfo2.index) firstGroup=\(fbInfo2.firstGroup) groupCount=\(fbInfo2.groupCount)")
     }
 }

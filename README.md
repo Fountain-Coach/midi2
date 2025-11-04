@@ -11,15 +11,16 @@ streaming utilities, MIDI‑CI envelope helpers, and a teaching‑oriented
 Core UMP encoding/decoding, SysEx7/SysEx8 streaming, MIDI‑CI envelope helpers, and demos/tests are implemented.
 
 Recent progress:
-- Stream messages (mt=0xF): typed Endpoint Discovery (major/minor/maxGroups) and Stream Configuration request/notification with reserved‑bit validation.
-- Function Blocks: typed info (index/firstGroup/groupCount) and discovery `filterBitmap` aggregate with two‑packet encoding; CLI support.
+- Stream §5 (mt=0xF): typed Endpoint Discovery (major/minor/maxGroups), Stream Configuration (request/notification) with reserved‑bit validation, Function Block info, FB discovery (filterBitmap) two‑packet encoding, and Group Terminal Blocks aggregate; CLI support.
+- Property Exchange: chunked GET/SET/NOTIFY with transaction reassembly, error codes/messages, compression helpers, and CLI demo.
+- Profiles: enable/disable/inquiry/details (version + channel mask) and Profile Specific Data (PSD) with CLI demos.
+- CI Device Discovery with manufacturer ID validation; JR receiver and tests; PB‑VRT baselines; DoD checklist + CI gates.
 
 Still in progress:
-- Property Exchange: full transaction/state handling and chunking.
-- Profiles: configuration reports and end‑to‑end enable/disable flows.
-- Stream Configuration §5: Group Terminal Blocks (GTB) and extended device info semantics.
+- Profiles: richer configuration reports and spontaneous added/removed sequences in demos.
+- PB‑VRT frames for JR and extended SysEx8/MDS edge cases (tests exist; frames pending).
 
-See `docs/conformance-checklist.md` and `docs/quiet-frame-gap-closure.yaml` for the conformance map and gap‑closure plan. The project also ships with the `TeatroAppleBridge` Core MIDI adapter and the `midi2demo` CLI covering `note-on`, `sysex7`, `sysex8`, `flex`, `ci-handshake`, `inspect`, and `stream-config` subcommands.
+See `docs/conformance-checklist.md` and `docs/quiet-frame-gap-closure.yaml` for the conformance map and gap‑closure plan. The project also ships with the `TeatroAppleBridge` Core MIDI adapter and the `midi2demo` CLI covering `note-on`, `sysex7`, `sysex8`, `flex`, `ci-handshake`, `inspect`, `stream-config`, `pe-demo`, `profiles-demo`, and `profiles-psd`.
 
 ## Features
 
@@ -43,7 +44,7 @@ Add `MIDI2` to your project using the [Swift Package Manager](https://www.swift.
 
 ```swift
 dependencies: [
-    .package(url: "https://example.com/midi2.git", from: "0.3.0")
+    .package(url: "https://example.com/midi2.git", from: "0.4.0")
 ]
 ```
 

@@ -78,6 +78,9 @@ struct CIHandshakeCommand: ParsableCommand {
         // Demonstrate enable/disable and details replies via Profiles session
         let session = ProfileSession(supportedProfiles: unsupportedProfile ? [] : ["/org.midi/piano"]) // use slash-prefixed ID for SysEx body
         let ch0 = [Uint4(0)!]
+        // Added report (spontaneous availability)
+        let added = session.reportAdded(profileId: "/org.midi/piano", target: .channel, channels: ch0)
+        print("Profiles -> addedReport: \(added.profileId) target=channel ch=0")
         // Enable
         for r in session.handle(MidiCiProfilesBody(command: .setOn, profileId: "/org.midi/piano", target: .channel, channels: ch0)) {
             print("Profiles -> \(r.command) details=\(r.details ?? [:])")
@@ -100,6 +103,9 @@ struct CIHandshakeCommand: ParsableCommand {
         for r in session.handle(MidiCiProfilesBody(command: .setOff, profileId: "/org.midi/piano", target: .channel, channels: ch0)) {
             print("Profiles -> \(r.command) details=\(r.details ?? [:])")
         }
+        // Removed report (spontaneous removal)
+        let removed = session.reportRemoved(profileId: "/org.midi/piano", target: .channel, channels: ch0)
+        print("Profiles -> removedReport: \(removed.profileId) target=channel ch=0")
 
         // Profile Specific Data (PSD) roundtrip
         let psd = ProfileSpecificDataMessage(profileId: "/org.midi/piano", target: .channel, channels: ch0, data: [0x01, 0x02, 0x03])

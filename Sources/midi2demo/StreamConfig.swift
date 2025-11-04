@@ -27,11 +27,28 @@ struct StreamEndpoint: ParsableCommand {
     @Option(name: .long, help: "Data2 byte (0-255)")
     var data2: Int = 0
 
+    @Option(name: .long, help: "Major version (0-15)")
+    var major: Int?
+
+    @Option(name: .long, help: "Minor version (0-15)")
+    var minor: Int?
+
+    @Option(name: .long, help: "Max groups (0-15)")
+    var maxGroups: Int?
+
     func run() throws {
         guard let g = Uint4(UInt8(group)), (0...255).contains(data1), (0...255).contains(data2) else {
             throw ValidationError("Invalid group or data byte")
         }
-        let msg = EndpointDiscoveryMessage(data1: UInt8(data1), data2: UInt8(data2))
+        let msg: EndpointDiscoveryMessage
+        if let maj = major, let min = minor, let mg = maxGroups {
+            guard (0...15).contains(maj), (0...15).contains(min), (0...15).contains(mg) else {
+                throw ValidationError("major/minor/maxGroups must be 0..15")
+            }
+            msg = EndpointDiscoveryMessage(majorVersion: UInt8(maj), minorVersion: UInt8(min), maxGroups: UInt8(mg))
+        } else {
+            msg = EndpointDiscoveryMessage(data1: UInt8(data1), data2: UInt8(data2))
+        }
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
         let parsed = try EndpointDiscoveryMessage(parsingUMP: pkt)
@@ -55,11 +72,36 @@ struct StreamConfigure: ParsableCommand {
     @Option(name: .long, help: "Data2 byte (0-255)")
     var data2: Int = 0
 
+    @Flag(name: .long, help: "Set isNotification flag")
+    var notification: Bool = false
+
+    @Flag(name: .long, help: "Enable JR timestamps TX")
+    var jrTx: Bool = false
+
+    @Flag(name: .long, help: "Enable JR timestamps RX")
+    var jrRx: Bool = false
+
+    @Option(name: .long, help: "Protocol (midi1|midi2)")
+    var proto: String?
+
     func run() throws {
         guard let g = Uint4(UInt8(group)), (0...255).contains(data1), (0...255).contains(data2) else {
             throw ValidationError("Invalid group or data byte")
         }
-        let msg = StreamConfigurationMessage(data1: UInt8(data1), data2: UInt8(data2))
+        let msg: StreamConfigurationMessage
+        if let p = proto {
+            let sel: StreamConfigurationMessage.ProtocolSelection
+            switch p.lowercased() {
+            case "midi2": sel = .midi2
+            case "midi1": sel = .midi1
+            default: throw ValidationError("Invalid proto: \(p)")
+            }
+            msg = StreamConfigurationMessage(isNotification: notification, jrTimestampsTx: jrTx, jrTimestampsRx: jrRx, protocolSelection: sel)
+        } else if notification || jrTx || jrRx {
+            msg = StreamConfigurationMessage(isNotification: notification, jrTimestampsTx: jrTx, jrTimestampsRx: jrRx, protocolSelection: .midi1)
+        } else {
+            msg = StreamConfigurationMessage(data1: UInt8(data1), data2: UInt8(data2))
+        }
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
         let parsed = try StreamConfigurationMessage(parsingUMP: pkt)
@@ -83,11 +125,28 @@ struct StreamFunctionBlock: ParsableCommand {
     @Option(name: .long, help: "Data2 byte (0-255)")
     var data2: Int = 0
 
+    @Option(name: .long, help: "Index (0-255)")
+    var idx: Int?
+
+    @Option(name: .long, help: "First group (0-15)")
+    var fg: Int?
+
+    @Option(name: .long, help: "Group count (0-15)")
+    var gc: Int?
+
     func run() throws {
         guard let g = Uint4(UInt8(group)), (0...255).contains(data1), (0...255).contains(data2) else {
             throw ValidationError("Invalid group or data byte")
         }
-        let msg = FunctionBlockMessage(data1: UInt8(data1), data2: UInt8(data2))
+        let msg: FunctionBlockMessage
+        if let idx = idx, let fg = fg, let gc = gc {
+            guard (0...255).contains(idx), (0...15).contains(fg), (0...15).contains(gc) else {
+                throw ValidationError("idx 0..255; fg/gc 0..15")
+            }
+            msg = FunctionBlockMessage(index: UInt8(idx), firstGroup: UInt8(fg), groupCount: UInt8(gc))
+        } else {
+            msg = FunctionBlockMessage(data1: UInt8(data1), data2: UInt8(data2))
+        }
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
         let parsed = try FunctionBlockMessage(parsingUMP: pkt)

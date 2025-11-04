@@ -45,6 +45,29 @@ Placeholder for Flex Data text messages.
 .B flex ruby
 Placeholder for Flex Data ruby messages.
 .TP
+.B stream-config
+Create and decode UMP Stream messages (Endpoint Discovery, Stream Configuration, Function Block).
+Subcommands:
+.B endpoint
+(--group, --data1, --data2) or typed flags (--major, --minor, --max-groups).
+.B configure
+(--group, --data1, --data2) or typed flags (--notification, --jr-tx, --jr-rx, --proto midi1|midi2).
+.B fb
+(--group, --data1, --data2) or typed flags (--idx, --fg, --gc).
+.B fb-discover
+Emit Function Block discovery (filter bitmap) as two packets.
+.B gtb
+Emit Group Terminal Blocks from block specs.
+.TP
+.B pe-demo
+Simulate chunked Property Exchange subscribe/set/notify/get, including compressed encodings.
+.TP
+.B profiles-demo
+Simulate enabling a profile, inquiring details (version+channel mask), and disabling.
+.TP
+.B profiles-psd
+Encode/decode Profile Specific Data (SysEx7/8) for a profile.
+.TP
 .B ci-handshake
 Simulate MIDI-CI protocol negotiation, profile inquiry, and property exchange.
 Flags allow simulating failures:

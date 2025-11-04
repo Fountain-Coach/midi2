@@ -30,6 +30,7 @@ struct PropertyExchangeDemo: ParsableCommand {
         case "jsonzlib": enc = .jsonZlib
         case "binary": enc = .binary
         case "binaryzlib": enc = .binaryZlib
+        case "mcoded7": enc = .mcoded7
         default: throw ValidationError("Invalid encoding")
         }
         let session = PropertyExchangeSession(initialStore: [:], maxDataPerMessage: chunkSize)

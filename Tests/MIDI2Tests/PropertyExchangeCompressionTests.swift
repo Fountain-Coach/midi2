@@ -11,6 +11,24 @@ final class PropertyExchangeCompressionTests: XCTestCase {
         XCTAssertEqual(decoded, data)
     }
 
+    func testMCoded7RoundTrip() {
+        let payload = Array((0..<31).map { UInt8($0) }) + [0x80, 0xFF, 0x7F]
+        let enc = MidiCiPropertyExchangeBody.Encoding.mcoded7
+        let encoded = PropertyExchangeCodec.encode(payload, using: enc)
+        // ensure 7-bit safe (except msb aggregator bytes which may have bits set)
+        // Our encoding places a msb byte before up to 7 data bytes; data bytes must be <= 0x7F
+        var idx = 0
+        while idx < encoded.count {
+            idx += 1 // skip msb byte
+            let rem = encoded.count - idx
+            let block = min(7, rem)
+            for j in 0..<block { XCTAssertLessThanOrEqual(encoded[idx + j], 0x7F) }
+            idx += block
+        }
+        let decoded = PropertyExchangeCodec.decode(encoded, using: enc)
+        XCTAssertEqual(decoded, payload)
+    }
+
     func testSessionGetCompressedFlowRoundtrip() throws {
         let resource = "/clip/title"
         let clear = Array("Hello CI".utf8)

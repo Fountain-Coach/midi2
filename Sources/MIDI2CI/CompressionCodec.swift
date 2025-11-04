@@ -54,8 +54,10 @@ private func zlibDecompress(_ data: Data) -> Data? { _compress(data, operation: 
 public enum PropertyExchangeCodec {
     public static func encode(_ bytes: [UInt8], using encoding: MidiCiPropertyExchangeBody.Encoding) -> [UInt8] {
         switch encoding {
-        case .json, .binary, .mcoded7:
+        case .json, .binary:
             return bytes
+        case .mcoded7:
+            return encode7Bit(bytes)
         case .jsonZlib, .binaryZlib:
             #if canImport(Compression)
             if let out = zlibCompress(Data(bytes)) { return Array(out) }
@@ -66,13 +68,56 @@ public enum PropertyExchangeCodec {
 
     public static func decode(_ bytes: [UInt8], using encoding: MidiCiPropertyExchangeBody.Encoding) -> [UInt8] {
         switch encoding {
-        case .json, .binary, .mcoded7:
+        case .json, .binary:
             return bytes
+        case .mcoded7:
+            return decode7Bit(bytes)
         case .jsonZlib, .binaryZlib:
             #if canImport(Compression)
             if let out = zlibDecompress(Data(bytes)) { return Array(out) }
             #endif
             return bytes
         }
+    }
+
+    // Pack arbitrary bytes into 7-bit-safe representation (blocks of up to 7 bytes).
+    static func encode7Bit(_ input: [UInt8]) -> [UInt8] {
+        var out: [UInt8] = []
+        var i = 0
+        while i < input.count {
+            let remaining = input.count - i
+            let block = min(7, remaining)
+            var msb: UInt8 = 0
+            var data: [UInt8] = []
+            for j in 0..<block {
+                let b = input[i + j]
+                if (b & 0x80) != 0 { msb |= (1 << j) }
+                data.append(b & 0x7F)
+            }
+            out.append(msb)
+            out.append(contentsOf: data)
+            i += block
+        }
+        return out
+    }
+
+    // Unpack 7-bit-safe representation back to original bytes.
+    static func decode7Bit(_ input: [UInt8]) -> [UInt8] {
+        var out: [UInt8] = []
+        var i = 0
+        while i < input.count {
+            let msb = input[i]
+            i += 1
+            // remaining bytes in this block are up to 7 or fewer if end.
+            let rem = input.count - i
+            let block = min(7, rem)
+            for j in 0..<block {
+                var b = input[i + j] & 0x7F
+                if (msb & (1 << j)) != 0 { b |= 0x80 }
+                out.append(b)
+            }
+            i += block
+        }
+        return out
     }
 }

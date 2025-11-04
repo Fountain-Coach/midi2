@@ -44,7 +44,10 @@ def require_pbrvt_frames():
         'docs/pb-vrt/profiles/enabled_report.json',
         'docs/pb-vrt/profiles/disabled_report.json',
         'docs/pb-vrt/profiles/details_reply.json',
-        'docs/pb-vrt/profiles/profile_specific_data.json'
+        'docs/pb-vrt/profiles/profile_specific_data.json',
+        'docs/pb-vrt/jr/clock_timestamp.json',
+        'docs/pb-vrt/sysex8/invalid_cases.json',
+        'docs/pb-vrt/mds/invalid_cases.json'
     ]
     ok = True
     for rel in required:
@@ -61,4 +64,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

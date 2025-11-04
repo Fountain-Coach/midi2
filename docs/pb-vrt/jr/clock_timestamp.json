@@ -1,0 +1,9 @@
+{
+  "sequence": [
+    {"utility": "jrClock", "value": 4096},
+    {"utility": "jrTimestamp", "value": 4112},
+    {"utility": "jrTimestamp", "value": 4128},
+    {"utility": "jrClock", "value": 8192},
+    {"utility": "jrTimestamp", "value": 8197}
+  ]
+}

@@ -4,10 +4,22 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
-- docs: Conformance checklist (docs/conformance-checklist.md).
-- docs: PB-VRT Quiet Frame Gap Closure Prompt (docs/quiet-frame-gap-closure.yaml).
+- (none)
 ### Changed
-- README: Status section now reflects current conformance and links docs.
+- (none)
+
+## [0.4.0] - 2025-11-04
+### Added
+- Stream §5: Typed Endpoint Discovery, Stream Configuration (request/notification), Function Block info; FB discovery (filterBitmap) two-packet encoding; Group Terminal Blocks aggregate; CLI commands and tests.
+- Strict reserved-bit validation and negative tests for Stream §5.
+- Property Exchange: chunked GET/SET/NOTIFY with transaction reassembly; error codes/messages; zlib compression helpers; CLI demo; tests.
+- Profiles: enable/disable/inquiry/details (version + channel mask); Profile Specific Data (PSD) SysEx7/8; CLI demos; tests.
+- CI Device Discovery encode/decode and validation; manufacturer ID validation and tests.
+- JR receiver for clock/timestamp reconstruction with wrap handling; tests.
+- PB‑VRT baselines for Stream, Profiles, and Property Exchange flows.
+- DoD checklist + traceability; CI workflow with warnings-as-errors, tests, coverage gate (≥80%), and PB‑VRT/doc verification.
+### Changed
+- README and man page updated with new CLI subcommands and examples.
 
 ## [0.3.0] - 2025-08-15
 ### Added

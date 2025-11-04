@@ -133,3 +133,139 @@ public final class PropertyExchangeTransaction {
         return false
     }
 }
+
+// MARK: - Builder helpers for Property Exchange bodies
+
+public enum PropertyExchangeBuilder {
+    public static func makeGet(resource: String,
+                               requestId: UInt32,
+                               encoding: MidiCiPropertyExchangeBody.Encoding = .json) -> MidiCiPropertyExchangeBody {
+        MidiCiPropertyExchangeBody(
+            command: .get,
+            requestId: requestId,
+            encoding: encoding,
+            header: ["res": resource],
+            data: []
+        )
+    }
+
+    public static func makeSet(resource: String,
+                               requestId: UInt32,
+                               encoding: MidiCiPropertyExchangeBody.Encoding = .json,
+                               data: [UInt8]) -> MidiCiPropertyExchangeBody {
+        MidiCiPropertyExchangeBody(
+            command: .set,
+            requestId: requestId,
+            encoding: encoding,
+            header: ["res": resource],
+            data: data
+        )
+    }
+
+    public static func makeSubscribe(resource: String,
+                                     requestId: UInt32,
+                                     encoding: MidiCiPropertyExchangeBody.Encoding = .json) -> MidiCiPropertyExchangeBody {
+        MidiCiPropertyExchangeBody(
+            command: .subscribe,
+            requestId: requestId,
+            encoding: encoding,
+            header: ["res": resource],
+            data: []
+        )
+    }
+
+    public static func makeTerminate(resource: String,
+                                     requestId: UInt32,
+                                     encoding: MidiCiPropertyExchangeBody.Encoding = .json) -> MidiCiPropertyExchangeBody {
+        MidiCiPropertyExchangeBody(
+            command: .terminate,
+            requestId: requestId,
+            encoding: encoding,
+            header: ["res": resource],
+            data: []
+        )
+    }
+}
+
+// MARK: - Session handling for Set / Subscribe / Notify
+
+/// Minimal in-memory Property Exchange session.
+/// Manages a property store, subscriptions by resource, and produces replies.
+public final class PropertyExchangeSession {
+    public var store: [String: [UInt8]]
+    private var subscriptions: Set<String>
+    private var notifySeq: Int = 0
+    public var maxDataPerMessage: Int
+
+    public init(initialStore: [String: [UInt8]] = [:], maxDataPerMessage: Int = 80) {
+        self.store = initialStore
+        self.subscriptions = []
+        self.maxDataPerMessage = max(1, maxDataPerMessage)
+    }
+
+    /// Handle a single request and return zero or more reply/notify messages.
+    public func handle(_ request: MidiCiPropertyExchangeBody) -> [MidiCiPropertyExchangeBody] {
+        switch request.command {
+        case .get:
+            let res = request.header["res"] ?? ""
+            let value = store[res] ?? []
+            if value.isEmpty {
+                // send empty getReply to signify not found
+                let header: [String: String] = [
+                    "res": res,
+                    "total": "0",
+                    "offset": "0",
+                    "length": "0",
+                    "more": "0"
+                ]
+                return [MidiCiPropertyExchangeBody(command: .getReply, requestId: request.requestId, encoding: request.encoding, header: header, data: [])]
+            } else {
+                return PropertyExchangeChunker.chunkGetReply(resource: res,
+                                                             requestId: request.requestId,
+                                                             encoding: request.encoding,
+                                                             data: value,
+                                                             maxDataPerMessage: maxDataPerMessage)
+            }
+        case .set:
+            let res = request.header["res"] ?? ""
+            store[res] = request.data
+            let replyHeader = ["res": res, "ok": "1"]
+            var replies = [MidiCiPropertyExchangeBody(command: .setReply,
+                                                     requestId: request.requestId,
+                                                     encoding: request.encoding,
+                                                     header: replyHeader,
+                                                     data: [])]
+            if subscriptions.contains(res) {
+                notifySeq &+= 1
+                let notifyHeader = ["res": res, "seq": String(notifySeq)]
+                let notify = MidiCiPropertyExchangeBody(command: .notify,
+                                                        requestId: request.requestId,
+                                                        encoding: request.encoding,
+                                                        header: notifyHeader,
+                                                        data: request.data)
+                replies.append(notify)
+            }
+            return replies
+        case .subscribe:
+            let res = request.header["res"] ?? ""
+            subscriptions.insert(res)
+            let replyHeader = ["res": res, "ok": "1"]
+            return [MidiCiPropertyExchangeBody(command: .subscribeReply,
+                                               requestId: request.requestId,
+                                               encoding: request.encoding,
+                                               header: replyHeader,
+                                               data: [])]
+        case .terminate:
+            let res = request.header["res"] ?? ""
+            subscriptions.remove(res)
+            let replyHeader = ["res": res, "ok": "1"]
+            return [MidiCiPropertyExchangeBody(command: .subscribeReply,
+                                               requestId: request.requestId,
+                                               encoding: request.encoding,
+                                               header: replyHeader,
+                                               data: [])]
+        default:
+            return []
+        }
+    }
+}

@@ -9,7 +9,7 @@ struct StreamConfig: ParsableCommand {
         discussion: "Creates and decodes MIDI 2.0 Stream messages (mt=0xF) using typed wrappers. This is a scaffolding command; bitfield mapping follows the spec and will be filled in progressively."
     )
 
-    func run() throws { throw CleanExit.message("Run a subcommand: endpoint | configure | fb | handshake") }
+    func run() throws { throw CleanExit.message("Run a subcommand: endpoint | configure | fb | fb-discover | handshake") }
 }
 
 struct StreamEndpoint: ParsableCommand {
@@ -93,6 +93,43 @@ struct StreamFunctionBlock: ParsableCommand {
         var parsed = try FunctionBlockMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
         print("  index=\(parsed.index) firstGroup=\(parsed.firstGroup) groupCount=\(parsed.groupCount)")
+    }
+}
+
+struct StreamFunctionBlockDiscover: ParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "fb-discover",
+        abstract: "Encode/decode Function Block discovery filter bitmap"
+    )
+
+    @Option(name: .long, help: "Group (0-15)")
+    var group: Int = 0
+
+    @Option(name: .long, help: "Filter bitmap (e.g., 0x0000000F or 15)")
+    var filter: String
+
+    func run() throws {
+        guard let g = Uint4(UInt8(group)) else {
+            throw ValidationError("Invalid group")
+        }
+        // Parse decimal or hex (0x...)
+        let value: UInt32
+        if filter.lowercased().hasPrefix("0x") {
+            let hex = String(filter.dropFirst(2))
+            guard let v = UInt32(hex, radix: 16) else { throw ValidationError("Invalid hex filter value") }
+            value = v
+        } else {
+            guard let v = UInt32(filter) else { throw ValidationError("Invalid filter value") }
+            value = v
+        }
+
+        let fbDisc = FunctionBlockDiscovery(filterBitmap: value)
+        let pkts = fbDisc.umps(group: g)
+        for (i, pkt) in pkts.enumerated() {
+            print(String(format: "FB Discover pkt%u: 0x%08X", i, pkt.word))
+        }
+        let parsed = try FunctionBlockDiscovery(parsingUMPs: pkts)
+        print(String(format: "Decoded filter: 0x%08X", parsed.filterBitmap))
     }
 }
 

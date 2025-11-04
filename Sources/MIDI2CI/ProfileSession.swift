@@ -12,6 +12,16 @@ public final class ProfileSession {
         self.supportedProfiles = supportedProfiles
     }
 
+    /// Emit an addedReport for a newly available profile at the given scope.
+    public func reportAdded(profileId: String, target: MidiCiProfilesBody.Target?, channels: [Uint4]?) -> MidiCiProfilesBody {
+        MidiCiProfilesBody(command: .addedReport, profileId: profileId, target: target, channels: channels, details: ["ok": 1])
+    }
+
+    /// Emit a removedReport for a no-longer-available profile at the given scope.
+    public func reportRemoved(profileId: String, target: MidiCiProfilesBody.Target?, channels: [Uint4]?) -> MidiCiProfilesBody {
+        MidiCiProfilesBody(command: .removedReport, profileId: profileId, target: target, channels: channels, details: ["ok": 1])
+    }
+
     private func key(for target: MidiCiProfilesBody.Target?, channels: [Uint4]?) -> String {
         let t = target?.rawValue ?? 0xFF
         let c: String

@@ -1,0 +1,33 @@
+library_coverage:
+  description: Implement all modeled messages with strict parsing/encoding.
+  acceptance:
+    - Typed wrappers exist where modeled in schema
+    - Reserved bits validated with clear errors
+    - No panics in parsers (failable/throwing)
+
+cli_completeness:
+  description: CLI demonstrates each message family with typed encode/decode and flows.
+  acceptance:
+    - Subcommands present and documented in README/man
+    - Stream §5 handshake, Profiles (enable/inquiry/details/PSD), Property Exchange (chunking/compression), SysEx7/8, Flex, JR
+
+tests_conformance:
+  description: Unit/integration tests + negative cases + PB-VRT baselines.
+  acceptance:
+    - Negative tests for malformed/reserved bits/invalid ranges
+    - PB-VRT frames for Stream, Profiles, Property Exchange, SysEx8/MDS, JR
+    - All tests pass locally and in CI
+
+docs:
+  description: Conformance checklist and gap-closure plan are accurate and current.
+  acceptance:
+    - docs/conformance-checklist.md updated
+    - docs/quiet-frame-gap-closure.yaml updated
+
+tooling_quality:
+  description: CI enforces build/test/coverage and doc/artifact presence.
+  acceptance:
+    - CI workflow runs build + tests + coverage report
+    - Coverage gate configured (target ≥ 80%)
+    - PB-VRT frames existence verified
+    - README lists all CLI subcommands

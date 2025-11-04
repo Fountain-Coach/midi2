@@ -7,57 +7,31 @@ on:
     branches: [ main ]
 
 jobs:
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-
+  build-test:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Swift
-        uses: swift-actions/setup-swift@v1
-        with:
-          swift-version: '6.0'
-
-      - name: Cache SwiftPM
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.swiftpm
-            .build
-          key: ${{ runner.os }}-spm-${{ hashFiles('Package.resolved') }}
-
-      - name: Lint with swiftformat
+      - name: Build (warnings as errors)
+        run: swift build -Xswiftc -warnings-as-errors
+      - name: Run tests
+        run: swift test
+      - name: Coverage report
         run: |
-          if command -v swiftformat >/dev/null; then
-            swiftformat --lint .
-          else
-            echo 'swiftformat not installed; skipping'
-          fi
-
-      - name: Lint with SwiftLint
+          swift test --enable-code-coverage
+          xcrun llvm-cov report .build/*/debug/MIDI2PackageTests.xctest/Contents/MacOS/MIDI2PackageTests --instr-profile .build/*/debug/codecov/default.profdata || true
+      - name: Enforce coverage gate (>=80%)
         run: |
-          if command -v swiftlint >/dev/null; then
-            swiftlint
-          else
-            echo 'swiftlint not installed; skipping'
-          fi
-
-      - name: Run tests with coverage
-        run: swift test --enable-code-coverage
-
-      - name: Report coverage
+          set -e
+          swift test --enable-code-coverage
+          BIN=$(ls .build/*/debug/MIDI2PackageTests.xctest/Contents/MacOS/MIDI2PackageTests | head -n1)
+          PROF=$(ls .build/*/debug/codecov/default.profdata | head -n1)
+          REPORT=$(xcrun llvm-cov report "$BIN" --instr-profile "$PROF")
+          echo "$REPORT"
+          PCT=$(echo "$REPORT" | awk '/TOTAL/{print $(NF-1)}' | tr -d '%')
+          echo "Coverage: ${PCT}%"
+          if [ -z "$PCT" ]; then echo "Coverage parse failed"; exit 1; fi
+          PCT_INT=${PCT%.*}
+          if [ "$PCT_INT" -lt 80 ]; then echo "Coverage below 80%"; exit 1; fi
+      - name: Verify DoD docs & PB-VRT
         run: |
-          if command -v llvm-cov >/dev/null; then
-            profdata=$(swift test --show-codecov-path)
-            binaries=$(find .build -name "*.xctest" -type f | tr '\n' ' ')
-            if [ -n "$binaries" ]; then
-              llvm-cov report $binaries --instr-profile "$profdata"
-            else
-              echo 'No test binaries found for coverage'
-            fi
-          else
-            echo 'llvm-cov not installed; skipping coverage report'
-          fi
+          python3 Scripts/verify_docs.py

@@ -22,7 +22,7 @@ struct PropertyExchangeDemo: ParsableCommand {
     var encoding: String = "json"
 
     func run() throws {
-        var size = max(0, size)
+        let payloadSize = max(0, size)
         let chunkSize = max(1, chunk)
         let enc: MidiCiPropertyExchangeBody.Encoding
         switch encoding.lowercased() {
@@ -38,7 +38,7 @@ struct PropertyExchangeDemo: ParsableCommand {
         _ = session.handle(PropertyExchangeBuilder.makeSubscribe(resource: resource, requestId: 1, encoding: enc))
 
         // Build payload
-        let clear = Array(0..<size).map { UInt8($0 & 0xFF) }
+        let clear = Array(0..<payloadSize).map { UInt8($0 & 0xFF) }
         let payload = PropertyExchangeCodec.encode(clear, using: enc)
         let total = payload.count
         let reqId: UInt32 = 42
@@ -68,7 +68,7 @@ struct PropertyExchangeDemo: ParsableCommand {
             print("SET reply: \(r.command) header=\(r.header) dataLen=\(r.data.count)")
         }
         let notifies = finalReplies.filter { $0.command == .notify }
-        var rxNotify = PropertyExchangeTransaction(requestId: reqId, resource: resource, encoding: enc)
+        let rxNotify = PropertyExchangeTransaction(requestId: reqId, resource: resource, encoding: enc)
         var notifyDone = false
         for n in notifies {
             let shim = MidiCiPropertyExchangeBody(command: .getReply,
@@ -88,7 +88,7 @@ struct PropertyExchangeDemo: ParsableCommand {
 
         // GET and reassemble
         let getReplies = session.handle(PropertyExchangeBuilder.makeGet(resource: resource, requestId: 100, encoding: enc))
-        var rxGet = PropertyExchangeTransaction(requestId: 100, resource: resource, encoding: enc)
+        let rxGet = PropertyExchangeTransaction(requestId: 100, resource: resource, encoding: enc)
         var getDone = false
         for r in getReplies {
             getDone = try rxGet.ingest(reply: r)

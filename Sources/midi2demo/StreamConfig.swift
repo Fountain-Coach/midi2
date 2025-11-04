@@ -34,7 +34,7 @@ struct StreamEndpoint: ParsableCommand {
         let msg = EndpointDiscoveryMessage(data1: UInt8(data1), data2: UInt8(data2))
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
-        var parsed = try EndpointDiscoveryMessage(parsingUMP: pkt)
+        let parsed = try EndpointDiscoveryMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
         print("  major=\(parsed.majorVersion) minor=\(parsed.minorVersion) maxGroups=\(parsed.maxGroups)")
     }
@@ -62,7 +62,7 @@ struct StreamConfigure: ParsableCommand {
         let msg = StreamConfigurationMessage(data1: UInt8(data1), data2: UInt8(data2))
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
-        var parsed = try StreamConfigurationMessage(parsingUMP: pkt)
+        let parsed = try StreamConfigurationMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
         print("  isNotification=\(parsed.isNotification) jrTx=\(parsed.jrTimestampsTx) jrRx=\(parsed.jrTimestampsRx) proto=\(parsed.protocolSelection == .midi2 ? "midi2" : "midi1")")
     }
@@ -90,7 +90,7 @@ struct StreamFunctionBlock: ParsableCommand {
         let msg = FunctionBlockMessage(data1: UInt8(data1), data2: UInt8(data2))
         let pkt = msg.ump(group: g)
         print(String(format: "UMP: 0x%08X", pkt.word))
-        var parsed = try FunctionBlockMessage(parsingUMP: pkt)
+        let parsed = try FunctionBlockMessage(parsingUMP: pkt)
         print("Decoded -> data1: \(parsed.data1) data2: \(parsed.data2)")
         print("  index=\(parsed.index) firstGroup=\(parsed.firstGroup) groupCount=\(parsed.groupCount)")
     }
@@ -184,7 +184,7 @@ struct StreamHandshake: ParsableCommand {
         guard let g = Uint4(UInt8(group)) else { throw ValidationError("Invalid group") }
 
         // 1) Endpoint Discovery (initiator → responder)
-        var epReq = EndpointDiscoveryMessage(majorVersion: 1, minorVersion: 0, maxGroups: 8)
+        let epReq = EndpointDiscoveryMessage(majorVersion: 1, minorVersion: 0, maxGroups: 8)
         let epPkt = epReq.ump(group: g)
         print(String(format: "Endpoint Discovery (req): 0x%08X", epPkt.word))
         print("  major=\(epReq.majorVersion) minor=\(epReq.minorVersion) maxGroups=\(epReq.maxGroups)")

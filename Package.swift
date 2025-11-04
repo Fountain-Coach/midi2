@@ -44,6 +44,10 @@ let package = Package(
             ]
         ),
         .executableTarget(
+            name: "midi2device",
+            dependencies: ["MIDI2", "MIDI2CI"]
+        ),
+        .executableTarget(
             name: "midi2compliance",
             dependencies: ["MIDI2", "MIDI2CI"]
         ),

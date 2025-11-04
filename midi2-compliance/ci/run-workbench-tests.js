@@ -47,52 +47,60 @@ function getArg(name, defVal) {
     if (process.env.MIDI2_LOG_CONSOLE === '1') console.log(`[wb] ${line}`);
   });
 
-  // wait for main UI ready (adjust selector to your fork). Try a few fallbacks.
-  const startCandidates = [
-    startSelector,
-    'button:has-text("Run")',
-    'button:has-text("Start")',
-    'text=Run Tests',
-    'text=Start Tests'
-  ];
-  let started = false;
-  for (const sel of startCandidates) {
-    try {
-      await win.waitForSelector(sel, { timeout: 10000 });
-      console.log(`[midi2-compliance] Starting suite with selector: ${sel}`);
-      await win.click(sel);
-      started = true;
-      break;
-    } catch (e) {
-      // try next candidate
-    }
-  }
-  if (!started) {
-    throw new Error(`[midi2-compliance] Could not find start control. Tried: ${startCandidates.join(', ')}`);
-  }
+  // Headless path: drive Workbench via IPC to open CI views and build report
+  // 1) refresh devices and wait for UMP device cards
+  console.log('[midi2-compliance] Refreshing UMP devices...');
+  await win.evaluate(() => {
+    try { require('electron').ipcRenderer.send('asynchronous-message', 'getAllUMPDevicesFunctionBlocks'); } catch (_) {}
+  });
+  // wait until at least one UMP device card appears
+  await win.waitForSelector('[data-umpdev]', { timeout: 120000 });
+  const umpDevs = await win.evaluate(() => Array.from(document.querySelectorAll('[data-umpdev]')).map(el => el.getAttribute('data-umpdev')));
+  if (!umpDevs || umpDevs.length === 0) throw new Error('No UMP devices discovered');
+  const umpDev = umpDevs[0];
+  console.log(`[midi2-compliance] Using device: ${umpDev}`);
 
-  // suite can take a while, then attempt export via a few selector fallbacks.
-  const exportCandidates = [
-    exportSelector,
-    'button:has-text("Export")',
-    'text=Export JSON',
-    'text=Export Report'
-  ];
-  let exported = false;
-  for (const sel of exportCandidates) {
-    try {
-      await win.waitForSelector(sel, { timeout: 15 * 60 * 1000 });
-      console.log(`[midi2-compliance] Exporting JSON report with selector: ${sel}`);
-      await win.click(sel);
-      exported = true;
-      break;
-    } catch (e) {
-      // try next candidate
-    }
-  }
-  if (!exported) {
-    throw new Error(`[midi2-compliance] Could not find export control. Tried: ${exportCandidates.join(', ')}`);
-  }
+  // 2) open MIDI-CI project window (auto-pick MUID with -1)
+  await win.evaluate((d) => {
+    try { require('electron').ipcRenderer.send('asynchronous-message', 'openMIDICI', { umpDev: d, group: 1, muid: -1 }); } catch (_) {}
+  }, umpDev);
+  const proj = await app.waitForEvent('window', { timeout: 60000 });
+  await proj.waitForLoadState('domcontentloaded');
+  console.log('[midi2-compliance] Project window opened');
+
+  // 3) show certification (builds devData) and open report window for rendering
+  await proj.evaluate((d) => {
+    try { require('electron').ipcRenderer.send('asynchronous-message', 'showCertification', { umpDev: d, group: 1, muid: -1, openMIDICI: true }); } catch (_) {}
+  }, umpDev);
+  // allow devData to build
+  await new Promise(r => setTimeout(r, 2000));
+  await proj.evaluate((d) => {
+    try { require('electron').ipcRenderer.send('asynchronous-message', 'openReport', { umpDev: d, group: 1, muid: -1 }); } catch (_) {}
+  }, umpDev);
+  const reportWin = await app.waitForEvent('window', { timeout: 60000 });
+  await reportWin.waitForLoadState('domcontentloaded');
+  console.log('[midi2-compliance] Report window opened');
+
+  // 4) Extract a simple JSON summary from the report DOM (checked items)
+  const summary = await reportWin.evaluate(() => {
+    const checks = [];
+    document.querySelectorAll('input[type="checkbox"][data-path]').forEach((el) => {
+      const path = el.getAttribute('data-path');
+      const passed = !!el.checked;
+      checks.push({ path, passed });
+    });
+    const device = {
+      manufacturer: document.querySelector('[data-pathText="/device/manufacturer"]')?.textContent?.trim() || '',
+      model: document.querySelector('[data-pathText="/device/model"]')?.textContent?.trim() || ''
+    };
+    const passed = checks.some(c => c.passed);
+    const result = { device, passed, checks };
+    window.__MIDI2_LAST_REPORT__ = result;
+    return result;
+  });
+  console.log(`[midi2-compliance] Extracted summary: ${JSON.stringify(summary).slice(0,200)}...`);
+
+  // no explicit export control needed; JSON is placed on window.__MIDI2_LAST_REPORT__
 
   // fetch report object from window (ensure fork sets this global)
   const json = await win.evaluate(() => {

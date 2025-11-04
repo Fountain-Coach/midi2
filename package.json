@@ -1,0 +1,12 @@
+{
+  "name": "midi2-compliance-runner",
+  "private": "true",
+  "type": "commonjs",
+  "scripts": {
+    "test": "echo 'No tests' && exit 0"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "playwright": "^1.56.1"
+  }
+}

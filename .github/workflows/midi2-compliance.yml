@@ -18,7 +18,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '18'
+          cache: 'npm'
 
       - name: Install OS deps (Linux)
         if: runner.os == 'Linux'
@@ -43,7 +44,6 @@ jobs:
           bash midi2-compliance/scripts/install.sh
         env:
           WORKBENCH_FORK_URL: ${{ env.WORKBENCH_FORK_URL || 'https://github.com/Fountain-Coach/MIDI2.0Workbench' }}
-
       - name: Show workbench dir
         run: |
           ls -la
@@ -79,22 +79,21 @@ jobs:
           echo "Installing electron@${VER}"
           for i in 1 2 3; do npm install -D electron@"$VER" --no-fund --no-audit && break || sleep 5; done
 
-      - name: Rebuild native Electron modules (best-effort)
+      - name: Electron rebuild (best-effort)
         run: |
           cd .workbench
           ELECTRON_VER=$(node -e "console.log(require('./package.json').devDependencies?.electron || require('./package.json').dependencies?.electron || '')")
           echo "Electron version: $ELECTRON_VER"
-          npx @electron/rebuild --force --parallel -v "$ELECTRON_VER" || true
+          npx electron-rebuild -f -v "$ELECTRON_VER" || true
         env:
           npm_config_python: python3
           npm_config_build_from_source: false
           OPENSSL_FIPS: ""
           npm_config_runtime: electron
 
-      - name: Install Playwright system deps and browsers
-        if: runner.os == 'Linux'
+      - name: Start virtual endpoints (optional stub)
         run: |
-          npx playwright install --with-deps
+          echo "TODO: Start midi2 device or virtual endpoints if needed"
 
       - name: Run Workbench headless
         run: |

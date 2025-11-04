@@ -95,6 +95,14 @@ The demo:
 - Sends a chunked Set that the session reassembles and stores.
 - Prints chunked Notify packets and reassembles them.
 - Issues a Get and reassembles the chunked GetReply to verify integrity.
+
+### Profiles (enable/disable + inquiry)
+
+```bash
+swift run midi2demo profiles-demo --profile /org.midi/piano --channel 0
+```
+
+Emits enabled/disabled reports and inquiry replies with supported/enabled flags.
 ```
 
 Each command prints the encoded Universal MIDI Packet and decodes it back to

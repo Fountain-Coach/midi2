@@ -1,0 +1,4 @@
+{
+  "word": "0xF0012300",
+  "fields": {"opcode": "streamConfiguration", "isNotification": true, "jrTx": true, "jrRx": false, "protocol": "midi2"}
+}

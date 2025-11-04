@@ -1,15 +1,15 @@
-FROM ubuntu:24.04
+FROM swift:6.1-jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential pkg-config libasound2-dev alsa-utils \
+    libasound2-dev alsa-utils pkg-config \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /work
 
-COPY midi2-compliance/docker/src/ump_responder.c /work/ump_responder.c
-RUN gcc -O2 -o /usr/local/bin/ump_responder /work/ump_responder.c -lasound
+# Copy entire repo and build the Linux responder
+COPY . /work
+RUN swift build -c release --product midi2umpd
 
 COPY midi2-compliance/docker/scripts/run-ump-responder.sh /usr/local/bin/run-ump-responder.sh
 RUN chmod +x /usr/local/bin/run-ump-responder.sh
-

@@ -11,7 +11,8 @@ let package = Package(
         .library(name: "MIDI2CI", targets: ["MIDI2CI"]),
         .executable(name: "midi2demo", targets: ["midi2demo"]),
         .executable(name: "jitterdemo", targets: ["jitterdemo"]),
-        .executable(name: "midi2compliance", targets: ["midi2compliance"])
+        .executable(name: "midi2compliance", targets: ["midi2compliance"]),
+        .executable(name: "midi2umpd", targets: ["midi2umpd"])
     ],
     dependencies: [
         .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
@@ -47,9 +48,28 @@ let package = Package(
             name: "midi2device",
             dependencies: ["MIDI2", "MIDI2CI"]
         ),
+        // ALSA C shim target for Linux
+        .target(
+            name: "UMPALSA",
+            path: "Sources/UMPALSA",
+            publicHeadersPath: ".",
+            cSettings: [
+                .define("USE_ALSA", to: "1", .when(platforms: [.linux]))
+            ],
+            linkerSettings: [
+                .linkedLibrary("asound", .when(platforms: [.linux]))
+            ]
+        ),
         .executableTarget(
             name: "midi2compliance",
             dependencies: ["MIDI2", "MIDI2CI"]
+        ),
+        .executableTarget(
+            name: "midi2umpd",
+            dependencies: ["MIDI2", "MIDI2CI", "UMPALSA"],
+            swiftSettings: [
+                .define("LINUX", .when(platforms: [.linux]))
+            ]
         ),
         .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "midi2demo"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")

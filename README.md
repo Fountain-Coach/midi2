@@ -8,7 +8,18 @@ streaming utilities, MIDI‑CI envelope helpers, and a teaching‑oriented
 
 ## Status
 
-Core UMP encoding/decoding, SysEx7/SysEx8 streaming, MIDI‑CI envelope helpers, and demos/tests are implemented. Several MIDI‑CI and stream‑configuration features remain in progress (e.g., full Property Exchange transaction/state handling and chunking, Profile configuration reports, Function Block discovery, and UMP Stream Configuration §5 messages). See docs/conformance-checklist.md and docs/quiet-frame-gap-closure.yaml for the current conformance map and gap‑closure plan. The project also ships with the `TeatroAppleBridge` Core MIDI adapter and the `midi2demo` CLI covering `note-on`, `sysex7`, `sysex8`, `flex`, `ci-handshake`, and `inspect`.
+Core UMP encoding/decoding, SysEx7/SysEx8 streaming, MIDI‑CI envelope helpers, and demos/tests are implemented.
+
+Recent progress:
+- Stream messages (mt=0xF): typed Endpoint Discovery (major/minor/maxGroups) and Stream Configuration request/notification with reserved‑bit validation.
+- Function Blocks: typed info (index/firstGroup/groupCount) and discovery `filterBitmap` aggregate with two‑packet encoding; CLI support.
+
+Still in progress:
+- Property Exchange: full transaction/state handling and chunking.
+- Profiles: configuration reports and end‑to‑end enable/disable flows.
+- Stream Configuration §5: Group Terminal Blocks (GTB) and extended device info semantics.
+
+See `docs/conformance-checklist.md` and `docs/quiet-frame-gap-closure.yaml` for the conformance map and gap‑closure plan. The project also ships with the `TeatroAppleBridge` Core MIDI adapter and the `midi2demo` CLI covering `note-on`, `sysex7`, `sysex8`, `flex`, `ci-handshake`, `inspect`, and `stream-config` subcommands.
 
 ## Features
 

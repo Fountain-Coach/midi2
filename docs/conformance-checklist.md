@@ -20,17 +20,17 @@ This document summarizes current implementation state against the MIDI 2.0 speci
 - Profile Configuration Reports: Missing
   - Evidence: No generation/parsing of configuration reports beyond body encoding.
   - Gap: Implement reports mirroring Profile Data Set.
-- Function Block discovery: Stub
-  - Evidence: Sources/MIDI2/StreamOpcode.swift:1, Sources/MIDI2/StreamBody.swift:1 (generic data1/data2 only)
-  - Gap: Define typed Function Block descriptors and discovery messages.
+- Function Block discovery: Partial
+  - Evidence: Sources/MIDI2/Stream/FunctionBlockMessage.swift:1 (typed info: index/firstGroup/groupCount), Sources/MIDI2/Stream/FunctionBlockDiscovery.swift:1 (filterBitmap aggregate), Tests/MIDI2Tests/StreamFunctionBlockDiscoveryTests.swift:1 (roundtrip + errors)
+  - Gap: Descriptor details beyond index/group range; discovery/response flow semantics; profile reports.
 
 ## UMP Stream Configuration (M2-104-UM §5)
-- Endpoint Discovery (Endpoint/Device Info): Partial
-  - Evidence: Sources/MIDI2/StreamBody.swift:1 (opcode present), Tests/MIDI2Tests/StreamBodyTests.swift:1
-  - Gap: Typed Endpoint/Device Info structures and emitter-side advertisement.
-- Stream Configuration Request/Reply: Missing
-  - Evidence: No typed request/reply structures for §5.3.
-  - Gap: Implement configuration handshake messages and validation.
+- Endpoint Discovery (Endpoint/Device Info): Partial → Typed
+  - Evidence: Sources/MIDI2/Stream/EndpointDiscoveryMessage.swift:1 (major/minor/maxGroups mapping, reserved validation), Tests/MIDI2Tests/StreamMappingTests.swift:1
+  - Gap: Device Info/advertisement content (beyond version/max groups).
+- Stream Configuration Request/Reply: Partial
+  - Evidence: Sources/MIDI2/Stream/StreamConfigurationMessage.swift:1 (typed fields + reserved-bit validation), Sources/midi2demo/StreamConfig.swift:100 (typed request/notification), Tests/MIDI2Tests/StreamReservedBitsTests.swift:1, Tests/MIDI2Tests/StreamTypedTests.swift:1
+  - Gap: GTB negotiation and additional §5 semantics.
 - Group Terminal Blocks (GTB): Missing
   - Evidence: No GTB model/parse helpers.
   - Gap: Add GTB typed structures and parsing.
@@ -67,5 +67,4 @@ This document summarizes current implementation state against the MIDI 2.0 speci
 - Interop with hardware: Missing
   - Evidence: No tests against external devices.
   - Gap: Capture/verify against official MIDI-CI device responses and JR sync.
-
 

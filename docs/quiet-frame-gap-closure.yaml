@@ -43,11 +43,14 @@ areas:
         - Sources/MIDI2CI/ProfileInquiry.swift:1
         - Sources/MIDI2/StreamOpcode.swift:1
         - Sources/MIDI2/StreamBody.swift:1
+        - Sources/MIDI2/Stream/FunctionBlockMessage.swift:1
+        - Sources/MIDI2/Stream/FunctionBlockDiscovery.swift:1
       tests:
         - Tests/MIDI2Tests/MidiCiHandshakeIntegrationTests.swift:1
+        - Tests/MIDI2Tests/StreamFunctionBlockDiscoveryTests.swift:1
     drift:
       - No active enable/disable handlers or profile reports.
-      - No typed Function Block descriptors; only raw opcode + 2 bytes.
+      - Function Block descriptors implemented for index/group range; remaining descriptor details and flow semantics.
     quiet_frame_goal:
       - Implement profile enable/disable + report messages end-to-end.
       - Define and parse Function Block discovery/info structures.
@@ -65,11 +68,16 @@ areas:
       files:
         - Sources/MIDI2/StreamOpcode.swift:1
         - Sources/MIDI2/StreamBody.swift:1
+        - Sources/MIDI2/Stream/EndpointDiscoveryMessage.swift:1
+        - Sources/MIDI2/Stream/StreamConfigurationMessage.swift:1
+        - Sources/midi2demo/StreamConfig.swift:1
       tests:
         - Tests/MIDI2Tests/StreamBodyTests.swift:1
+        - Tests/MIDI2Tests/StreamTypedTests.swift:1
+        - Tests/MIDI2Tests/StreamReservedBitsTests.swift:1
     drift:
-      - Missing Endpoint/Device Info typed structures.
-      - Missing Stream Configuration Request/Reply and validation.
+      - Endpoint Discovery typed mapping present; remaining device info advertisement detail.
+      - Stream Configuration request/notification and reserved-bit validation added; GTB and extended §5 semantics pending.
       - No Group Terminal Blocks (GTB) model.
     quiet_frame_goal:
       - Implement Endpoint/Device Info types and encoders/decoders.
@@ -160,4 +168,3 @@ timeline:
   q3:
     - ump_stream_config: GTB
     - testing_validation: PB-VRT baselines
-

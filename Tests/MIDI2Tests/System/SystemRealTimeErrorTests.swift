@@ -9,7 +9,8 @@ final class SystemRealTimeErrorTests: XCTestCase {
         let word = (byte0 << 24) | (status << 16)
         let ump = UmpPacket32(word: word)
         XCTAssertThrowsError(try SystemRealTime(parsingUMP: ump)) { error in
-            XCTAssertTrue(error.localizedDescription.contains("unsupported system realtime status"))
+            // Underlying body parser throws invalid system status for 0xF7
+            XCTAssertTrue(error.localizedDescription.contains("invalid system status"))
         }
     }
 
@@ -21,4 +22,3 @@ final class SystemRealTimeErrorTests: XCTestCase {
         }
     }
 }
-

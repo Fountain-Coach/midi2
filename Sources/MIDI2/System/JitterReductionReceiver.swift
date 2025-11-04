@@ -9,7 +9,10 @@ public final class JRReceiver {
     public func ingestClock(_ value: UInt16) {
         if let prev = lastClock {
             let delta = UInt16(value &- prev)
-            fullTime &+= UInt64(delta)
+            // Treat large deltas (interpreted as backward wrap) as 0 progression
+            if delta <= 0x7FFF {
+                fullTime &+= UInt64(delta)
+            }
             lastClock = value
         } else {
             lastClock = value
@@ -24,4 +27,3 @@ public final class JRReceiver {
         return fullTime &+ UInt64(offset)
     }
 }
-

@@ -196,11 +196,15 @@ public final class PropertyExchangeSession {
     private var subscriptions: Set<String>
     private var notifySeq: Int = 0
     public var maxDataPerMessage: Int
+    private let setAllowed: (String, [UInt8]) -> Bool
 
-    public init(initialStore: [String: [UInt8]] = [:], maxDataPerMessage: Int = 80) {
+    public init(initialStore: [String: [UInt8]] = [:],
+                maxDataPerMessage: Int = 80,
+                setAllowed: @escaping (String, [UInt8]) -> Bool = { _, _ in true }) {
         self.store = initialStore
         self.subscriptions = []
         self.maxDataPerMessage = max(1, maxDataPerMessage)
+        self.setAllowed = setAllowed
     }
 
     /// Handle a single request and return zero or more reply/notify messages.
@@ -228,24 +232,33 @@ public final class PropertyExchangeSession {
             }
         case .set:
             let res = request.header["res"] ?? ""
-            store[res] = request.data
-            let replyHeader = ["res": res, "ok": "1"]
-            var replies = [MidiCiPropertyExchangeBody(command: .setReply,
-                                                     requestId: request.requestId,
-                                                     encoding: request.encoding,
-                                                     header: replyHeader,
-                                                     data: [])]
-            if subscriptions.contains(res) {
-                notifySeq &+= 1
-                let notifyHeader = ["res": res, "seq": String(notifySeq)]
-                let notify = MidiCiPropertyExchangeBody(command: .notify,
-                                                        requestId: request.requestId,
-                                                        encoding: request.encoding,
-                                                        header: notifyHeader,
-                                                        data: request.data)
-                replies.append(notify)
+            if setAllowed(res, request.data) {
+                store[res] = request.data
+                let replyHeader = ["res": res, "ok": "1"]
+                var replies = [MidiCiPropertyExchangeBody(command: .setReply,
+                                                         requestId: request.requestId,
+                                                         encoding: request.encoding,
+                                                         header: replyHeader,
+                                                         data: [])]
+                if subscriptions.contains(res) {
+                    notifySeq &+= 1
+                    let notifyHeader = ["res": res, "seq": String(notifySeq)]
+                    let notify = MidiCiPropertyExchangeBody(command: .notify,
+                                                            requestId: request.requestId,
+                                                            encoding: request.encoding,
+                                                            header: notifyHeader,
+                                                            data: request.data)
+                    replies.append(notify)
+                }
+                return replies
+            } else {
+                let replyHeader = ["res": res, "ok": "0"]
+                return [MidiCiPropertyExchangeBody(command: .setReply,
+                                                   requestId: request.requestId,
+                                                   encoding: request.encoding,
+                                                   header: replyHeader,
+                                                   data: [])]
             }
-            return replies
         case .subscribe:
             let res = request.header["res"] ?? ""
             subscriptions.insert(res)

@@ -25,6 +25,12 @@ struct CIHandshakeCommand: ParsableCommand {
     @Flag(name: .long, help: "Use a large property value to trigger chunked GET replies")
     var peLarge: Bool = false
 
+    @Flag(name: .long, help: "Simulate error on Set (reply ok=0)")
+    var peErrorSet: Bool = false
+
+    @Option(name: .long, help: "UMP group (0-15) for SysEx8 framing")
+    var group: Int = 0
+
     func run() throws {
         // Protocol negotiation
         let initiatorSupported: [MidiCIProtocol] = noCommonProtocol ? [.midi2] : [.midi2, .midi1]
@@ -65,16 +71,16 @@ struct CIHandshakeCommand: ParsableCommand {
         }
 
         // Extended Property Exchange demo (subscribe/notify and/or chunked GET)
-        if peSubscribe || peLarge {
+        if peSubscribe || peLarge || peErrorSet {
             print("\n-- Extended Property Exchange Demo --")
             let encoding: MidiCiPropertyExchangeBody.Encoding = .json
             let session: PropertyExchangeSession
             if peLarge {
                 // preload a large value to demonstrate chunked GET
                 let large = Array(0..<300).map { UInt8($0 & 0xFF) }
-                session = PropertyExchangeSession(initialStore: [resource: large], maxDataPerMessage: 60)
+                session = PropertyExchangeSession(initialStore: [resource: large], maxDataPerMessage: 60, setAllowed: { _, _ in !peErrorSet })
             } else {
-                session = PropertyExchangeSession(initialStore: [resource: Array("ACME Corp".utf8)])
+                session = PropertyExchangeSession(initialStore: [resource: Array("ACME Corp".utf8)], setAllowed: { _, _ in !peErrorSet })
             }
 
             if peSubscribe {
@@ -109,6 +115,22 @@ struct CIHandshakeCommand: ParsableCommand {
             var ok = false
             for r in getReplies { ok = try rx.ingest(reply: r) }
             print("Initiator: reassembled bytes=\(rx.buffer.count) done=\(ok)")
+
+            // Show SysEx8 UMP framing for the first getReply
+            if let first = getReplies.first {
+                let env = MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7C, version: 1, body: .propertyExchange(first))
+                let payload = env.sysEx8Payload()
+                if let groupNibble = Uint4(UInt8(group)) {
+                    do {
+                        let frames = try SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: groupNibble.rawValue)
+                        print("SysEx8 UMP frames: \(frames.count), first=\(frames.first?.map { String(format: "%02X", $0) }.joined(separator: " ") ?? "-")")
+                    } catch {
+                        print("SysEx8 framing failed: \(error)")
+                    }
+                } else {
+                    print("Invalid group \(group) for SysEx8 framing; skipping")
+                }
+            }
         }
     }
 }

@@ -27,7 +27,14 @@ function getArg(name, defVal) {
   console.log(`[midi2-compliance] Launching Workbench (cwd=${workbenchCwd})`);
   let executablePath = process.env.ELECTRON_PATH || null;
   if (!executablePath) {
-    try { executablePath = require('electron'); } catch (e) { /* ignore */ }
+    try {
+      // Resolve electron from the workbench tree
+      const { createRequire } = require('module');
+      const wbRequire = createRequire(path.join(workbenchCwd, 'package.json'));
+      executablePath = wbRequire('electron');
+    } catch (e) {
+      try { executablePath = require('electron'); } catch (e2) { /* ignore */ }
+    }
   }
   const launchOpts = { args: ['.'], cwd: workbenchCwd, env: { MIDI2_HEADLESS: 'true' } };
   if (executablePath) launchOpts.executablePath = executablePath;

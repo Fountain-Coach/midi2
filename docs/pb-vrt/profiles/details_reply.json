@@ -1,0 +1,4 @@
+{
+  "request": {"command": "detailsInquiry", "profileId": "/org.midi/piano", "target": "channel", "channels": [0,2,15]},
+  "reply": {"command": "detailsReply", "profileId": "/org.midi/piano", "details": {"ver": 1, "cmL": 5, "cmH": 128}}
+}

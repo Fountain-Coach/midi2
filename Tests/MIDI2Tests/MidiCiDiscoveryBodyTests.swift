@@ -59,4 +59,18 @@ final class MidiCiDiscoveryBodyTests: XCTestCase {
         let parsed = MidiCiDiscoveryBody(sysEx8Bytes: bytes)
         XCTAssertEqual(parsed?.manufacturerId, [0x7D])
     }
+
+    func testSysEx8TooShortFails() {
+        // fewer than 4 bytes can't carry MUID
+        let bytes: [UInt8] = [0x00, 0x00, 0x00]
+        let parsed = MidiCiDiscoveryBody(sysEx8Bytes: bytes)
+        XCTAssertNil(parsed)
+    }
+
+    func testSysEx7TooShortFails() {
+        // fewer than 4 bytes can't carry MUID
+        let bytes: [UInt8] = [0x00, 0x00, 0x00]
+        let parsed = MidiCiDiscoveryBody(sysEx7Bytes: bytes)
+        XCTAssertNil(parsed)
+    }
 }

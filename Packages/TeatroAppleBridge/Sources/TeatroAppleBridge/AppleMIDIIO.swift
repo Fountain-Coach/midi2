@@ -35,6 +35,11 @@ public final class AppleMIDIIO: @unchecked Sendable {
 
     public typealias ReceiveHandler = @Sendable (_ group: UInt8, _ words: [UInt32], _ hostTime: UInt64) -> Void
 
+    /// Mapping strategy for MIDI 2.0 per‑note controller messages when down‑converting to MIDI 1.0.
+    public enum PerNoteMapping { case off, polyPressure, channelPressure }
+    /// Controls how per‑note controller messages are mapped during down‑conversion. Defaults to `.polyPressure`.
+    public var perNoteMapping: PerNoteMapping = .polyPressure
+
     #if canImport(CoreMIDI)
     private var client: MIDIClientRef = 0
     private var inputPort_v2: MIDIPortRef = 0
@@ -43,6 +48,7 @@ public final class AppleMIDIIO: @unchecked Sendable {
     private var outputPort_v1: MIDIPortRef = 0
 
     private var receiveHandlers: [MIDIEndpointRef: ReceiveHandler] = [:]
+    private var rxSysex1Accum: [UInt8] = []
     #else
     private var virtualName: String?
     #endif
@@ -305,8 +311,19 @@ public final class AppleMIDIIO: @unchecked Sendable {
                     let lsb = UInt8(bend14 & 0x7F)
                     let msb = UInt8((bend14 >> 7) & 0x7F)
                     byteChunks.append([0xE0 | channel, lsb, msb])
+                case 0xF: // Per-note controllers/management
+                    let press = v32to7(w1)
+                    switch perNoteMapping {
+                    case .off:
+                        break
+                    case .polyPressure:
+                        // Map to Poly Pressure with note=byte2
+                        byteChunks.append([0xA0 | channel, dataByte2 & 0x7F, press])
+                    case .channelPressure:
+                        byteChunks.append([0xD0 | channel, press])
+                    }
                 default:
-                    // 0xF and others: per-note mgmt/extended controllers; no MIDI 1 mapping -> drop silently.
+                    // Others: no MIDI 1 mapping -> drop silently.
                     break
                 }
                 i += 2
@@ -504,7 +521,124 @@ public final class AppleMIDIIO: @unchecked Sendable {
     }
 
     private func handlePacketList(packetList: UnsafePointer<MIDIPacketList>, source: UnsafeMutableRawPointer?) {
-        // MIDI 1.0 bytes -> not converted; forward as SysEx7 UMP if desired. Here we ignore for simplicity.
+        // Convert legacy MIDIPacketList to UMP words and forward to all handlers.
+        var packet = packetList.pointee.packet
+        for _ in 0..<packetList.pointee.numPackets {
+            // Access packet.data bytes
+            let dataOffset = MemoryLayout.offset(of: \MIDIPacket.data) ?? MemoryLayout<MIDIPacket>.size
+            let dataPtr = UnsafeRawPointer(&packet).advanced(by: dataOffset).assumingMemoryBound(to: UInt8.self)
+            let count = Int(packet.length)
+            let bytes = Array(UnsafeBufferPointer(start: dataPtr, count: count))
+            processMIDI1Bytes(bytes, time: packet.timeStamp)
+            packet = MIDIPacketNext(&packet).pointee
+        }
+    }
+
+    /// Parse MIDI 1.0 bytes and forward as UMP words using the registered handlers.
+    private func processMIDI1Bytes(_ bytes: [UInt8], time: MIDITimeStamp) {
+        var i = 0
+        var runningStatus: UInt8? = nil
+        while i < bytes.count {
+            let b = bytes[i]
+            if b >= 0xF8 { // Single-byte real-time
+                let word: UInt32 = (0x1 << 28) | (UInt32(b) << 16)
+                for (_, h) in receiveHandlers { h(0, [word], time) }
+                i += 1
+                continue
+            }
+            if b >= 0x80 {
+                if b == 0xF0 { // SysEx start
+                    // Accumulate until F7 in this packet
+                    var j = i + 1
+                    while j < bytes.count && bytes[j] != 0xF7 { rxSysex1Accum.append(bytes[j]); j += 1 }
+                    if j < bytes.count && bytes[j] == 0xF7 { // complete
+                        emitSysEx7(fromAccum: &rxSysex1Accum, time: time)
+                        rxSysex1Accum.removeAll(keepingCapacity: false)
+                        i = j + 1
+                    } else {
+                        i = j
+                    }
+                    runningStatus = nil
+                    continue
+                } else if b == 0xF7 { // unexpected end
+                    emitSysEx7(fromAccum: &rxSysex1Accum, time: time)
+                    rxSysex1Accum.removeAll(keepingCapacity: false)
+                    i += 1
+                    runningStatus = nil
+                    continue
+                }
+
+                // System Common (not real-time)
+                if b >= 0xF1 && b <= 0xF6 {
+                    let needed: Int = (b == 0xF2 ? 2 : (b == 0xF1 || b == 0xF3 ? 1 : 0))
+                    guard i + 1 + needed <= bytes.count else { break }
+                    let d1 = needed >= 1 ? bytes[i+1] : 0
+                    let d2 = needed >= 2 ? bytes[i+2] : 0
+                    let word: UInt32 = (0x1 << 28) | (UInt32(b) << 16) | (UInt32(d1) << 8) | UInt32(d2)
+                    for (_, h) in receiveHandlers { h(0, [word], time) }
+                    i += 1 + needed
+                    runningStatus = nil
+                    continue
+                }
+
+                // Channel Voice status
+                if b >= 0x80 && b <= 0xEF {
+                    let nib = b >> 4
+                    let dataCount = (nib == 0xC || nib == 0xD) ? 1 : 2
+                    guard i + 1 + dataCount <= bytes.count else { break }
+                    let d1 = bytes[i+1]
+                    let d2 = dataCount == 2 ? bytes[i+2] : 0
+                    let word: UInt32 = (0x2 << 28) | (0 /*group*/ << 24) | (UInt32(b) << 16) | (UInt32(d1) << 8) | UInt32(d2)
+                    for (_, h) in receiveHandlers { h(0, [word], time) }
+                    runningStatus = b
+                    i += 1 + dataCount
+                    continue
+                }
+            } else if let status = runningStatus { // Running status data
+                let nib = status >> 4
+                let dataCount = (nib == 0xC || nib == 0xD) ? 1 : 2
+                if dataCount == 1 {
+                    let d1 = bytes[i]
+                    let word: UInt32 = (0x2 << 28) | (0 << 24) | (UInt32(status) << 16) | (UInt32(d1) << 8)
+                    for (_, h) in receiveHandlers { h(0, [word], time) }
+                    i += 1
+                    continue
+                } else {
+                    guard i + 1 < bytes.count else { break }
+                    let d1 = bytes[i]
+                    let d2 = bytes[i+1]
+                    let word: UInt32 = (0x2 << 28) | (0 << 24) | (UInt32(status) << 16) | (UInt32(d1) << 8) | UInt32(d2)
+                    for (_, h) in receiveHandlers { h(0, [word], time) }
+                    i += 2
+                    continue
+                }
+            }
+
+            // Unknown or stray byte; skip
+            i += 1
+        }
+    }
+
+    private func emitSysEx7(fromAccum accum: inout [UInt8], time: MIDITimeStamp) {
+        guard !accum.isEmpty else { return }
+        // Split manufacturer ID and payload
+        var manufacturer: [UInt8] = []
+        var payload: [UInt8] = []
+        if accum[0] == 0x00 {
+            guard accum.count >= 3 else { return }
+            manufacturer = Array(accum[0..<3])
+            payload = Array(accum.dropFirst(3))
+        } else {
+            manufacturer = [accum[0]]
+            payload = Array(accum.dropFirst(1))
+        }
+        guard let packets = try? SysEx7.fragment(manufacturerID: manufacturer, payload: payload, group: 0) else { return }
+        for p in packets {
+            // Convert 8 bytes to two words
+            let w0 = (UInt32(p[0]) << 24) | (UInt32(p[1]) << 16) | (UInt32(p[2]) << 8) | UInt32(p[3])
+            let w1 = (UInt32(p[4]) << 24) | (UInt32(p[5]) << 16) | (UInt32(p[6]) << 8) | UInt32(p[7])
+            for (_, h) in receiveHandlers { h(0, [w0, w1], time) }
+        }
     }
     #endif
 

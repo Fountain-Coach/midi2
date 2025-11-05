@@ -13,6 +13,15 @@ targets:
       - App
     settings:
       base:
+        # Ensure iOS-only to avoid "My Mac (Mac Catalyst)" default destination
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTED_PLATFORMS: iphoneos iphonesimulator
+        TARGETED_DEVICE_FAMILY: "1,2"
+        # Make signing easy: allow Xcode to auto-manage when a team is provided
+        CODE_SIGN_STYLE: Automatic
+        # Optional: set DEVELOPMENT_TEAM via environment when running xcodegen, e.g.:
+        #   DEVELOPMENT_TEAM=YOURTEAMID xcodegen generate
+        DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
         PRODUCT_BUNDLE_IDENTIFIER: com.fountaincoach.AUBridgeHost
         INFOPLIST_FILE: App/Info.plist
     postCompileScripts: []
@@ -26,6 +35,10 @@ targets:
       path: Extension/Info.plist
     settings:
       base:
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTED_PLATFORMS: iphoneos iphonesimulator
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ${DEVELOPMENT_TEAM}
         PRODUCT_BUNDLE_IDENTIFIER: com.fountaincoach.MIDI2BridgeAU
     dependencies:
       - package: MIDI2BridgeAUCore
@@ -47,4 +60,3 @@ aggregateTargets:
           DEST=\"${TARGET_BUILD_DIR}/${TARGET_NAME}.app/PlugIns\"
           mkdir -p \"${DEST}\"
           rsync -a \"${EXT}\" \"${DEST}\"/
-

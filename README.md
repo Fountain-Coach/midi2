@@ -172,7 +172,8 @@ $LLVM_COV report .build/x86_64-unknown-linux-gnu/debug/MIDI2PackageTests.xctest 
 Packet model to Apple's Core MIDI and MusicSequence APIs. It exposes
 `AppleMIDIBridge` for sending or publishing UMP, `AppleMIDIReceiver` for
 receiving via a handler block, and `AppleSequencerBridge` for offline sequence
-export.
+export. On Apple platforms it now includes a CoreMIDI‑backed IO layer with
+MIDI 2.0 UMP send/receive and a Bluetooth pairing UI helper.
 
 ### Demos
 
@@ -181,6 +182,26 @@ The `Examples/` folder contains command-line demos:
 - `SendCCDemo` – send CC ramps and a note burst to a destination.
 - `VirtualSourceDemo` – publish a virtual source and echo incoming events.
 - `SequenceExportDemo` – build a sequence and write a `.mid` file.
+
+### Connect over Bluetooth / build an AUv3 bridge
+
+- CoreMIDI IO helper: `AppleMIDIIO` enumerates system endpoints (BLE/Wi‑Fi/USB),
+  detects MIDI 2.0 protocol support, and can send/receive UMP when supported.
+  On iOS, present the Bluetooth pairing UI using
+  `AppleMIDIIO.makeBluetoothPairingViewController()`.
+- AUv3 bridge core: the `Packages/MIDI2BridgeAUCore` package ships a
+  `MIDI2BridgeAudioUnit` (AUv3 MIDI processor) that forwards host MIDI to a
+  selected CoreMIDI destination and can emit events back to the host from a
+  CoreMIDI source. Pair BLE in the plugin UI via
+  `MIDI2BridgeViewController(audioUnit:)`.
+
+To use as an AUv3 in AUM:
+- Create an iOS App + AUv3 MIDI Processor (“aumi”) extension in Xcode.
+- Add `Packages/MIDI2BridgeAUCore` via SPM and use its factory as the
+  `AudioComponentFactoryFunction` (see package README for a minimal example).
+- In AUM, insert the plugin, open the plugin UI, pair/connect to the iPad’s
+  target over Bluetooth (if needed), and select the destination by name. Host
+  MIDI will forward as UMP when the destination supports MIDI 2.0.
 
 ## Jitter Reduction
 

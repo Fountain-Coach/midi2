@@ -51,13 +51,30 @@ open class MIDI2BridgeAudioUnit: AUAudioUnit {
         super.deallocateRenderResources()
     }
 
+    // Prefer receiving MIDI 2.0 from host if supported.
+    public override var AudioUnitMIDIProtocol: MIDIProtocolID {
+        if #available(iOS 15.0, macOS 12.0, *) {
+            return ._2_0
+        } else {
+            return ._1_0
+        }
+    }
+
     // MARK: - MIDI 2.0 Event Routing
     public override var scheduleMIDIEventBlock: AUMIDIEventBlock? {
-        // For MIDI 1.0 style events; convert to UMP if you want. We pass through to MIDI 2.0 block where possible.
+        // MIDI 1.0 style events; wrap into UMP mt=0x2 and forward.
         return { [weak self] _, _, _, length, data in
             guard let self, let io = self.io else { return noErr }
-            // Build a MIDI 1.0 UMP from status bytes if desired; here we ignore to keep demo concise.
-            _ = (length, data)
+            guard length >= 1, let bytes = data else { return noErr }
+            // Assume each callback is a single MIDI message (typical AU hosts). Build one 32‑bit UMP.
+            // Determine second data byte presence from status nibble.
+            let status = bytes[0]
+            let nib = status >> 4
+            let needTwoData = !(nib == 0xC || nib == 0xD)
+            let d1: UInt8 = length > 1 ? bytes[1] : 0
+            let d2: UInt8 = (needTwoData && length > 2) ? bytes[2] : 0
+            let word: UInt32 = (0x2 << 28) | (0 /*group*/ << 24) | (UInt32(status) << 16) | (UInt32(d1) << 8) | UInt32(d2)
+            do { try io.sendUMP(toDestinationNameContains: self.destinationMatch, words: [word], hostTime: 0) } catch {}
             return noErr
         }
     }
@@ -186,4 +203,3 @@ public final class MIDI2BridgeViewController: UIViewController, UITableViewDataS
     }
 }
 #endif
-

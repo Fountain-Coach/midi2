@@ -1,0 +1,50 @@
+name: AUBridgeSample
+options:
+  bundleIdPrefix: com.fountaincoach
+packages:
+  MIDI2BridgeAUCore:
+    path: ../../Packages/MIDI2BridgeAUCore
+targets:
+  AUBridgeHost:
+    type: application
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - App
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fountaincoach.AUBridgeHost
+        INFOPLIST_FILE: App/Info.plist
+    postCompileScripts: []
+  MIDI2BridgeExtension:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "16.0"
+    sources:
+      - Extension
+    info:
+      path: Extension/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.fountaincoach.MIDI2BridgeAU
+    dependencies:
+      - package: MIDI2BridgeAUCore
+      - framework: AudioToolbox.framework
+      - framework: AVFoundation.framework
+      - framework: CoreAudioKit.framework
+      - framework: CoreMIDI.framework
+    postCompileScripts: []
+aggregateTargets:
+  EmbedExtension:
+    targets:
+      - AUBridgeHost
+    buildPhases:
+      - name: Embed MIDI2BridgeExtension
+        runOnlyWhenInstalling: false
+        script: |
+          set -euo pipefail
+          EXT=\"${BUILT_PRODUCTS_DIR}/MIDI2BridgeExtension.appex\"
+          DEST=\"${TARGET_BUILD_DIR}/${TARGET_NAME}.app/PlugIns\"
+          mkdir -p \"${DEST}\"
+          rsync -a \"${EXT}\" \"${DEST}\"/
+

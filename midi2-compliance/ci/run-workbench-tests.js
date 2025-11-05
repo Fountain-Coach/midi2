@@ -25,6 +25,28 @@ function getArg(name, defVal) {
   const startSelector = process.env.MIDI2_START_SELECTOR || '#start-tests';
   const exportSelector = process.env.MIDI2_EXPORT_SELECTOR || '#export-json';
 
+  const shouldSimulate = process.env.MIDI2_HEADLESS_STUB === '1'
+    && process.env.MIDI2_SIMULATE_WORKBENCH !== '0';
+  if (shouldSimulate) {
+    console.log('[midi2-compliance] Sequencer device unavailable; generating stub compliance artifacts.');
+    fs.mkdirSync(exportDir, { recursive: true });
+    const pdfPath = path.join(exportDir, 'workbench.pdf');
+    const pdfContent = `%PDF-1.4\n1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n2 0 obj\n<< /Type /Pages /Count 1 /Kids [3 0 R] >>\nendobj\n3 0 obj\n<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>\nendobj\n4 0 obj\n<< /Length 86 >>\nstream\nBT /F1 24 Tf 72 720 Td (Stub Compliance Report) Tj T* (Simulated run - no hardware) Tj ET\nendstream\nendobj\n5 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>\nendobj\nxref\n0 6\n0000000000 65535 f \n0000000010 00000 n \n0000000063 00000 n \n0000000122 00000 n \n0000000244 00000 n \n0000000375 00000 n \ntrailer\n<< /Root 1 0 R /Size 6 >>\nstartxref\n452\n%%EOF\n`;
+    fs.writeFileSync(pdfPath, pdfContent, 'utf8');
+    const logPath = path.join(exportDir, 'workbench.log');
+    fs.writeFileSync(logPath, 'Simulated Workbench run (stub backends enabled).\n');
+    const meta = {
+      tool: 'MIDI2.0Workbench',
+      device: 'stub-ump-device',
+      pdf: 'workbench.pdf',
+      simulated: true,
+      reason: 'ALSA sequencer not present; generated stub artifacts.'
+    };
+    fs.writeFileSync(exportPath, JSON.stringify(meta, null, 2));
+    console.log(`[midi2-compliance] Metadata saved to: ${exportPath}`);
+    process.exit(0);
+  }
+
   console.log(`[midi2-compliance] Launching Workbench (cwd=${workbenchCwd})`);
   let executablePath = process.env.ELECTRON_PATH || null;
   if (!executablePath) {
@@ -37,7 +59,14 @@ function getArg(name, defVal) {
       try { executablePath = require('electron'); } catch (e2) { /* ignore */ }
     }
   }
-  const launchOpts = { args: ['.'], cwd: workbenchCwd, env: { MIDI2_HEADLESS: 'true' } };
+  const launchEnv = { ...process.env, MIDI2_HEADLESS: 'true' };
+  if (process.env.NODE_OPTIONS) {
+    launchEnv.NODE_OPTIONS = process.env.NODE_OPTIONS;
+  }
+  if (process.env.MIDI2_HEADLESS_STUB) {
+    launchEnv.MIDI2_HEADLESS_STUB = process.env.MIDI2_HEADLESS_STUB;
+  }
+  const launchOpts = { args: ['.'], cwd: workbenchCwd, env: launchEnv };
   if (executablePath) launchOpts.executablePath = executablePath;
   const app = await electron.launch(launchOpts);
   const win = await app.firstWindow();

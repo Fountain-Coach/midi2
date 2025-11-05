@@ -195,9 +195,8 @@ public final class AppleMIDIIO: @unchecked Sendable {
         if #available(iOS 16.0, macOS 13.0, *), dest.supportsMIDI2, outputPort_v2 != 0 {
             try sendUMP_v2(to: dest.endpoint, words: words, hostTime: hostTime)
         } else {
-            // For MIDI 1.0 endpoints we would need to down‑convert UMP to MIDI1 bytes.
-            // For now, signal unsupported to avoid incorrect transmission.
-            throw IOError.unsupportedForMIDI1Endpoint
+            // Down‑convert UMP to MIDI 1.0 bytes and send via legacy packet API.
+            try sendUMP_downconvertToMIDI1(to: dest.endpoint, words: words, hostTime: hostTime)
         }
         #else
         guard let name = VirtualMIDIRouter.sourceName(matching: nameContains) else { throw IOError.endpointNotFound }
@@ -236,6 +235,222 @@ public final class AppleMIDIIO: @unchecked Sendable {
 
         let status = MIDISendEventList(outputPort_v2, destination, listPtr)
         if status != noErr { throw IOError.sendFailed(status) }
+    }
+
+    // MARK: - UMP -> MIDI 1.0 Down‑conversion
+
+    private var sysex7Accum: [UInt8] = []
+
+    private func sendUMP_downconvertToMIDI1(to destination: MIDIEndpointRef, words: [UInt32], hostTime: UInt64) throws {
+        // We accumulate MIDI 1.0 bytes for all incoming UMP packets (words) and send as a single packet list.
+        var byteChunks: [[UInt8]] = []
+
+        var i = 0
+        while i < words.count {
+            let w0 = words[i]
+            let mt = UInt8((w0 >> 28) & 0x0F)
+            switch mt {
+            case 0x2: // MIDI 1.0 Channel Voice (already 1.0 semantics)
+                let status = UInt8((w0 >> 16) & 0xFF)
+                let d1 = UInt8((w0 >> 8) & 0xFF)
+                let d2 = UInt8(w0 & 0xFF)
+                let statusNib = status >> 4
+                if statusNib == 0xC || statusNib == 0xD {
+                    byteChunks.append([status, d1])
+                } else {
+                    byteChunks.append([status, d1, d2])
+                }
+                i += 1
+
+            case 0x4: // MIDI 2.0 Channel Voice -> downconvert
+                guard i + 1 < words.count else { break }
+                let w1 = words[i+1]
+                let statusNib = UInt8((w0 >> 20) & 0x0F)
+                let channel = UInt8((w0 >> 16) & 0x0F)
+                let dataByte2 = UInt8((w0 >> 8) & 0xFF) // note or controller or program
+
+                func v16to7(_ v: UInt16) -> UInt8 { return UInt8((UInt32(v) * 127 + 32767) / 65535) }
+                func v32to7(_ v: UInt32) -> UInt8 { return UInt8((UInt64(v) * 127 + 2147483647) / 4294967295) }
+                func v32to14(_ v: UInt32) -> UInt16 { return UInt16((UInt64(v) * 16383 + 2147483647) / 4294967295) }
+
+                switch statusNib {
+                case 0x8: // Note Off
+                    let vel16 = UInt16((w1 >> 16) & 0xFFFF)
+                    let vel7 = v16to7(vel16)
+                    byteChunks.append([0x80 | channel, dataByte2 & 0x7F, vel7])
+                case 0x9: // Note On
+                    let vel16 = UInt16((w1 >> 16) & 0xFFFF)
+                    let vel7 = v16to7(vel16)
+                    byteChunks.append([0x90 | channel, dataByte2 & 0x7F, vel7])
+                case 0xA: // Poly Pressure
+                    let press = v32to7(w1)
+                    byteChunks.append([0xA0 | channel, dataByte2 & 0x7F, press])
+                case 0xB: // Control Change
+                    let val = v32to7(w1)
+                    byteChunks.append([0xB0 | channel, dataByte2 & 0x7F, val])
+                case 0xC: // Program Change (+ optional bank valid in byte3, bank MSB/LSB in word1[31:16])
+                    let bankValid = ((w0 & 0xFF) & 0x80) != 0
+                    if bankValid {
+                        let msb = UInt8((w1 >> 24) & 0xFF)
+                        let lsb = UInt8((w1 >> 16) & 0xFF)
+                        byteChunks.append([0xB0 | channel, 0x00, msb & 0x7F]) // Bank MSB
+                        byteChunks.append([0xB0 | channel, 0x20, lsb & 0x7F]) // Bank LSB
+                    }
+                    byteChunks.append([0xC0 | channel, dataByte2 & 0x7F])
+                case 0xD: // Channel Pressure
+                    let press = v32to7(w1)
+                    byteChunks.append([0xD0 | channel, press])
+                case 0xE: // Pitch Bend
+                    let bend14 = v32to14(w1)
+                    let lsb = UInt8(bend14 & 0x7F)
+                    let msb = UInt8((bend14 >> 7) & 0x7F)
+                    byteChunks.append([0xE0 | channel, lsb, msb])
+                default:
+                    // 0xF and others: per-note mgmt/extended controllers; no MIDI 1 mapping -> drop silently.
+                    break
+                }
+                i += 2
+
+            case 0x1: // System Common / Real-time
+                let status = UInt8((w0 >> 16) & 0xFF)
+                let d1 = UInt8((w0 >> 8) & 0xFF)
+                let d2 = UInt8(w0 & 0xFF)
+                // Determine message length
+                let len: Int
+                switch status {
+                case 0xF1, 0xF3: len = 2 // MTC Quarter Frame, Song Select
+                case 0xF2: len = 3 // Song Position
+                case 0xF6, 0xF8, 0xFA, 0xFB, 0xFC, 0xFE, 0xFF: len = 1 // Tune Request, Realtime
+                default: len = 1
+                }
+                if len == 1 {
+                    byteChunks.append([status])
+                } else if len == 2 {
+                    byteChunks.append([status, d1])
+                } else {
+                    byteChunks.append([status, d1, d2])
+                }
+                i += 1
+
+            case 0x3: // Data messages: handle SysEx7; ignore others
+                // A SysEx7 UMP is 64-bit; we need both words.
+                guard i + 1 < words.count else { break }
+                let w1 = words[i+1]
+                let b0 = UInt8((w0 >> 24) & 0xFF)
+                let b1 = UInt8((w0 >> 16) & 0xFF)
+                // let group = b0 & 0x0F
+                let syxStatus = b1 >> 4 // 0=complete,1=start,2=continue,3=end
+                let count = Int(b1 & 0x0F)
+                // Extract up to 6 data bytes from word0[7:0] + word1[31:0]
+                var bytes: [UInt8] = []
+                bytes.append(UInt8((w0 >> 8) & 0xFF))
+                bytes.append(UInt8(w0 & 0xFF))
+                bytes.append(UInt8((w1 >> 24) & 0xFF))
+                bytes.append(UInt8((w1 >> 16) & 0xFF))
+                bytes.append(UInt8((w1 >> 8) & 0xFF))
+                bytes.append(UInt8(w1 & 0xFF))
+                if count <= 6 { bytes = Array(bytes.prefix(count)) }
+
+                switch syxStatus {
+                case 0x0: // complete single‑packet
+                    var syx: [UInt8] = [0xF0]
+                    syx.append(contentsOf: bytes)
+                    syx.append(0xF7)
+                    byteChunks.append(syx)
+                case 0x1: // start
+                    sysex7Accum = bytes
+                case 0x2: // continue
+                    sysex7Accum.append(contentsOf: bytes)
+                case 0x3: // end
+                    sysex7Accum.append(contentsOf: bytes)
+                    var syx: [UInt8] = [0xF0]
+                    syx.append(contentsOf: sysex7Accum)
+                    syx.append(0xF7)
+                    byteChunks.append(syx)
+                    sysex7Accum.removeAll(keepingCapacity: false)
+                default:
+                    break
+                }
+                i += 2
+
+            case 0x5: // SysEx8 (128-bit). Not generally convertible; attempt only if bytes are 7‑bit clean.
+                // Requires 4 words.
+                guard i + 3 < words.count else { break }
+                let b0 = UInt8((w0 >> 24) & 0xFF)
+                let b1 = UInt8((w0 >> 16) & 0xFF)
+                let status = b1 >> 4
+                let count = Int(b1 & 0x0F)
+                // Extract 14 data bytes from w0[7:0], w1, w2, w3
+                var data: [UInt8] = []
+                data.append(UInt8((w0 >> 8) & 0xFF))
+                data.append(UInt8(w0 & 0xFF))
+                data.append(UInt8((words[i+1] >> 24) & 0xFF))
+                data.append(UInt8((words[i+1] >> 16) & 0xFF))
+                data.append(UInt8((words[i+1] >> 8) & 0xFF))
+                data.append(UInt8(words[i+1] & 0xFF))
+                data.append(UInt8((words[i+2] >> 24) & 0xFF))
+                data.append(UInt8((words[i+2] >> 16) & 0xFF))
+                data.append(UInt8((words[i+2] >> 8) & 0xFF))
+                data.append(UInt8(words[i+2] & 0xFF))
+                data.append(UInt8((words[i+3] >> 24) & 0xFF))
+                data.append(UInt8((words[i+3] >> 16) & 0xFF))
+                data.append(UInt8((words[i+3] >> 8) & 0xFF))
+                data.append(UInt8(words[i+3] & 0xFF))
+                if count <= 14 { data = Array(data.prefix(count)) }
+
+                func is7bitClean(_ arr: [UInt8]) -> Bool { return arr.allSatisfy { $0 < 0x80 } }
+
+                switch status {
+                case 0x0: // complete in one
+                    if is7bitClean(data) {
+                        var syx: [UInt8] = [0xF0]
+                        syx.append(contentsOf: data)
+                        syx.append(0xF7)
+                        byteChunks.append(syx)
+                    }
+                case 0x1: // start
+                    if is7bitClean(data) { sysex7Accum = data } else { sysex7Accum.removeAll() }
+                case 0x2: // continue
+                    if is7bitClean(data) { sysex7Accum.append(contentsOf: data) } else { sysex7Accum.removeAll() }
+                case 0x3: // end
+                    if is7bitClean(data), !sysex7Accum.isEmpty {
+                        sysex7Accum.append(contentsOf: data)
+                        var syx: [UInt8] = [0xF0]
+                        syx.append(contentsOf: sysex7Accum)
+                        syx.append(0xF7)
+                        byteChunks.append(syx)
+                    }
+                    sysex7Accum.removeAll()
+                default:
+                    break
+                }
+                i += 4
+
+            default:
+                // Unsupported message types ignored.
+                i += 1
+            }
+        }
+
+        // Build and send MIDIPacketList containing all byteChunks.
+        // Conservative capacity.
+        let capacity = 4096
+        let raw = UnsafeMutableRawPointer.allocate(byteCount: capacity, alignment: 4)
+        defer { raw.deallocate() }
+        let listPtr = raw.bindMemory(to: MIDIPacketList.self, capacity: 1)
+        var packet = MIDIPacketListInit(listPtr)
+        for chunk in byteChunks {
+            var local = chunk // mutable copy to get pointer
+            packet = MIDIPacketListAdd(listPtr, capacity, packet, hostTime, local.count, &local)
+            if packet == nil {
+                // If buffer overflow, flush and re-init.
+                MIDISend(outputPort_v1, destination, listPtr)
+                packet = MIDIPacketListInit(listPtr)
+                var local2 = chunk
+                packet = MIDIPacketListAdd(listPtr, capacity, packet, hostTime, local2.count, &local2)
+            }
+        }
+        MIDISend(outputPort_v1, destination, listPtr)
     }
 
     private func findEndpoint(nameContains: String, isSource: Bool) throws -> (endpoint: MIDIEndpointRef, supportsMIDI2: Bool) {
@@ -335,4 +550,3 @@ fileprivate extension MIDIEventList {
     }
 }
 #endif
-

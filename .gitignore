@@ -65,3 +65,9 @@ node_modules/
 .midi2vm/
 .docker/
 **/.DS_Store
+ 
+# Local VM artifacts (do not commit)
+vm/
+
+# Ad-hoc workflows locally generated
+.github/workflows/qemu.yml

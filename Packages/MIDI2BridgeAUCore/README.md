@@ -44,3 +44,16 @@ from the host to forward over BLE/Wi‑Fi/USB.
 
 Note: Bluetooth pairing UI uses `CoreAudioKit.CABTMIDICentralViewController`.
 Hosts may manage BLE themselves; the UI is optional and can be omitted.
+
+## MIDI 2.0 ↔ MIDI 1.0 Bridging
+
+- Host → Device:
+  - If the selected destination speaks MIDI 2.0, events are forwarded as UMP.
+  - If the destination is MIDI 1.0 only, the AU down‑converts UMP to MIDI 1.0:
+    - CV: Note On/Off, Poly Pressure, CC, Program Change (+ Bank), Channel Pressure, Pitch Bend.
+    - System Common/Real‑time.
+    - SysEx7 streaming; SysEx8 only if 7‑bit clean.
+    - MIDI 2.0‑only messages (per‑note controllers/management) are dropped.
+- Device → Host:
+  - The AU emits MIDIEventList (UMP) via `MIDIOutputEventListBlock`; the host receives in the protocol it requested.
+  - Legacy fallback emits best‑effort MIDI 1.0 bytes via `MIDIOutputEventBlock`.

@@ -12,17 +12,23 @@ public final class AppleMIDIReceiver {
     public enum ReceiverError: Error { case inputNotFound }
 
     private let clientName: String
+    private var io: AppleMIDIIO?
 
     /// Creates a receiver instance.
     public init(clientName: String = "TeatroClient") throws {
         self.clientName = clientName
+        self.io = try? AppleMIDIIO(clientName: clientName)
     }
 
     /// Opens an input port matching the provided name.
     public func openInput(nameMatch: String, protocol midiProtocol: MIDIProtocolID,
                           handler: @escaping Handler) throws {
-        guard VirtualMIDIRouter.subscribe(nameMatch: nameMatch, handler: handler) else {
-            throw ReceiverError.inputNotFound
+        if let io {
+            try io.openInput(nameContains: nameMatch, handler: handler)
+        } else {
+            guard VirtualMIDIRouter.subscribe(nameMatch: nameMatch, handler: handler) else {
+                throw ReceiverError.inputNotFound
+            }
         }
     }
 }

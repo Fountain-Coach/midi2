@@ -42,6 +42,7 @@ public final class AppleMIDIBridge {
     }
 
     private let clientName: String
+    private var io: AppleMIDIIO?
     private var destinationName: String?
     private var virtualSourceName: String?
 
@@ -51,14 +52,25 @@ public final class AppleMIDIBridge {
     /// Creates a new bridge instance.
     public init(clientName: String = "TeatroClient") throws {
         self.clientName = clientName
+        // Try to initialize real CoreMIDI IO when available; otherwise remain on virtual router.
+        self.io = try? AppleMIDIIO(clientName: clientName)
     }
 
     /// Selects a MIDI destination matching the provided selector.
     public func selectDestination(_ selector: MIDIDestinationSelector) throws {
-        guard let name = VirtualMIDIRouter.sourceName(matching: selector.matchContains) else {
-            throw BridgeError.destinationNotFound
+        if let io {
+            // Verify an endpoint exists; store selector string for later send.
+            let endpoints = try io.enumerateEndpoints().filter { $0.isDestination }
+            guard endpoints.contains(where: { $0.name.contains(selector.matchContains) }) else {
+                throw BridgeError.destinationNotFound
+            }
+            destinationName = selector.matchContains
+        } else {
+            guard let name = VirtualMIDIRouter.sourceName(matching: selector.matchContains) else {
+                throw BridgeError.destinationNotFound
+            }
+            destinationName = name
         }
-        destinationName = name
     }
 
     /// Sends raw UMP words to the selected destination.
@@ -68,7 +80,11 @@ public final class AppleMIDIBridge {
         }
         let group = UInt8((words.first ?? 0) >> 24 & 0x0F)
         sentEvents.append((group, words, hostTime))
-        VirtualMIDIRouter.publish(name: name, group: group, words: words, hostTime: hostTime)
+        if let io {
+            try io.sendUMP(toDestinationNameContains: name, words: words, hostTime: hostTime)
+        } else {
+            VirtualMIDIRouter.publish(name: name, group: group, words: words, hostTime: hostTime)
+        }
     }
 
     /// Convenience method to send a Control Change message.
@@ -103,6 +119,7 @@ public final class AppleMIDIBridge {
     /// Starts a virtual MIDI source that other applications can subscribe to.
     public func startVirtualSource(name: String, protocol midiProtocol: MIDIProtocolID) throws {
         virtualSourceName = name
+        // For virtual in-process tests we keep a virtual source; AU/Apps would publish real virtual sources via CoreMIDI.
         VirtualMIDIRouter.registerSource(name: name)
     }
 

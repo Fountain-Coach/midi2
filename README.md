@@ -195,6 +195,16 @@ The `Examples/` folder contains command-line demos:
   CoreMIDI source. Pair BLE in the plugin UI via
   `MIDI2BridgeViewController(audioUnit:)`.
 
+Down‑conversion (MIDI 2.0 → MIDI 1.0):
+- Channel Voice: Note On/Off (16‑bit velocity → 7‑bit), Poly Pressure (32‑bit → 7‑bit),
+  CC (32‑bit → 7‑bit), Program Change (+ optional Bank MSB/LSB via CC 0/32),
+  Channel Pressure (32‑bit → 7‑bit), Pitch Bend (32‑bit → 14‑bit).
+- System Common/Real‑time (UMP mt=0x1) mapped to standard status/data bytes.
+- SysEx7 streaming (UMP mt=0x3) reassembled to F0 … F7.
+- SysEx8 (UMP mt=0x5) converted to SysEx7 only if the payload is 7‑bit clean;
+  otherwise dropped (no safe 1.0 representation).
+- MIDI 2.0‑only messages (per‑note controllers/management) are ignored.
+
 To use as an AUv3 in AUM:
 - Create an iOS App + AUv3 MIDI Processor (“aumi”) extension in Xcode.
 - Add `Packages/MIDI2BridgeAUCore` via SPM and use its factory as the

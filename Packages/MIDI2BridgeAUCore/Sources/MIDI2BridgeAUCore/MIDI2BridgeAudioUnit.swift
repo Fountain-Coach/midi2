@@ -34,6 +34,13 @@ open class MIDI2BridgeAudioUnit: AUAudioUnit {
     public var sourceMatch: String? { didSet { sourceWasSet() } }
 
     private var midiOutBlock: AUMIDIOutputEventBlock?
+    private var midiOutListBlock: AUMIDIEventListBlock?
+
+    // Expose per‑note mapping control for down‑conversion.
+    public var perNoteMapping: AppleMIDIIO.PerNoteMapping {
+        get { io?.perNoteMapping ?? .polyPressure }
+        set { io?.perNoteMapping = newValue }
+    }
 
     // MARK: - AU Setup
     public override init(componentDescription: AudioComponentDescription, options: AudioComponentInstantiationOptions = []) throws {
@@ -99,6 +106,11 @@ open class MIDI2BridgeAudioUnit: AUAudioUnit {
         set { midiOutBlock = newValue }
     }
 
+    public override var MIDIOutputEventListBlock: AUMIDIEventListBlock? {
+        get { midiOutListBlock }
+        set { midiOutListBlock = newValue }
+    }
+
     private func destinationWasSet() {
         // No-op: we resolve at send time by name substring.
     }
@@ -106,12 +118,70 @@ open class MIDI2BridgeAudioUnit: AUAudioUnit {
     private func sourceWasSet() {
         guard let sourceMatch, let io else { return }
         try? io.openInput(nameContains: sourceMatch) { [weak self] group, words, hostTime in
-            guard let output = self?.midiOutBlock else { return }
-            let res = words.withUnsafeBufferPointer { ptr in
-                output(0 /* now */, 0 /* cable */, ptr.count, ptr.baseAddress)
+            // Prefer sending as MIDIEventList (UMP) back to host; host converts to desired protocol.
+            if let outList = self?.midiOutListBlock {
+                self?.withMIDIEventList(words: words) { listPtr in
+                    _ = outList(0 /* now */, listPtr)
+                }
+                return
             }
-            _ = res
+            // Fallback: try legacy bytes by down‑converting a subset (channel voice & sys msgs).
+            if let bytes = self?.downconvertToMIDI1Bytes(words: words), let out = self?.midiOutBlock {
+                _ = bytes.withUnsafeBufferPointer { ptr in out(0, 0, ptr.count, ptr.baseAddress) }
+            }
         }
+    }
+
+    // Build a MIDIEventList from UMP words.
+    private func withMIDIEventList(words: [UInt32], _ body: (UnsafePointer<MIDIEventList>) -> Void) {
+        let totalWords = words.count
+        if #available(iOS 16.0, macOS 13.0, *) {
+            let listSize = MIDIEventList.sizeInBytes(packetCount: 1, totalWords: totalWords)
+            let rawPtr = UnsafeMutableRawPointer.allocate(byteCount: listSize, alignment: 8)
+            defer { rawPtr.deallocate() }
+            let listPtr = rawPtr.bindMemory(to: MIDIEventList.self, capacity: 1)
+            listPtr.pointee.protocol = ._2_0
+            listPtr.pointee.numPackets = 1
+            let p = MIDIEventList.packetPtr(listPtr)
+            p.pointee.timeStamp = 0
+            p.pointee.wordCount = UInt32(totalWords)
+            let dst = MIDIEventList.wordsPtr(p)
+            for (i, w) in words.enumerated() { dst.advanced(by: i).pointee = w }
+            body(UnsafePointer(listPtr))
+        } else {
+            // Legacy hosts: no MIDIEventList; nothing to do here.
+        }
+    }
+
+    // Minimal UMP → MIDI 1.0 bytes down‑convert for CV + system.
+    private func downconvertToMIDI1Bytes(words: [UInt32]) -> [UInt8] {
+        var out: [UInt8] = []
+        var i = 0
+        while i < words.count {
+            let w0 = words[i]
+            let mt = UInt8((w0 >> 28) & 0x0F)
+            switch mt {
+            case 0x2:
+                let status = UInt8((w0 >> 16) & 0xFF)
+                let d1 = UInt8((w0 >> 8) & 0xFF)
+                let d2 = UInt8(w0 & 0xFF)
+                let nib = status >> 4
+                if nib == 0xC || nib == 0xD { out += [status, d1] } else { out += [status, d1, d2] }
+                i += 1
+            case 0x1:
+                let status = UInt8((w0 >> 16) & 0xFF)
+                let d1 = UInt8((w0 >> 8) & 0xFF)
+                let d2 = UInt8(w0 & 0xFF)
+                let len: Int
+                switch status { case 0xF1, 0xF3: len = 2; case 0xF2: len = 3; case 0xF6, 0xF8, 0xFA, 0xFB, 0xFC, 0xFE, 0xFF: len = 1; default: len = 1 }
+                if len == 1 { out += [status] } else if len == 2 { out += [status, d1] } else { out += [status, d1, d2] }
+                i += 1
+            default:
+                // Other types ignored here.
+                i += 1
+            }
+        }
+        return out
     }
 }
 
@@ -124,6 +194,7 @@ public final class MIDI2BridgeViewController: UIViewController, UITableViewDataS
     private let table = UITableView()
     private var endpoints: [AppleMIDIIO.Endpoint] = []
     private let io = try? AppleMIDIIO(clientName: "MIDI2BridgeAU")
+    private let mapping = UISegmentedControl(items: ["Off", "Poly", "Chan"])    
 
     public init(audioUnit: MIDI2BridgeAudioUnit) {
         self.au = audioUnit
@@ -163,6 +234,9 @@ public final class MIDI2BridgeViewController: UIViewController, UITableViewDataS
         stack.addArrangedSubview(table)
         stack.addArrangedSubview(refresh)
         stack.addArrangedSubview(ble)
+        mapping.selectedSegmentIndex = 1
+        mapping.addTarget(self, action: #selector(mappingChanged), for: .valueChanged)
+        stack.addArrangedSubview(mapping)
 
         view.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -188,6 +262,15 @@ public final class MIDI2BridgeViewController: UIViewController, UITableViewDataS
         #endif
     }
 
+    @objc private func mappingChanged() {
+        switch mapping.selectedSegmentIndex {
+        case 0: au.perNoteMapping = .off
+        case 1: au.perNoteMapping = .polyPressure
+        case 2: au.perNoteMapping = .channelPressure
+        default: au.perNoteMapping = .polyPressure
+        }
+    }
+
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int { endpoints.count }
 
     public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -200,6 +283,33 @@ public final class MIDI2BridgeViewController: UIViewController, UITableViewDataS
     public func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let ep = endpoints[indexPath.row]
         au.destinationMatch = ep.name
+    }
+}
+#endif
+
+// MARK: - MIDIEventList helpers (local copy)
+
+#if canImport(CoreMIDI)
+@available(iOS 16.0, macOS 13.0, *)
+fileprivate extension MIDIEventList {
+    static func sizeInBytes(packetCount: Int, totalWords: Int) -> Int {
+        let header = MemoryLayout<MIDIEventList>.size
+        let packetHeader = MemoryLayout<MIDIEventPacket>.size
+        let wordsBytes = totalWords * MemoryLayout<UInt32>.size
+        return header + packetHeader + wordsBytes
+    }
+
+    static func packetPtr(_ list: UnsafeMutablePointer<MIDIEventList>) -> UnsafeMutablePointer<MIDIEventPacket> {
+        return withUnsafeMutableBytes(of: &list.pointee) { raw in
+            let base = raw.baseAddress!.advanced(by: MemoryLayout<MIDIEventList>.size)
+            return base.bindMemory(to: MIDIEventPacket.self, capacity: 1)
+        }
+    }
+
+    static func wordsPtr(_ packet: UnsafeMutablePointer<MIDIEventPacket>) -> UnsafeMutablePointer<UInt32> {
+        let addr = UnsafeMutableRawPointer(packet)
+            .advanced(by: MemoryLayout<MIDIEventPacket>.size)
+        return addr.bindMemory(to: UInt32.self, capacity: Int(packet.pointee.wordCount))
     }
 }
 #endif

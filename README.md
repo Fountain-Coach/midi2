@@ -195,6 +195,10 @@ The `Examples/` folder contains command-line demos:
   CoreMIDI source. Pair BLE in the plugin UI via
   `MIDI2BridgeViewController(audioUnit:)`.
 
+- Sample app + AUv3 extension (iOS): `Examples/AUBridgeSample` contains an
+  XcodeGen spec and sources for a minimal host app and AUv3 extension you can
+  run on device and insert in AUM. See its README for generation steps.
+
 Down‑conversion (MIDI 2.0 → MIDI 1.0):
 - Channel Voice: Note On/Off (16‑bit velocity → 7‑bit), Poly Pressure (32‑bit → 7‑bit),
   CC (32‑bit → 7‑bit), Program Change (+ optional Bank MSB/LSB via CC 0/32),

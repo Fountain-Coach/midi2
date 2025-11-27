@@ -23,6 +23,8 @@ import {
   UtilityEvent,
   FlexTempoEvent,
   FlexTimeSignatureEvent,
+  FlexKeySignatureEvent,
+  FlexLyricEvent,
 } from "./types";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
 import { encodeMidiCiEvent } from "./midici";
@@ -48,6 +50,9 @@ const SYSTEM_COMMON_MIN = 0xf1; // Song Position etc; 0xF0 handled by SysEx laye
 const FLEX_STATUS_CLASS = 0x10;
 const FLEX_STATUS_TEMPO = 0x01;
 const FLEX_STATUS_TIMESIG = 0x02;
+const FLEX_STATUS_KEY = 0x04;
+const FLEX_CLASS_LYRIC = 0x11;
+const FLEX_STATUS_LYRIC = 0x02;
 const FLEX_TEMPO_SCALE = 65536;
 
 function assertRange(name: string, value: number, min: number, max: number): void {
@@ -163,6 +168,49 @@ function encodeFlexTimeSignature(event: FlexTimeSignatureEvent): Uint32Array {
     addrByte;
   const word1 = (event.numerator << 24) | (event.denominatorPow2 << 16);
   return new Uint32Array([word0 >>> 0, word1 >>> 0, 0, 0]);
+}
+
+function packText12(text: string): [number, number, number] {
+  const bytes = Array.from(new TextEncoder().encode(text)).slice(0, 12);
+  while (bytes.length < 12) bytes.push(0);
+  const word1 = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+  const word2 = (bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7];
+  const word3 = (bytes[8] << 24) | (bytes[9] << 16) | (bytes[10] << 8) | bytes[11];
+  return [word1 >>> 0, word2 >>> 0, word3 >>> 0];
+}
+
+function encodeFlexKeySignature(event: FlexKeySignatureEvent): Uint32Array {
+  assertRange("group", event.group, 0, 0xf);
+  let addrByte = 0x00;
+  if (event.channel !== undefined) {
+    assertRange("channel", event.channel, 0, 0xf);
+    addrByte = 0x10 | (event.channel & 0x0f);
+  }
+  const word0 =
+    (0xd << 28) |
+    (event.group << 24) |
+    (FLEX_STATUS_CLASS << 16) |
+    (FLEX_STATUS_KEY << 8) |
+    addrByte;
+  const [w1, w2, w3] = packText12(event.key);
+  return new Uint32Array([word0 >>> 0, w1, w2, w3]);
+}
+
+function encodeFlexLyric(event: FlexLyricEvent): Uint32Array {
+  assertRange("group", event.group, 0, 0xf);
+  let addrByte = 0x00;
+  if (event.channel !== undefined) {
+    assertRange("channel", event.channel, 0, 0xf);
+    addrByte = 0x10 | (event.channel & 0x0f);
+  }
+  const word0 =
+    (0xd << 28) |
+    (event.group << 24) |
+    (FLEX_CLASS_LYRIC << 16) |
+    (FLEX_STATUS_LYRIC << 8) |
+    addrByte;
+  const [w1, w2, w3] = packText12(event.text);
+  return new Uint32Array([word0 >>> 0, w1, w2, w3]);
 }
 
 function encodeChannelVoiceWord0(group: number, status: number, channel: number, dataMsb: number, dataLsb = 0): number {
@@ -337,6 +385,10 @@ export function encodeUmp(event: Midi2Event): Uint32Array {
       return encodeFlexTempo(event);
     case "flexTimeSignature":
       return encodeFlexTimeSignature(event);
+    case "flexKeySignature":
+      return encodeFlexKeySignature(event);
+    case "flexLyric":
+      return encodeFlexLyric(event);
     case "midi1ChannelVoice":
       return encodeMidi1ChannelVoice(event);
     case "system":
@@ -402,6 +454,34 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     if (packet.length < 4) return null;
     const statusClass = (word0 >>> 16) & 0xff;
     const status = (word0 >>> 8) & 0xff;
+    const group = (word0 >>> 24) & 0xf;
+    if (statusClass === FLEX_CLASS_LYRIC && status === FLEX_STATUS_LYRIC) {
+      const addrByte = word0 & 0xff;
+      const channel = (addrByte & 0x10) !== 0 ? addrByte & 0x0f : undefined;
+      const textBytes = [
+        (packet[1] >>> 24) & 0xff,
+        (packet[1] >>> 16) & 0xff,
+        (packet[1] >>> 8) & 0xff,
+        packet[1] & 0xff,
+        (packet[2] >>> 24) & 0xff,
+        (packet[2] >>> 16) & 0xff,
+        (packet[2] >>> 8) & 0xff,
+        packet[2] & 0xff,
+        (packet[3] >>> 24) & 0xff,
+        (packet[3] >>> 16) & 0xff,
+        (packet[3] >>> 8) & 0xff,
+        packet[3] & 0xff,
+      ];
+      const text = new TextDecoder().decode(Uint8Array.from(textBytes.filter(b => b !== 0)));
+      const event: FlexLyricEvent = {
+        kind: "flexLyric",
+        group,
+        channel,
+        text,
+        timestamp,
+      };
+      return event;
+    }
     if (statusClass !== FLEX_STATUS_CLASS) {
       return {
         kind: "rawUMP",
@@ -409,7 +489,6 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
         timestamp,
       } as RawUMPEvent;
     }
-    const group = (word0 >>> 24) & 0xf;
     switch (status) {
       case FLEX_STATUS_TEMPO: {
         const fixed = packet[1] >>> 0;
@@ -436,6 +515,33 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
           channel,
           numerator,
           denominatorPow2,
+          timestamp,
+        };
+        return event;
+      }
+      case FLEX_STATUS_KEY: {
+        const addrByte = word0 & 0xff;
+        const channel = (addrByte & 0x10) !== 0 ? addrByte & 0x0f : undefined;
+        const textBytes = [
+          (packet[1] >>> 24) & 0xff,
+          (packet[1] >>> 16) & 0xff,
+          (packet[1] >>> 8) & 0xff,
+          packet[1] & 0xff,
+          (packet[2] >>> 24) & 0xff,
+          (packet[2] >>> 16) & 0xff,
+          (packet[2] >>> 8) & 0xff,
+          packet[2] & 0xff,
+          (packet[3] >>> 24) & 0xff,
+          (packet[3] >>> 16) & 0xff,
+          (packet[3] >>> 8) & 0xff,
+          packet[3] & 0xff,
+        ];
+        const key = new TextDecoder().decode(Uint8Array.from(textBytes.filter(b => b !== 0)));
+        const event: FlexKeySignatureEvent = {
+          kind: "flexKeySignature",
+          group,
+          channel,
+          key,
           timestamp,
         };
         return event;

@@ -37,6 +37,8 @@ import {
   UtilityEvent,
   FlexTempoEvent,
   FlexTimeSignatureEvent,
+  FlexKeySignatureEvent,
+  FlexLyricEvent,
 } from "../types";
 
 describe("UMP channel voice encode/decode", () => {
@@ -267,6 +269,22 @@ describe("UMP channel voice encode/decode", () => {
     const words = encodeUmp(evt);
     expect(words[0]).toBe(0xd1100212);
     expect(words[1]).toBe(0x03020000);
+    const decoded = decodeUmp(words);
+    expect(decoded).toMatchObject(evt);
+  });
+
+  it("encodes and decodes flex key signature", () => {
+    const evt: FlexKeySignatureEvent = { kind: "flexKeySignature", group: 2, key: "C#m" };
+    const words = encodeUmp(evt);
+    expect(words[0]).toBe(0xd2100400);
+    const decoded = decodeUmp(words);
+    expect(decoded).toMatchObject(evt);
+  });
+
+  it("encodes and decodes flex lyric", () => {
+    const evt: FlexLyricEvent = { kind: "flexLyric", group: 0, channel: 1, text: "hello" };
+    const words = encodeUmp(evt);
+    expect(words[0]).toBe(0xd0110211);
     const decoded = decodeUmp(words);
     expect(decoded).toMatchObject(evt);
   });

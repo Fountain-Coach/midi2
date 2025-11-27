@@ -7,3 +7,4 @@ export * from "./midici";
 export * from "./adapters/webaudio";
 export * from "./adapters/three";
 export * from "./adapters/cannon";
+export * from "./generated/openapi-types";

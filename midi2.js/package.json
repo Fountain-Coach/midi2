@@ -11,8 +11,9 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "codegen": "node ./scripts/generate-openapi-types.mjs",
+    "build": "npm run codegen && tsc -p tsconfig.json",
+    "check": "npm run codegen && tsc -p tsconfig.json --noEmit",
     "test": "vitest run"
   },
   "devDependencies": {

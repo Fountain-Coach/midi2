@@ -63,6 +63,7 @@ scheduler.onEvent(audioAdapter);
 Three.js and Cannon.js adapters expect a `scene` or `world` object with `add/remove`/`addBody/removeBody` and will use global `THREE`/`CANNON` if available.
 
 ## Scripts
+- `npm run --prefix midi2.js codegen` – regenerate TypeScript types + guards from `midi2.full.openapi.json` into `src/generated/openapi-types.ts`.
 - `npm run --prefix midi2.js build` – compile TypeScript to `dist/`.
 - `npm run --prefix midi2.js check` – type-check without emit.
 - `npm test --prefix midi2.js` – run vitest suite against UMP encoders/decoders and SysEx helpers.

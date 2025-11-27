@@ -62,6 +62,8 @@ out/
 .workbench/
 out/
 node_modules/
+.npm/
+midi2.js/dist/
 .midi2vm/
 .docker/
 **/.DS_Store

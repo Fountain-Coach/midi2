@@ -40,6 +40,7 @@ import {
   StreamEvent,
   ProfileEvent,
   PropertyExchangeEvent,
+  ProcessInquiryEvent,
 } from "./types";
 import { encodeUmp, decodeUmp } from "./ump";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
@@ -422,6 +423,20 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
         group: p.group,
         scope: "nonRealtime",
         subId2: 0x20,
+        version: 1,
+        payload: body,
+        format: "sysex7",
+      };
+      return asUmpPacket32(env);
+    }
+    case "processInquiry": {
+      const pi: ProcessInquiryEvent = event;
+      const body = processInquiryToBody(pi);
+      const env: MidiCiEvent = {
+        kind: "midiCi",
+        group: pi.group,
+        scope: "nonRealtime",
+        subId2: 0x22,
         version: 1,
         payload: body,
         format: "sysex7",
@@ -963,6 +978,12 @@ function midiCiToEvent(env: MidiCiEvent): Midi2Event {
         group: env.group,
         ...decodePropertyExchangeBody(env.payload),
       };
+    case 0x22:
+      return {
+        kind: "processInquiry",
+        group: env.group,
+        ...decodeProcessInquiryBody(env.payload),
+      };
     default:
       return env;
   }
@@ -996,6 +1017,27 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
     };
   } catch {
     return { command: "notify", data: payload };
+  }
+}
+
+function processInquiryToBody(evt: ProcessInquiryEvent): Uint8Array {
+  const base: Record<string, any> = {
+    command: evt.command,
+    filters: evt.filters,
+  };
+  const bytes = new TextEncoder().encode(JSON.stringify(base));
+  return Uint8Array.from(bytes);
+}
+
+function decodeProcessInquiryBody(payload: Uint8Array): Omit<ProcessInquiryEvent, "kind" | "group"> {
+  try {
+    const obj = JSON.parse(new TextDecoder().decode(payload));
+    return {
+      command: obj.command,
+      filters: obj.filters,
+    };
+  } catch {
+    return { command: "endReport" };
   }
 }
 

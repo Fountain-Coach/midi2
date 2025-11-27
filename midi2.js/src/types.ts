@@ -218,6 +218,14 @@ export interface PropertyExchangeEvent {
   timestamp?: MidiTimestamp;
 }
 
+export interface ProcessInquiryEvent {
+  kind: "processInquiry";
+  group: number;
+  command: "capInquiry" | "capReply" | "messageReport" | "messageReportReply" | "endReport";
+  filters?: Record<string, number>;
+  timestamp?: MidiTimestamp;
+}
+
 export interface RawUMPEvent {
   kind: "rawUMP";
   words: Uint32Array;
@@ -266,6 +274,7 @@ export type Midi2Event =
   | StreamEvent
   | ProfileEvent
   | PropertyExchangeEvent
+  | ProcessInquiryEvent
   | RawUMPEvent;
 
 export type MidiEventHandler = (event: Midi2Event) => void;

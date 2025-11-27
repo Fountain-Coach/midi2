@@ -934,11 +934,14 @@ function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
   } else if (evt.data) {
     base.data = evt.data;
   }
-   if (evt.ack) {
-     base.ack = evt.ack.ack;
-     base.statusCode = evt.ack.statusCode;
-     base.message = evt.ack.message;
-   }
+  if (evt.ack) {
+    base.ack = evt.ack.ack;
+    base.statusCode = evt.ack.statusCode;
+    base.message = evt.ack.message;
+  }
+  if (!evt.header && evt.data instanceof Uint8Array) {
+    base.header = { length: evt.data.length };
+  }
   const bytes = new TextEncoder().encode(JSON.stringify(base));
   return Uint8Array.from(bytes);
 }

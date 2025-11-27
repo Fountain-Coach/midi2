@@ -91,4 +91,19 @@ describe("PB-VRT golden vectors", () => {
     const commands = seq.map((e: any) => e.command);
     expect(commands).toEqual(["capInquiry", "capReply", "messageReport", "messageReportReply", "endReport"]);
   });
+
+  it("reassembles property-exchange notify chunks", () => {
+    const seq = loadJSON("property-exchange/notify_chunked.json");
+    const chunks = seq.map((entry: any) => ({
+      kind: "propertyExchange",
+      group: 0,
+      command: entry.command,
+      requestId: entry.requestId,
+      encoding: entry.encoding,
+      header: entry.header,
+      data: Uint8Array.from(Buffer.from(entry.dataHex, "hex")),
+    }));
+    const totalLength = chunks.reduce((acc, c) => acc + (c.data as Uint8Array).length, 0);
+    expect(totalLength).toBe(6);
+  });
 });

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decodeToPacketAndEvent } from "../decoder";
-import { eventToSchemaPacket } from "../schema-bridge";
+import { eventToSchemaPacket, reassemblePeChunks } from "../schema-bridge";
 import fs from "fs";
 import path from "path";
 
@@ -109,5 +109,8 @@ describe("PB-VRT golden vectors", () => {
       .flatMap(c => Array.from(c.data as Uint8Array));
     expect(totalLength).toBe(6);
     expect(assembled).toEqual([1, 2, 3, 4, 5, 6]);
+    const merged = reassemblePeChunks(chunks as any);
+    expect(merged?.data instanceof Uint8Array).toBe(true);
+    expect(Array.from(merged?.data ?? [])).toEqual([1, 2, 3, 4, 5, 6]);
   });
 });

@@ -1028,6 +1028,21 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
   }
 }
 
+export function reassemblePeChunks(chunks: PropertyExchangeEvent[]): PropertyExchangeEvent | null {
+  if (!chunks.length) return null;
+  const binaryChunks = chunks.every(c => c.data instanceof Uint8Array);
+  if (!binaryChunks) return null;
+  const sorted = chunks.slice().sort((a, b) => Number((a.header?.offset as number) ?? 0) - Number((b.header?.offset as number) ?? 0));
+  const buffers: number[] = [];
+  for (const chunk of sorted) {
+    buffers.push(...Array.from(chunk.data as Uint8Array));
+  }
+  const base = sorted[0];
+  const data = Uint8Array.from(buffers);
+  const header = { ...(base.header ?? {}), length: data.length };
+  return { ...base, data, header };
+}
+
 function processInquiryToBody(evt: ProcessInquiryEvent): Uint8Array {
   const base: Record<string, any> = {
     command: evt.command,

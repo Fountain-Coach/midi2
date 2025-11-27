@@ -1098,16 +1098,22 @@ function encodeStreamFlags(cfg: any, isNotification: boolean): number {
   if ((cfg.protocol ?? "midi1") === "midi2") flags |= 0x01;
   if (cfg.jrTimestampsTx) flags |= 0x02;
   if (cfg.jrTimestampsRx && !isNotification) flags |= 0x04;
+  flags &= 0x27; // clear reserved bits (7:5,3)
   return flags;
 }
 
 export function decodeStreamWord(word: number): StreamEvent | null {
   const mt = (word >>> 28) & 0xf;
   if (mt !== STREAM_MT) return null;
+  // Reserved bit 3 must be zero
+  if ((word & 0x00000008) !== 0) return null;
   const group = (word >>> 24) & 0xf;
   const opcodeByte = (word >>> 16) & 0xff;
   const byte2 = (word >>> 8) & 0xff;
   const byte3 = word & 0xff;
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT && (byte2 !== 0 || byte3 !== 0)) {
+    return null; // reserved bits set for endpoint discovery
+  }
   if (opcodeByte === 0x01) {
     const protocol = (byte2 & 0x01) !== 0 ? "midi2" : "midi1";
     const jrTx = (byte2 & 0x02) !== 0;

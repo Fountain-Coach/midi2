@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decodeToPacketAndEvent } from "../decoder";
+import { eventToSchemaPacket } from "../schema-bridge";
 import fs from "fs";
 import path from "path";
 
@@ -62,5 +63,26 @@ describe("PB-VRT golden vectors", () => {
       ),
     );
     expect(events.every(e => e?.event?.kind === "utility")).toBe(true);
+  });
+
+  it("decodes profile enable/disable sequence", () => {
+    const seq = loadJSON("profiles/enable_sequence.json").sequence;
+    const commands = seq.map((entry: any) => entry.command);
+    expect(commands).toEqual(["setOn", "enabledReport", "detailsInquiry", "detailsReply", "setOff", "disabledReport"]);
+  });
+
+  it("decodes property-exchange set chunked sequence", () => {
+    const seq = loadJSON("property-exchange/set_chunked.json");
+    const events = seq.map((entry: any) => ({
+      kind: "propertyExchange",
+      group: 0,
+      command: entry.command,
+      requestId: entry.requestId,
+      encoding: entry.encoding,
+      header: entry.header,
+      data: entry.dataHex ? Uint8Array.from(Buffer.from(entry.dataHex, "hex")) : undefined,
+    }));
+    const packets = events.map(evt => eventToSchemaPacket(evt as any));
+    expect(packets.length).toBeGreaterThan(0);
   });
 });

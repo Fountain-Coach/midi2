@@ -109,7 +109,7 @@ describe("schema bridge", () => {
     const packet = eventToSchemaPacket(env);
     expect(packet && isUmpPacket(packet)).toBe(true);
     const evt = schemaPacketToEvent(packet!);
-    expect(evt?.kind).toBe("sysex8");
+    expect(evt?.kind).toBe("midiCi");
   });
 
   it("treats stream/profile/property-exchange packets as raw when unsupported", () => {

@@ -41,6 +41,7 @@ import {
 } from "./types";
 import { encodeUmp, decodeUmp } from "./ump";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
+import { decodeMidiCiFromSysEx } from "./midici";
 
 type ScopeAddress = { scope: "group"; group: number } | { scope: "channel"; channel: number };
 
@@ -502,12 +503,15 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
     const body: any = p.body;
     if (body?.manufacturerId && body?.packets) {
       const { manufacturerId, payload } = reassembleSysEx7FromPackets(body.manufacturerId ?? [], body.packets);
-      return {
+      const syx: SysEx7Event = {
         kind: "sysex7",
         group: p.group ?? 0,
         manufacturerId,
         payload: Uint8Array.from(payload),
       };
+      const maybeCi = decodeMidiCiFromSysEx(syx);
+      if (maybeCi) return maybeCi;
+      return syx;
     }
     if (isStreamBody(body)) {
       return streamBodyToEvent(p.group ?? 0, body);
@@ -684,12 +688,15 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
     const p = packet as UmpPacket128;
     const body: any = p.body;
     if (body.kind === "sysex8" && body.sysex8) {
-      return {
+      const syx: SysEx8Event = {
         kind: "sysex8",
         group: p.group ?? 0,
         manufacturerId: body.sysex8.manufacturerId ?? [],
         payload: Uint8Array.from(body.sysex8.data ?? []),
       };
+      const maybeCi = decodeMidiCiFromSysEx(syx);
+      if (maybeCi) return maybeCi;
+      return syx;
     }
     return null;
   }

@@ -38,6 +38,8 @@ import {
   FlexKeySignatureEvent,
   FlexLyricEvent,
   StreamEvent,
+  ProfileEvent,
+  PropertyExchangeEvent,
 } from "./types";
 import { encodeUmp, decodeUmp } from "./ump";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
@@ -415,6 +417,34 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
       };
       return asUmpPacket32(syx);
     }
+    case "profile": {
+      const p: ProfileEvent = event;
+      const body = profileToBody(p);
+      const env: MidiCiEvent = {
+        kind: "midiCi",
+        group: p.group,
+        scope: "nonRealtime",
+        subId2: 0x20,
+        version: 1,
+        payload: body,
+        format: "sysex7",
+      };
+      return asUmpPacket32(env);
+    }
+    case "propertyExchange": {
+      const pe: PropertyExchangeEvent = event;
+      const body = propertyExchangeToBody(pe);
+      const env: MidiCiEvent = {
+        kind: "midiCi",
+        group: pe.group,
+        scope: "nonRealtime",
+        subId2: 0x21,
+        version: 1,
+        payload: body,
+        format: "sysex7",
+      };
+      return asUmpPacket32(env);
+    }
     case "utility": {
       const utility: UtilityEvent = event;
       const opcode = utility.status === "jrClock" ? 1 : utility.status === "jrTimestamp" ? 2 : 0;
@@ -510,7 +540,7 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
         payload: Uint8Array.from(payload),
       };
       const maybeCi = decodeMidiCiFromSysEx(syx);
-      if (maybeCi) return maybeCi;
+      if (maybeCi) return midiCiToEvent(maybeCi);
       return syx;
     }
     if (isStreamBody(body)) {
@@ -695,7 +725,7 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
         payload: Uint8Array.from(body.sysex8.data ?? []),
       };
       const maybeCi = decodeMidiCiFromSysEx(syx);
-      if (maybeCi) return maybeCi;
+      if (maybeCi) return midiCiToEvent(maybeCi);
       return syx;
     }
     return null;
@@ -851,4 +881,55 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
     functionBlockDiscovery: body.functionBlockDiscovery,
     functionBlockInfo: body.functionBlockInfo,
   };
+}
+
+function profileToBody(evt: ProfileEvent): Uint8Array {
+  const base: Record<string, any> = {
+    command: evt.command,
+  };
+  if (evt.profileId) base.profileId = evt.profileId;
+  if (evt.target) base.target = evt.target;
+  if (evt.channels) base.channels = evt.channels;
+  if (evt.details) base.details = evt.details;
+  const bytes = new TextEncoder().encode(JSON.stringify(base));
+  return Uint8Array.from(bytes);
+}
+
+function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
+  const base: Record<string, any> = {
+    command: evt.command,
+    requestId: evt.requestId,
+    encoding: evt.encoding,
+    header: evt.header,
+  };
+  if (evt.data instanceof Uint8Array) {
+    base.data = Array.from(evt.data);
+  } else if (evt.data) {
+    base.data = evt.data;
+  }
+  const bytes = new TextEncoder().encode(JSON.stringify(base));
+  return Uint8Array.from(bytes);
+}
+
+function midiCiToEvent(env: MidiCiEvent): Midi2Event {
+  switch (env.subId2) {
+    case 0x20:
+      return {
+        kind: "profile",
+        group: env.group,
+        command: "reply",
+        // Payload decoding is simplified: keep raw JSON-ish buffer in details.
+        profileId: undefined,
+        details: { payload: Array.from(env.payload) },
+      };
+    case 0x21:
+      return {
+        kind: "propertyExchange",
+        group: env.group,
+        command: "notify",
+        data: env.payload,
+      };
+    default:
+      return env;
+  }
 }

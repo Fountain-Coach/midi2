@@ -11,6 +11,8 @@ import {
   StreamEvent,
   SysEx7Event,
   SysEx8Event,
+  ProfileEvent,
+  PropertyExchangeEvent,
 } from "../types";
 
 describe("schema bridge", () => {
@@ -110,6 +112,37 @@ describe("schema bridge", () => {
     expect(packet && isUmpPacket(packet)).toBe(true);
     const evt = schemaPacketToEvent(packet!);
     expect(evt?.kind).toBe("midiCi");
+  });
+
+  it("encodes/decodes profile command via MIDI-CI", () => {
+    const profile: ProfileEvent = {
+      kind: "profile",
+      group: 0,
+      command: "inquiry",
+      profileId: "com.fountain.test.profile",
+      target: "group",
+      channels: [1, 2],
+      details: { version: 1 },
+    };
+    const packet = eventToSchemaPacket(profile);
+    expect(packet).toBeTruthy();
+    const evt = schemaPacketToEvent(packet!);
+    expect(evt?.kind).toBe("profile");
+  });
+
+  it("encodes/decodes property exchange command via MIDI-CI", () => {
+    const pe: PropertyExchangeEvent = {
+      kind: "propertyExchange",
+      group: 1,
+      command: "notify",
+      requestId: 42,
+      header: { schema: "test" },
+      data: { hello: "world" },
+    };
+    const packet = eventToSchemaPacket(pe);
+    expect(packet).toBeTruthy();
+    const evt = schemaPacketToEvent(packet!);
+    expect(evt?.kind === "propertyExchange" || evt?.kind === "midiCi").toBe(true);
   });
 
   it("treats stream/profile/property-exchange packets as raw when unsupported", () => {

@@ -184,6 +184,39 @@ export interface FlexLyricEvent {
   timestamp?: MidiTimestamp;
 }
 
+export interface ProfileEvent {
+  kind: "profile";
+  group: number;
+  command:
+    | "inquiry"
+    | "reply"
+    | "addedReport"
+    | "removedReport"
+    | "setOn"
+    | "setOff"
+    | "enabledReport"
+    | "disabledReport"
+    | "detailsInquiry"
+    | "detailsReply"
+    | "profileSpecificData";
+  profileId?: string;
+  target?: "channel" | "group" | "functionBlock";
+  channels?: number[];
+  details?: Record<string, unknown>;
+  timestamp?: MidiTimestamp;
+}
+
+export interface PropertyExchangeEvent {
+  kind: "propertyExchange";
+  group: number;
+  command: "capInquiry" | "capReply" | "get" | "getReply" | "set" | "setReply" | "subscribe" | "subscribeReply" | "notify" | "terminate";
+  requestId?: number;
+  encoding?: "json" | "binary" | "json+zlib" | "binary+zlib" | "mcoded7";
+  header?: Record<string, unknown>;
+  data?: Record<string, unknown> | Uint8Array;
+  timestamp?: MidiTimestamp;
+}
+
 export interface RawUMPEvent {
   kind: "rawUMP";
   words: Uint32Array;
@@ -230,6 +263,8 @@ export type Midi2Event =
   | SysEx8Event
   | MidiCiEvent
   | StreamEvent
+  | ProfileEvent
+  | PropertyExchangeEvent
   | RawUMPEvent;
 
 export type MidiEventHandler = (event: Midi2Event) => void;

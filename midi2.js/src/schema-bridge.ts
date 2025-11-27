@@ -456,18 +456,35 @@ export function eventToSchemaPacket(event: Midi2Event): UmpPacket | null {
 }
 
 export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
-  if (!isUmpPacket(packet)) return null;
+  if (!isUmpPacket(packet)) {
+    if (typeof packet === "object" && packet && ("messageType" in packet)) {
+      const mt = (packet as any).messageType;
+      if (mt === 3 || mt === 15) {
+        const words = packGeneric32(packet as any);
+        return { kind: "rawUMP", words, timestamp: undefined };
+      }
+    }
+    return null;
+  }
   if (packet.messageType === 3) {
     const p = packet as UmpPacket32;
     const body: any = p.body;
-    if (!body?.manufacturerId || !body?.packets) return null;
-    const { manufacturerId, payload } = reassembleSysEx7FromPackets(body.manufacturerId ?? [], body.packets);
-    return {
-      kind: "sysex7",
-      group: p.group ?? 0,
-      manufacturerId,
-      payload: Uint8Array.from(payload),
-    };
+    if (body?.manufacturerId && body?.packets) {
+      const { manufacturerId, payload } = reassembleSysEx7FromPackets(body.manufacturerId ?? [], body.packets);
+      return {
+        kind: "sysex7",
+        group: p.group ?? 0,
+        manufacturerId,
+        payload: Uint8Array.from(payload),
+      };
+    }
+    const words = packGeneric32(p);
+    return { kind: "rawUMP", words, timestamp: undefined };
+  }
+  if (packet.messageType === 15) {
+    // Data messages (MDS/SysEx8 in schema) are already handled in MT=5 for sysex8; treat the rest as raw UMP for now.
+    const words = packGeneric32(packet as UmpPacket32);
+    return { kind: "rawUMP", words, timestamp: undefined };
   }
   if (packet.messageType === 4) {
     const body = (packet as UmpPacket64).body;
@@ -642,6 +659,10 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
     }
     return null;
   }
+  if (packet.messageType === 3) {
+    const words = packGeneric32(packet as UmpPacket32);
+    return { kind: "rawUMP", words, timestamp: undefined };
+  }
   if (packet.messageType === 1) {
     const sys = (packet as UmpPacket32).body as any;
     return {
@@ -693,6 +714,9 @@ export function schemaPacketToWords(packet: unknown): Uint32Array[] | null {
   if (event.kind === "sysex8") {
     return fragmentSysEx8(event.manufacturerId, event.payload, event.group);
   }
+  if (event.kind === "rawUMP") {
+    return [event.words instanceof Uint32Array ? event.words : Uint32Array.from(event.words)];
+  }
   return [encodeUmp(event)];
 }
 
@@ -735,4 +759,12 @@ function reassembleSysEx7FromPackets(
     payload.push(...p.payload);
   }
   return { manufacturerId, payload };
+}
+
+function packGeneric32(packet: UmpPacket32): Uint32Array {
+  const mt = packet.messageType ?? 0;
+  const group = packet.group ?? 0;
+  const opcode = (packet as any).body?.opcode ?? 0;
+  const word0 = ((mt & 0xf) << 28) | ((group & 0xf) << 24) | ((opcode & 0xff) << 16);
+  return new Uint32Array([word0 >>> 0]);
 }

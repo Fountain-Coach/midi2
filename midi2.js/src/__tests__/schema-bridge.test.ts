@@ -110,4 +110,16 @@ describe("schema bridge", () => {
     const evt = schemaPacketToEvent(packet!);
     expect(evt?.kind).toBe("sysex8");
   });
+
+  it("treats stream/profile/property-exchange packets as raw when unsupported", () => {
+    const streamPacket = {
+      messageType: 3,
+      group: 0,
+      body: { opcode: 0, endpointDiscovery: { majorVersion: 1, minorVersion: 0, maxGroups: 0 } },
+    };
+    const words = schemaPacketToWords(streamPacket as any);
+    expect(words && words[0][0]).toBe(0x30000000);
+    const evt = schemaPacketToEvent(streamPacket as any);
+    expect(evt?.kind).toBe("rawUMP");
+  });
 });

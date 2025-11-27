@@ -85,4 +85,10 @@ describe("PB-VRT golden vectors", () => {
     const packets = events.map(evt => eventToSchemaPacket(evt as any));
     expect(packets.length).toBeGreaterThan(0);
   });
+
+  it("decodes process inquiry flows", () => {
+    const seq = loadJSON("process-inquiry/flows.json").sequence;
+    const commands = seq.map((e: any) => e.command);
+    expect(commands).toEqual(["capInquiry", "capReply", "messageReport", "messageReportReply", "endReport"]);
+  });
 });

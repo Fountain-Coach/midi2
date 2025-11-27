@@ -46,6 +46,7 @@ import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
 import { decodeMidiCiFromSysEx } from "./midici";
 
 type ScopeAddress = { scope: "group"; group: number } | { scope: "channel"; channel: number };
+const STREAM_MT = 0xf;
 
 function toAddress(group: number, channel?: number): ScopeAddress | undefined {
   if (channel === undefined) return { scope: "group", group };
@@ -395,15 +396,8 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
     }
     case "stream": {
       const stream: StreamEvent = event;
-      const body: StreamBody = {
-        opcode: opcodeNumber(stream.opcode),
-        endpointDiscovery: stream.endpointDiscovery,
-        streamConfigRequest: stream.streamConfigRequest,
-        streamConfigNotification: stream.streamConfigNotification,
-        functionBlockDiscovery: stream.functionBlockDiscovery,
-        functionBlockInfo: stream.functionBlockInfo,
-      };
-      return { messageType: 3, group: stream.group, body };
+      const body = streamBodyFromEvent(stream);
+      return { messageType: STREAM_MT, group: stream.group, body } as unknown as UmpPacket32;
     }
     case "midiCi": {
       if (event.format === "sysex8") return null;
@@ -498,6 +492,16 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
 }
 
 export function eventToSchemaPacket(event: Midi2Event): UmpPacket | null {
+  if (event.kind === "rawUMP" && event.words?.length) {
+    const mt = (event.words[0] >>> 28) & 0xf;
+    if (mt === STREAM_MT) {
+      const stream = decodeStreamWord(event.words[0]);
+      if (stream) {
+        const body = streamBodyFromEvent(stream);
+        return { messageType: STREAM_MT, group: stream.group, body } as unknown as UmpPacket32;
+      }
+    }
+  }
   return (asUmpPacket64(event) as UmpPacket | null) ?? (asUmpPacket128(event) as UmpPacket | null) ?? (asUmpPacket32(event) as UmpPacket | null);
 }
 
@@ -507,7 +511,7 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
       const mt = (packet as any).messageType;
       if (mt === 3 || mt === 15) {
         const body: any = (packet as any).body;
-        if (mt === 3) {
+        if (mt === 3 || mt === 15) {
           if (isStreamBody(body)) {
             return streamBodyToEvent((packet as any).group ?? 0, body);
           }
@@ -523,6 +527,8 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
           }
         }
         const words = packGeneric32(packet as any);
+        const stream = decodeStreamWord(words[0]);
+        if (stream) return stream;
         return { kind: "rawUMP", words, timestamp: undefined };
       }
     }
@@ -548,6 +554,10 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
     }
     const words = packGeneric32(p);
     return { kind: "rawUMP", words, timestamp: undefined };
+  }
+  if (packet.messageType === STREAM_MT) {
+    const word = packGeneric32(packet as UmpPacket32);
+    return decodeStreamWord(word[0]);
   }
   if (packet.messageType === 15) {
     // Data messages (MDS/SysEx8 in schema) are already handled in MT=5 for sysex8; treat the rest as raw UMP for now.
@@ -785,6 +795,9 @@ export function schemaPacketToWords(packet: unknown): Uint32Array[] | null {
   if (event.kind === "sysex8") {
     return fragmentSysEx8(event.manufacturerId, event.payload, event.group);
   }
+  if (event.kind === "stream") {
+    return [packStream(event)];
+  }
   if (event.kind === "rawUMP") {
     return [event.words instanceof Uint32Array ? event.words : Uint32Array.from(event.words)];
   }
@@ -834,6 +847,9 @@ function reassembleSysEx7FromPackets(
 
 function packGeneric32(packet: UmpPacket32): Uint32Array {
   const mt = packet.messageType ?? 0;
+  if (mt === STREAM_MT) {
+    return packStreamFromBody(packet);
+  }
   const group = packet.group ?? 0;
   const opcode = (packet as any).body?.opcode ?? 0;
   const word0 = ((mt & 0xf) << 28) | ((group & 0xf) << 24) | ((opcode & 0xff) << 16);
@@ -880,6 +896,17 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
     opcode: body.functionBlockDiscovery ? "functionBlockDiscovery" : "functionBlockInfo",
     functionBlockDiscovery: body.functionBlockDiscovery,
     functionBlockInfo: body.functionBlockInfo,
+  };
+}
+
+function streamBodyFromEvent(stream: StreamEvent): StreamBody {
+  return {
+    opcode: opcodeNumber(stream.opcode),
+    endpointDiscovery: stream.endpointDiscovery,
+    streamConfigRequest: stream.streamConfigRequest,
+    streamConfigNotification: stream.streamConfigNotification,
+    functionBlockDiscovery: stream.functionBlockDiscovery,
+    functionBlockInfo: stream.functionBlockInfo,
   };
 }
 
@@ -964,4 +991,110 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
   } catch {
     return { command: "notify", data: payload };
   }
+}
+
+function packStream(stream: StreamEvent): Uint32Array {
+  const mt = STREAM_MT << 28;
+  const group = (stream.group & 0xf) << 24;
+  const opcodeByte = opcodeNumber(stream.opcode);
+  if (stream.opcode === "streamConfigRequest" || stream.opcode === "streamConfigNotification") {
+    const flagsProto = ((stream.streamConfigRequest?.protocol ?? stream.streamConfigNotification?.protocol) === "midi2" ? 0x01 : 0x00);
+    const jrTx = stream.streamConfigRequest?.jrTimestampsTx ?? stream.streamConfigNotification?.jrTimestampsTx ?? false;
+    const jrRx = stream.streamConfigRequest?.jrTimestampsRx ?? stream.streamConfigNotification?.jrTimestampsRx ?? false;
+    const isNotification = stream.opcode === "streamConfigNotification";
+    let flags = 0x20 | flagsProto;
+    if (jrTx) flags |= 0x02;
+    if (jrRx) flags |= 0x04;
+    if (isNotification) flags &= ~0x04;
+    const word0 = mt | group | (opcodeByte << 16) | (flags << 8);
+    return new Uint32Array([word0 >>> 0]);
+  }
+  if (stream.opcode === "functionBlockInfo" && stream.functionBlockInfo) {
+    const idx = stream.functionBlockInfo.index ?? 0;
+    const firstGroup = stream.functionBlockInfo.firstGroup ?? 0;
+    const groupCount = stream.functionBlockInfo.groupCount ?? 0;
+    const byte2 = idx & 0xff;
+    const byte3 = ((firstGroup & 0x0f) << 4) | (groupCount & 0x0f);
+    const word0 = mt | group | (opcodeByte << 16) | (byte2 << 8) | byte3;
+    return new Uint32Array([word0 >>> 0]);
+  }
+  if (stream.opcode === "functionBlockDiscovery" && stream.functionBlockDiscovery) {
+    const filter = stream.functionBlockDiscovery.filterBitmap ?? 0;
+    const byte2 = (filter >> 8) & 0xff;
+    const byte3 = filter & 0xff;
+    const word0 = mt | group | (opcodeByte << 16) | (byte2 << 8) | byte3;
+    return new Uint32Array([word0 >>> 0]);
+  }
+  const word0 = mt | group | (opcodeByte << 16);
+  return new Uint32Array([word0 >>> 0]);
+}
+
+function packStreamFromBody(packet: UmpPacket32): Uint32Array {
+  const body = packet.body as any;
+  const group = packet.group ?? 0;
+  const opcodeByte = body?.opcode ?? 0;
+  const byte2 = body?.endpointDiscovery ? 0 : body?.streamConfigRequest ? encodeStreamFlags(body.streamConfigRequest, false) : body?.streamConfigNotification ? encodeStreamFlags(body.streamConfigNotification, true) : body?.functionBlockDiscovery ? ((body.functionBlockDiscovery.filterBitmap ?? 0) >> 8) & 0xff : body?.functionBlockInfo?.index ?? 0;
+  const byte3 = body?.functionBlockInfo
+    ? (((body.functionBlockInfo.firstGroup ?? 0) & 0x0f) << 4) | ((body.functionBlockInfo.groupCount ?? 0) & 0x0f)
+    : body?.functionBlockDiscovery
+    ? (body.functionBlockDiscovery.filterBitmap ?? 0) & 0xff
+    : 0;
+  const word0 = (STREAM_MT << 28) | ((group & 0x0f) << 24) | ((opcodeByte & 0xff) << 16) | ((byte2 & 0xff) << 8) | (byte3 & 0xff);
+  return new Uint32Array([word0 >>> 0]);
+}
+
+function encodeStreamFlags(cfg: any, isNotification: boolean): number {
+  let flags = 0x20;
+  if ((cfg.protocol ?? "midi1") === "midi2") flags |= 0x01;
+  if (cfg.jrTimestampsTx) flags |= 0x02;
+  if (cfg.jrTimestampsRx && !isNotification) flags |= 0x04;
+  return flags;
+}
+
+export function decodeStreamWord(word: number): StreamEvent | null {
+  const mt = (word >>> 28) & 0xf;
+  if (mt !== STREAM_MT) return null;
+  const group = (word >>> 24) & 0xf;
+  const opcodeByte = (word >>> 16) & 0xff;
+  const byte2 = (word >>> 8) & 0xff;
+  const byte3 = word & 0xff;
+  if (opcodeByte === 0x01) {
+    const protocol = (byte2 & 0x01) !== 0 ? "midi2" : "midi1";
+    const jrTx = (byte2 & 0x02) !== 0;
+    const jrRx = (byte2 & 0x04) !== 0;
+    const isNotification = !jrRx;
+    const evt: StreamEvent = {
+      kind: "stream",
+      group,
+      opcode: isNotification ? "streamConfigNotification" : "streamConfigRequest",
+      streamConfigRequest: isNotification ? undefined : { protocol, jrTimestampsTx: jrTx, jrTimestampsRx: jrRx },
+      streamConfigNotification: isNotification ? { protocol, jrTimestampsTx: jrTx, jrTimestampsRx: jrRx } : undefined,
+    };
+    return evt;
+  }
+  if (opcodeByte === 0x02) {
+    if (byte2 >= 0x80) {
+      const filterBitmap = (byte2 << 8) | byte3;
+      return {
+        kind: "stream",
+        group,
+        opcode: "functionBlockDiscovery",
+        functionBlockDiscovery: { filterBitmap },
+      };
+    }
+    const index = byte2;
+    const firstGroup = (byte3 >> 4) & 0x0f;
+    const groupCount = byte3 & 0x0f;
+    return {
+      kind: "stream",
+      group,
+      opcode: "functionBlockInfo",
+      functionBlockInfo: { index, firstGroup, groupCount },
+    };
+  }
+  return {
+    kind: "stream",
+    group,
+    opcode: "endpointDiscovery",
+  };
 }

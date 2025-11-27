@@ -4,6 +4,7 @@ export * from "./scheduler";
 export * from "./ump";
 export * from "./sysex";
 export * from "./midici";
+export * from "./schema-bridge";
 export * from "./adapters/webaudio";
 export * from "./adapters/three";
 export * from "./adapters/cannon";

@@ -130,7 +130,7 @@ describe("schema bridge", () => {
     expect(evt?.kind).toBe("profile");
   });
 
-  it("encodes/decodes property exchange command via MIDI-CI", () => {
+  it("encodes/decodes property exchange notify via MIDI-CI", () => {
     const pe: PropertyExchangeEvent = {
       kind: "propertyExchange",
       group: 1,
@@ -144,6 +144,40 @@ describe("schema bridge", () => {
     expect(packet).toBeTruthy();
     const evt = schemaPacketToEvent(packet!);
     expect(evt?.kind === "propertyExchange" || evt?.kind === "midiCi").toBe(true);
+  });
+
+  it("encodes/decodes profile enable/disable commands", () => {
+    const enable: ProfileEvent = {
+      kind: "profile",
+      group: 0,
+      command: "setOn",
+      profileId: "com.fountain.test.profile",
+      target: "channel",
+      channels: [0],
+    };
+    const disable: ProfileEvent = { ...enable, command: "setOff" };
+    const enablePacket = eventToSchemaPacket(enable);
+    const disablePacket = eventToSchemaPacket(disable);
+    expect(schemaPacketToEvent(enablePacket!)?.kind).toBe("profile");
+    expect(schemaPacketToEvent(disablePacket!)?.kind).toBe("profile");
+  });
+
+  it("encodes/decodes property exchange setReply with ack", () => {
+    const pe: PropertyExchangeEvent = {
+      kind: "propertyExchange",
+      group: 2,
+      command: "setReply",
+      requestId: 7,
+      header: { schema: "foo", contentType: "application/json" },
+      data: { status: "ok" },
+      ack: { ack: true, statusCode: 0, message: "ok" },
+    };
+    const packet = eventToSchemaPacket(pe);
+    const evt = schemaPacketToEvent(packet!);
+    expect(evt?.kind).toBe("propertyExchange");
+    const peBack = evt as PropertyExchangeEvent;
+    expect(peBack.ack?.ack).toBe(true);
+    expect(peBack.command).toBe("setReply");
   });
 
   it("treats stream/profile/property-exchange packets as raw when unsupported", () => {

@@ -47,6 +47,9 @@ import { decodeMidiCiFromSysEx } from "./midici";
 
 type ScopeAddress = { scope: "group"; group: number } | { scope: "channel"; channel: number };
 const STREAM_MT = 0xf;
+const STREAM_OPCODE_ENDPOINT = 0x00;
+const STREAM_OPCODE_CONFIG = 0x01;
+const STREAM_OPCODE_FUNCTION_BLOCK = 0x02;
 
 function toAddress(group: number, channel?: number): ScopeAddress | undefined {
   if (channel === undefined) return { scope: "group", group };
@@ -1001,15 +1004,8 @@ function packStream(stream: StreamEvent): Uint32Array {
   const group = (stream.group & 0xf) << 24;
   const opcodeByte = opcodeNumber(stream.opcode);
   if (stream.opcode === "streamConfigRequest" || stream.opcode === "streamConfigNotification") {
-    const flagsProto = ((stream.streamConfigRequest?.protocol ?? stream.streamConfigNotification?.protocol) === "midi2" ? 0x01 : 0x00);
-    const jrTx = stream.streamConfigRequest?.jrTimestampsTx ?? stream.streamConfigNotification?.jrTimestampsTx ?? false;
-    const jrRx = stream.streamConfigRequest?.jrTimestampsRx ?? stream.streamConfigNotification?.jrTimestampsRx ?? false;
-    const isNotification = stream.opcode === "streamConfigNotification";
-    let flags = 0x20 | flagsProto;
-    if (jrTx) flags |= 0x02;
-    if (jrRx) flags |= 0x04;
-    if (isNotification) flags &= ~0x04;
-    const word0 = mt | group | (opcodeByte << 16) | (flags << 8);
+    const flags = encodeStreamFlags(stream.streamConfigRequest ?? stream.streamConfigNotification ?? {}, stream.opcode === "streamConfigNotification");
+    const word0 = mt | group | (STREAM_OPCODE_CONFIG << 16) | (flags << 8);
     return new Uint32Array([word0 >>> 0]);
   }
   if (stream.opcode === "functionBlockInfo" && stream.functionBlockInfo) {
@@ -1025,7 +1021,7 @@ function packStream(stream: StreamEvent): Uint32Array {
     const filter = stream.functionBlockDiscovery.filterBitmap ?? 0;
     const byte2 = (filter >> 8) & 0xff;
     const byte3 = filter & 0xff;
-    const word0 = mt | group | (opcodeByte << 16) | (byte2 << 8) | byte3;
+    const word0 = mt | group | (STREAM_OPCODE_FUNCTION_BLOCK << 16) | (byte2 << 8) | byte3;
     return new Uint32Array([word0 >>> 0]);
   }
   const word0 = mt | group | (opcodeByte << 16);
@@ -1036,7 +1032,16 @@ function packStreamFromBody(packet: UmpPacket32): Uint32Array {
   const body = packet.body as any;
   const group = packet.group ?? 0;
   const opcodeByte = body?.opcode ?? 0;
-  const byte2 = body?.endpointDiscovery ? 0 : body?.streamConfigRequest ? encodeStreamFlags(body.streamConfigRequest, false) : body?.streamConfigNotification ? encodeStreamFlags(body.streamConfigNotification, true) : body?.functionBlockDiscovery ? ((body.functionBlockDiscovery.filterBitmap ?? 0) >> 8) & 0xff : body?.functionBlockInfo?.index ?? 0;
+  const byte2 =
+    body?.endpointDiscovery
+      ? 0
+      : body?.streamConfigRequest
+      ? encodeStreamFlags(body.streamConfigRequest, false)
+      : body?.streamConfigNotification
+      ? encodeStreamFlags(body.streamConfigNotification, true)
+      : body?.functionBlockDiscovery
+      ? ((body.functionBlockDiscovery.filterBitmap ?? 0) >> 8) & 0xff
+      : body?.functionBlockInfo?.index ?? 0;
   const byte3 = body?.functionBlockInfo
     ? (((body.functionBlockInfo.firstGroup ?? 0) & 0x0f) << 4) | ((body.functionBlockInfo.groupCount ?? 0) & 0x0f)
     : body?.functionBlockDiscovery

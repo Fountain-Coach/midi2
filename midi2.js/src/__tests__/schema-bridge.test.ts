@@ -138,6 +138,7 @@ describe("schema bridge", () => {
       requestId: 42,
       header: { schema: "test" },
       data: { hello: "world" },
+      ack: { ack: true, statusCode: 0, message: "ok" },
     };
     const packet = eventToSchemaPacket(pe);
     expect(packet).toBeTruthy();

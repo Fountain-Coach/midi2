@@ -907,6 +907,11 @@ function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
   } else if (evt.data) {
     base.data = evt.data;
   }
+   if (evt.ack) {
+     base.ack = evt.ack.ack;
+     base.statusCode = evt.ack.statusCode;
+     base.message = evt.ack.message;
+   }
   const bytes = new TextEncoder().encode(JSON.stringify(base));
   return Uint8Array.from(bytes);
 }
@@ -954,6 +959,7 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
       encoding: obj.encoding,
       header: obj.header,
       data: obj.data,
+      ack: obj.ack !== undefined ? { ack: !!obj.ack, statusCode: obj.statusCode, message: obj.message } : undefined,
     };
   } catch {
     return { command: "notify", data: payload };

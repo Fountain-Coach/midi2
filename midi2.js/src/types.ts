@@ -214,6 +214,7 @@ export interface PropertyExchangeEvent {
   encoding?: "json" | "binary" | "json+zlib" | "binary+zlib" | "mcoded7";
   header?: Record<string, unknown>;
   data?: Record<string, unknown> | Uint8Array;
+  ack?: { ack: boolean; statusCode?: number; message?: string };
   timestamp?: MidiTimestamp;
 }
 

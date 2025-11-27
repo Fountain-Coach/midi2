@@ -917,19 +917,45 @@ function midiCiToEvent(env: MidiCiEvent): Midi2Event {
       return {
         kind: "profile",
         group: env.group,
-        command: "reply",
-        // Payload decoding is simplified: keep raw JSON-ish buffer in details.
-        profileId: undefined,
-        details: { payload: Array.from(env.payload) },
+        ...decodeProfileBody(env.payload),
       };
     case 0x21:
       return {
         kind: "propertyExchange",
         group: env.group,
-        command: "notify",
-        data: env.payload,
+        ...decodePropertyExchangeBody(env.payload),
       };
     default:
       return env;
+  }
+}
+
+function decodeProfileBody(payload: Uint8Array): Omit<ProfileEvent, "kind" | "group"> {
+  try {
+    const obj = JSON.parse(new TextDecoder().decode(payload));
+    return {
+      command: obj.command,
+      profileId: obj.profileId,
+      target: obj.target,
+      channels: obj.channels,
+      details: obj.details,
+    };
+  } catch {
+    return { command: "reply", details: { payload: Array.from(payload) } };
+  }
+}
+
+function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeEvent, "kind" | "group"> {
+  try {
+    const obj = JSON.parse(new TextDecoder().decode(payload));
+    return {
+      command: obj.command,
+      requestId: obj.requestId,
+      encoding: obj.encoding,
+      header: obj.header,
+      data: obj.data,
+    };
+  } catch {
+    return { command: "notify", data: payload };
   }
 }

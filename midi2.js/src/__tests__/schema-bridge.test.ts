@@ -8,6 +8,7 @@ import {
   Midi1ChannelVoiceEvent,
   Midi2NoteOnEvent,
   Midi2ProgramChangeEvent,
+  StreamEvent,
   SysEx7Event,
   SysEx8Event,
 } from "../types";
@@ -112,14 +113,15 @@ describe("schema bridge", () => {
   });
 
   it("treats stream/profile/property-exchange packets as raw when unsupported", () => {
-    const streamPacket = {
-      messageType: 3,
+    const streamEvt: StreamEvent = {
+      kind: "stream",
       group: 0,
-      body: { opcode: 0, endpointDiscovery: { majorVersion: 1, minorVersion: 0, maxGroups: 0 } },
+      opcode: "endpointDiscovery",
+      endpointDiscovery: { majorVersion: 1, minorVersion: 0, maxGroups: 1 },
     };
-    const words = schemaPacketToWords(streamPacket as any);
-    expect(words && words[0][0]).toBe(0x30000000);
-    const evt = schemaPacketToEvent(streamPacket as any);
-    expect(evt?.kind).toBe("rawUMP");
+    const packet = eventToSchemaPacket(streamEvt);
+    expect(packet).toBeTruthy();
+    const evt = schemaPacketToEvent(packet!);
+    expect(evt).toMatchObject({ kind: "stream", opcode: "endpointDiscovery" });
   });
 });

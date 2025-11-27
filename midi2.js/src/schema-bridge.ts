@@ -8,6 +8,8 @@ import {
   UmpPacket64,
   UmpPacket128,
   isUmpPacket,
+  StreamBody,
+  isStreamBody,
 } from "./generated/openapi-types";
 import {
   MidiCiEvent,
@@ -35,6 +37,7 @@ import {
   FlexTimeSignatureEvent,
   FlexKeySignatureEvent,
   FlexLyricEvent,
+  StreamEvent,
 } from "./types";
 import { encodeUmp, decodeUmp } from "./ump";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
@@ -387,6 +390,18 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
       const packets = sysex7ToPackets(Array.from(syx.payload));
       return { messageType: 3, group: syx.group, body: { manufacturerId: syx.manufacturerId, packets } };
     }
+    case "stream": {
+      const stream: StreamEvent = event;
+      const body: StreamBody = {
+        opcode: opcodeNumber(stream.opcode),
+        endpointDiscovery: stream.endpointDiscovery,
+        streamConfigRequest: stream.streamConfigRequest,
+        streamConfigNotification: stream.streamConfigNotification,
+        functionBlockDiscovery: stream.functionBlockDiscovery,
+        functionBlockInfo: stream.functionBlockInfo,
+      };
+      return { messageType: 3, group: stream.group, body };
+    }
     case "midiCi": {
       if (event.format === "sysex8") return null;
       const scope = event.scope === "realtime" ? 0x7f : 0x7e;
@@ -460,6 +475,22 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
     if (typeof packet === "object" && packet && ("messageType" in packet)) {
       const mt = (packet as any).messageType;
       if (mt === 3 || mt === 15) {
+        const body: any = (packet as any).body;
+        if (mt === 3) {
+          if (isStreamBody(body)) {
+            return streamBodyToEvent((packet as any).group ?? 0, body);
+          }
+          if (body && typeof body === "object" && "opcode" in body) {
+            return streamBodyToEvent((packet as any).group ?? 0, {
+              opcode: body.opcode ?? 0,
+              endpointDiscovery: body.endpointDiscovery,
+              streamConfigRequest: body.streamConfigRequest,
+              streamConfigNotification: body.streamConfigNotification,
+              functionBlockDiscovery: body.functionBlockDiscovery,
+              functionBlockInfo: body.functionBlockInfo,
+            } as StreamBody);
+          }
+        }
         const words = packGeneric32(packet as any);
         return { kind: "rawUMP", words, timestamp: undefined };
       }
@@ -477,6 +508,9 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
         manufacturerId,
         payload: Uint8Array.from(payload),
       };
+    }
+    if (isStreamBody(body)) {
+      return streamBodyToEvent(p.group ?? 0, body);
     }
     const words = packGeneric32(p);
     return { kind: "rawUMP", words, timestamp: undefined };
@@ -767,4 +801,47 @@ function packGeneric32(packet: UmpPacket32): Uint32Array {
   const opcode = (packet as any).body?.opcode ?? 0;
   const word0 = ((mt & 0xf) << 28) | ((group & 0xf) << 24) | ((opcode & 0xff) << 16);
   return new Uint32Array([word0 >>> 0]);
+}
+
+function opcodeNumber(opcode: StreamEvent["opcode"]): 0 | 1 | 2 {
+  switch (opcode) {
+    case "endpointDiscovery":
+      return 0;
+    case "streamConfigRequest":
+    case "streamConfigNotification":
+      return 1;
+    case "functionBlockDiscovery":
+    case "functionBlockInfo":
+      return 2;
+    default:
+      return 0;
+  }
+}
+
+function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
+  const opcode = body.opcode;
+  if (opcode === 0) {
+    return {
+      kind: "stream",
+      group,
+      opcode: "endpointDiscovery",
+      endpointDiscovery: body.endpointDiscovery,
+    };
+  }
+  if (opcode === 1) {
+    return {
+      kind: "stream",
+      group,
+      opcode: body.streamConfigRequest ? "streamConfigRequest" : "streamConfigNotification",
+      streamConfigRequest: body.streamConfigRequest,
+      streamConfigNotification: body.streamConfigNotification,
+    };
+  }
+  return {
+    kind: "stream",
+    group,
+    opcode: body.functionBlockDiscovery ? "functionBlockDiscovery" : "functionBlockInfo",
+    functionBlockDiscovery: body.functionBlockDiscovery,
+    functionBlockInfo: body.functionBlockInfo,
+  };
 }

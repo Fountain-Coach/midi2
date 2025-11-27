@@ -190,6 +190,20 @@ export interface RawUMPEvent {
   timestamp?: MidiTimestamp;
 }
 
+export type StreamOpcode = "endpointDiscovery" | "streamConfigRequest" | "streamConfigNotification" | "functionBlockDiscovery" | "functionBlockInfo";
+
+export interface StreamEvent {
+  kind: "stream";
+  group: number;
+  opcode: StreamOpcode;
+  endpointDiscovery?: { majorVersion?: number; minorVersion?: number; maxGroups?: number };
+  streamConfigRequest?: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean };
+  streamConfigNotification?: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean };
+  functionBlockDiscovery?: { filterBitmap?: number };
+  functionBlockInfo?: { index?: number; firstGroup?: number; groupCount?: number };
+  timestamp?: MidiTimestamp;
+}
+
 export type Midi2Event =
   | Midi2NoteOnEvent
   | Midi2NoteOffEvent
@@ -215,6 +229,7 @@ export type Midi2Event =
   | SysEx7Event
   | SysEx8Event
   | MidiCiEvent
+  | StreamEvent
   | RawUMPEvent;
 
 export type MidiEventHandler = (event: Midi2Event) => void;

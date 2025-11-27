@@ -991,7 +991,9 @@ function midiCiToEvent(env: MidiCiEvent): Midi2Event {
 
 function decodeProfileBody(payload: Uint8Array): Omit<ProfileEvent, "kind" | "group"> {
   try {
-    const obj = JSON.parse(new TextDecoder().decode(payload));
+    const text = new TextDecoder().decode(payload);
+    const obj = JSON.parse(text);
+    if (!obj.command) return { command: "reply", details: { payload: Array.from(payload) } };
     return {
       command: obj.command,
       profileId: obj.profileId,
@@ -1006,7 +1008,9 @@ function decodeProfileBody(payload: Uint8Array): Omit<ProfileEvent, "kind" | "gr
 
 function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeEvent, "kind" | "group"> {
   try {
-    const obj = JSON.parse(new TextDecoder().decode(payload));
+    const text = new TextDecoder().decode(payload);
+    const obj = JSON.parse(text);
+    if (!obj.command) return { command: "notify", data: payload };
     return {
       command: obj.command,
       requestId: obj.requestId,

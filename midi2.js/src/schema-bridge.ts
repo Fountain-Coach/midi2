@@ -10,6 +10,9 @@ import {
   isUmpPacket,
 } from "./generated/openapi-types";
 import {
+  MidiCiEvent,
+  SysEx7Event,
+  SysEx8Event,
   Midi1ChannelVoiceEvent,
   Midi2ChannelPressureEvent,
   Midi2ControlChangeEvent,
@@ -34,6 +37,7 @@ import {
   FlexLyricEvent,
 } from "./types";
 import { encodeUmp, decodeUmp } from "./ump";
+import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
 
 type ScopeAddress = { scope: "group"; group: number } | { scope: "channel"; channel: number };
 
@@ -44,6 +48,10 @@ function toAddress(group: number, channel?: number): ScopeAddress | undefined {
 
 function asUmpPacket64(event: Midi2Event): UmpPacket64 | null {
   switch (event.kind) {
+    case "sysex7":
+    case "sysex8":
+    case "midiCi":
+      return null; // handled in 32/128-bit paths
     case "noteOn": {
       const body: Midi2NoteOnEvent = event;
       return {
@@ -303,6 +311,30 @@ function asUmpPacket64(event: Midi2Event): UmpPacket64 | null {
 
 function asUmpPacket128(event: Midi2Event): UmpPacket128 | null {
   switch (event.kind) {
+    case "sysex8": {
+      const syx: SysEx8Event = event;
+      const body: UmpPacket128["body"] = {
+        kind: "sysex8",
+        sysex8: {
+          manufacturerId: syx.manufacturerId,
+          length: syx.payload.length,
+          data: Array.from(syx.payload),
+        },
+      };
+      return { messageType: 5, group: syx.group, body };
+    }
+    case "midiCi": {
+      if (event.format !== "sysex8") return null;
+      const scope = event.scope === "realtime" ? 0x7f : 0x7e;
+      const header = [scope, 0x0d, event.subId2, event.version];
+      const syx: SysEx8Event = {
+        kind: "sysex8",
+        group: event.group,
+        manufacturerId: [scope],
+        payload: Uint8Array.from([...header, ...event.payload]),
+      };
+      return asUmpPacket128(syx);
+    }
     case "flexTempo": {
       const flex: FlexTempoEvent = event;
       const body: Flex_Tempo = {
@@ -350,6 +382,23 @@ function asUmpPacket128(event: Midi2Event): UmpPacket128 | null {
 
 function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
   switch (event.kind) {
+    case "sysex7": {
+      const syx: SysEx7Event = event;
+      const packets = sysex7ToPackets(Array.from(syx.payload));
+      return { messageType: 3, group: syx.group, body: { manufacturerId: syx.manufacturerId, packets } };
+    }
+    case "midiCi": {
+      if (event.format === "sysex8") return null;
+      const scope = event.scope === "realtime" ? 0x7f : 0x7e;
+      const header = [scope, 0x0d, event.subId2 & 0x7f, event.version & 0x7f];
+      const syx: SysEx7Event = {
+        kind: "sysex7",
+        group: event.group,
+        manufacturerId: [scope],
+        payload: Uint8Array.from([...header, ...event.payload]),
+      };
+      return asUmpPacket32(syx);
+    }
     case "utility": {
       const utility: UtilityEvent = event;
       const opcode = utility.status === "jrClock" ? 1 : utility.status === "jrTimestamp" ? 2 : 0;
@@ -408,6 +457,18 @@ export function eventToSchemaPacket(event: Midi2Event): UmpPacket | null {
 
 export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
   if (!isUmpPacket(packet)) return null;
+  if (packet.messageType === 3) {
+    const p = packet as UmpPacket32;
+    const body: any = p.body;
+    if (!body?.manufacturerId || !body?.packets) return null;
+    const { manufacturerId, payload } = reassembleSysEx7FromPackets(body.manufacturerId ?? [], body.packets);
+    return {
+      kind: "sysex7",
+      group: p.group ?? 0,
+      manufacturerId,
+      payload: Uint8Array.from(payload),
+    };
+  }
   if (packet.messageType === 4) {
     const body = (packet as UmpPacket64).body;
     const status = body?.statusNibble;
@@ -568,6 +629,19 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
         return null;
     }
   }
+  if (packet.messageType === 5) {
+    const p = packet as UmpPacket128;
+    const body: any = p.body;
+    if (body.kind === "sysex8" && body.sysex8) {
+      return {
+        kind: "sysex8",
+        group: p.group ?? 0,
+        manufacturerId: body.sysex8.manufacturerId ?? [],
+        payload: Uint8Array.from(body.sysex8.data ?? []),
+      };
+    }
+    return null;
+  }
   if (packet.messageType === 1) {
     const sys = (packet as UmpPacket32).body as any;
     return {
@@ -610,13 +684,19 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
   return null;
 }
 
-export function schemaPacketToWords(packet: unknown): Uint32Array | null {
+export function schemaPacketToWords(packet: unknown): Uint32Array[] | null {
   const event = schemaPacketToEvent(packet);
   if (!event) return null;
-  return encodeUmp(event);
+  if (event.kind === "sysex7") {
+    return fragmentSysEx7(event.manufacturerId, event.payload, event.group);
+  }
+  if (event.kind === "sysex8") {
+    return fragmentSysEx8(event.manufacturerId, event.payload, event.group);
+  }
+  return [encodeUmp(event)];
 }
 
-export function eventToSchemaPacketWords(event: Midi2Event): Uint32Array | null {
+export function eventToSchemaPacketWords(event: Midi2Event): Uint32Array[] | null {
   const packet = eventToSchemaPacket(event);
   if (!packet) return null;
   return schemaPacketToWords(packet);
@@ -630,4 +710,29 @@ export function decodeWordsToSchemaPacket(words: ArrayLike<number>): UmpPacket |
   const event = decodeUmp(words);
   if (!event) return null;
   return eventToSchemaPacket(event);
+}
+
+function sysex7ToPackets(payload: number[]): { streamStatus: "single" | "start" | "continue" | "end"; payload: number[] }[] {
+  if (payload.length <= 6) {
+    return [{ streamStatus: "single", payload }];
+  }
+  const packets: { streamStatus: "single" | "start" | "continue" | "end"; payload: number[] }[] = [];
+  let remaining = payload.slice();
+  packets.push({ streamStatus: "start", payload: remaining.splice(0, 6) });
+  while (remaining.length > 6) {
+    packets.push({ streamStatus: "continue", payload: remaining.splice(0, 6) });
+  }
+  packets.push({ streamStatus: "end", payload: remaining });
+  return packets;
+}
+
+function reassembleSysEx7FromPackets(
+  manufacturerId: number[],
+  packets: { streamStatus: "single" | "start" | "continue" | "end"; payload: number[] }[],
+): { manufacturerId: number[]; payload: number[] } {
+  const payload: number[] = [];
+  for (const p of packets) {
+    payload.push(...p.payload);
+  }
+  return { manufacturerId, payload };
 }

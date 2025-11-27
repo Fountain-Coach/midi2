@@ -1,18 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { isUmpPacket } from "../generated/openapi-types";
-import {
-  decodeWordsToSchemaPacket,
-  eventToSchemaPacket,
-  eventToSchemaPacketWords,
-  schemaPacketToEvent,
-  schemaPacketToWords,
-} from "../schema-bridge";
+import { decodeWordsToSchemaPacket, eventToSchemaPacket, eventToSchemaPacketWords, schemaPacketToEvent, schemaPacketToWords } from "../schema-bridge";
 import { decodeUmp, encodeUmp } from "../ump";
 import {
+  MidiCiEvent,
   FlexTempoEvent,
   Midi1ChannelVoiceEvent,
   Midi2NoteOnEvent,
   Midi2ProgramChangeEvent,
+  SysEx7Event,
+  SysEx8Event,
 } from "../types";
 
 describe("schema bridge", () => {
@@ -21,10 +18,10 @@ describe("schema bridge", () => {
     const packet = eventToSchemaPacket(evt);
     expect(packet && isUmpPacket(packet)).toBe(true);
     const words = schemaPacketToWords(packet!);
-    expect(words).toEqual(encodeUmp(evt));
+    expect(words).toEqual([encodeUmp(evt)]);
     const backToEvent = schemaPacketToEvent(packet!);
     expect(backToEvent).toMatchObject(evt);
-    const fromWords = decodeWordsToSchemaPacket(words!);
+    const fromWords = decodeWordsToSchemaPacket(words![0]);
     expect(fromWords && isUmpPacket(fromWords)).toBe(true);
   });
 
@@ -38,8 +35,8 @@ describe("schema bridge", () => {
       bankLsb: 2,
     };
     const words = eventToSchemaPacketWords(evt);
-    expect(words).toEqual(encodeUmp(evt));
-    const decoded = decodeUmp(words!);
+    expect(words).toEqual([encodeUmp(evt)]);
+    const decoded = decodeUmp(words![0]);
     expect(decoded).toMatchObject(evt);
   });
 
@@ -54,7 +51,7 @@ describe("schema bridge", () => {
     const packet = eventToSchemaPacket(evt);
     expect(packet && isUmpPacket(packet)).toBe(true);
     const words = schemaPacketToWords(packet!);
-    expect(words).toEqual(encodeUmp(evt));
+    expect(words).toEqual([encodeUmp(evt)]);
     const roundtripEvent = schemaPacketToEvent(packet!);
     expect(roundtripEvent).toMatchObject(evt);
   });
@@ -64,7 +61,53 @@ describe("schema bridge", () => {
     const packet = eventToSchemaPacket(evt);
     expect(packet && isUmpPacket(packet)).toBe(true);
     const words = schemaPacketToWords(packet!);
-    const decoded = decodeUmp(words!);
+    const decoded = decodeUmp(words![0]);
     expect(decoded).toMatchObject(evt);
+  });
+
+  it("roundtrips SysEx7 via schema packets", () => {
+    const evt: SysEx7Event = {
+      kind: "sysex7",
+      group: 2,
+      manufacturerId: [0x7d],
+      payload: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8]),
+    };
+    const packet = eventToSchemaPacket(evt);
+    expect(packet && isUmpPacket(packet)).toBe(true);
+    const words = schemaPacketToWords(packet!);
+    expect(words && words.length).toBeGreaterThan(1);
+    const backToEvent = schemaPacketToEvent(packet!);
+    expect(backToEvent).toMatchObject({ kind: "sysex7", manufacturerId: [0x7d] });
+  });
+
+  it("roundtrips SysEx8 via schema packets", () => {
+    const evt: SysEx8Event = {
+      kind: "sysex8",
+      group: 1,
+      manufacturerId: [0x00, 0x20, 0x33],
+      payload: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+    };
+    const packet = eventToSchemaPacket(evt);
+    expect(packet && isUmpPacket(packet)).toBe(true);
+    const words = schemaPacketToWords(packet!);
+    expect(words && words.length).toBe(1);
+    const decoded = schemaPacketToEvent(packet!);
+    expect(decoded).toMatchObject({ kind: "sysex8", manufacturerId: [0x00, 0x20, 0x33] });
+  });
+
+  it("supports MIDI-CI envelope mapping (sysex8)", () => {
+    const env: MidiCiEvent = {
+      kind: "midiCi",
+      group: 0,
+      scope: "nonRealtime",
+      subId2: 0x7c,
+      version: 1,
+      payload: Uint8Array.from([0x01, 0x02, 0x03]),
+      format: "sysex8",
+    };
+    const packet = eventToSchemaPacket(env);
+    expect(packet && isUmpPacket(packet)).toBe(true);
+    const evt = schemaPacketToEvent(packet!);
+    expect(evt?.kind).toBe("sysex8");
   });
 });

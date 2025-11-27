@@ -14,7 +14,8 @@
     "codegen": "node ./scripts/generate-openapi-types.mjs",
     "build": "npm run codegen && tsc -p tsconfig.json",
     "check": "npm run codegen && tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "ci": "npm run codegen && npm run check && npm test"
   },
   "devDependencies": {
     "typescript": "^5.6.3",

@@ -69,8 +69,9 @@ Three.js and Cannon.js adapters expect a `scene` or `world` object with `add/rem
 - `npm test --prefix midi2.js` – run vitest suite against UMP encoders/decoders and SysEx helpers.
 
 ## Schema bridge
-- `eventToSchemaPacket` / `schemaPacketToEvent` convert between the library’s runtime events and the OpenAPI-derived `UmpPacket` objects, with runtime validation via generated type guards.
-- `schemaPacketToWords` / `eventToSchemaPacketWords` let you feed validated schema objects into the existing UMP encoder.
+- `eventToSchemaPacket` / `schemaPacketToEvent` convert between runtime events (including SysEx7/8 and MIDI-CI envelopes) and OpenAPI-derived `UmpPacket` objects.
+- `schemaPacketToWords` / `eventToSchemaPacketWords` emit UMP word arrays (multi-packet for SysEx), reusing the existing encoders.
+- Guards from `generated/openapi-types` remain the single validation surface for schema packets; bridge helpers rely on them.
 
 ## Next steps
 - Extend UMP coverage (per-note controllers, MIDI-CI envelopes) from the JSON Schema/OpenAPI definitions.

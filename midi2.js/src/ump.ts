@@ -21,6 +21,8 @@ import {
   Midi2SystemEvent,
   Midi1ChannelVoiceEvent,
   UtilityEvent,
+  FlexTempoEvent,
+  FlexTimeSignatureEvent,
 } from "./types";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
 import { encodeMidiCiEvent } from "./midici";
@@ -43,6 +45,10 @@ const STATUS_PITCH_BEND = 0xE;
 const STATUS_PER_NOTE = 0xF;
 const SYSTEM_REALTIME_MIN = 0xf8;
 const SYSTEM_COMMON_MIN = 0xf1; // Song Position etc; 0xF0 handled by SysEx layer
+const FLEX_STATUS_CLASS = 0x10;
+const FLEX_STATUS_TEMPO = 0x01;
+const FLEX_STATUS_TIMESIG = 0x02;
+const FLEX_TEMPO_SCALE = 65536;
 
 function assertRange(name: string, value: number, min: number, max: number): void {
   if (!Number.isInteger(value) || value < min || value > max) {
@@ -124,6 +130,39 @@ function encodeUtility(event: UtilityEvent): Uint32Array {
   assertRange("value", data, 0, 0xffff);
   const word = (UTILITY_MT << 28) | (statusByte << 16) | (data & 0xffff);
   return new Uint32Array([word >>> 0]);
+}
+
+function encodeFlexTempo(event: FlexTempoEvent): Uint32Array {
+  assertRange("group", event.group, 0, 0xf);
+  if (event.bpm < 1) {
+    throw new RangeError("bpm must be at least 1");
+  }
+  const fixed = Math.round(event.bpm * FLEX_TEMPO_SCALE);
+  const word0 =
+    (0xd << 28) |
+    (event.group << 24) |
+    (FLEX_STATUS_CLASS << 16) |
+    (FLEX_STATUS_TEMPO << 8);
+  return new Uint32Array([word0 >>> 0, fixed >>> 0, 0, 0]);
+}
+
+function encodeFlexTimeSignature(event: FlexTimeSignatureEvent): Uint32Array {
+  assertRange("group", event.group, 0, 0xf);
+  assertRange("numerator", event.numerator, 1, 0xff);
+  assertRange("denominatorPow2", event.denominatorPow2, 0, 0x1f);
+  let addrByte = 0x00;
+  if (event.channel !== undefined) {
+    assertRange("channel", event.channel, 0, 0xf);
+    addrByte = 0x10 | (event.channel & 0x0f);
+  }
+  const word0 =
+    (0xd << 28) |
+    (event.group << 24) |
+    (FLEX_STATUS_CLASS << 16) |
+    (FLEX_STATUS_TIMESIG << 8) |
+    addrByte;
+  const word1 = (event.numerator << 24) | (event.denominatorPow2 << 16);
+  return new Uint32Array([word0 >>> 0, word1 >>> 0, 0, 0]);
 }
 
 function encodeChannelVoiceWord0(group: number, status: number, channel: number, dataMsb: number, dataLsb = 0): number {
@@ -294,6 +333,10 @@ export function encodeUmp(event: Midi2Event): Uint32Array {
   switch (event.kind) {
     case "utility":
       return encodeUtility(event);
+    case "flexTempo":
+      return encodeFlexTempo(event);
+    case "flexTimeSignature":
+      return encodeFlexTimeSignature(event);
     case "midi1ChannelVoice":
       return encodeMidi1ChannelVoice(event);
     case "system":
@@ -355,6 +398,56 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   const packet = toUint32Array(words);
   const word0 = packet[0];
   const mt = (word0 >>> 28) & 0xf;
+  if (mt === 0xd) {
+    if (packet.length < 4) return null;
+    const statusClass = (word0 >>> 16) & 0xff;
+    const status = (word0 >>> 8) & 0xff;
+    if (statusClass !== FLEX_STATUS_CLASS) {
+      return {
+        kind: "rawUMP",
+        words: packet,
+        timestamp,
+      } as RawUMPEvent;
+    }
+    const group = (word0 >>> 24) & 0xf;
+    switch (status) {
+      case FLEX_STATUS_TEMPO: {
+        const fixed = packet[1] >>> 0;
+        const bpm = fixed / FLEX_TEMPO_SCALE;
+        const event: FlexTempoEvent = {
+          kind: "flexTempo",
+          group,
+          bpm,
+          timestamp,
+        };
+        return event;
+      }
+      case FLEX_STATUS_TIMESIG: {
+        const addrByte = word0 & 0xff;
+        const channel = (addrByte & 0x10) !== 0 ? addrByte & 0x0f : undefined;
+        const numerator = (packet[1] >>> 24) & 0xff;
+        const denominatorPow2 = (packet[1] >>> 16) & 0xff;
+        if (numerator < 1) {
+          return null;
+        }
+        const event: FlexTimeSignatureEvent = {
+          kind: "flexTimeSignature",
+          group,
+          channel,
+          numerator,
+          denominatorPow2,
+          timestamp,
+        };
+        return event;
+      }
+      default:
+        return {
+          kind: "rawUMP",
+          words: packet,
+          timestamp,
+        } as RawUMPEvent;
+    }
+  }
   if (mt === UTILITY_MT) {
     const statusByte = (word0 >>> 16) & 0xff;
     const value = word0 & 0xffff;

@@ -152,6 +152,22 @@ export interface UtilityEvent {
   timestamp?: MidiTimestamp;
 }
 
+export interface FlexTempoEvent {
+  kind: "flexTempo";
+  group: number;
+  bpm: number;
+  timestamp?: MidiTimestamp;
+}
+
+export interface FlexTimeSignatureEvent {
+  kind: "flexTimeSignature";
+  group: number;
+  channel?: number;
+  numerator: number;
+  denominatorPow2: number;
+  timestamp?: MidiTimestamp;
+}
+
 export interface RawUMPEvent {
   kind: "rawUMP";
   words: Uint32Array;
@@ -176,6 +192,8 @@ export type Midi2Event =
   | Midi2SystemEvent
   | Midi1ChannelVoiceEvent
   | UtilityEvent
+  | FlexTempoEvent
+  | FlexTimeSignatureEvent
   | SysEx7Event
   | SysEx8Event
   | MidiCiEvent

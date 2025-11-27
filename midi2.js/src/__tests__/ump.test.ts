@@ -35,6 +35,8 @@ import {
   Midi2SystemEvent,
   Midi1ChannelVoiceEvent,
   UtilityEvent,
+  FlexTempoEvent,
+  FlexTimeSignatureEvent,
 } from "../types";
 
 describe("UMP channel voice encode/decode", () => {
@@ -249,6 +251,24 @@ describe("UMP channel voice encode/decode", () => {
     expect(clockWords[0]).toBe(0x00011234);
     const decoded = decodeUmp(clockWords);
     expect(decoded).toMatchObject(jrClock);
+  });
+
+  it("encodes and decodes flex tempo", () => {
+    const evt: FlexTempoEvent = { kind: "flexTempo", group: 0, bpm: 120 };
+    const words = encodeUmp(evt);
+    expect(words[0]).toBe(0xd0100100);
+    const decoded = decodeUmp(words);
+    expect(decoded?.kind).toBe("flexTempo");
+    expect((decoded as FlexTempoEvent).bpm).toBeCloseTo(120, 3);
+  });
+
+  it("encodes and decodes flex time signature", () => {
+    const evt: FlexTimeSignatureEvent = { kind: "flexTimeSignature", group: 1, channel: 2, numerator: 3, denominatorPow2: 2 };
+    const words = encodeUmp(evt);
+    expect(words[0]).toBe(0xd1100212);
+    expect(words[1]).toBe(0x03020000);
+    const decoded = decodeUmp(words);
+    expect(decoded).toMatchObject(evt);
   });
 });
 

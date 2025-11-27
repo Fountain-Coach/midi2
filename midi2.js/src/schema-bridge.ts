@@ -1011,12 +1011,16 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
     const text = new TextDecoder().decode(payload);
     const obj = JSON.parse(text);
     if (!obj.command) return { command: "notify", data: payload };
+    const parsedData =
+      obj.encoding && typeof obj.data === "string" && obj.data.startsWith("0x")
+        ? Uint8Array.from(Buffer.from(obj.data.slice(2), "hex"))
+        : obj.data;
     return {
       command: obj.command,
       requestId: obj.requestId,
       encoding: obj.encoding,
       header: obj.header,
-      data: obj.data,
+      data: parsedData,
       ack: obj.ack !== undefined ? { ack: !!obj.ack, statusCode: obj.statusCode, message: obj.message } : undefined,
     };
   } catch {

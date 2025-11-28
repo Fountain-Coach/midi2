@@ -90,6 +90,8 @@ describe("PB-VRT golden vectors", () => {
     const seq = loadJSON("process-inquiry/flows.json").sequence;
     const commands = seq.map((e: any) => e.command);
     expect(commands).toEqual(["capInquiry", "capReply", "messageReport", "messageReportReply", "endReport"]);
+    expect(seq[1].filters).toEqual({ noteOn: 1, clock: 1 });
+    expect(seq[2].filters).toEqual({ sysex: 2, ci: 1 });
   });
 
   it("reassembles property-exchange notify chunks", () => {
@@ -106,5 +108,20 @@ describe("PB-VRT golden vectors", () => {
     const merged = reassemblePeChunks(chunks as any);
     expect(merged?.data instanceof Uint8Array).toBe(true);
     expect(Array.from(merged?.data ?? [])).toEqual([1, 2, 3, 4, 5, 6]);
+  });
+
+  it("parses profile details reply", () => {
+    const profile = loadJSON("profiles/details_reply.json");
+    expect(profile.reply.command).toBe("detailsReply");
+    expect(profile.reply.profileId).toBe("/org.midi/piano");
+    expect(profile.reply.details).toEqual({ ver: 1, cmL: 5, cmH: 128 });
+  });
+
+  it("parses profile specific data payload", () => {
+    const psd = loadJSON("profiles/profile_specific_data.json");
+    expect(psd.command).toBe("profileSpecificData");
+    expect(psd.profileId).toBe("/org.midi/piano");
+    expect(psd.channels).toEqual([0]);
+    expect(psd.dataHex).toBe("010203");
   });
 });

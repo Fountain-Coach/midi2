@@ -200,6 +200,14 @@ describe("schema bridge", () => {
     expect((evt as any).command).toBe("notify");
   });
 
+  it("downgrades PE with invalid encoding", () => {
+    const payload = new TextEncoder().encode(JSON.stringify({ command: "set", requestId: 1, encoding: "bogus", data: {} }));
+    const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x21, version: 1, payload, format: "sysex7" };
+    const evt = schemaPacketToEvent(eventToSchemaPacket(env)!);
+    expect(evt?.kind).toBe("propertyExchange");
+    expect((evt as any).command).toBe("notify");
+  });
+
   it("downgrades profile with missing profileId", () => {
     const payload = new TextEncoder().encode(JSON.stringify({ command: "setOn", target: "channel", channels: [0] }));
     const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x20, version: 1, payload, format: "sysex7" };

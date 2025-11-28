@@ -1080,9 +1080,13 @@ function processInquiryToBody(evt: ProcessInquiryEvent): Uint8Array {
 function decodeProcessInquiryBody(payload: Uint8Array): Omit<ProcessInquiryEvent, "kind" | "group"> {
   try {
     const obj = JSON.parse(new TextDecoder().decode(payload));
+    const valid = new Set(["capInquiry", "capReply", "messageReport", "messageReportReply", "endReport"]);
+    if (!obj.command || !valid.has(obj.command)) {
+      return { command: "endReport" };
+    }
     return {
       command: obj.command,
-      filters: obj.filters,
+      filters: typeof obj.filters === "object" ? obj.filters : undefined,
     };
   } catch {
     return { command: "endReport" };

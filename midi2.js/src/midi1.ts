@@ -22,6 +22,13 @@ function assertDataByte(value: number): void {
   }
 }
 
+function assertSystemStatus(status: number): void {
+  const valid = [0xf1, 0xf2, 0xf3, 0xf6];
+  if (!valid.includes(status)) {
+    throw new RangeError(`Unsupported system common status 0x${status.toString(16)}`);
+  }
+}
+
 function systemCommonLength(status: number): number {
   switch (status) {
     case 0xf1: // MTC Quarter Frame
@@ -112,6 +119,7 @@ export function midi1BytesToUmp(bytes: ArrayLike<number>, group = 0): Uint32Arra
       if (byte === 0xf7) {
         throw new RangeError("Unexpected SysEx end (0xF7) without start.");
       }
+      assertSystemStatus(byte);
       const len = systemCommonLength(byte);
       if (i + len >= data.length) throw new RangeError("Incomplete MIDI 1.0 system common message.");
       const d1 = len >= 1 ? data[i + 1] : undefined;
@@ -216,6 +224,9 @@ function sysexFromMidiCi(event: MidiCiEvent): number[] {
   const subId2 = event.format === "sysex7" ? event.subId2 & 0x7f : event.subId2;
   const version = event.format === "sysex7" ? event.version & 0x7f : event.version;
   const payload = [0x0d, subId2, version, ...Array.from(event.payload, b => b & 0x7f)];
+  if (payload.length > 0xffff) {
+    throw new RangeError("MIDI-CI SysEx payload too long for MIDI 1.0 framing.");
+  }
   const sysEx: SysEx7Event = {
     kind: "sysex7",
     group: event.group,

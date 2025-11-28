@@ -4,7 +4,7 @@
 - Repository spans the Swift MIDI 2.0 reference stack and the CoreMIDI-free `midi2.js` TypeScript port. Treat `midi2.js` as the browser/runtime-facing library; keep it decoupled from platform APIs.
 - Definition of Done for `midi2.js` lives in `docs/midi2-js-dod.md`; design intent is outlined in `docs/midi2-stack-essay.md` and the normative schema/OpenAPI at the repo root.
 - Local gates to run before pushing `midi2.js` changes: `npm run check` and `npm test` (working directory `midi2.js`). CI workflow `.github/workflows/midi2-js.yml` mirrors this.
-- Keep documentation in sync: update this file, `midi2.js/AGENTS.md`, and the gap plan when protocol coverage or public APIs shift.
+- Keep documentation in sync: update this file, `midi2.js/AGENTS.md`, and the gap plan when protocol coverage or public APIs shift. When code moves ahead of the spec PDFs, reconcile `midi2.full.closed.schema.json` / `midi2.full.openapi.json` or document the delta and source page.
 - When using PDF specs to inform implementation, extract the relevant pages to images and map them back to the canonical JSON artifacts (`midi2.full.closed.schema.json`, `midi2.full.openapi.json`). Any protocol facts derived from PDFs must be reflected in those JSON sources or documented as a pending delta; do not land code based on PDFs alone without updating/annotating the canonical sources.
 
 ## Active workstreams

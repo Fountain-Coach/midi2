@@ -9,15 +9,12 @@ import {
   Midi2PerNoteAssignableControllerEvent,
   Midi2PerNoteManagementEvent,
   Midi2PerNoteRegisteredControllerEvent,
+  Midi2PerNotePitchBendEvent,
   Midi2PitchBendEvent,
   Midi2PolyPressureEvent,
   Midi2ProgramChangeEvent,
   Midi2RpnEvent,
   Midi2RpnRelativeEvent,
-  Midi2PerNotePitchEvent,
-  Midi2PerNotePressureEvent,
-  Midi2PerNoteTimbreEvent,
-  Midi2PerNoteControlEvent,
   RawUMPEvent,
   SysEx7Event,
   SysEx8Event,
@@ -54,6 +51,7 @@ const STATUS_PROGRAM_CHANGE = 0xC;
 const STATUS_CHANNEL_PRESSURE = 0xD;
 const STATUS_PITCH_BEND = 0xE;
 const STATUS_PER_NOTE = 0xF;
+const STATUS_PER_NOTE_PITCH = 0x00; // 7.4.12
 const SYSTEM_REALTIME_MIN = 0xf8;
 const SYSTEM_COMMON_MIN = 0xf1; // Song Position etc; 0xF0 handled by SysEx layer
 const FLEX_STATUS_CLASS = 0x10;
@@ -451,6 +449,20 @@ export function encodePerNoteAssignableController(event: Midi2PerNoteAssignableC
   return new Uint32Array([word0 >>> 0, event.value >>> 0]);
 }
 
+export function encodePerNotePitchBend(event: Midi2PerNotePitchBendEvent): Uint32Array {
+  assertRange("group", event.group, 0, 0xf);
+  assertRange("channel", event.channel, 0, 0xf);
+  assertRange("note", event.note, 0, 0x7f);
+  assertUint32("value", event.value);
+  const word0 =
+    (MIDI2_CHANNEL_VOICE_MT << 28) |
+    (event.group << 24) |
+    (STATUS_PER_NOTE_PITCH << 20) |
+    (event.channel << 16) |
+    (event.note << 8);
+  return new Uint32Array([word0 >>> 0, event.value >>> 0]);
+}
+
 export function encodePolyPressure(event: Midi2PolyPressureEvent): Uint32Array {
   assertRange("group", event.group, 0, 0xf);
   assertRange("channel", event.channel, 0, 0xf);
@@ -539,6 +551,8 @@ export function encodeUmp(event: Midi2Event): Uint32Array {
       return encodePerNoteRegisteredController(event);
     case "perNoteAssignableController":
       return encodePerNoteAssignableController(event);
+    case "perNotePitchBend":
+      return encodePerNotePitchBend(event);
     case "polyPressure":
       return encodePolyPressure(event);
     case "controlChange":
@@ -939,6 +953,18 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
         channel,
         note: dataMsb,
         controller: dataLsb,
+        value: dataWord,
+        timestamp,
+      };
+      return event;
+    }
+    case STATUS_PER_NOTE_PITCH: {
+      assertDecodeRange("note", dataMsb, 0, 0x7f);
+      const event: Midi2PerNotePitchBendEvent = {
+        kind: "perNotePitchBend",
+        group,
+        channel,
+        note: dataMsb,
         value: dataWord,
         timestamp,
       };

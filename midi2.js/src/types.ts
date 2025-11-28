@@ -100,6 +100,12 @@ export interface Midi2PerNoteAssignableControllerEvent extends Midi2ChannelVoice
   value: number;
 }
 
+export interface Midi2PerNotePitchBendEvent extends Midi2ChannelVoiceBase {
+  kind: "perNotePitchBend";
+  note: number;
+  value: number;
+}
+
 export interface SysEx7Event {
   kind: "sysex7";
   group: number;
@@ -263,6 +269,7 @@ export type Midi2Event =
   | Midi2PerNoteManagementEvent
   | Midi2PerNoteRegisteredControllerEvent
   | Midi2PerNoteAssignableControllerEvent
+  | Midi2PerNotePitchBendEvent
   | Midi2SystemEvent
   | Midi1ChannelVoiceEvent
   | UtilityEvent

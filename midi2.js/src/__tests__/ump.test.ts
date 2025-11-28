@@ -209,7 +209,12 @@ describe("UMP channel voice encode/decode", () => {
     expect(assignDecoded).toMatchObject(assign);
   });
 
-  // per-note pitch/pressure/timbre/control helpers not implemented; covered via reg/assignable controllers above
+  it("encodes and decodes per-note pitch bend", () => {
+    const evt = { kind: "perNotePitchBend", group: 0, channel: 2, note: 60, value: 0x80000000 };
+    const words = encodeUmp(evt as any);
+    const decoded = decodeUmp(words);
+    expect(decoded).toMatchObject(evt);
+  });
 
   it("passes through unknown message types as raw UMP", () => {
     const words = new Uint32Array([0xe0000000, 0x01020304]);

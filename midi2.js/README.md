@@ -134,6 +134,7 @@ npm run --prefix midi2.js build      # compile TS
 npm run --prefix midi2.js check      # type-check only
 npm run --prefix midi2.js codegen    # regenerate OpenAPI guards
 npm run --prefix midi2.js test       # vitest
+npm run --prefix midi2.js clean      # remove dist/
 ```
 
 ---
@@ -159,4 +160,3 @@ midi2.js aims to position MIDI 2.0 as the **browser’s first real-time orchest
 
 MIDI 1.0 was about instruments.  
 **MIDI 2.0 is about computation.**
-

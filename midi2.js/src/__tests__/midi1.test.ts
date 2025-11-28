@@ -110,6 +110,29 @@ describe("midi2EventsToMidi1Bytes", () => {
     expect(bytes).toEqual([0xf0, 0x7d, 0x01, 0x02, 0x03, 0xf7]);
   });
 
+  it("converts SysEx8 events to MIDI 1.0 SysEx7 bytes (masked)", () => {
+    const bytes = midi2EventsToMidi1Bytes([
+      { kind: "sysex8", group: 0, manufacturerId: [0x00, 0x20, 0x33], payload: Uint8Array.from([0x80, 0x7f]) },
+    ]);
+    expect(bytes).toEqual([0xf0, 0x00, 0x20, 0x33, 0x00, 0x7f, 0xf7]);
+  });
+
+  it("converts MIDI-CI events to universal SysEx7 bytes", () => {
+    const bytes = midi2EventsToMidi1Bytes([
+      {
+        kind: "midiCi",
+        group: 0,
+        scope: "nonRealtime",
+        subId2: 0x7c,
+        version: 1,
+        payload: Uint8Array.from([0x01, 0x02]),
+        format: "sysex8",
+      },
+    ]);
+    expect(bytes.slice(0, 5)).toEqual([0xf0, 0x7e, 0x0d, 0x7c, 0x01]);
+    expect(bytes.at(-1)).toBe(0xf7);
+  });
+
   it("ignores unsupported event kinds", () => {
     const bytes = midi2EventsToMidi1Bytes([{ kind: "flexTempo", group: 0, bpm: 120 } as Midi2Event]);
     expect(bytes).toEqual([]);

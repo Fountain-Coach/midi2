@@ -1,5 +1,6 @@
 import { MidiClock, TimerHandle } from "./clock";
 import { Midi2Event, MidiEventHandler } from "./types";
+import { JitterReductionSynchronizer } from "./jitter";
 
 type QueueItem = {
   id: number;
@@ -12,11 +13,16 @@ export interface SchedulerOptions {
    * Additional window (in ms) to coalesce near-due events into a single dispatch tick.
    */
   jitterToleranceMs?: number;
+  /**
+   * Optional Jitter Reduction synchronizer to project JR clock/timestamp messages into host time.
+   */
+  jitterReduction?: JitterReductionSynchronizer;
 }
 
 export class Midi2Scheduler {
   private readonly clock: MidiClock;
   private readonly jitterToleranceMs: number;
+  private readonly jitterReduction?: JitterReductionSynchronizer;
   private readonly handlers = new Set<MidiEventHandler>();
   private queue: QueueItem[] = [];
   private timer: TimerHandle | null = null;
@@ -25,6 +31,7 @@ export class Midi2Scheduler {
   constructor(clock: MidiClock, options?: SchedulerOptions) {
     this.clock = clock;
     this.jitterToleranceMs = options?.jitterToleranceMs ?? 0.5;
+    this.jitterReduction = options?.jitterReduction;
   }
 
   onEvent(handler: MidiEventHandler): () => void {
@@ -34,7 +41,17 @@ export class Midi2Scheduler {
 
   schedule(event: Midi2Event, at: number): number {
     const id = this.nextId++;
-    const payload: Midi2Event = { ...event, timestamp: event.timestamp ?? at };
+    let timestamp = event.timestamp ?? at;
+    if (this.jitterReduction) {
+      if (event.kind === "utility" && (event.status === "jrClock" || event.status === "jrTimestamp")) {
+        const abs = this.jitterReduction.handle(event as any, at);
+        if (abs !== null) timestamp = abs;
+      } else {
+        const projected = this.jitterReduction.toAbsoluteTime((event as any).group ?? 0);
+        if (projected !== null) timestamp = projected;
+      }
+    }
+    const payload: Midi2Event = { ...event, timestamp };
     const item: QueueItem = { id, time: at, event: payload };
     this.insert(item);
     this.armNext();

@@ -28,17 +28,17 @@ export class JitterReductionSynchronizer {
     */
   handle(event: UtilityEvent, receivedAtMs = this.clock.now()): number | null {
     if (event.kind !== "utility") return null;
+    const group = (event.group ?? event.timestampGroup) ?? 0;
     if (event.status === "jrClock") {
       const state: GroupState = {
         baseMs: receivedAtMs - (event.value ?? 0) * this.unitMs,
         clockValue: event.value ?? 0,
         lastTimestamp: undefined,
       };
-      this.groups.set(event.timestampGroup ?? 0, state);
+      this.groups.set(group, state);
       return null;
     }
     if (event.status === "jrTimestamp") {
-      const group = event.timestampGroup ?? 0;
       const state = this.groups.get(group);
       if (!state) return null;
       state.lastTimestamp = event.value ?? 0;

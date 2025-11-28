@@ -7,7 +7,7 @@
 - Build: `npm run build` emits `dist/`; package remains private `0.0.1` and does not ship artifacts by default.
 
 ## Gaps vs DoD (sync with `docs/midi2-js-dod.md` and `midi2.js/docs/gap-plan.md`)
-- Protocol: stream config/function block UMP covered; still missing group/terminal blocks, jitter reduction integration with the scheduler, per-note pitch/pressure/timbre helpers, and MIDI 1.0 SysEx/down-conversion beyond channel voice (SysEx7 is emitted; SysEx8/CI remain).
+- Protocol: stream config/function block UMP covered; still missing group/terminal blocks, per-note pitch/pressure/timbre helpers, and fuller MIDI 1.0 down-conversion/validation (SysEx7/8 + MIDI-CI emit; richer CI/SysEx8 semantics pending). Jitter Reduction synchronizer exists and is wired into the scheduler; worker-clock coverage still pending.
 - MIDI-CI: discovery/profile/property/process flows lack compression/state/error handling, MUID management, and ACK/NAK paths; property exchange helpers are limited to chunk framing.
 - Validation: reserved-bit and range enforcement is partial; negative tests exist but do not yet cover malformed stream/flex/CI variants beyond current cases.
 - Tooling/distribution: no dual ESM/CJS bundle or published `dist`; committed `node_modules` should be cleaned before release; coverage reporting is absent.

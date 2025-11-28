@@ -149,6 +149,8 @@ export interface UtilityEvent {
   kind: "utility";
   status: "noop" | "jrClock" | "jrTimestamp";
   value?: number;
+  group?: number;
+  timestampGroup?: number;
   timestamp?: MidiTimestamp;
 }
 

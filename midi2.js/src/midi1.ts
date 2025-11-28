@@ -1,6 +1,6 @@
 import { fragmentSysEx7 } from "./sysex";
 import { encodeUmp } from "./ump";
-import { Midi2Event, Midi2NoteOffEvent, Midi2NoteOnEvent, Midi2PitchBendEvent, Midi2ProgramChangeEvent, SysEx7Event } from "./types";
+import { Midi2Event, Midi2NoteOffEvent, Midi2NoteOnEvent, Midi2PitchBendEvent, Midi2ProgramChangeEvent, MidiCiEvent, SysEx7Event } from "./types";
 
 function isChannelVoiceStatus(status: number): boolean {
   return status >= 0x80 && status <= 0xef;
@@ -205,6 +205,26 @@ export function midi2ChannelVoiceToMidi1Bytes(event: Midi2Event): number[] {
   }
 }
 
+function sysexBytesFromEvent(evt: SysEx7Event): number[] {
+  const header = evt.manufacturerId.map(b => b & 0x7f);
+  const payload = Array.from(evt.payload, b => b & 0x7f);
+  return [0xf0, ...header, ...payload, 0xf7];
+}
+
+function sysexFromMidiCi(event: MidiCiEvent): number[] {
+  const scopeByte = event.scope === "realtime" ? 0x7f : 0x7e;
+  const subId2 = event.format === "sysex7" ? event.subId2 & 0x7f : event.subId2;
+  const version = event.format === "sysex7" ? event.version & 0x7f : event.version;
+  const payload = [0x0d, subId2, version, ...Array.from(event.payload, b => b & 0x7f)];
+  const sysEx: SysEx7Event = {
+    kind: "sysex7",
+    group: event.group,
+    manufacturerId: [scopeByte],
+    payload: Uint8Array.from(payload),
+  };
+  return sysexBytesFromEvent(sysEx);
+}
+
 /**
  * Down-converts MIDI 2.0/1.0 events to a MIDI 1.0 byte stream.
  * Applies running status for channel voice messages when enabled; system/common and SysEx reset running status.
@@ -261,6 +281,23 @@ export function midi2EventsToMidi1Bytes(events: Midi2Event[], opts?: { runningSt
       case "sysex7": {
         const sys = evt as SysEx7Event;
         out.push(0xf0, ...sys.manufacturerId, ...sys.payload, 0xf7);
+        lastStatus = null;
+        break;
+      }
+      case "sysex8": {
+        const bytes = sysexBytesFromEvent({
+          kind: "sysex7",
+          group: evt.group,
+          manufacturerId: evt.manufacturerId,
+          payload: Uint8Array.from(evt.payload, b => b & 0x7f),
+        });
+        out.push(...bytes);
+        lastStatus = null;
+        break;
+      }
+      case "midiCi": {
+        const bytes = sysexFromMidiCi(evt);
+        out.push(...bytes);
         lastStatus = null;
         break;
       }

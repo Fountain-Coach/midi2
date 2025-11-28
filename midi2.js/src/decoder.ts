@@ -9,8 +9,8 @@ export interface DecodedUmp {
 }
 
 /**
- * Decode a UMP word array into both the OpenAPI `UmpPacket` shape (validated via generated guards)
- * and the high-level `Midi2Event` when available.
+ * Decode UMP words into both the OpenAPI `UmpPacket` (when mappable) and a high-level `Midi2Event`.
+ * Stream MT=0xF packets are translated into `StreamEvent` when possible.
  */
 export function decodeToPacketAndEvent(words: ArrayLike<number>): DecodedUmp | null {
   let event = decodeUmp(words);

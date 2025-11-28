@@ -15,7 +15,7 @@ import {
   encodeRpnRelative,
   encodeUmp,
 } from "../ump";
-import { fragmentSysEx7, fragmentSysEx8, reassembleSysEx7, reassembleSysEx8 } from "../sysex";
+import { fragmentSysEx7, fragmentSysEx8, reassembleSysEx7, reassembleSysEx8, umpBytesToWords, wordsToUMPBytes } from "../sysex";
 import { decodeMidiCiFromSysEx, encodeMidiCiEvent } from "../midici";
 import {
   Midi2ControlChangeEvent,
@@ -380,6 +380,17 @@ describe("SysEx helpers", () => {
     expect(Array.from(result.payload)).toEqual(payload);
   });
 
+  it("rejects mixed-group SysEx sequences", () => {
+    const packets = fragmentSysEx7([0x7d], [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], 0);
+    const tampered = packets.map((p, idx) => {
+      if (idx === 0) return p;
+      const bytes = wordsToUMPBytes(p);
+      bytes[0] = (bytes[0] & 0xf0) | 0x01; // force different group nibble
+      return umpBytesToWords(bytes);
+    });
+    expect(() => reassembleSysEx7(tampered)).toThrow(RangeError);
+  });
+
   it("encodes SysEx7 events via encodeEventPackets", () => {
     const evt: SysEx7Event = {
       kind: "sysex7",
@@ -393,6 +404,15 @@ describe("SysEx helpers", () => {
     expect(decoded.manufacturerId).toEqual([0x7d]);
     expect(Array.from(decoded.payload)).toEqual([1, 2, 3, 4]);
     expect(decoded.group).toBe(1);
+  });
+
+  it("rejects SysEx with invalid group number", () => {
+    expect(() => fragmentSysEx7([0x7d], [1, 2], 0x10)).toThrow(RangeError);
+  });
+
+  it("rejects SysEx with too many packets", () => {
+    const packets = Array.from({ length: 0x10000 }, () => fragmentSysEx7([0x7d], [1], 0)[0]);
+    expect(() => reassembleSysEx7(packets)).toThrow(RangeError);
   });
 
   it("encodes and decodes MIDI-CI envelope", () => {

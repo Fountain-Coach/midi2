@@ -39,6 +39,7 @@ const STREAM_MT = 0xf;
 const STREAM_OPCODE_ENDPOINT = 0x00;
 const STREAM_OPCODE_CONFIG = 0x01;
 const STREAM_OPCODE_FUNCTION_BLOCK = 0x02;
+const STREAM_OPCODE_PROCESS_INQUIRY = 0x03;
 const STATUS_RPN = 0x2;
 const STATUS_NRPN = 0x3;
 const STATUS_RPN_RELATIVE = 0x4;
@@ -199,6 +200,22 @@ function encodeStream(event: StreamEvent): Uint32Array {
         (filter & 0xff);
       return new Uint32Array([word0 >>> 0]);
     }
+    case "processInquiry": {
+      const fb = event.processInquiry?.functionBlock ?? 0;
+      const part = event.processInquiry?.part ?? 0;
+      assertRange("functionBlock", fb, 0, 0x7f);
+      assertRange("part", part, 0, 0x0f);
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_PROCESS_INQUIRY << 16) | (fb << 8) | part;
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "processInquiryReply": {
+      const fb = event.processInquiryReply?.functionBlock ?? 0;
+      const part = event.processInquiryReply?.part ?? 0;
+      assertRange("functionBlock", fb, 0, 0x7f);
+      assertRange("part", part, 0, 0x0f);
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_PROCESS_INQUIRY << 16) | (fb << 8) | part | 0x80;
+      return new Uint32Array([word0 >>> 0]);
+    }
     default:
       throw new Error(`Unsupported stream opcode ${(event as StreamEvent).opcode}`);
   }
@@ -256,6 +273,15 @@ function decodeStream(word0: number, timestamp?: number): StreamEvent {
       functionBlockInfo: { index, firstGroup, groupCount },
       timestamp,
     };
+  }
+  if (opcodeByte === STREAM_OPCODE_PROCESS_INQUIRY) {
+    const fb = byte2 & 0x7f;
+    const part = byte3 & 0x0f;
+    const isReply = (byte3 & 0x80) !== 0;
+    if (isReply) {
+      return { kind: "stream", group, opcode: "processInquiryReply", processInquiryReply: { functionBlock: fb, part }, timestamp };
+    }
+    return { kind: "stream", group, opcode: "processInquiry", processInquiry: { functionBlock: fb, part }, timestamp };
   }
 
   return { kind: "stream", group, opcode: "endpointDiscovery", timestamp };

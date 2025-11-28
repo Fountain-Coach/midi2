@@ -251,6 +251,8 @@ export interface StreamEvent {
   streamConfigNotification?: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean };
   functionBlockDiscovery?: { filterBitmap?: number };
   functionBlockInfo?: { index?: number; firstGroup?: number; groupCount?: number };
+  processInquiry?: { functionBlock?: number; part?: number };
+  processInquiryReply?: { functionBlock?: number; part?: number };
   timestamp?: MidiTimestamp;
 }
 

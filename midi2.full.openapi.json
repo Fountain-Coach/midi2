@@ -1,7 +1,7 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "MIDI 2.0 — Full Spec API (Expanded, Closed)",
+    "title": "MIDI 2.0 \u2014 Full Spec API (Expanded, Closed)",
     "version": "1.0.0",
     "description": "OpenAPI 3.1 generated from the fully closed, expanded MIDI 2.0 JSON Schema."
   },
@@ -666,7 +666,8 @@
         "enum": [
           0,
           1,
-          2
+          2,
+          3
         ]
       },
       "StreamBody": {
@@ -751,6 +752,30 @@
               },
               "groupCount": {
                 "$ref": "#/$defs/Uint4"
+              }
+            },
+            "additionalProperties": false
+          },
+          "processInquiry": {
+            "type": "object",
+            "properties": {
+              "functionBlock": {
+                "$ref": "#/components/schemas/Uint7"
+              },
+              "part": {
+                "$ref": "#/components/schemas/Uint4"
+              }
+            },
+            "additionalProperties": false
+          },
+          "processInquiryReply": {
+            "type": "object",
+            "properties": {
+              "functionBlock": {
+                "$ref": "#/components/schemas/Uint7"
+              },
+              "part": {
+                "$ref": "#/components/schemas/Uint4"
               }
             },
             "additionalProperties": false

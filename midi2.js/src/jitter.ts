@@ -1,5 +1,5 @@
 import { MidiClock } from "./clock";
-import { UtilityEvent } from "./types";
+import { Midi2Event, UtilityEvent } from "./types";
 
 type GroupState = {
   baseMs: number;
@@ -58,4 +58,24 @@ export class JitterReductionSynchronizer {
     if (value === undefined) return null;
     return state.baseMs + value * this.unitMs;
   }
+}
+
+/**
+ * Applies jitter reduction timestamps to a sequence of events.
+ * JR clock/timestamp utility messages are fed to the synchronizer; other events get a `timestamp`
+ * derived from the latest JR state for their group when available.
+ */
+export function applyJitterReduction(events: Midi2Event[], jr: JitterReductionSynchronizer, receivedAtMs?: number): Midi2Event[] {
+  const out: Midi2Event[] = [];
+  const now = receivedAtMs ?? jr["clock"]?.now?.() ?? 0;
+  for (const evt of events) {
+    if (evt.kind === "utility" && (evt.status === "jrClock" || evt.status === "jrTimestamp")) {
+      const ts = jr.handle(evt, now);
+      out.push(ts !== null ? { ...evt, timestamp: ts } : evt);
+      continue;
+    }
+    const abs = evt.timestamp ?? jr.toAbsoluteTime((evt as any).group ?? 0);
+    out.push(abs !== null ? { ...evt, timestamp: abs } : evt);
+  }
+  return out;
 }

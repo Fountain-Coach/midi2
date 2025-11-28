@@ -137,6 +137,7 @@ npm run --prefix midi2.js test       # vitest
 npm run --prefix midi2.js coverage   # vitest with coverage
 npm run --prefix midi2.js clean      # remove dist/
 ```
+`build` uses tsup to emit ESM + CJS bundles with type declarations into `dist/`.
 
 ---
 

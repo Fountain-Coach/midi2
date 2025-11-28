@@ -9,4 +9,3 @@ export * from "./jitter";
 export * from "./adapters/webaudio";
 export * from "./adapters/three";
 export * from "./adapters/cannon";
-export * from "./umpStream";

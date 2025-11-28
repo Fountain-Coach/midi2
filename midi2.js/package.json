@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "codegen": "node ./scripts/generate-openapi-types.mjs",
-    "build": "npm run codegen && tsc -p tsconfig.json",
+    "build": "npm run codegen && tsup src/index.ts --dts --format esm,cjs --target es2020 --sourcemap --out-dir dist",
     "check": "npm run codegen && tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
@@ -21,6 +21,7 @@
     "ci": "npm run codegen && npm run check && npm test"
   },
   "devDependencies": {
+    "tsup": "^8.5.1",
     "typescript": "^5.6.3",
     "vitest": "^1.6.0"
   }

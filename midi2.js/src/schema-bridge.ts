@@ -993,7 +993,20 @@ function decodeProfileBody(payload: Uint8Array): Omit<ProfileEvent, "kind" | "gr
   try {
     const text = new TextDecoder().decode(payload);
     const obj = JSON.parse(text);
-    if (!obj.command) return { command: "reply", details: { payload: Array.from(payload) } };
+    const valid = new Set([
+      "inquiry",
+      "reply",
+      "addedReport",
+      "removedReport",
+      "setOn",
+      "setOff",
+      "enabledReport",
+      "disabledReport",
+      "detailsInquiry",
+      "detailsReply",
+      "profileSpecificData",
+    ]);
+    if (!obj.command || !valid.has(obj.command)) return { command: "reply", details: { payload: Array.from(payload) } };
     return {
       command: obj.command,
       profileId: obj.profileId,
@@ -1010,7 +1023,19 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
   try {
     const text = new TextDecoder().decode(payload);
     const obj = JSON.parse(text);
-    if (!obj.command) return { command: "notify", data: payload };
+    const valid = new Set([
+      "capInquiry",
+      "capReply",
+      "get",
+      "getReply",
+      "set",
+      "setReply",
+      "subscribe",
+      "subscribeReply",
+      "notify",
+      "terminate",
+    ]);
+    if (!obj.command || !valid.has(obj.command)) return { command: "notify", data: payload };
     const parsedData =
       obj.encoding && typeof obj.data === "string" && obj.data.startsWith("0x")
         ? Uint8Array.from(Buffer.from(obj.data.slice(2), "hex"))

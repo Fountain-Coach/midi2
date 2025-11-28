@@ -180,6 +180,14 @@ describe("schema bridge", () => {
     expect(peBack.command).toBe("setReply");
   });
 
+  it("falls back to notify when PE command is invalid", () => {
+    const badPayload = new TextEncoder().encode(JSON.stringify({ command: "bogus", data: "0x0102" }));
+    const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x21, version: 1, payload: badPayload, format: "sysex7" };
+    const evt = schemaPacketToEvent(eventToSchemaPacket(env)!);
+    expect(evt?.kind).toBe("propertyExchange");
+    expect((evt as any).command).toBe("notify");
+  });
+
   it("treats stream/profile/property-exchange packets as raw when unsupported", () => {
     const streamEvt: StreamEvent = {
       kind: "stream",

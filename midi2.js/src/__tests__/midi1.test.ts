@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { midi1BytesToUmp, midi2ChannelVoiceToMidi1Bytes } from "../midi1";
+import { midi1BytesToUmp, midi2ChannelVoiceToMidi1Bytes, midi2EventsToMidi1Bytes } from "../midi1";
 import { decodeUmp } from "../ump";
 import { reassembleSysEx7 } from "../sysex";
+import { Midi2Event } from "../types";
 
 describe("midi1BytesToUmp", () => {
   it("decodes channel voice with running status", () => {
@@ -79,5 +80,38 @@ describe("midi2ChannelVoiceToMidi1Bytes", () => {
     const bytes = midi2ChannelVoiceToMidi1Bytes({ kind: "pitchBend", channel: 2, group: 0, value: 0x80000000 });
     expect(bytes[0]).toBe(0xe2);
     expect(bytes.slice(1)).toEqual([0x00, 0x40]); // center
+  });
+});
+
+describe("midi2EventsToMidi1Bytes", () => {
+  it("applies running status for channel voice", () => {
+    const events: Midi2Event[] = [
+      { kind: "noteOn", channel: 0, group: 0, note: 60, velocity: 0xffff },
+      { kind: "noteOn", channel: 0, group: 0, note: 62, velocity: 0xffff },
+    ];
+    const bytes = midi2EventsToMidi1Bytes(events);
+    expect(bytes).toEqual([0x90, 60, 0x7f, 62, 0x7f]); // status omitted for second due to running status
+  });
+
+  it("resets running status on system messages", () => {
+    const events: Midi2Event[] = [
+      { kind: "noteOn", channel: 0, group: 0, note: 60, velocity: 0xffff },
+      { kind: "system", group: 0, status: 0xf8 },
+      { kind: "noteOn", channel: 0, group: 0, note: 61, velocity: 0xffff },
+    ];
+    const bytes = midi2EventsToMidi1Bytes(events);
+    expect(bytes).toEqual([0x90, 60, 0x7f, 0xf8, 0x90, 61, 0x7f]);
+  });
+
+  it("converts SysEx7 events to MIDI 1.0 bytes", () => {
+    const bytes = midi2EventsToMidi1Bytes([
+      { kind: "sysex7", group: 0, manufacturerId: [0x7d], payload: Uint8Array.from([0x01, 0x02, 0x03]) },
+    ]);
+    expect(bytes).toEqual([0xf0, 0x7d, 0x01, 0x02, 0x03, 0xf7]);
+  });
+
+  it("ignores unsupported event kinds", () => {
+    const bytes = midi2EventsToMidi1Bytes([{ kind: "flexTempo", group: 0, bpm: 120 } as Midi2Event]);
+    expect(bytes).toEqual([]);
   });
 });

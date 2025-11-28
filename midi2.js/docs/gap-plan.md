@@ -12,7 +12,7 @@ Priority gaps (aligns to docs/midi2-js-dod.md):
 - Stream config and function block UMP (mt=0xF) encode/decode added; still missing Group/Terminal blocks, endpoint discovery payload fidelity, and process inquiry opcodes.
 - Per-note controllers: missing pitch/pressure/timbre/attributes helpers and decode paths.
 - Jitter Reduction timing semantics not wired to scheduler (only mt=0x0 utility encode/decode exists).
-- MIDI 1.0 interoperability: byte-stream→UMP converter covers channel voice/system-common/realtime/SysEx7; still need 2.0→1.0 SysEx/down-conversion (beyond channel voice) and running-status emitters.
+- MIDI 1.0 interoperability: byte-stream→UMP converter covers channel voice/system-common/realtime/SysEx7; 2.0→1.0 down-conversion covers channel voice + SysEx7 with running-status emission; still need SysEx8/CI down-conversion and richer mapping.
 
 2) MIDI-CI flows
 - Discovery, profiles, property exchange (chunking/compression/state/errors), and process inquiry envelopes are not implemented.

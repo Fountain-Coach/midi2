@@ -1,6 +1,6 @@
 import { fragmentSysEx7 } from "./sysex";
 import { encodeUmp } from "./ump";
-import { Midi2Event, Midi2NoteOffEvent, Midi2NoteOnEvent, Midi2PitchBendEvent, Midi2ProgramChangeEvent } from "./types";
+import { Midi2Event, Midi2NoteOffEvent, Midi2NoteOnEvent, Midi2PitchBendEvent, Midi2ProgramChangeEvent, SysEx7Event } from "./types";
 
 function isChannelVoiceStatus(status: number): boolean {
   return status >= 0x80 && status <= 0xef;
@@ -203,4 +203,73 @@ export function midi2ChannelVoiceToMidi1Bytes(event: Midi2Event): number[] {
     default:
       throw new RangeError(`Unsupported MIDI 2.0 event kind for down-conversion: ${(event as Midi2Event).kind}`);
   }
+}
+
+/**
+ * Down-converts MIDI 2.0/1.0 events to a MIDI 1.0 byte stream.
+ * Applies running status for channel voice messages when enabled; system/common and SysEx reset running status.
+ */
+export function midi2EventsToMidi1Bytes(events: Midi2Event[], opts?: { runningStatus?: boolean; includeTimestamps?: boolean }): number[] {
+  const running = opts?.runningStatus ?? true;
+  let lastStatus: number | null = null;
+  const out: number[] = [];
+
+  const emitStatusData = (status: number, data: number[]): void => {
+    if (running && lastStatus === status && (status & 0xf0) !== 0xc0 && (status & 0xf0) !== 0xd0) {
+      out.push(...data);
+    } else {
+      out.push(status, ...data);
+      if (status >= 0x80 && status <= 0xef) {
+        lastStatus = status;
+      }
+    }
+  };
+
+  for (const evt of events) {
+    switch (evt.kind) {
+      case "midi1ChannelVoice": {
+        const status = evt.status & 0xff;
+        const d1 = evt.data1 ?? 0;
+        const d2 = evt.data2;
+        if (status >= 0xc0 && status <= 0xdf) {
+          emitStatusData(status, [d1 & 0x7f]);
+        } else {
+          emitStatusData(status, [d1 & 0x7f, (d2 ?? 0) & 0x7f]);
+        }
+        break;
+      }
+      case "noteOn":
+      case "noteOff":
+      case "controlChange":
+      case "programChange":
+      case "channelPressure":
+      case "pitchBend": {
+        const bytes = midi2ChannelVoiceToMidi1Bytes(evt);
+        const status = bytes[0];
+        emitStatusData(status, bytes.slice(1));
+        break;
+      }
+      case "system": {
+        const status = evt.status & 0xff;
+        const parts: number[] = [status];
+        if (evt.data1 !== undefined) parts.push(evt.data1 & 0x7f);
+        if (evt.data2 !== undefined) parts.push(evt.data2 & 0x7f);
+        out.push(...parts);
+        lastStatus = null;
+        break;
+      }
+      case "sysex7": {
+        const sys = evt as SysEx7Event;
+        out.push(0xf0, ...sys.manufacturerId, ...sys.payload, 0xf7);
+        lastStatus = null;
+        break;
+      }
+      default:
+        // Unsupported event types are skipped in this down-conversion.
+        lastStatus = null;
+        break;
+    }
+  }
+
+  return out;
 }

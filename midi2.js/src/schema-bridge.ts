@@ -954,17 +954,23 @@ function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
 function midiCiToEvent(env: MidiCiEvent): Midi2Event {
   switch (env.subId2) {
     case 0x20:
-      return {
-        kind: "profile",
-        group: env.group,
-        ...decodeProfileBody(env.payload),
-      };
+      return sanitizeProfileEvent(
+        {
+          kind: "profile",
+          group: env.group,
+          ...decodeProfileBody(env.payload),
+        },
+        env.group,
+      );
     case 0x21:
-      return {
-        kind: "propertyExchange",
-        group: env.group,
-        ...decodePropertyExchangeBody(env.payload),
-      };
+      return sanitizePeEvent(
+        {
+          kind: "propertyExchange",
+          group: env.group,
+          ...decodePropertyExchangeBody(env.payload),
+        },
+        env.group,
+      );
     case 0x22:
       return {
         kind: "processInquiry",
@@ -994,14 +1000,14 @@ function decodeProfileBody(payload: Uint8Array): Omit<ProfileEvent, "kind" | "gr
       "profileSpecificData",
     ]);
     if (!obj.command || !valid.has(obj.command)) return { command: "reply", details: { payload: Array.from(payload) } };
-    const evt: ProfileEvent = {
+    const evt: Omit<ProfileEvent, "kind" | "group"> = {
       command: obj.command,
       profileId: obj.profileId,
       target: obj.target,
       channels: obj.channels,
       details: obj.details,
     };
-    return sanitizeProfileEvent(evt);
+    return evt;
   } catch {
     return { command: "reply", details: { payload: Array.from(payload) } };
   }
@@ -1028,7 +1034,7 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
       obj.encoding && typeof obj.data === "string" && obj.data.startsWith("0x")
         ? Uint8Array.from(Buffer.from(obj.data.slice(2), "hex"))
         : obj.data;
-    const evt: PropertyExchangeEvent = {
+    const evt: Omit<PropertyExchangeEvent, "kind" | "group"> = {
       command: obj.command,
       requestId: obj.requestId,
       encoding: obj.encoding,
@@ -1036,7 +1042,7 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
       data: parsedData,
       ack: obj.ack !== undefined ? { ack: !!obj.ack, statusCode: obj.statusCode, message: obj.message } : undefined,
     };
-    return sanitizePeEvent(evt);
+    return evt;
   } catch {
     return { command: "notify", data: payload };
   }
@@ -1055,6 +1061,40 @@ export function reassemblePeChunks(chunks: PropertyExchangeEvent[]): PropertyExc
   const data = Uint8Array.from(buffers);
   const header = { ...(base.header ?? {}), length: data.length };
   return { ...base, data, header };
+}
+
+function sanitizeProfileEvent(evt: ProfileEvent, group: number): ProfileEvent {
+  const requiresProfileId = new Set(["setOn", "setOff", "addedReport", "removedReport", "enabledReport", "disabledReport", "detailsInquiry", "detailsReply", "profileSpecificData"]);
+  if (requiresProfileId.has(evt.command) && !evt.profileId) {
+    return { command: "reply", kind: "profile", group, details: { payload: [] } };
+  }
+  if ((evt.command === "setOn" || evt.command === "setOff" || evt.command === "detailsInquiry") && !evt.target) {
+    return { command: "reply", kind: "profile", group, details: { payload: [] } };
+  }
+  if (evt.target === "channel" && (!Array.isArray(evt.channels) || evt.channels.length === 0)) {
+    return { command: "reply", kind: "profile", group, details: { payload: [] } };
+  }
+  if (evt.details && typeof evt.details !== "object") {
+    return { command: "reply", kind: "profile", group, details: { payload: [] } };
+  }
+  return { ...evt, group, kind: "profile" };
+}
+
+function sanitizePeEvent(evt: PropertyExchangeEvent, group: number): PropertyExchangeEvent {
+  const needsRequestId = new Set(["get", "getReply", "set", "setReply", "subscribe", "subscribeReply", "notify", "terminate"]);
+  if (needsRequestId.has(evt.command) && evt.requestId === undefined) {
+    return { kind: "propertyExchange", group, command: "notify", data: evt.data, header: evt.header };
+  }
+  if (evt.encoding && !["json", "binary", "json+zlib", "binary+zlib", "mcoded7"].includes(evt.encoding)) {
+    return { kind: "propertyExchange", group, command: "notify", data: evt.data, header: evt.header };
+  }
+  if (evt.header && typeof evt.header !== "object") {
+    return { kind: "propertyExchange", group, command: "notify", data: evt.data };
+  }
+  if (evt.data && !(evt.data instanceof Uint8Array) && typeof evt.data !== "object") {
+    return { kind: "propertyExchange", group, command: "notify", data: undefined };
+  }
+  return { ...evt, group, kind: "propertyExchange" };
 }
 
 function processInquiryToBody(evt: ProcessInquiryEvent): Uint8Array {

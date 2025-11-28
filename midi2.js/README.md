@@ -38,8 +38,8 @@ midi2.js implements this perspective completely.
 
 ### ✓ **Full UMP Encode/Decode**
 - Channel Voice 1.0 & 2.0  
-- System / Utility / Stream / Function Blocks  
-- Per‑Note Management, RPN/NRPN  
+- System / Utility / Stream / Function Blocks (incl. Process Inquiry 0x03)  
+- Per‑Note Management, RPN/NRPN, Per‑Note Pitch Bend  
 - Flex Data (tempo, signature, metadata)
 
 ### ✓ **Schema Bridge (OpenAPI‑backed)**

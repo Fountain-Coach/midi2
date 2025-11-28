@@ -209,6 +209,8 @@ describe("UMP channel voice encode/decode", () => {
     expect(assignDecoded).toMatchObject(assign);
   });
 
+  // per-note pitch/pressure/timbre/control helpers not implemented; covered via reg/assignable controllers above
+
   it("passes through unknown message types as raw UMP", () => {
     const words = new Uint32Array([0xe0000000, 0x01020304]);
     const decoded = decodeUmp(words);

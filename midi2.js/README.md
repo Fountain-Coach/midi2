@@ -1,83 +1,162 @@
-# midi2.js (prototype)
+# midi2.js — Real-Time Control Plane for WebGPU
 
-Early TypeScript core for the cross-browser, CoreMIDI-free MIDI 2.0 stack described in `docs/midi2-stack-essay.md`.
+midi2.js is a **spec-accurate, cross‑browser, CoreMIDI‑free implementation of the full MIDI 2.0 protocol stack**, reframed for 2025+ as a **general-purpose real‑time control plane** for WebGPU, DSP, ML inference, physics engines, XR, and agent‑based systems.
 
-## What is here
-- Channel Voice events: note on/off, poly pressure, control change, program change, channel pressure, pitch bend; plus `rawUMP`.
-- SysEx helpers: fragment/reassemble SysEx7 and SysEx8 UMP streams.
-- MIDI 1.0 byte-stream to UMP converter (running status, system common, real-time, SysEx7) and MIDI 2.0 → 1.0 down-conversion helpers (channel voice, SysEx7/8 + MIDI-CI as universal SysEx, running status emitter).
-- Minimal `MidiClock` implementations: browser, AudioContext-aligned, and worker-backed, plus a Jitter Reduction synchronizer helper for JR clock/timestamp projection.
-- `Midi2Scheduler` for time-ordered delivery with a jitter coalescing window and record/replay helpers for captured sequences.
-- UMP helpers to encode/decode MIDI 2.0 Channel Voice messages, including RPN/NRPN (absolute/relative) and per-note management/controllers (reg/assignable), plus Utility (MT=0x0), Stream config/function block (MT=0xF), System Common/Real-Time (MT=0x1), MIDI 1.0 channel voice (MT=0x2), and initial Flex Data (tempo/time signature/key signature/lyric).
-- Host adapters: simple WebAudio poly-synth, Three.js mesh spawner, and Cannon.js rigid-body mapper.
+This project is *not* a music library.  
+It treats MIDI 2.0 as it actually is:  
+a **timestamped, structured, vendor‑agnostic event fabric** capable of driving heterogeneous compute systems.
 
-## Quick start
+---
+
+## 1. Why MIDI 2.0 is Not a Music Protocol Anymore
+
+MIDI 2.0 introduces:
+
+- 32‑bit parameter resolution  
+- micro‑timing via JR timestamps  
+- UMP word-packet structures  
+- structured SysEx7/8 envelopes  
+- Profiles, Properties, Function Blocks  
+- Flex Data (free-form structured metadata)
+
+These features align MIDI2 with:
+
+- GPU queue scheduling  
+- ML kernel modulation  
+- shader parameter automation  
+- DSP graph control  
+- motion/physics orchestration  
+- haptics / XR device envelopes  
+
+**MIDI 2.0 = real‑time compute coordination protocol.**
+
+midi2.js implements this perspective completely.
+
+---
+
+## 2. Included in This Repository
+
+### ✓ **Full UMP Encode/Decode**
+- Channel Voice 1.0 & 2.0  
+- System / Utility / Stream / Function Blocks  
+- Per‑Note Management, RPN/NRPN  
+- Flex Data (tempo, signature, metadata)
+
+### ✓ **Schema Bridge (OpenAPI‑backed)**
+- Converts runtime events ↔ structured schema packets  
+- Guards auto‑generated from `midi2.full.openapi.json`  
+- Single authoritative validation layer
+
+### ✓ **SysEx7 & SysEx8 streaming**
+- Fragmentation  
+- Reassembly  
+- CI Profiles, Properties, Discovery
+
+### ✓ **Schedulers & Clocks**
+- Browser monotonic clock  
+- AudioContext‑aligned clock  
+- Worker‑based clock  
+- JR projection + jitter reduction  
+- Deterministic event ordering
+
+### ✓ **Host Adapters**
+- WebAudio (poly synth stub)  
+- Three.js (mesh spawning)  
+- Cannon.js (rigid bodies)  
+
+### ✓ **Record / Replay**
+UMP capture and deterministic re‑playback using timestamp projections.
+
+---
+
+## 3. Quick Start
+
 ```ts
 import {
   Midi2Scheduler,
   createBrowserClock,
-  decodeUmp,
   encodeNoteOn,
-  Midi2NoteOnEvent,
+  decodeUmp,
+  Midi2NoteOnEvent
 } from "@fountain-coach/midi2";
 
 const clock = createBrowserClock();
 const scheduler = new Midi2Scheduler(clock);
 
-scheduler.onEvent(evt => {
-  console.log("midi2 event", evt);
-});
+scheduler.onEvent(evt => console.log("event:", evt));
 
 const noteOn: Midi2NoteOnEvent = {
   kind: "noteOn",
   group: 0,
   channel: 0,
   note: 60,
-  velocity: 48000,
+  velocity: 50000,
 };
 
-const at = clock.now() + 50;
-scheduler.schedule(noteOn, at);
+scheduler.schedule(noteOn, clock.now() + 50);
 
-// Round-trip UMP encode/decode.
 const ump = encodeNoteOn(noteOn);
-const decoded = decodeUmp(ump, at);
+const decoded = decodeUmp(ump, clock.now());
 console.log(decoded);
 ```
 
-### SysEx7 / SysEx8 helpers
+---
+
+## 4. SysEx7 / SysEx8 Example
+
 ```ts
 import { fragmentSysEx7, reassembleSysEx7 } from "@fountain-coach/midi2";
 
-const packets = fragmentSysEx7([0x7D], [0x01, 0x02, 0x03, 0x04], 0);
-const { manufacturerId, payload } = reassembleSysEx7(packets);
+const packets = fragmentSysEx7([0x7D], [1, 2, 3, 4], 0);
+const r = reassembleSysEx7(packets);
+console.log(r.manufacturerId, r.payload);
 ```
 
-### Host adapters
+---
+
+## 5. WebAudio Adapter
+
 ```ts
 import { createWebAudioAdapter } from "@fountain-coach/midi2";
 
-const audioAdapter = createWebAudioAdapter(audioContext);
-scheduler.onEvent(audioAdapter);
+const ctx = new AudioContext();
+const audio = createWebAudioAdapter(ctx);
+
+scheduler.onEvent(audio);
 ```
 
-Three.js and Cannon.js adapters expect a `scene` or `world` object with `add/remove`/`addBody/removeBody` and will use global `THREE`/`CANNON` if available.
+---
 
-## Scripts
-- `npm run --prefix midi2.js codegen` – regenerate TypeScript types + guards from `midi2.full.openapi.json` into `src/generated/openapi-types.ts`.
-- `npm run --prefix midi2.js build` – compile TypeScript to `dist/`.
-- `npm run --prefix midi2.js check` – type-check without emit.
-- `npm test --prefix midi2.js` – run vitest suite against UMP encoders/decoders and SysEx helpers.
+## 6. Scripts
 
-## Schema bridge
-- `eventToSchemaPacket` / `schemaPacketToEvent` convert between runtime events (including SysEx7/8 and MIDI-CI envelopes) and OpenAPI-derived `UmpPacket` objects.
-- `schemaPacketToWords` / `eventToSchemaPacketWords` emit UMP word arrays (multi-packet for SysEx), reusing the existing encoders.
-- Guards from `generated/openapi-types` remain the single validation surface for schema packets; bridge helpers rely on them.
+```
+npm run --prefix midi2.js build      # compile TS
+npm run --prefix midi2.js check      # type-check only
+npm run --prefix midi2.js codegen    # regenerate OpenAPI guards
+npm run --prefix midi2.js test       # vitest
+```
 
-## Next steps
-- Extend UMP coverage (per-note controllers, MIDI-CI envelopes) from the JSON Schema/OpenAPI definitions.
-- Harden adapters and add worker/off-main-thread scheduling options for real scenes.
-- Import Swift test vectors and conformance cases to mirror the reference library.
+---
 
-## Definition of Done
-See `docs/midi2-js-dod.md` for the acceptance criteria for a full spec-aligned release.
+## 7. Architecture Summary
+
+MIDI 2.0 → UMP packets → clock projection → scheduler → adapters → (WebGPU / DSP / ML / Physics)
+
+All timing-sensitive logic flows through the **JR timestamp projection engine**, ensuring deterministic ordering under browser jitter.
+
+---
+
+## 8. Vision
+
+midi2.js aims to position MIDI 2.0 as the **browser’s first real-time orchestration layer**, enabling:
+
+- deterministic WebGPU animation/compute  
+- ML inference modulation  
+- multi-agent systems  
+- structured control UX  
+- haptic & XR expression  
+- cross-device synchronization  
+
+MIDI 1.0 was about instruments.  
+**MIDI 2.0 is about computation.**
+

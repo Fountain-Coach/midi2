@@ -14,6 +14,10 @@ import {
   Midi2ProgramChangeEvent,
   Midi2RpnEvent,
   Midi2RpnRelativeEvent,
+  Midi2PerNotePitchEvent,
+  Midi2PerNotePressureEvent,
+  Midi2PerNoteTimbreEvent,
+  Midi2PerNoteControlEvent,
   RawUMPEvent,
   SysEx7Event,
   SysEx8Event,
@@ -75,6 +79,12 @@ function assertInt32(name: string, value: number): void {
 function assertUint32(name: string, value: number): void {
   if (!Number.isInteger(value) || value < 0 || value > 0xffffffff) {
     throw new RangeError(`${name} must be an integer in [0, 0xFFFFFFFF], got ${value}`);
+  }
+}
+
+function assertDecodeRange(name: string, value: number, min: number, max: number): void {
+  if (value < min || value > max) {
+    throw new RangeError(`Invalid ${name}: ${value} (expected [${min}, ${max}])`);
   }
 }
 

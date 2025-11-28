@@ -52,6 +52,9 @@ function fragmentSysex(kind: "sysex7" | "sysex8", manufacturerId: number[], payl
   if (data.length > MAX_PAYLOAD_LENGTH) {
     throw new RangeError("SysEx payload too long.");
   }
+  if (!Number.isInteger(group) || group < 0 || group > 0x0f) {
+    throw new RangeError("Invalid group for SysEx fragmentation.");
+  }
 
   const header = Uint8Array.from(manufacturerId);
   const message = new Uint8Array(header.length + data.length);
@@ -92,6 +95,9 @@ function reassembleSysex(kind: "sysex7" | "sysex8", packets: ArrayLike<number>[]
   if (!packets.length) {
     throw new RangeError("SysEx sequence is empty.");
   }
+  if (packets.length > 0xffff) {
+    throw new RangeError("SysEx sequence too long.");
+  }
   const mt = kind === "sysex7" ? SYSEX7_MT : SYSEX8_MT;
   const maxChunk = kind === "sysex7" ? SYSEX7_MAX_CHUNK : SYSEX8_MAX_CHUNK;
   const bytesPerPacket = kind === "sysex7" ? 8 : 16;
@@ -118,6 +124,9 @@ function reassembleSysex(kind: "sysex7" | "sysex8", packets: ArrayLike<number>[]
     const count = bytes[1] & 0x0f;
     if (count > maxChunk) {
       throw new RangeError("Invalid chunk length in SysEx packet.");
+    }
+    if (status === 0x0 && packets.length !== 1) {
+      throw new RangeError("Complete SysEx7/8 must be a single packet.");
     }
     const data = Array.from(bytes.slice(2, 2 + maxChunk)).slice(0, count);
     collected.push(...data);

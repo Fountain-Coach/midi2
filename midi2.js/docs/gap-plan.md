@@ -1,0 +1,41 @@
+# midi2.js Gap Plan (toward DoD)
+
+Current status:
+- ✅ Flex text/ruby/chord encode/decode fixes and validation tests (see src/ump.ts and src/__tests__/ump.test.ts).
+- ✅ Basic UMP/channel voice, utility, MIDI 1.0 CV, SysEx7/8 fragment/reassemble, MIDI-CI envelope wrapper, scheduler, and demo adapters.
+- ✅ Scheduler record/replay with tests.
+- 🚧 DoD coverage still partial; core gaps tracked below.
+
+Priority gaps (aligns to docs/midi2-js-dod.md):
+
+1) Protocol coverage
+- Stream messages (mt=0xF), Function Blocks, Group/Terminal blocks, process inquiry, and per-spec reserved-bit validation are absent.
+- Per-note controllers: missing pitch/pressure/timbre/attributes helpers and decode paths.
+- Jitter Reduction timing semantics not wired to scheduler (only mt=0x0 utility encode/decode exists).
+- MIDI 1.0 interoperability: byte-stream→UMP converter covers channel voice/system-common/realtime/SysEx7; still need 2.0→1.0 SysEx/down-conversion (beyond channel voice) and running-status emitters.
+
+2) MIDI-CI flows
+- Discovery, profiles, property exchange (chunking/compression/state/errors), and process inquiry envelopes are not implemented.
+- No MUID management or error/NAK paths; only envelope framing/unframing is present.
+
+3) Scheduling and adapters
+- No record/replay API; no worker/off-main-thread clock tests.
+- Adapters do not cover per-note controllers, pitch-bend range negotiation, or disposal safety.
+- No host separation: core exports adapters directly; consider packaging pure core + optional adapters.
+
+4) Validation and negative tests
+- Decode paths accept malformed packets (no reserved-bit checks; limited range validation).
+- No negative tests for stream/flex/CI envelopes beyond the new SysEx and range cases.
+- SysEx limits: add tests for oversize payloads and invalid chunk ordering.
+
+5) Tooling and distribution
+- Package is private 0.0.1 with no built `dist/` artifacts checked; no bundler/dual ESM+CJS output.
+- No JS CI workflow (lint/type-check/test/browser bundle). No coverage reporting.
+- `node_modules/` is committed; replace with clean lock + build pipeline.
+
+Next execution steps (suggested order)
+- Add decode validation for current UMP types (range/reserved bits) and negative tests.
+- Implement remaining Flex data variants and per-note controllers; add vectors.
+- Scaffold MIDI-CI discovery/profile/property/process inquiry envelopes and golden tests.
+- Introduce record/replay in scheduler and worker-clock test coverage.
+- Stand up CI (tsc --noEmit, vitest, coverage) and prepare publishable build outputs.

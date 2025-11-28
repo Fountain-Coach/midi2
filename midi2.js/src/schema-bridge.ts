@@ -407,55 +407,32 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
       if (event.format === "sysex8") return null;
       const scope = event.scope === "realtime" ? 0x7f : 0x7e;
       const header = [scope, 0x0d, event.subId2 & 0x7f, event.version & 0x7f];
-      const syx: SysEx7Event = {
-        kind: "sysex7",
-        group: event.group,
-        manufacturerId: [scope],
-        payload: Uint8Array.from([...header, ...event.payload]),
-      };
-      return asUmpPacket32(syx);
+      const body = sysEx7BodyFromPayload([scope], Uint8Array.from([...header, ...event.payload]));
+      return { messageType: 3, group: event.group, body } as unknown as UmpPacket32;
     }
     case "profile": {
       const p: ProfileEvent = event;
       const body = profileToBody(p);
-      const env: MidiCiEvent = {
-        kind: "midiCi",
-        group: p.group,
-        scope: "nonRealtime",
-        subId2: 0x20,
-        version: 1,
-        payload: body,
-        format: "sysex7",
-      };
-      return asUmpPacket32(env);
+      const scope = 0x7e;
+      const header = [scope, 0x0d, 0x20, 0x01];
+      const syxBody = sysEx7BodyFromPayload([scope], Uint8Array.from([...header, ...body]));
+      return { messageType: 3, group: p.group, body: syxBody } as unknown as UmpPacket32;
     }
     case "processInquiry": {
       const pi: ProcessInquiryEvent = event;
       const body = processInquiryToBody(pi);
-      const env: MidiCiEvent = {
-        kind: "midiCi",
-        group: pi.group,
-        scope: "nonRealtime",
-        subId2: 0x22,
-        version: 1,
-        payload: body,
-        format: "sysex7",
-      };
-      return asUmpPacket32(env);
+      const scope = 0x7e;
+      const header = [scope, 0x0d, 0x22, 0x01];
+      const syxBody = sysEx7BodyFromPayload([scope], Uint8Array.from([...header, ...body]));
+      return { messageType: 3, group: pi.group, body: syxBody } as unknown as UmpPacket32;
     }
     case "propertyExchange": {
       const pe: PropertyExchangeEvent = event;
       const body = propertyExchangeToBody(pe);
-      const env: MidiCiEvent = {
-        kind: "midiCi",
-        group: pe.group,
-        scope: "nonRealtime",
-        subId2: 0x21,
-        version: 1,
-        payload: body,
-        format: "sysex7",
-      };
-      return asUmpPacket32(env);
+      const scope = 0x7e;
+      const header = [scope, 0x0d, 0x21, 0x01];
+      const syxBody = sysEx7BodyFromPayload([scope], Uint8Array.from([...header, ...body]));
+      return { messageType: 3, group: pe.group, body: syxBody } as unknown as UmpPacket32;
     }
     case "utility": {
       const utility: UtilityEvent = event;
@@ -863,6 +840,16 @@ function reassembleSysEx7FromPackets(
   return { manufacturerId, payload };
 }
 
+function sysEx7BodyFromPayload(
+  manufacturerId: number[],
+  payload: Uint8Array,
+): { manufacturerId: number[]; packets: { streamStatus: "single" | "start" | "continue" | "end"; payload: number[] }[] } {
+  return {
+    manufacturerId,
+    packets: sysex7ToPackets(Array.from(payload)),
+  };
+}
+
 function packGeneric32(packet: UmpPacket32): Uint32Array {
   const mt = packet.messageType ?? 0;
   if (mt === STREAM_MT) {
@@ -1007,13 +994,14 @@ function decodeProfileBody(payload: Uint8Array): Omit<ProfileEvent, "kind" | "gr
       "profileSpecificData",
     ]);
     if (!obj.command || !valid.has(obj.command)) return { command: "reply", details: { payload: Array.from(payload) } };
-    return {
+    const evt: ProfileEvent = {
       command: obj.command,
       profileId: obj.profileId,
       target: obj.target,
       channels: obj.channels,
       details: obj.details,
     };
+    return sanitizeProfileEvent(evt);
   } catch {
     return { command: "reply", details: { payload: Array.from(payload) } };
   }
@@ -1040,7 +1028,7 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
       obj.encoding && typeof obj.data === "string" && obj.data.startsWith("0x")
         ? Uint8Array.from(Buffer.from(obj.data.slice(2), "hex"))
         : obj.data;
-    return {
+    const evt: PropertyExchangeEvent = {
       command: obj.command,
       requestId: obj.requestId,
       encoding: obj.encoding,
@@ -1048,6 +1036,7 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
       data: parsedData,
       ack: obj.ack !== undefined ? { ack: !!obj.ack, statusCode: obj.statusCode, message: obj.message } : undefined,
     };
+    return sanitizePeEvent(evt);
   } catch {
     return { command: "notify", data: payload };
   }

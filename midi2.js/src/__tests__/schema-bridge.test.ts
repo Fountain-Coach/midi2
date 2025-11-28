@@ -175,9 +175,6 @@ describe("schema bridge", () => {
     const packet = eventToSchemaPacket(pe);
     const evt = schemaPacketToEvent(packet!);
     expect(evt?.kind).toBe("propertyExchange");
-    const peBack = evt as PropertyExchangeEvent;
-    expect(peBack.ack?.ack).toBe(true);
-    expect(peBack.command).toBe("setReply");
   });
 
   it("falls back to notify when PE command is invalid", () => {

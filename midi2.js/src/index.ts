@@ -5,6 +5,7 @@ export * from "./ump";
 export * from "./sysex";
 export * from "./midici";
 export * from "./midi1";
+export * from "./jitter";
 export * from "./adapters/webaudio";
 export * from "./adapters/three";
 export * from "./adapters/cannon";

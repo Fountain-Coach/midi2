@@ -8,7 +8,7 @@ Early TypeScript core for the cross-browser, CoreMIDI-free MIDI 2.0 stack descri
 - MIDI 1.0 byte-stream to UMP converter (running status, system common, real-time, SysEx7) and MIDI 2.0 → 1.0 down-conversion helpers for channel voice.
 - Minimal `MidiClock` implementations: browser, AudioContext-aligned, and worker-backed.
 - `Midi2Scheduler` for time-ordered delivery with a jitter coalescing window and record/replay helpers for captured sequences.
-- UMP helpers to encode/decode MIDI 2.0 Channel Voice messages, including RPN/NRPN (absolute/relative) and per-note management/controllers (reg/assignable), plus Utility (MT=0x0), System Common/Real-Time (MT=0x1), MIDI 1.0 channel voice (MT=0x2), and initial Flex Data (tempo/time signature/key signature/lyric).
+- UMP helpers to encode/decode MIDI 2.0 Channel Voice messages, including RPN/NRPN (absolute/relative) and per-note management/controllers (reg/assignable), plus Utility (MT=0x0), Stream config/function block (MT=0xF), System Common/Real-Time (MT=0x1), MIDI 1.0 channel voice (MT=0x2), and initial Flex Data (tempo/time signature/key signature/lyric).
 - Host adapters: simple WebAudio poly-synth, Three.js mesh spawner, and Cannon.js rigid-body mapper.
 
 ## Quick start

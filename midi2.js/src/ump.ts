@@ -25,6 +25,7 @@ import {
   FlexTimeSignatureEvent,
   FlexKeySignatureEvent,
   FlexLyricEvent,
+  StreamEvent,
 } from "./types";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
 import { encodeMidiCiEvent } from "./midici";
@@ -33,6 +34,10 @@ const MIDI2_CHANNEL_VOICE_MT = 0x4;
 const MIDI1_CHANNEL_VOICE_MT = 0x2;
 const MIDI2_SYSTEM_MT = 0x1;
 const UTILITY_MT = 0x0;
+const STREAM_MT = 0xf;
+const STREAM_OPCODE_ENDPOINT = 0x00;
+const STREAM_OPCODE_CONFIG = 0x01;
+const STREAM_OPCODE_FUNCTION_BLOCK = 0x02;
 const STATUS_RPN = 0x2;
 const STATUS_NRPN = 0x3;
 const STATUS_RPN_RELATIVE = 0x4;
@@ -135,6 +140,117 @@ function encodeUtility(event: UtilityEvent): Uint32Array {
   assertRange("value", data, 0, 0xffff);
   const word = (UTILITY_MT << 28) | (statusByte << 16) | (data & 0xffff);
   return new Uint32Array([word >>> 0]);
+}
+
+function encodeStreamFlags(cfg: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean }, isNotification: boolean): number {
+  let flags = 0x20;
+  if ((cfg.protocol ?? "midi1") === "midi2") flags |= 0x01;
+  if (cfg.jrTimestampsTx) flags |= 0x02;
+  if (cfg.jrTimestampsRx && !isNotification) flags |= 0x04;
+  flags &= 0x27; // clear reserved bits
+  return flags;
+}
+
+function encodeStream(event: StreamEvent): Uint32Array {
+  assertRange("group", event.group, 0, 0xf);
+  switch (event.opcode) {
+    case "endpointDiscovery": {
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT << 16);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "streamConfigRequest":
+    case "streamConfigNotification": {
+      const isNotification = event.opcode === "streamConfigNotification";
+      const cfg = event.streamConfigRequest ?? event.streamConfigNotification ?? {};
+      const flags = encodeStreamFlags(cfg, isNotification);
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_CONFIG << 16) | (flags << 8);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "functionBlockInfo": {
+      const info = event.functionBlockInfo ?? {};
+      assertRange("index", info.index ?? 0, 0, 0xff);
+      assertRange("firstGroup", info.firstGroup ?? 0, 0, 0x0f);
+      assertRange("groupCount", info.groupCount ?? 0, 0, 0x0f);
+      const word0 =
+        (STREAM_MT << 28) |
+        (event.group << 24) |
+        (STREAM_OPCODE_FUNCTION_BLOCK << 16) |
+        ((info.index ?? 0) << 8) |
+        (((info.firstGroup ?? 0) & 0x0f) << 4) |
+        ((info.groupCount ?? 0) & 0x0f);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "functionBlockDiscovery": {
+      const filter = (event.functionBlockDiscovery?.filterBitmap ?? 0x8000) | 0x8000;
+      assertRange("filterBitmap", filter, 0, 0xffff);
+      const word0 =
+        (STREAM_MT << 28) |
+        (event.group << 24) |
+        (STREAM_OPCODE_FUNCTION_BLOCK << 16) |
+        (((filter >> 8) & 0xff) << 8) |
+        (filter & 0xff);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    default:
+      throw new Error(`Unsupported stream opcode ${(event as StreamEvent).opcode}`);
+  }
+}
+
+function decodeStream(word0: number, timestamp?: number): StreamEvent {
+  if ((word0 & 0x00000008) !== 0) {
+    throw new RangeError("Stream packet has reserved bit set.");
+  }
+  const mt = (word0 >>> 28) & 0xf;
+  if (mt !== STREAM_MT) {
+    throw new RangeError("Not a stream packet.");
+  }
+  const group = (word0 >>> 24) & 0xf;
+  const opcodeByte = (word0 >>> 16) & 0xff;
+  const byte2 = (word0 >>> 8) & 0xff;
+  const byte3 = word0 & 0xff;
+
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT) {
+    if (byte2 !== 0 || byte3 !== 0) {
+      throw new RangeError("Stream endpoint discovery contains reserved data.");
+    }
+    return { kind: "stream", group, opcode: "endpointDiscovery", timestamp };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_CONFIG) {
+    const protocol: "midi1" | "midi2" = (byte2 & 0x01) !== 0 ? "midi2" : "midi1";
+    const jrTx = (byte2 & 0x02) !== 0;
+    const jrRx = (byte2 & 0x04) !== 0;
+    const isNotification = !jrRx;
+    const cfg = { protocol, jrTimestampsTx: jrTx, jrTimestampsRx: jrRx };
+    return isNotification
+      ? { kind: "stream", group, opcode: "streamConfigNotification", streamConfigNotification: cfg, timestamp }
+      : { kind: "stream", group, opcode: "streamConfigRequest", streamConfigRequest: cfg, timestamp };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK) {
+    if (byte2 >= 0x80) {
+      const filterBitmap = (byte2 << 8) | byte3;
+      return {
+        kind: "stream",
+        group,
+        opcode: "functionBlockDiscovery",
+        functionBlockDiscovery: { filterBitmap },
+        timestamp,
+      };
+    }
+    const index = byte2;
+    const firstGroup = (byte3 >> 4) & 0x0f;
+    const groupCount = byte3 & 0x0f;
+    return {
+      kind: "stream",
+      group,
+      opcode: "functionBlockInfo",
+      functionBlockInfo: { index, firstGroup, groupCount },
+      timestamp,
+    };
+  }
+
+  return { kind: "stream", group, opcode: "endpointDiscovery", timestamp };
 }
 
 function encodeFlexTempo(event: FlexTempoEvent): Uint32Array {
@@ -381,6 +497,8 @@ export function encodeUmp(event: Midi2Event): Uint32Array {
   switch (event.kind) {
     case "utility":
       return encodeUtility(event);
+    case "stream":
+      return encodeStream(event);
     case "flexTempo":
       return encodeFlexTempo(event);
     case "flexTimeSignature":
@@ -450,6 +568,9 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   const packet = toUint32Array(words);
   const word0 = packet[0];
   const mt = (word0 >>> 28) & 0xf;
+  if (mt === STREAM_MT) {
+    return decodeStream(word0, timestamp);
+  }
   if (mt === 0xd) {
     if (packet.length < 4) return null;
     const statusClass = (word0 >>> 16) & 0xff;

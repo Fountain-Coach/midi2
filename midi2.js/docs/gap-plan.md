@@ -9,7 +9,7 @@ Current status:
 Priority gaps (aligns to docs/midi2-js-dod.md):
 
 1) Protocol coverage
-- Stream messages (mt=0xF), Function Blocks, Group/Terminal blocks, process inquiry, and per-spec reserved-bit validation are absent.
+- Stream config and function block UMP (mt=0xF) encode/decode added; still missing Group/Terminal blocks, endpoint discovery payload fidelity, and process inquiry opcodes.
 - Per-note controllers: missing pitch/pressure/timbre/attributes helpers and decode paths.
 - Jitter Reduction timing semantics not wired to scheduler (only mt=0x0 utility encode/decode exists).
 - MIDI 1.0 interoperability: byte-stream→UMP converter covers channel voice/system-common/realtime/SysEx7; still need 2.0→1.0 SysEx/down-conversion (beyond channel voice) and running-status emitters.
@@ -19,7 +19,7 @@ Priority gaps (aligns to docs/midi2-js-dod.md):
 - No MUID management or error/NAK paths; only envelope framing/unframing is present.
 
 3) Scheduling and adapters
-- No record/replay API; no worker/off-main-thread clock tests.
+- Record/replay exists; still need worker/off-main-thread clock tests and jitter-reduction mapping.
 - Adapters do not cover per-note controllers, pitch-bend range negotiation, or disposal safety.
 - No host separation: core exports adapters directly; consider packaging pure core + optional adapters.
 

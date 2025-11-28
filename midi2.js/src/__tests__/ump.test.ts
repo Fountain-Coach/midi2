@@ -29,6 +29,7 @@ import {
   Midi2ProgramChangeEvent,
   Midi2RpnEvent,
   Midi2RpnRelativeEvent,
+  StreamEvent,
   MidiCiEvent,
   SysEx7Event,
   SysEx8Event,
@@ -209,7 +210,7 @@ describe("UMP channel voice encode/decode", () => {
   });
 
   it("passes through unknown message types as raw UMP", () => {
-    const words = new Uint32Array([0xf0000000, 0x01020304]);
+    const words = new Uint32Array([0xe0000000, 0x01020304]);
     const decoded = decodeUmp(words);
     expect(decoded).toMatchObject({
       kind: "rawUMP",
@@ -287,6 +288,68 @@ describe("UMP channel voice encode/decode", () => {
     expect(words[0]).toBe(0xd0110211);
     const decoded = decodeUmp(words);
     expect(decoded).toMatchObject(evt);
+  });
+});
+
+describe("Stream messages", () => {
+  it("encodes and decodes stream config request/notification", () => {
+    const req: StreamEvent = {
+      kind: "stream",
+      group: 1,
+      opcode: "streamConfigRequest",
+      streamConfigRequest: { protocol: "midi2", jrTimestampsTx: true, jrTimestampsRx: true },
+    };
+    const reqWords = encodeUmp(req);
+    const decodedReq = decodeUmp(reqWords);
+    expect(decodedReq).toMatchObject({
+      kind: "stream",
+      opcode: "streamConfigRequest",
+      streamConfigRequest: { protocol: "midi2", jrTimestampsTx: true, jrTimestampsRx: true },
+    });
+
+    const notif: StreamEvent = {
+      kind: "stream",
+      group: 1,
+      opcode: "streamConfigNotification",
+      streamConfigNotification: { protocol: "midi1", jrTimestampsTx: false, jrTimestampsRx: false },
+    };
+    const notifWords = encodeUmp(notif);
+    const decodedNotif = decodeUmp(notifWords);
+    expect(decodedNotif).toMatchObject({ kind: "stream", opcode: "streamConfigNotification" });
+  });
+
+  it("encodes and decodes function block info and discovery", () => {
+    const info: StreamEvent = {
+      kind: "stream",
+      group: 0,
+      opcode: "functionBlockInfo",
+      functionBlockInfo: { index: 2, firstGroup: 1, groupCount: 4 },
+    };
+    const infoWords = encodeUmp(info);
+    expect(infoWords[0]).toBe(0xf0020214);
+    const decodedInfo = decodeUmp(infoWords);
+    expect(decodedInfo).toMatchObject({
+      kind: "stream",
+      opcode: "functionBlockInfo",
+      functionBlockInfo: { index: 2, firstGroup: 1, groupCount: 4 },
+    });
+
+    const discovery: StreamEvent = {
+      kind: "stream",
+      group: 0,
+      opcode: "functionBlockDiscovery",
+      functionBlockDiscovery: { filterBitmap: 0x8001 },
+    };
+    const discWords = encodeUmp(discovery);
+    const decodedDisc = decodeUmp(discWords);
+    expect(decodedDisc).toMatchObject({ kind: "stream", opcode: "functionBlockDiscovery" });
+  });
+
+  it("rejects stream packets with reserved bits", () => {
+    const word = new Uint32Array([0xf0000800]);
+    expect(() => decodeUmp(word)).toThrow(RangeError);
+    const endpointWord = new Uint32Array([0xf0000101]);
+    expect(() => decodeUmp(endpointWord)).toThrow(RangeError);
   });
 });
 

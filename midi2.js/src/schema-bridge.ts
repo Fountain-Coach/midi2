@@ -1083,6 +1083,9 @@ function sanitizeProfileEvent(evt: ProfileEvent, group: number): ProfileEvent {
   if (evt.target === "channel" && (!Array.isArray(evt.channels) || evt.channels.length === 0)) {
     return { command: "reply", kind: "profile", group, details: { payload: [] } };
   }
+  if (evt.target && !["channel", "group", "functionBlock"].includes(evt.target)) {
+    return { command: "reply", kind: "profile", group, details: { payload: [] } };
+  }
   if (evt.details && typeof evt.details !== "object") {
     return { command: "reply", kind: "profile", group, details: { payload: [] } };
   }
@@ -1102,6 +1105,13 @@ function sanitizePeEvent(evt: PropertyExchangeEvent, group: number): PropertyExc
   }
   if (evt.data && !(evt.data instanceof Uint8Array) && typeof evt.data !== "object") {
     return { kind: "propertyExchange", group, command: "notify", data: undefined };
+  }
+  if (evt.header && typeof (evt.header as any).offset !== "undefined" && typeof (evt.header as any).length !== "undefined") {
+    const offset = Number((evt.header as any).offset);
+    const length = Number((evt.header as any).length);
+    if (!Number.isFinite(offset) || !Number.isFinite(length) || offset < 0 || length < 0) {
+      return { kind: "propertyExchange", group, command: "notify", data: undefined };
+    }
   }
   return { ...evt, group, kind: "propertyExchange" };
 }

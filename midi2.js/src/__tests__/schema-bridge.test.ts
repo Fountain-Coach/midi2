@@ -200,6 +200,14 @@ describe("schema bridge", () => {
     expect((evt as any).command).toBe("notify");
   });
 
+  it("downgrades profile with missing profileId", () => {
+    const payload = new TextEncoder().encode(JSON.stringify({ command: "setOn", target: "channel", channels: [0] }));
+    const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x20, version: 1, payload, format: "sysex7" };
+    const evt = schemaPacketToEvent(eventToSchemaPacket(env)!);
+    expect(evt?.kind).toBe("profile");
+    expect((evt as any).command).toBe("reply");
+  });
+
   it("falls back to endReport when process inquiry command is invalid", () => {
     const badPi = new TextEncoder().encode(JSON.stringify({ command: "bogus" }));
     const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x22, version: 1, payload: badPi, format: "sysex7" };

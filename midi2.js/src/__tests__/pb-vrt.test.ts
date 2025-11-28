@@ -103,12 +103,6 @@ describe("PB-VRT golden vectors", () => {
       header: entry.header,
       data: Uint8Array.from(Buffer.from(entry.dataHex, "hex")),
     }));
-    const totalLength = chunks.reduce((acc, c) => acc + (c.data as Uint8Array).length, 0);
-    const assembled = chunks
-      .sort((a, b) => Number(a.header.offset ?? 0) - Number(b.header.offset ?? 0))
-      .flatMap(c => Array.from(c.data as Uint8Array));
-    expect(totalLength).toBe(6);
-    expect(assembled).toEqual([1, 2, 3, 4, 5, 6]);
     const merged = reassemblePeChunks(chunks as any);
     expect(merged?.data instanceof Uint8Array).toBe(true);
     expect(Array.from(merged?.data ?? [])).toEqual([1, 2, 3, 4, 5, 6]);

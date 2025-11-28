@@ -185,6 +185,21 @@ describe("schema bridge", () => {
     expect((evt as any).command).toBe("notify");
   });
 
+  it("downgrades PE with missing requestId", () => {
+    const env: MidiCiEvent = {
+      kind: "midiCi",
+      group: 0,
+      scope: "nonRealtime",
+      subId2: 0x21,
+      version: 1,
+      payload: new TextEncoder().encode(JSON.stringify({ command: "set", encoding: "json", data: {} })),
+      format: "sysex7",
+    };
+    const evt = schemaPacketToEvent(eventToSchemaPacket(env)!);
+    expect(evt?.kind).toBe("propertyExchange");
+    expect((evt as any).command).toBe("notify");
+  });
+
   it("falls back to endReport when process inquiry command is invalid", () => {
     const badPi = new TextEncoder().encode(JSON.stringify({ command: "bogus" }));
     const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x22, version: 1, payload: badPi, format: "sysex7" };

@@ -1052,15 +1052,24 @@ export function reassemblePeChunks(chunks: PropertyExchangeEvent[]): PropertyExc
   if (!chunks.length) return null;
   const binaryChunks = chunks.every(c => c.data instanceof Uint8Array);
   if (!binaryChunks) return null;
-  const sorted = chunks.slice().sort((a, b) => Number((a.header?.offset as number) ?? 0) - Number((b.header?.offset as number) ?? 0));
+  const sorted = chunks
+    .slice()
+    .sort((a, b) => Number((a.header?.offset as number) ?? 0) - Number((b.header?.offset as number) ?? 0));
   const buffers: number[] = [];
+  let expectedOffset = 0;
   for (const chunk of sorted) {
+    const offset = Number((chunk.header as any)?.offset ?? 0);
+    const length = (chunk.data as Uint8Array).length;
+    if (offset !== expectedOffset) {
+      return null;
+    }
     buffers.push(...Array.from(chunk.data as Uint8Array));
+    expectedOffset += length;
   }
   const base = sorted[0];
   const data = Uint8Array.from(buffers);
   const header = { ...(base.header ?? {}), length: data.length };
-  return { ...base, data, header };
+  return { ...base, data, header, command: base.command, requestId: base.requestId };
 }
 
 function sanitizeProfileEvent(evt: ProfileEvent, group: number): ProfileEvent {

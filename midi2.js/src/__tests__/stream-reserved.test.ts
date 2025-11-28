@@ -11,4 +11,10 @@ describe("stream reserved bits", () => {
     const word = 0xf0000101; // endpoint opcode with non-zero payload
     expect(decodeStreamWord(word)).toBeNull();
   });
+
+  it("rejects stream config with reserved flag bits set", () => {
+    // flags include reserved bits (0x80)
+    const word = 0xf0000180;
+    expect(decodeStreamWord(word)).toBeNull();
+  });
 });

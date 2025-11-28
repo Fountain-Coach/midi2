@@ -242,6 +242,9 @@ function decodeStream(word0: number, timestamp?: number): StreamEvent {
   }
 
   if (opcodeByte === STREAM_OPCODE_CONFIG) {
+    if ((byte2 & 0xd8) !== 0) {
+      throw new RangeError("Stream config flags have reserved bits set.");
+    }
     const protocol: "midi1" | "midi2" = (byte2 & 0x01) !== 0 ? "midi2" : "midi1";
     const jrTx = (byte2 & 0x02) !== 0;
     const jrRx = (byte2 & 0x04) !== 0;

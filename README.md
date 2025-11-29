@@ -1,10 +1,27 @@
-# MIDI2 Swift Library
+# MIDI2 Swift & JS Libraries
 
-Swift 6 library for building and parsing **MIDI 2.0 Universal MIDI
-Packets (UMP)**. The package is generated from the normative JSON Schema and
-OpenAPI definitions and provides broad MIDI 2.0 coverage, including core UMP structures, SysEx7/SysEx8
-streaming utilities, MIDI‑CI envelope helpers, and a teaching‑oriented
-`midi2demo` CLI for experimenting with the specification.
+This repo hosts two sibling implementations of the MIDI 2.0 stack:
+
+- **Swift reference stack** — Swift 6 library plus the `midi2demo` CLI for UMP, SysEx7/8, MIDI‑CI, and teaching-oriented flows.
+- **`midi2.js`** — CoreMIDI‑free TypeScript/JavaScript library for browsers/Node, covering UMP encode/decode, SysEx7/8, MIDI‑CI envelopes, scheduler, and adapters (WebAudio/Three.js/Cannon.js). See `midi2.js/README.md`.
+
+Both are generated from the canonical JSON Schema and OpenAPI sources in this repo.
+
+## Quick install
+
+- Swift (SwiftPM):
+  ```swift
+  dependencies: [
+      .package(url: "https://example.com/midi2.git", from: "0.6.1")
+  ]
+  ```
+- JavaScript/TypeScript:
+  ```bash
+  npm install @fountain-coach/midi2
+  # or pnpm add @fountain-coach/midi2
+  ```
+
+Read on for Swift details; see `midi2.js/README.md` for JS usage and API surface.
 
 ## Status
 

@@ -11,6 +11,14 @@ All notable changes to this project will be documented in this file.
 ### Changed
 - Tests: Align JR receiver wrap semantics and Property Exchange error codes; update System Real-Time error expectation
 
+## [0.7.0] - 2025-11-28
+### Added
+- JS/TS: Introduced `midi2.js`, a CoreMIDI-free TypeScript/JavaScript library for MIDI 2.0 UMP, SysEx7/8 fragmentation/reassembly, MIDI‑CI envelopes, jitter-aware scheduler, and adapters (WebAudio/Three.js/Cannon.js). Bundled ESM+CJS+types via tsup; npm-ready package with `files: ["dist"]`.
+- Validation: Stream opcode coverage extended to process inquiry; system status typing tightened; Node typings added for test fixtures.
+### Changed
+- Tooling: Upgraded vitest to 3.2.4 (resolving esbuild/vite advisories); added Node types to tsconfig and tests to satisfy type-checking; regenerated OpenAPI-derived guards.
+- Docs: Root README now reflects both Swift and `midi2.js`; gap-plan/agents updated to current JS feature set and packaging status.
+
 ## [0.6.1] - 2025-11-04
 ### Added
 - CI: Harden MIDI Association Workbench compliance runner

@@ -130,7 +130,7 @@ describe("midi2EventsToMidi1Bytes", () => {
       },
     ]);
     expect(bytes.slice(0, 5)).toEqual([0xf0, 0x7e, 0x0d, 0x7c, 0x01]);
-    expect(bytes.at(-1)).toBe(0xf7);
+    expect(bytes[bytes.length - 1]).toBe(0xf7);
   });
 
   it("ignores unsupported event kinds", () => {

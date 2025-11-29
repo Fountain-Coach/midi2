@@ -3,6 +3,11 @@
   "version": "0.1.0",
   "private": false,
   "description": "Cross-browser, CoreMIDI-free MIDI 2.0 protocol and scheduler core.",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fountain-coach/midi2.git"
+  },
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
@@ -21,8 +26,9 @@
     "ci": "npm run codegen && npm run check && npm test"
   },
   "devDependencies": {
+    "@types/node": "^22.9.0",
     "tsup": "^8.5.1",
     "typescript": "^5.6.3",
-    "vitest": "^1.6.0"
+    "vitest": "^3.2.4"
   }
 }

@@ -1,6 +1,6 @@
 import { fragmentSysEx7 } from "./sysex";
 import { encodeUmp } from "./ump";
-import { Midi2Event, Midi2NoteOffEvent, Midi2NoteOnEvent, Midi2PitchBendEvent, Midi2ProgramChangeEvent, MidiCiEvent, SysEx7Event } from "./types";
+import { Midi2Event, Midi2NoteOffEvent, Midi2NoteOnEvent, Midi2PitchBendEvent, Midi2ProgramChangeEvent, Midi2SystemEvent, MidiCiEvent, SysEx7Event } from "./types";
 
 function isChannelVoiceStatus(status: number): boolean {
   return status >= 0x80 && status <= 0xef;
@@ -44,6 +44,17 @@ function systemCommonLength(status: number): number {
   }
 }
 
+const SYSTEM_STATUSES: Midi2SystemEvent["status"][] = [0xf1, 0xf2, 0xf3, 0xf6, 0xf8, 0xfa, 0xfb, 0xfc, 0xfe, 0xff];
+
+function toSystemStatus(value: number): Midi2SystemEvent["status"] {
+  const status = value & 0xff;
+  const typed = status as Midi2SystemEvent["status"];
+  if (!SYSTEM_STATUSES.includes(typed)) {
+    throw new RangeError(`Unsupported system status 0x${status.toString(16)}`);
+  }
+  return typed;
+}
+
 function parseSysEx(data: number[], start: number, group: number, out: Uint32Array[]): number {
   const payload: number[] = [];
   for (let i = start + 1; i < data.length; i++) {
@@ -61,7 +72,7 @@ function parseSysEx(data: number[], start: number, group: number, out: Uint32Arr
       return i + 1;
     }
     if (isRealtimeStatus(b)) {
-      out.push(encodeUmp({ kind: "system", group, status: b }));
+      out.push(encodeUmp({ kind: "system", group, status: toSystemStatus(b) }));
       continue;
     }
     payload.push(b);
@@ -93,7 +104,7 @@ export function midi1BytesToUmp(bytes: ArrayLike<number>, group = 0): Uint32Arra
     const byte = data[i];
     if (byte & 0x80) {
       if (isRealtimeStatus(byte)) {
-        const evt: Midi2Event = { kind: "system", group, status: byte };
+        const evt: Midi2Event = { kind: "system", group, status: toSystemStatus(byte) };
         out.push(encodeUmp(evt));
         i += 1;
         continue;
@@ -126,7 +137,7 @@ export function midi1BytesToUmp(bytes: ArrayLike<number>, group = 0): Uint32Arra
       const d2 = len === 2 ? data[i + 2] : undefined;
       if (d1 !== undefined) assertDataByte(d1);
       if (d2 !== undefined) assertDataByte(d2);
-      const evt: Midi2Event = { kind: "system", group, status: byte, data1: d1, data2: d2 };
+      const evt: Midi2Event = { kind: "system", group, status: toSystemStatus(byte), data1: d1, data2: d2 };
       out.push(encodeUmp(evt));
       runningStatus = null; // system common breaks running status
       i += 1 + len;

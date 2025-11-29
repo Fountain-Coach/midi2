@@ -766,7 +766,16 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   }
   if (mt === MIDI2_SYSTEM_MT) {
     const group = (word0 >>> 24) & 0xf;
-    const status = (word0 >>> 16) & 0xff;
+    const statusByte = (word0 >>> 16) & 0xff;
+    const allowedStatuses: Midi2SystemEvent["status"][] = [0xf1, 0xf2, 0xf3, 0xf6, 0xf8, 0xfa, 0xfb, 0xfc, 0xfe, 0xff];
+    if (!allowedStatuses.includes(statusByte as Midi2SystemEvent["status"])) {
+      return {
+        kind: "rawUMP",
+        words: packet,
+        timestamp,
+      } as RawUMPEvent;
+    }
+    const status = statusByte as Midi2SystemEvent["status"];
     const data1 = (word0 >>> 8) & 0xff;
     const data2 = word0 & 0xff;
     const needsData2 = status === 0xf2;

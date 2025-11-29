@@ -1,16 +1,31 @@
 import { describe, expect, it } from "vitest";
 import { decodeToPacketAndEvent } from "../decoder";
 import { eventToSchemaPacket, reassemblePeChunks } from "../schema-bridge";
-import fs from "fs";
-import path from "path";
+import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 function hexToWord(hex: string): number {
   return Number(BigInt(hex));
 }
 
+function hexToBytes(hex: string): Uint8Array {
+  const clean = hex.startsWith("0x") ? hex.slice(2) : hex;
+  if (clean.length % 2 !== 0) {
+    throw new Error("Hex string length must be even.");
+  }
+  const out = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < clean.length; i += 2) {
+    out[i / 2] = parseInt(clean.slice(i, i + 2), 16);
+  }
+  return out;
+}
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
 function loadJSON(relPath: string) {
-  const abs = path.resolve(__dirname, "../../../docs/pb-vrt", relPath);
-  return JSON.parse(fs.readFileSync(abs, "utf8"));
+  const abs = resolve(__dirname, "../../../docs/pb-vrt", relPath);
+  return JSON.parse(readFileSync(abs, "utf8"));
 }
 
 describe("PB-VRT golden vectors", () => {
@@ -62,7 +77,7 @@ describe("PB-VRT golden vectors", () => {
         ]),
       ),
     );
-    expect(events.every(e => e?.event?.kind === "utility")).toBe(true);
+    expect(events.every((entry: ReturnType<typeof decodeToPacketAndEvent> | null): boolean => entry?.event?.kind === "utility")).toBe(true);
   });
 
   it("decodes profile enable/disable sequence", () => {
@@ -80,9 +95,9 @@ describe("PB-VRT golden vectors", () => {
       requestId: entry.requestId,
       encoding: entry.encoding,
       header: entry.header,
-      data: entry.dataHex ? Uint8Array.from(Buffer.from(entry.dataHex, "hex")) : undefined,
+      data: entry.dataHex ? hexToBytes(entry.dataHex) : undefined,
     }));
-    const packets = events.map(evt => eventToSchemaPacket(evt as any));
+    const packets = events.map((evt: (typeof events)[number]) => eventToSchemaPacket(evt as any));
     expect(packets.length).toBeGreaterThan(0);
   });
 
@@ -103,11 +118,12 @@ describe("PB-VRT golden vectors", () => {
       requestId: entry.requestId,
       encoding: entry.encoding,
       header: entry.header,
-      data: Uint8Array.from(Buffer.from(entry.dataHex, "hex")),
+      data: hexToBytes(entry.dataHex),
     }));
     const merged = reassemblePeChunks(chunks as any);
     expect(merged?.data instanceof Uint8Array).toBe(true);
-    expect(Array.from(merged?.data ?? [])).toEqual([1, 2, 3, 4, 5, 6]);
+    const bytes = merged?.data instanceof Uint8Array ? Array.from(merged.data) : [];
+    expect(bytes).toEqual([1, 2, 3, 4, 5, 6]);
   });
 
   it("parses profile details reply", () => {

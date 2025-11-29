@@ -9,7 +9,7 @@ Current status:
 Priority gaps (aligns to docs/midi2-js-dod.md):
 
 1) Protocol coverage
-- Stream config and function block UMP (mt=0xF) encode/decode added; still missing Group/Terminal blocks, endpoint discovery payload fidelity, and process inquiry opcodes.
+- Stream config and function block UMP (mt=0xF) encode/decode added; process inquiry opcode 0x03 covered; still missing Group/Terminal blocks and endpoint discovery payload fidelity.
 - Per-note controllers: pitch/pressure/timbre/attributes helpers and decode paths are still missing.
 - Jitter Reduction: synchronizer + scheduler projection exist; still need deeper integration with worker clocks and stream timing semantics.
 - MIDI 1.0 interoperability: byte-stream→UMP converter covers channel voice/system-common/realtime/SysEx7; 2.0→1.0 down-conversion covers channel voice + SysEx7/8 and MIDI-CI (universal SysEx) with running-status emission; still need richer mapping for CI envelopes and validation.
@@ -29,9 +29,8 @@ Priority gaps (aligns to docs/midi2-js-dod.md):
 - SysEx limits: add tests for oversize payloads and invalid chunk ordering.
 
 5) Tooling and distribution
-- Package is private 0.0.1 with no built `dist/` artifacts checked; no bundler/dual ESM+CJS output.
-- No JS CI workflow (lint/type-check/test/browser bundle). No coverage reporting.
-- `node_modules/` is committed; replace with clean lock + build pipeline.
+- Package is public 0.1.0; tsup emits ESM/CJS+types to `dist/`. Need coverage reporting, npm pack verification, and CI (tsc/vitest/browser bundle).
+- Keep `node_modules/` untracked; publish from clean lock + generated artifacts only.
 
 Next execution steps (suggested order)
 - Add decode validation for current UMP types (range/reserved bits) and negative tests.

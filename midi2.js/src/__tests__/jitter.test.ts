@@ -2,10 +2,26 @@ import { describe, expect, it } from "vitest";
 import { applyJitterReduction, JitterReductionSynchronizer } from "../jitter";
 import { Midi2Event } from "../types";
 
-function createMockClock(start = 0): { clock: { now: () => number }; advance: (ms: number) => void } {
+function createMockClock(
+  start = 0,
+): {
+  clock: { now: () => number; setTimer: (at: number, cb: () => void) => number; cancelTimer: (id: number) => void };
+  advance: (ms: number) => void;
+} {
   let now = start;
   return {
-    clock: { now: () => now },
+    clock: {
+      now: () => now,
+      setTimer: (at, cb) => {
+        const delay = Math.max(0, at - now);
+        const id = setTimeout(() => {
+          now = at;
+          cb();
+        }, delay) as unknown as number;
+        return id;
+      },
+      cancelTimer: id => clearTimeout(id),
+    },
     advance: (ms: number) => {
       now += ms;
     },

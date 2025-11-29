@@ -51,6 +51,7 @@ const STREAM_MT = 0xf;
 const STREAM_OPCODE_ENDPOINT = 0x00;
 const STREAM_OPCODE_CONFIG = 0x01;
 const STREAM_OPCODE_FUNCTION_BLOCK = 0x02;
+const STREAM_OPCODE_PROCESS_INQUIRY = 0x03;
 
 function toAddress(group: number, channel?: number): ScopeAddress | undefined {
   if (channel === undefined) return { scope: "group", group };
@@ -270,11 +271,9 @@ function asUmpPacket64(event: Midi2Event): UmpPacket64 | null {
           statusNibble: 15,
           channel: body.channel,
           body: {
-            perNoteMgmt: {
-              noteNumber: body.note,
-              detach: body.detach,
-              reset: body.reset,
-            },
+            noteNumber: body.note,
+            detach: body.detach,
+            reset: body.reset,
           },
         },
       };
@@ -457,10 +456,7 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
       const m1: Midi1ChannelVoiceEvent = event;
       const statusNibble = (m1.status >> 4) & 0xf;
       const channel = m1.status & 0xf;
-      const body: UmpPacket32["body"] = {
-        statusNibble: statusNibble as UmpPacket32["body"]["statusNibble"],
-        channel,
-      };
+      const body: any = { statusNibble, channel };
       if (statusNibble === 8 || statusNibble === 9) {
         body.noteNumber = m1.data1 ?? 0;
         body.velocity7 = m1.data2 ?? 0;
@@ -504,23 +500,27 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
   if (!isUmpPacket(packet)) {
     if (typeof packet === "object" && packet && ("messageType" in packet)) {
       const mt = (packet as any).messageType;
-      if (mt === 3 || mt === 15) {
+      if (mt === 3) {
         const body: any = (packet as any).body;
-        if (mt === 3 || mt === 15) {
-          if (isStreamBody(body)) {
-            return streamBodyToEvent((packet as any).group ?? 0, body);
-          }
-          if (body && typeof body === "object" && "opcode" in body) {
-            return streamBodyToEvent((packet as any).group ?? 0, {
-              opcode: body.opcode ?? 0,
-              endpointDiscovery: body.endpointDiscovery,
-              streamConfigRequest: body.streamConfigRequest,
-              streamConfigNotification: body.streamConfigNotification,
-              functionBlockDiscovery: body.functionBlockDiscovery,
-              functionBlockInfo: body.functionBlockInfo,
-            } as StreamBody);
-          }
+        if (isStreamBody(body)) {
+          return streamBodyToEvent((packet as any).group ?? 0, body);
         }
+        if (body && typeof body === "object" && "opcode" in body) {
+          return streamBodyToEvent((packet as any).group ?? 0, {
+            opcode: body.opcode ?? 0,
+            endpointDiscovery: body.endpointDiscovery,
+            streamConfigRequest: body.streamConfigRequest,
+            streamConfigNotification: body.streamConfigNotification,
+            functionBlockDiscovery: body.functionBlockDiscovery,
+            functionBlockInfo: body.functionBlockInfo,
+          } as StreamBody);
+        }
+        const words = packGeneric32(packet as any);
+        const stream = decodeStreamWord(words[0]);
+        if (stream) return stream;
+        return { kind: "rawUMP", words, timestamp: undefined };
+      }
+      if (mt === STREAM_MT) {
         const words = packGeneric32(packet as any);
         const stream = decodeStreamWord(words[0]);
         if (stream) return stream;
@@ -553,11 +553,6 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
   if (packet.messageType === STREAM_MT) {
     const word = packGeneric32(packet as UmpPacket32);
     return decodeStreamWord(word[0]);
-  }
-  if (packet.messageType === 15) {
-    // Data messages (MDS/SysEx8 in schema) are already handled in MT=5 for sysex8; treat the rest as raw UMP for now.
-    const words = packGeneric32(packet as UmpPacket32);
-    return { kind: "rawUMP", words, timestamp: undefined };
   }
   if (packet.messageType === 4) {
     const body = (packet as UmpPacket64).body;
@@ -665,15 +660,14 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
             delta: cv.nrpnDelta32,
           };
         }
-        if (cv.perNoteMgmt) {
-          const mgmt = cv.perNoteMgmt;
+        if (cv.noteNumber !== undefined && (cv.detach !== undefined || cv.reset !== undefined)) {
           return {
             kind: "perNoteManagement",
             group: (packet as UmpPacket64).group ?? 0,
             channel: channel ?? 0,
-            note: mgmt.noteNumber ?? 0,
-            detach: Boolean(mgmt.detach),
-            reset: Boolean(mgmt.reset),
+            note: cv.noteNumber ?? 0,
+            detach: Boolean(cv.detach),
+            reset: Boolean(cv.reset),
           };
         }
         if (cv.regPerNoteCtrlIndex !== undefined && cv.regPerNoteCtrlValue32 !== undefined) {
@@ -734,10 +728,6 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
       return syx;
     }
     return null;
-  }
-  if (packet.messageType === 3) {
-    const words = packGeneric32(packet as UmpPacket32);
-    return { kind: "rawUMP", words, timestamp: undefined };
   }
   if (packet.messageType === 1) {
     const sys = (packet as UmpPacket32).body as any;
@@ -861,7 +851,7 @@ function packGeneric32(packet: UmpPacket32): Uint32Array {
   return new Uint32Array([word0 >>> 0]);
 }
 
-function opcodeNumber(opcode: StreamEvent["opcode"]): 0 | 1 | 2 {
+function opcodeNumber(opcode: StreamEvent["opcode"]): 0 | 1 | 2 | 3 {
   switch (opcode) {
     case "endpointDiscovery":
       return 0;
@@ -871,6 +861,9 @@ function opcodeNumber(opcode: StreamEvent["opcode"]): 0 | 1 | 2 {
     case "functionBlockDiscovery":
     case "functionBlockInfo":
       return 2;
+    case "processInquiry":
+    case "processInquiryReply":
+      return 3;
     default:
       return 0;
   }
@@ -895,6 +888,22 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
       streamConfigNotification: body.streamConfigNotification,
     };
   }
+  if (opcode === 3) {
+    if (body.processInquiryReply) {
+      return {
+        kind: "stream",
+        group,
+        opcode: "processInquiryReply",
+        processInquiryReply: body.processInquiryReply,
+      };
+    }
+    return {
+      kind: "stream",
+      group,
+      opcode: "processInquiry",
+      processInquiry: body.processInquiry,
+    };
+  }
   return {
     kind: "stream",
     group,
@@ -912,6 +921,8 @@ function streamBodyFromEvent(stream: StreamEvent): StreamBody {
     streamConfigNotification: stream.streamConfigNotification,
     functionBlockDiscovery: stream.functionBlockDiscovery,
     functionBlockInfo: stream.functionBlockInfo,
+    processInquiry: stream.processInquiry,
+    processInquiryReply: stream.processInquiryReply,
   };
 }
 
@@ -1013,6 +1024,18 @@ function decodeProfileBody(payload: Uint8Array): Omit<ProfileEvent, "kind" | "gr
   }
 }
 
+function hexStringToBytes(hex: string): Uint8Array {
+  const clean = hex.startsWith("0x") ? hex.slice(2) : hex;
+  if (clean.length % 2 !== 0) {
+    throw new Error("Hex string length must be even.");
+  }
+  const out = new Uint8Array(clean.length / 2);
+  for (let i = 0; i < clean.length; i += 2) {
+    out[i / 2] = parseInt(clean.slice(i, i + 2), 16);
+  }
+  return out;
+}
+
 function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeEvent, "kind" | "group"> {
   try {
     const text = new TextDecoder().decode(payload);
@@ -1032,7 +1055,7 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
     if (!obj.command || !valid.has(obj.command)) return { command: "notify", data: payload };
     const parsedData =
       obj.encoding && typeof obj.data === "string" && obj.data.startsWith("0x")
-        ? Uint8Array.from(Buffer.from(obj.data.slice(2), "hex"))
+        ? hexStringToBytes(obj.data)
         : obj.data;
     const evt: Omit<PropertyExchangeEvent, "kind" | "group"> = {
       command: obj.command,
@@ -1166,6 +1189,18 @@ function packStream(stream: StreamEvent): Uint32Array {
     const word0 = mt | group | (STREAM_OPCODE_FUNCTION_BLOCK << 16) | (byte2 << 8) | byte3;
     return new Uint32Array([word0 >>> 0]);
   }
+  if (stream.opcode === "processInquiry" && stream.processInquiry) {
+    const fb = stream.processInquiry.functionBlock ?? 0;
+    const part = stream.processInquiry.part ?? 0;
+    const word0 = mt | group | (STREAM_OPCODE_PROCESS_INQUIRY << 16) | ((fb & 0x7f) << 8) | (part & 0x0f);
+    return new Uint32Array([word0 >>> 0]);
+  }
+  if (stream.opcode === "processInquiryReply" && stream.processInquiryReply) {
+    const fb = stream.processInquiryReply.functionBlock ?? 0;
+    const part = stream.processInquiryReply.part ?? 0;
+    const word0 = mt | group | (STREAM_OPCODE_PROCESS_INQUIRY << 16) | ((fb & 0x7f) << 8) | ((part & 0x0f) | 0x80);
+    return new Uint32Array([word0 >>> 0]);
+  }
   const word0 = mt | group | (opcodeByte << 16);
   return new Uint32Array([word0 >>> 0]);
 }
@@ -1174,21 +1209,26 @@ function packStreamFromBody(packet: UmpPacket32): Uint32Array {
   const body = packet.body as any;
   const group = packet.group ?? 0;
   const opcodeByte = body?.opcode ?? 0;
-  const byte2 =
-    body?.endpointDiscovery
-      ? 0
-      : body?.streamConfigRequest
-      ? encodeStreamFlags(body.streamConfigRequest, false)
-      : body?.streamConfigNotification
-      ? encodeStreamFlags(body.streamConfigNotification, true)
-      : body?.functionBlockDiscovery
-      ? ((body.functionBlockDiscovery.filterBitmap ?? 0) >> 8) & 0xff
-      : body?.functionBlockInfo?.index ?? 0;
-  const byte3 = body?.functionBlockInfo
-    ? (((body.functionBlockInfo.firstGroup ?? 0) & 0x0f) << 4) | ((body.functionBlockInfo.groupCount ?? 0) & 0x0f)
-    : body?.functionBlockDiscovery
-    ? (body.functionBlockDiscovery.filterBitmap ?? 0) & 0xff
-    : 0;
+  let byte2 = 0;
+  let byte3 = 0;
+  if (body?.streamConfigRequest) {
+    byte2 = encodeStreamFlags(body.streamConfigRequest, false);
+  } else if (body?.streamConfigNotification) {
+    byte2 = encodeStreamFlags(body.streamConfigNotification, true);
+  } else if (body?.functionBlockDiscovery) {
+    const filter = body.functionBlockDiscovery.filterBitmap ?? 0;
+    byte2 = (filter >> 8) & 0xff;
+    byte3 = filter & 0xff;
+  } else if (body?.functionBlockInfo) {
+    byte2 = body.functionBlockInfo.index ?? 0;
+    byte3 = ((body.functionBlockInfo.firstGroup ?? 0) << 4) | (body.functionBlockInfo.groupCount ?? 0);
+  } else if (body?.processInquiry) {
+    byte2 = (body.processInquiry.functionBlock ?? 0) & 0x7f;
+    byte3 = (body.processInquiry.part ?? 0) & 0x0f;
+  } else if (body?.processInquiryReply) {
+    byte2 = (body.processInquiryReply.functionBlock ?? 0) & 0x7f;
+    byte3 = ((body.processInquiryReply.part ?? 0) & 0x0f) | 0x80;
+  }
   const word0 = (STREAM_MT << 28) | ((group & 0x0f) << 24) | ((opcodeByte & 0xff) << 16) | ((byte2 & 0xff) << 8) | (byte3 & 0xff);
   return new Uint32Array([word0 >>> 0]);
 }
@@ -1246,6 +1286,25 @@ export function decodeStreamWord(word: number): StreamEvent | null {
       group,
       opcode: "functionBlockInfo",
       functionBlockInfo: { index, firstGroup, groupCount },
+    };
+  }
+  if (opcodeByte === STREAM_OPCODE_PROCESS_INQUIRY) {
+    const fb = byte2 & 0x7f;
+    const part = byte3 & 0x0f;
+    const isReply = (byte3 & 0x80) !== 0;
+    if (isReply) {
+      return {
+        kind: "stream",
+        group,
+        opcode: "processInquiryReply",
+        processInquiryReply: { functionBlock: fb, part },
+      };
+    }
+    return {
+      kind: "stream",
+      group,
+      opcode: "processInquiry",
+      processInquiry: { functionBlock: fb, part },
     };
   }
   return {

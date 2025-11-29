@@ -136,7 +136,7 @@ export interface MidiCiEvent {
 export interface Midi2SystemEvent {
   kind: "system";
   group: number;
-  status: number;
+  status: 0xf1 | 0xf2 | 0xf3 | 0xf6 | 0xf8 | 0xfa | 0xfb | 0xfc | 0xfe | 0xff;
   data1?: number;
   data2?: number;
   timestamp?: MidiTimestamp;
@@ -163,6 +163,7 @@ export interface UtilityEvent {
 export interface FlexTempoEvent {
   kind: "flexTempo";
   group: number;
+  channel?: number;
   bpm: number;
   timestamp?: MidiTimestamp;
 }
@@ -240,7 +241,14 @@ export interface RawUMPEvent {
   timestamp?: MidiTimestamp;
 }
 
-export type StreamOpcode = "endpointDiscovery" | "streamConfigRequest" | "streamConfigNotification" | "functionBlockDiscovery" | "functionBlockInfo";
+export type StreamOpcode =
+  | "endpointDiscovery"
+  | "streamConfigRequest"
+  | "streamConfigNotification"
+  | "functionBlockDiscovery"
+  | "functionBlockInfo"
+  | "processInquiry"
+  | "processInquiryReply";
 
 export interface StreamEvent {
   kind: "stream";

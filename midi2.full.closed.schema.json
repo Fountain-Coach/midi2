@@ -1,20 +1,4 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://fountain.coach/schemas/midi2.schema.json",
-  "title": "MIDI 2.0 — Universal MIDI Packet (UMP), MIDI-CI, Flex Data, SysEx7/8, Mixed Data Set, Stream & Clip Messages",
-  "description": "Authoritative, single-file JSON Schema capturing the MIDI 2.0 core as specified by MMA/AMEI:\n- UMP container & message types (0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0xD, 0xF)\n- MIDI 1.0 Protocol in UMP (Ch Voice + System Common/Realtime) for backward compatibility\n- MIDI 2.0 Channel Voice messages (Note, CC, RPN/NRPN incl. Relative, Program, Pressure, Pitch Bend, Per-Note, etc.)\n- Flex Data (tempo, time signature, text/lyrics/ruby, key, chord, metronome) per v1.1.2\n- System Exclusive (7-bit) & System Exclusive 8 (8-bit), Mixed Data Set (MDS)\n- Stream/Endpoint discovery & configuration, Function Blocks\n- Delta Clockstamp (DCTPQ/DC) & JR Clock/Timestamp\n- MIDI-CI envelopes & transactions (Discovery, Profiles, Property Exchange v1.2, Process Inquiry)\n- MIDI Clip File message envelopes (Start/End of Clip, tempo/time signature at clip boundaries)\n\nNotes:\n• Manufacturer- and Profile-specific payloads are modeled with precise envelopes and open content to allow conformance.\n• This schema focuses on packet/message-level structures as transported over UMP or encoded within SysEx(7/8) where defined.\n• Use $defs/* to compose validator-friendly variants and enable code generation.\n",
-  "type": "object",
-  "oneOf": [
-    {
-      "$ref": "#/$defs/UmpPacket32"
-    },
-    {
-      "$ref": "#/$defs/UmpPacket64"
-    },
-    {
-      "$ref": "#/$defs/UmpPacket128"
-    }
-  ],
   "$defs": {
     "Uint4": {
       "type": "integer",
@@ -1031,6 +1015,15 @@
               "$ref": "#/$defs/ByteArray"
             }
           ]
+        },
+        "statusCodes": {
+          "type": "array",
+          "description": "Property Exchange reply status codes (Table 15) or notify-only codes (Table 16 timeout wait via ACK)",
+          "items": {
+            "type": "integer",
+            "minimum": 100,
+            "maximum": 599
+          }
         }
       },
       "additionalProperties": false
@@ -1980,6 +1973,5 @@
       "description": "Flex Ruby (furigana).",
       "additionalProperties": false
     }
-  },
-  "additionalProperties": false
+  }
 }

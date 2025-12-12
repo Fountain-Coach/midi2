@@ -24,6 +24,8 @@ Current log:
 | M2-104-UM v1.1.2 | Function Block Name Notification | 41–42 (Figure 23) | `FunctionBlockNameNotification` | Captured | Added schema entry with `functionBlock` (Uint7) and UTF-8 `name` (max 91 bytes), noting start/continue/end framing per Figure 23. |
 | M2-102-U v1.1 | MIDI-CI Profiles (added/removed/detail reports) | 15, 17 | `MidiCiProfilesBody`, `ProfileSession` | Captured (envelopes) | Table 6 lists Profile config messages (added/removed/details/etc.); channel mask bits already enforced in code/tests; details now constrained to structured maps (cmL/cmH/ok) in schema. |
 | M2-103-UM v1.2 | Property Exchange JSON schema and chunking | TODO | `MidiCiPropertyExchangeBody`, PE schemas in JSON | Pending | Align property payload schema and error/NAK behaviors. |
+| M2-103-UM v1.2 | Property Exchange headers (resource/encoding/status/flow control) | 28–29 | `MidiCiPropertyExchangeBody.header` | Captured | Added structured header fields (resource, resId, encoding enum, flowControl, status/message, cacheTime) per Tables 13–15. |
+| M2-103-UM v1.2 | PE status codes / timeout ACK (notify) | 47–48 | `MidiCiPropertyExchangeBody.statusCodes` | Captured | Added statusCodes array with 100–599 range description noting timeout wait via ACK (Table 16). |
 
 Next actions:
 - Iterate through each spec section, fill in page references, and close the TODO rows; add rows as new sections are audited.

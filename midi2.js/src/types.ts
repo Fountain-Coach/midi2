@@ -122,6 +122,23 @@ export interface SysEx8Event {
   timestamp?: MidiTimestamp;
 }
 
+export interface MdsChunk {
+  messageId: number;
+  totalChunks: number;
+  index: number;
+  validByteCount: number;
+  payload: Uint8Array;
+}
+
+export interface MdsEvent {
+  kind: "mds";
+  group: number;
+  messageId: number;
+  totalChunks: number;
+  chunks: MdsChunk[];
+  timestamp?: MidiTimestamp;
+}
+
 export interface MidiCiEvent {
   kind: "midiCi";
   group: number;
@@ -369,6 +386,7 @@ export type Midi2Event =
   | FlexMetronomeEvent
   | SysEx7Event
   | SysEx8Event
+  | MdsEvent
   | MidiCiEvent
   | StreamEvent
   | ProfileEvent

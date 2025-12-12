@@ -483,6 +483,25 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
       const body = sysEx7BodyFromPayload([scope], Uint8Array.from([...header, ...event.payload]));
       return { messageType: 3, group: event.group, body } as unknown as UmpPacket32;
     }
+    case "mds": {
+      const mds: MdsEvent = event;
+      const packets: { streamStatus: "single" | "start" | "continue" | "end"; payload: number[] }[] = mds.chunks.map(chunk => ({
+        streamStatus: "single",
+        payload: Array.from(chunk.payload),
+      }));
+      return {
+        messageType: 5,
+        group: mds.group,
+        body: {
+          kind: "mds",
+          mds: {
+            messageId: mds.messageId,
+            totalChunks: mds.totalChunks,
+            chunks: mds.chunks.map(c => ({ index: c.index, validByteCount: c.validByteCount, payload: Array.from(c.payload) })),
+          },
+        } as any,
+      } as unknown as UmpPacket32;
+    }
     case "profile": {
       const p: ProfileEvent = event;
       const body = profileToBody(p);

@@ -18,6 +18,7 @@ import {
   RawUMPEvent,
   SysEx7Event,
   SysEx8Event,
+  MdsEvent,
   MidiCiEvent,
   Midi2SystemEvent,
   Midi1ChannelVoiceEvent,
@@ -893,12 +894,37 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     }
   }
   if (mt === 0x5) {
+    // MT=5 can be SysEx8 or MDS; detect SysEx8 framing (status nibble 0/1/2/3) vs MDS (0x8/0x9)
     if (packet.length % 4 !== 0) {
       return { kind: "rawUMP", words: packet, timestamp } as RawUMPEvent;
     }
     const packets: Uint32Array[] = [];
     for (let i = 0; i < packet.length; i += 4) {
       packets.push(packet.subarray(i, i + 4));
+    }
+    const firstStatus = (words[0] >>> 20) & 0xf;
+    if (firstStatus === 0x8 || firstStatus === 0x9) {
+      // Mixed Data Set
+      const chunks: MdsEvent["chunks"] = [];
+      const header = packets[0];
+      const validBytes = ((header[0] & 0xff) << 8) | ((header[1] >>> 24) & 0xff);
+      const messageId = ((header[1] >>> 8) & 0xffff);
+      const totalChunks = ((header[1] & 0xff) << 8) | ((header[2] >>> 24) & 0xff);
+      for (let i = 1; i < packets.length; i++) {
+        const p = packets[i];
+        const status = (p[0] >>> 20) & 0xf;
+        if (status !== 0x9) continue;
+        const mdsId = p[0] & 0x0f;
+        const validByteCount = (p[0] >>> 8) & 0xff;
+        const payloadBytes = new Uint8Array(14);
+        const dv = new DataView(payloadBytes.buffer);
+        dv.setUint32(0, p[1], false);
+        dv.setUint32(4, p[2], false);
+        dv.setUint32(8, p[3], false);
+        chunks.push({ messageId, totalChunks, index: mdsId, validByteCount, payload: payloadBytes.slice(0, validByteCount) });
+      }
+      const evt: MdsEvent = { kind: "mds", group: (words[0] >>> 24) & 0x0f, messageId, totalChunks, chunks, timestamp };
+      return evt;
     }
     try {
       const syx = reassembleSysEx8(packets);

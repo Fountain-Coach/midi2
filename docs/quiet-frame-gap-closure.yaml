@@ -3,7 +3,7 @@
 meta:
   repo: Fountain-Coach/midi2
   owner: MIDI2 Maintainers
-  date: 2025-11-04
+  date: 2025-12-12
   cadence: quarterly
   goal: Close drift from MIDI 2.0 spec by codifying baselines and acceptance.
 
@@ -18,22 +18,18 @@ areas:
       tests:
         - Tests/MIDI2Tests/MidiCiHandshakeIntegrationTests.swift:23
     drift:
-      - Only GET/GET_REPLY flow demonstrated; no Set/Subscribe/Notify state machine.
-      - No chunked payload transfer for large properties (§6).
-      - No schema-bound validation of JSON properties.
+      - Schema-bound validation of JSON properties is not enforced.
+      - Hardware interop coverage is missing.
     quiet_frame_goal:
-      - Implement full transaction state handling (Get/Set/Subscribe/Notify/Terminate).
-      - Add chunking helpers and reassembly for Property Exchange payloads.
       - Bind spec JSON schema to Swift types with validation.
+      - Capture interop traces against external devices.
     acceptance_criteria:
-      - Unit tests cover success/failure for Get/Set/Subscribe.
-      - Round-trip chunked transfers with boundary sizes.
       - Schema validation rejects invalid payloads with clear errors.
+      - Interop runbooks + fixtures committed.
     tasks:
-      - code: Implement transaction manager and state machine.
-      - code: Add chunker/reassembler for Property Exchange.
-      - code: Generate Swift types from midi2.full.closed.schema.json.
-      - test: Add XCTest for all flows and chunk boundaries.
+      - code: Generate Swift types from midi2.full.closed.schema.json for PE payloads.
+      - test: Add schema-validation tests over PE JSON bodies.
+      - interop: Capture device PE traces and assert decoding.
 
   profiles_and_fb:
     baseline_spec: M2-102-U (Profiles) and M2-104-UM §5 (Function Blocks)
@@ -49,16 +45,17 @@ areas:
         - Tests/MIDI2Tests/MidiCiHandshakeIntegrationTests.swift:1
         - Tests/MIDI2Tests/StreamFunctionBlockDiscoveryTests.swift:1
     drift:
-      - Function Block descriptors implemented for index/group range; remaining descriptor details and flow semantics optional.
+      - Function Block descriptors implemented for index/group range only; remaining descriptor fields and flow semantics pending.
+      - Profiles: richer configuration/detail reports and spontaneous added/removed sequences pending.
     quiet_frame_goal:
-      - Implement profile enable/disable + report messages end-to-end.
-      - Define and parse Function Block discovery/info structures.
+      - Implement profile enable/disable + report messages end-to-end, including details and added/removed reports.
+      - Define and parse full Function Block discovery/info structures.
     acceptance_criteria:
-      - Enable/disable flows with success/NAK test coverage.
-      - Function Block discovery parsing test vectors per spec examples.
+      - Enable/disable flows with success/NAK test coverage; detail reports exercised.
+      - Function Block discovery parsing test vectors per spec examples and extended descriptors.
     tasks:
       - code: Extend profiles model with reports and handlers.
-      - code: Add Function Block descriptor types and parser.
+      - code: Add full Function Block descriptor types and parser.
       - test: Add XCTest covering discovery and configuration.
 
   ump_stream_config:
@@ -75,12 +72,11 @@ areas:
         - Tests/MIDI2Tests/StreamTypedTests.swift:1
         - Tests/MIDI2Tests/StreamReservedBitsTests.swift:1
     drift:
-      - Endpoint Discovery typed mapping present; remaining device info advertisement detail.
-      - Stream Configuration request/notification and reserved-bit validation added; extended §5 semantics optional.
+      - Endpoint Discovery typed mapping present; remaining device info advertisement detail pending.
+      - Stream Configuration request/notification present; GTB negotiation semantics pending.
     quiet_frame_goal:
       - Implement Endpoint/Device Info types and encoders/decoders.
-      - Implement Stream Configuration handshake (request/reply) and checks.
-      - Add GTB typed model and parsing.
+      - Implement full Stream Configuration handshake (request/reply) and checks, including GTB negotiation semantics.
     acceptance_criteria:
       - Round-trip encode/decode tests for each message.
       - Negative tests for malformed fields and reserved bits.
@@ -128,7 +124,7 @@ areas:
       files:
         - Sources/MIDI2/System/Utility.swift:1
     drift:
-      - Reserved-ID tests for all decoders to be broadened.
+      - Reserved-ID tests for all decoders to be broadened; placeholder handling not unified.
     quiet_frame_goal:
       - Define placeholder handling and enums for reserved ranges.
     acceptance_criteria:
@@ -145,7 +141,7 @@ areas:
         - Scripts/SchemaGen.swift:1
         - Scripts/inject_schema_docs.py:1
     drift:
-      - Limited CI negotiation and stream config tests.
+      - Limited CI negotiation and stream config tests at system level.
       - No PB-VRT visual baselines for CI messages.
       - No hardware interop capture tests.
     quiet_frame_goal:
@@ -155,14 +151,15 @@ areas:
     tasks:
       - test: Add E2E scenario tests.
       - infra: Introduce PB-VRT baseline generation and review.
+      - interop: Add capture/replay harness for hardware traces.
 
 timeline:
   q1:
-    - property_exchange: state machine + chunking
-    - sysex8: edge-case tests
+    - property_exchange: schema validation + interop captures
+    - sysex8: edge-case tests (maintain)
   q2:
-    - ump_stream_config: endpoint/device info + requests
-    - profiles_and_fb: enable/disable flows
+    - ump_stream_config: endpoint/device info + requests + GTB semantics
+    - profiles_and_fb: enable/disable flows + details/added-removed reports
   q3:
-    - ump_stream_config: GTB
+    - ump_extensions: reserved ranges coverage
     - testing_validation: PB-VRT baselines

@@ -1,40 +1,37 @@
 # midi2.js Gap Plan (toward DoD)
 
-Current status:
-- ✅ Flex text/ruby/chord encode/decode fixes and validation tests (see src/ump.ts and src/__tests__/ump.test.ts).
-- ✅ Basic UMP/channel voice, utility, MIDI 1.0 CV, SysEx7/8 fragment/reassemble, MIDI-CI envelope wrapper, scheduler, and demo adapters.
-- ✅ Scheduler record/replay with tests.
-- 🚧 DoD coverage still partial; core gaps tracked below.
+Current status (0.7.0):
+- ✅ UMP encode/decode (utility/system/channel voice 1.0 & 2.0, stream/function blocks incl. process inquiry 0x03), Flex Data, SysEx7/8 fragment/reassemble.
+- ✅ MIDI-CI envelopes (discovery, profiles, property exchange with chunking, process inquiry) and OpenAPI-derived runtime guards.
+- ✅ Scheduler with JR-aware clocks + record/replay; adapters for WebAudio/Three.js/Cannon.js.
+- ✅ CI: `npm run ci` (codegen + tsc + vitest) and publishable `dist/` via tsup.
+- 🚧 DoD coverage still partial; core gaps below.
 
 Priority gaps (aligns to docs/midi2-js-dod.md):
 
 1) Protocol coverage
-- Stream config and function block UMP (mt=0xF) encode/decode added; process inquiry opcode 0x03 covered; still missing Group/Terminal blocks and endpoint discovery payload fidelity.
-- Per-note controllers: pitch/pressure/timbre/attributes helpers and decode paths are still missing.
-- Jitter Reduction: synchronizer + scheduler projection exist; still need deeper integration with worker clocks and stream timing semantics.
-- MIDI 1.0 interoperability: byte-stream→UMP converter covers channel voice/system-common/realtime/SysEx7; 2.0→1.0 down-conversion covers channel voice + SysEx7/8 and MIDI-CI (universal SysEx) with running-status emission; still need richer mapping for CI envelopes and validation.
+- Endpoint/Device Info payload fidelity and GTB semantics: tighten encode/decode and add vectors.
+- Reserved/unsupported statuses: unify placeholder handling across decoders; broaden negative tests.
+- Worker-clock JR projection: add coverage for off-main-thread clocks and jitter mapping.
 
 2) MIDI-CI flows
-- Discovery, profiles, property exchange (chunking/compression/state/errors), and process inquiry envelopes are not implemented.
-- No MUID management or error/NAK paths; only envelope framing/unframing is present.
+- Profile detail/added-removed reports and compression/error/NAK paths need negative tests; MUID management coverage is thin.
+- Property exchange: schema validation of JSON payloads is missing; add malformed payload tests.
 
 3) Scheduling and adapters
-- Record/replay exists; still need worker/off-main-thread clock tests and jitter-reduction mapping.
-- Adapters do not cover per-note controllers, pitch-bend range negotiation, or disposal safety.
-- No host separation: core exports adapters directly; consider packaging pure core + optional adapters.
+- Adapters: add per-note controllers/pitch-bend range negotiation and disposal safety tests.
+- Deterministic replay: broaden fixtures across multi-group streams.
 
 4) Validation and negative tests
-- Decode paths accept malformed packets (no reserved-bit checks; limited range validation).
-- No negative tests for stream/flex/CI envelopes beyond the new SysEx and range cases.
-- SysEx limits: add tests for oversize payloads and invalid chunk ordering.
+- Expand reserved-bit/range checks for stream/flex/CI envelopes; add oversize SysEx and invalid chunk-order tests.
+- Ensure OpenAPI guard regeneration is part of CI (fail on drift).
 
 5) Tooling and distribution
-- Package is public 0.1.0; tsup emits ESM/CJS+types to `dist/`. Need coverage reporting, npm pack verification, and CI (tsc/vitest/browser bundle).
-- Keep `node_modules/` untracked; publish from clean lock + generated artifacts only.
+- Keep coverage reporting in CI; validate `npm pack` output; ensure `dist/` is reproducible from clean lock and codegen outputs.
 
 Next execution steps (suggested order)
-- Add decode validation for current UMP types (range/reserved bits) and negative tests.
-- Implement remaining Flex data variants and per-note controllers; add vectors.
-- Scaffold MIDI-CI discovery/profile/property/process inquiry envelopes and golden tests.
-- Introduce record/replay in scheduler and worker-clock test coverage.
-- Stand up CI (tsc --noEmit, vitest, coverage) and prepare publishable build outputs.
+- Harden stream Endpoint/Device Info + GTB semantics with golden vectors.
+- Add schema validation for property exchange JSON and negative tests for CI detail/added-removed reports.
+- Broaden reserved/unsupported status handling and negative tests across decoders.
+- Add worker-clock JR projection tests; extend adapters for per-note controllers and pitch-bend negotiation.
+- Add `npm pack` verification to CI and ensure codegen guards are regenerated in the pipeline.

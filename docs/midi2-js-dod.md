@@ -8,12 +8,13 @@ The `midi2.js` stack is "done" when all criteria below are satisfied and demonst
 - RPN/NRPN: absolute and relative.
 - MIDI 1.0 compatibility packets.
 - Validation: range and reserved-bit checks aligned to the JSON Schema/OpenAPI; rejects malformed packets with useful errors.
+- Canonical spec mapping: all normative PDF fields/opcodes mirrored in `midi2.full.closed.schema.json`/`midi2.full.openapi.json` with spec audit closed (no pending rows).
 
 ## MIDI-CI
 - Universal SysEx7/8 envelopes (scope, SubID1=0x0D, SubID2 variants) encode/decode.
 - Discovery: request/reply parsing, MUID management, capability flags, max SysEx.
 - Profiles: enable/disable, inquiry/reports, Profile Specific Data framing.
-- Property Exchange: chunked set/get/notify, compression, error codes, resource state handling.
+- Property Exchange: chunked set/get/notify, compression, error codes, resource state handling, subscription lifecycle (start/partial/full/notify/end) with flow-control ACK/NAK.
 - Process Inquiry: in/out stream identifiers, I/O status.
 - ACK/NAK and error handling paths covered.
 
@@ -43,6 +44,6 @@ The `midi2.js` stack is "done" when all criteria below are satisfied and demonst
 - Snippets showing SysEx7/8 + MIDI-CI framing.
 
 ## Quality gates
-- No known TODOs for required spec items; gaps tracked with issue references.
+- No known TODOs for required spec items; gaps tracked with issue references. Spec audit remains at “captured” with no pending rows.
 - Versioned releases with CHANGELOG updates.
 - Security posture: no outstanding vuln advisories in dependencies that ship to users (dev-only allowances documented).

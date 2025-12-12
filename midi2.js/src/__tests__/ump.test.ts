@@ -351,6 +351,18 @@ describe("Stream messages", () => {
     expect(decodedNotif).toMatchObject({ kind: "stream", opcode: "streamConfigNotification" });
   });
 
+  it("encodes and decodes endpoint discovery with versions", () => {
+    const evt: StreamEvent = {
+      kind: "stream",
+      group: 0,
+      opcode: "endpointDiscovery",
+      endpointDiscovery: { majorVersion: 1, minorVersion: 2, maxGroups: 3 },
+    };
+    const words = encodeUmp(evt);
+    const decoded = decodeUmp(words);
+    expect(decoded).toMatchObject({ kind: "stream", opcode: "endpointDiscovery", endpointDiscovery: { majorVersion: 1, minorVersion: 2, maxGroups: 3 } });
+  });
+
   it("encodes and decodes function block info and discovery", () => {
     const info: StreamEvent = {
       kind: "stream",
@@ -379,9 +391,9 @@ describe("Stream messages", () => {
   });
 
   it("rejects stream packets with reserved bits", () => {
-    const word = new Uint32Array([0xf0000800]);
+    const word = new Uint32Array([0xf0000008]);
     expect(() => decodeUmp(word)).toThrow(RangeError);
-    const endpointWord = new Uint32Array([0xf0000101]);
+    const endpointWord = new Uint32Array([0xf00001f0]);
     expect(() => decodeUmp(endpointWord)).toThrow(RangeError);
   });
 

@@ -23,6 +23,12 @@ describe("PeSubscriptionManager", () => {
     expect(out[0]).toMatchObject({ command: "subscribeReply", header: { status: 406 } });
   });
 
+  it("returns error when subscribe is missing subscriptionId", () => {
+    const mgr = new PeSubscriptionManager();
+    const out = mgr.process(pe({ command: "subscribe", requestId: 3 }));
+    expect(out[0]?.header?.status).toBe(400);
+  });
+
   it("acks notify chunks when flowControl is active", () => {
     const mgr = new PeSubscriptionManager({ supportsFlowControl: true });
     mgr.handle(pe({ command: "subscribe", subscriptionId: "sub3", header: { flowControl: true } }));

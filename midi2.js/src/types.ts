@@ -308,7 +308,12 @@ export interface StreamEvent {
   kind: "stream";
   group: number;
   opcode: StreamOpcode;
-  endpointDiscovery?: { majorVersion?: number; minorVersion?: number; maxGroups?: number };
+  endpointDiscovery?: {
+    majorVersion?: number;
+    minorVersion?: number;
+    maxGroups?: number;
+    filter?: { endpointInfo?: boolean; deviceIdentity?: boolean; endpointName?: boolean; productInstanceId?: boolean; streamConfig?: boolean };
+  };
   endpointInfoNotification?: {
     staticFunctionBlocks?: boolean;
     numberOfFunctionBlocks?: number;

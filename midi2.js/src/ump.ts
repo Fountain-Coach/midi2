@@ -182,7 +182,16 @@ function encodeStream(event: StreamEvent): Uint32Array {
   assertRange("group", event.group, 0, 0xf);
   switch (event.opcode) {
     case "endpointDiscovery": {
-      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT_DISCOVERY << 16);
+      const info = event.endpointDiscovery ?? {};
+      const major = info.majorVersion ?? 0;
+      const minor = info.minorVersion ?? 0;
+      const maxGroups = info.maxGroups ?? 0;
+      assertRange("majorVersion", major, 0, 0x0f);
+      assertRange("minorVersion", minor, 0, 0x0f);
+      assertRange("maxGroups", maxGroups, 0, 0x0f);
+      const byte2 = ((major & 0x0f) << 4) | (minor & 0x0f);
+      const byte3 = maxGroups & 0x0f; // high nibble reserved 0
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT_DISCOVERY << 16) | (byte2 << 8) | byte3;
       return new Uint32Array([word0 >>> 0]);
     }
     case "endpointInfoNotification": {
@@ -290,10 +299,13 @@ function decodeStream(word0: number, timestamp?: number): StreamEvent {
   const byte3 = word0 & 0xff;
 
   if (opcodeByte === STREAM_OPCODE_ENDPOINT_DISCOVERY) {
-    if (byte2 !== 0 || byte3 !== 0) {
+    const majorVersion = (byte2 >> 4) & 0x0f;
+    const minorVersion = byte2 & 0x0f;
+    const maxGroups = byte3 & 0x0f;
+    if ((byte3 & 0xf0) !== 0) {
       throw new RangeError("Stream endpoint discovery contains reserved data.");
     }
-    return { kind: "stream", group, opcode: "endpointDiscovery", timestamp };
+    return { kind: "stream", group, opcode: "endpointDiscovery", endpointDiscovery: { majorVersion, minorVersion, maxGroups }, timestamp };
   }
 
   if (opcodeByte === STREAM_OPCODE_ENDPOINT_INFO) {

@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { isUmpPacket } from "../generated/openapi-types";
-import { decodeWordsToSchemaPacket, eventToSchemaPacket, eventToSchemaPacketWords, schemaPacketToEvent, schemaPacketToWords } from "../schema-bridge";
+import {
+  decodeWordsToSchemaPacket,
+  eventToSchemaPacket,
+  eventToSchemaPacketWords,
+  reassemblePeChunks,
+  schemaPacketToEvent,
+  schemaPacketToEventWithResponses,
+  schemaPacketToWords,
+} from "../schema-bridge";
+import { PeSubscriptionManager } from "../pe-subscriptions";
 import { decodeUmp, encodeUmp } from "../ump";
 import {
   MidiCiEvent,
@@ -136,7 +145,7 @@ describe("schema bridge", () => {
       group: 1,
       command: "notify",
       requestId: 42,
-      header: { schema: "test" },
+      header: { resource: "/test" },
       data: { hello: "world" },
       ack: { ack: true, statusCode: 0, message: "ok" },
     };
@@ -168,7 +177,7 @@ describe("schema bridge", () => {
       group: 2,
       command: "setReply",
       requestId: 7,
-      header: { schema: "foo", contentType: "application/json" },
+      header: { resource: "/foo", mediaType: "application/json" },
       data: { status: "ok" },
       ack: { ack: true, statusCode: 0, message: "ok" },
     };
@@ -208,12 +217,88 @@ describe("schema bridge", () => {
     expect((evt as any).command).toBe("notify");
   });
 
+  it("downgrades PE when payload fails schema validation", () => {
+    const payload = new TextEncoder().encode(JSON.stringify({ command: "set", requestId: "not-a-number", header: "bad", data: {} }));
+    const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x21, version: 1, payload, format: "sysex7" };
+    const evt = schemaPacketToEvent(eventToSchemaPacket(env)!);
+    expect(evt?.kind).toBe("propertyExchange");
+    expect((evt as any).command).toBe("notify");
+  });
+
+  it("routes property exchange subscribe through the subscription manager helper", () => {
+    const mgr = new PeSubscriptionManager({ supportsFlowControl: true });
+    const pe: PropertyExchangeEvent = {
+      kind: "propertyExchange",
+      group: 0,
+      command: "subscribe",
+      requestId: 9,
+      subscriptionId: "sub-pe",
+      header: { flowControl: true },
+    };
+    const packet = eventToSchemaPacket(pe);
+    const { event, outboundEvents, outboundWords } = schemaPacketToEventWithResponses(packet!, { peSubscriptionManager: mgr });
+    expect(event?.kind).toBe("propertyExchange");
+    expect(outboundEvents[0]).toMatchObject({ command: "subscribeReply", header: { status: 200, flowControl: true } });
+    expect(outboundWords.length).toBeGreaterThan(0);
+  });
+
+  it("propagates flow-control rejection when unsupported", () => {
+    const mgr = new PeSubscriptionManager({ supportsFlowControl: false });
+    const pe: PropertyExchangeEvent = {
+      kind: "propertyExchange",
+      group: 0,
+      command: "subscribe",
+      requestId: 10,
+      subscriptionId: "flow",
+      header: { flowControl: true },
+    };
+    const { outboundEvents } = schemaPacketToEventWithResponses(eventToSchemaPacket(pe)!, { peSubscriptionManager: mgr });
+    expect(outboundEvents[0]?.header?.status).toBe(406);
+  });
+
+  it("returns null when PE notify chunks repeat offsets", () => {
+    const chunkA: PropertyExchangeEvent = {
+      kind: "propertyExchange",
+      group: 0,
+      command: "notify",
+      requestId: 1,
+      subscriptionId: "sub-pe",
+      header: { offset: 0, length: 3 },
+      data: new Uint8Array([1, 2, 3]),
+    };
+    const chunkB: PropertyExchangeEvent = {
+      ...chunkA,
+      data: new Uint8Array([4, 5, 6]),
+    };
+    const merged = reassemblePeChunks([chunkA, chunkB]);
+    expect(merged).toBeNull();
+  });
+
   it("downgrades profile with missing profileId", () => {
     const payload = new TextEncoder().encode(JSON.stringify({ command: "setOn", target: "channel", channels: [0] }));
     const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x20, version: 1, payload, format: "sysex7" };
     const evt = schemaPacketToEvent(eventToSchemaPacket(env)!);
     expect(evt?.kind).toBe("profile");
     expect((evt as any).command).toBe("reply");
+  });
+
+  it("parses profile added/removed reports", () => {
+    const payload = new TextEncoder().encode(JSON.stringify({ command: "addedReport", profileId: "/org.midi/piano" }));
+    const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x20, version: 1, payload, format: "sysex7" };
+    const added = schemaPacketToEvent(eventToSchemaPacket(env)!);
+    expect(added).toMatchObject({ kind: "profile", command: "addedReport", profileId: "/org.midi/piano" });
+
+    const remPayload = new TextEncoder().encode(JSON.stringify({ command: "removedReport", profileId: "/org.midi/piano" }));
+    const remEnv: MidiCiEvent = { ...env, payload: remPayload };
+    const removed = schemaPacketToEvent(eventToSchemaPacket(remEnv)!);
+    expect(removed).toMatchObject({ kind: "profile", command: "removedReport", profileId: "/org.midi/piano" });
+  });
+
+  it("parses profile detailsReply", () => {
+    const payload = new TextEncoder().encode(JSON.stringify({ command: "detailsReply", profileId: "/org.midi/piano", details: { ver: 1, cmL: 5 } }));
+    const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x20, version: 1, payload, format: "sysex7" };
+    const evt = schemaPacketToEvent(eventToSchemaPacket(env)!);
+    expect(evt).toMatchObject({ kind: "profile", command: "detailsReply", profileId: "/org.midi/piano", details: { ver: 1, cmL: 5 } });
   });
 
   it("falls back to endReport when process inquiry command is invalid", () => {

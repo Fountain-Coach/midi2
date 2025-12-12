@@ -1106,16 +1106,27 @@ function profileToBody(evt: ProfileEvent): Uint8Array {
 }
 
 function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
+  const cleanHeader = (): Record<string, any> | undefined => {
+    if (!evt.header) return undefined;
+    const allowed = ["resource", "resId", "encoding", "flowControl", "status", "message", "cacheTime", "mediaType"];
+    const sanitized: Record<string, any> = {};
+    for (const key of allowed) {
+      if (Object.prototype.hasOwnProperty.call(evt.header, key)) {
+        sanitized[key] = (evt.header as any)[key];
+      }
+    }
+    return Object.keys(sanitized).length ? sanitized : undefined;
+  };
   const base: Record<string, any> = {
     command: evt.command,
     requestId: evt.requestId,
     encoding: evt.encoding,
-    header: evt.header,
+    header: cleanHeader(),
   };
   if (evt.subscriptionId) base.subscriptionId = evt.subscriptionId;
   if (evt.subscriptionCommand) base.subscriptionCommand = evt.subscriptionCommand;
-  if (evt.flowControlAck) base.flowControlAck = evt.flowControlAck;
-  if (evt.flowControlNak) base.flowControlNak = evt.flowControlNak;
+  if (evt.flowControlAck) base.flowControlAck = { status: 17, ...evt.flowControlAck };
+  if (evt.flowControlNak) base.flowControlNak = { status: 18, ...evt.flowControlNak };
   if (evt.data instanceof Uint8Array) {
     base.data = Array.from(evt.data);
   } else if (evt.data) {
@@ -1126,8 +1137,8 @@ function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
     base.statusCode = evt.ack.statusCode;
     base.message = evt.ack.message;
   }
-  if (!evt.header && evt.data instanceof Uint8Array) {
-    base.header = { length: evt.data.length };
+  if (!base.header && evt.data instanceof Uint8Array) {
+    base.header = { mediaType: "application/octet-stream", cacheTime: 0 };
   }
   const bytes = new TextEncoder().encode(JSON.stringify(base));
   return Uint8Array.from(bytes);
@@ -1354,6 +1365,13 @@ function packStream(stream: StreamEvent): Uint32Array {
   const mt = STREAM_MT << 28;
   const group = (stream.group & 0xf) << 24;
   const opcodeByte = opcodeNumber(stream.opcode);
+  if (stream.opcode === "endpointDiscovery") {
+    const major = stream.endpointDiscovery?.majorVersion ?? 0;
+    const minor = stream.endpointDiscovery?.minorVersion ?? 0;
+    const maxGroups = stream.endpointDiscovery?.maxGroups ?? 0;
+    const word0 = mt | group | (STREAM_OPCODE_ENDPOINT_DISCOVERY << 16) | ((major & 0x0f) << 12) | ((minor & 0x0f) << 8) | (maxGroups & 0x0f);
+    return new Uint32Array([word0 >>> 0]);
+  }
   if (stream.opcode === "streamConfigRequest" || stream.opcode === "streamConfigNotification") {
     const flags = encodeStreamFlags(stream.streamConfigRequest ?? stream.streamConfigNotification ?? {}, stream.opcode === "streamConfigNotification");
     const opcode = stream.opcode === "streamConfigNotification" ? STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION : STREAM_OPCODE_STREAM_CONFIG_REQUEST;
@@ -1398,7 +1416,13 @@ function packStreamFromBody(packet: UmpPacket32): Uint32Array {
   const opcodeByte = body?.opcode ?? 0;
   let byte2 = 0;
   let byte3 = 0;
-  if (body?.streamConfigRequest) {
+  if (body?.endpointDiscovery) {
+    const major = body.endpointDiscovery.majorVersion ?? 0;
+    const minor = body.endpointDiscovery.minorVersion ?? 0;
+    const maxGroups = body.endpointDiscovery.maxGroups ?? 0;
+    byte2 = ((major & 0x0f) << 4) | (minor & 0x0f);
+    byte3 = maxGroups & 0x0f;
+  } else if (body?.streamConfigRequest) {
     byte2 = encodeStreamFlags(body.streamConfigRequest, false);
   } else if (body?.streamConfigNotification) {
     byte2 = encodeStreamFlags(body.streamConfigNotification, true);
@@ -1437,11 +1461,12 @@ export function decodeStreamWord(word: number): StreamEvent | null {
   const opcodeByte = (word >>> 16) & 0xff;
   const byte2 = (word >>> 8) & 0xff;
   const byte3 = word & 0xff;
-  if (opcodeByte === STREAM_OPCODE_ENDPOINT_DISCOVERY && (byte2 !== 0 || byte3 !== 0)) {
-    return null; // reserved bits set for endpoint discovery
-  }
   if (opcodeByte === STREAM_OPCODE_ENDPOINT_DISCOVERY) {
-    return { kind: "stream", group, opcode: "endpointDiscovery" };
+    if ((byte3 & 0xf0) !== 0) return null;
+    const majorVersion = (byte2 >> 4) & 0x0f;
+    const minorVersion = byte2 & 0x0f;
+    const maxGroups = byte3 & 0x0f;
+    return { kind: "stream", group, opcode: "endpointDiscovery", endpointDiscovery: { majorVersion, minorVersion, maxGroups } };
   }
   if (opcodeByte === STREAM_OPCODE_ENDPOINT_INFO) {
     return { kind: "stream", group, opcode: "endpointInfoNotification" };

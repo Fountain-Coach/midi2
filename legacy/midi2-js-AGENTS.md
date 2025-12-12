@@ -9,7 +9,7 @@
 
 ## Gaps vs DoD (sync with `docs/midi2-js-dod.md` and `midi2.js/docs/gap-plan.md`)
 - Protocol: Endpoint/Device Info payload fidelity and GTB semantics still need tightening; reserved/unsupported statuses need explicit handling across decoders. Worker-clock JR projection needs broader coverage.
-- MIDI-CI: compression/error/NAK paths and MUID management need negative tests; profile detail/added-removed reports and property-exchange schema validation are pending.
+- MIDI-CI: compression/error/NAK paths and MUID management need negative tests; profile detail/added-removed reports still light; compression paths untested.
 - Validation: broaden reserved-bit/range enforcement and malformed stream/flex/CI envelope tests; add oversize SysEx and invalid chunk-order tests.
 - Adapters: expand coverage for per-note controllers/pitch-bend range negotiation and disposal safety.
 - Tooling/distribution: keep coverage reporting and publish gating in CI; ensure `dist/` is reproducible from a clean lock.

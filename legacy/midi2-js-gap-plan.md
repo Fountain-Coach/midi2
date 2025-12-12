@@ -15,8 +15,7 @@ Priority gaps (aligns to docs/midi2-js-dod.md):
 - Worker-clock JR projection: add coverage for off-main-thread clocks and jitter mapping.
 
 2) MIDI-CI flows
-- Profile detail/added-removed reports and compression/error/NAK paths need negative tests; MUID management coverage is thin.
-- Property exchange: schema validation of JSON payloads is missing; add malformed payload tests.
+- Profile detail/added-removed reports and compression/error/NAK paths need negative tests; MUID management coverage is thin. Compression/error/NAK paths remain untested.
 
 3) Scheduling and adapters
 - Adapters: add per-note controllers/pitch-bend range negotiation and disposal safety tests.

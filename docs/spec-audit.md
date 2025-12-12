@@ -43,6 +43,7 @@ Current log:
 | M2-104-UM v1.1.2 | Delta Clockstamp Ticks Per Quarter Note | 45 (Figure 33) | `MidiCiPropertyExchangeBody.deltaClockstampTicksPerQuarterNote` | Captured | DCTPQ field added to schema (0 reserved, max 65535). |
 | M2-103-UM v1.2 | cacheTime header property | 30–31 | `MidiCiPropertyExchangeBody.cacheTime` | Captured | Added cacheTime (seconds) to schema for PE responses. |
 | M2-103-UM v1.2 | PE flow-control NAK chunk number | 72 | `MidiCiPropertyExchangeBody.flowControlNak.chunkNumber` | Captured | NAK includes chunkNumber to retransmit (LSB first). |
+| M2-103-UM v1.2 | PE subscription commands | 42–43 | `MidiCiPropertyExchangeBody.subscriptionCommand` | Captured | Enumerated subscription commands (start/partial/full/notify/end) added to schema. |
 
 Next actions:
 - Iterate through each spec section, fill in page references, and close the TODO rows; add rows as new sections are audited.

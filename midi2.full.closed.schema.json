@@ -1166,6 +1166,17 @@
             }
           },
           "additionalProperties": false
+        },
+        "subscriptionCommand": {
+          "type": "string",
+          "enum": [
+            "start",
+            "partial",
+            "full",
+            "notify",
+            "end"
+          ],
+          "description": "Subscription command values per M2-103-UM v1.2 subscription flows"
         }
       },
       "additionalProperties": false

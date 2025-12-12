@@ -1262,9 +1262,100 @@
               "endReport"
             ]
           },
-          "filters": {
+          "deviceId": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              6,
+              7,
+              8,
+              9,
+              10,
+              11,
+              12,
+              13,
+              14,
+              15,
+              126,
+              127
+            ],
+            "description": "Device ID for message report scope: 0x00–0x0F channel 1–16, 0x7E group, 0x7F function block (Table 43/45, M2-101-UM v1.2 p.61–63)"
+          },
+          "messageDataControl": {
+            "type": "integer",
+            "enum": [
+              0,
+              1,
+              127
+            ],
+            "description": "Message Data Control (Table 44, M2-101-UM v1.2 p.62): 0x00 begin/end only, 0x01 non-default/active only, 0x7F full report; 0x02–0x7E reserved."
+          },
+          "systemMessages": {
             "type": "object",
-            "description": "Bitmap/filters for message classes reported",
+            "description": "Bitmap of requested System Messages (Table 43/45, M2-101-UM v1.2 p.61–63)",
+            "properties": {
+              "mtcQuarterFrame": {
+                "type": "boolean"
+              },
+              "songPosition": {
+                "type": "boolean"
+              },
+              "songSelect": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "channelControllerMessages": {
+            "type": "object",
+            "description": "Bitmap of requested Channel Controller Messages (Table 43/45, M2-101-UM v1.2 p.61–63)",
+            "properties": {
+              "pitchBend": {
+                "type": "boolean"
+              },
+              "controlChange": {
+                "type": "boolean"
+              },
+              "registeredController": {
+                "type": "boolean"
+              },
+              "assignableController": {
+                "type": "boolean"
+              },
+              "programChange": {
+                "type": "boolean"
+              },
+              "channelPressure": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
+          },
+          "noteDataMessages": {
+            "type": "object",
+            "description": "Bitmap of requested Note Data Messages (Table 43/45, M2-101-UM v1.2 p.61–63)",
+            "properties": {
+              "notes": {
+                "type": "boolean"
+              },
+              "polyPressure": {
+                "type": "boolean"
+              },
+              "perNotePitchBend": {
+                "type": "boolean"
+              },
+              "registeredPerNoteController": {
+                "type": "boolean"
+              },
+              "assignablePerNoteController": {
+                "type": "boolean"
+              }
+            },
             "additionalProperties": false
           },
           "supportedFeatures": {

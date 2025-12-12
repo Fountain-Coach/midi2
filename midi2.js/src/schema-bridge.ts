@@ -1508,7 +1508,19 @@ export function decodeStreamWord(word: number): StreamEvent | null {
     return { kind: "stream", group, opcode: "endpointDiscovery", endpointDiscovery: { majorVersion, minorVersion, maxGroups } };
   }
   if (opcodeByte === STREAM_OPCODE_ENDPOINT_INFO) {
-    return { kind: "stream", group, opcode: "endpointInfoNotification" };
+    const staticFunctionBlocks = (byte2 & 0x80) !== 0;
+    const numberOfFunctionBlocks = byte2 & 0x3f;
+    const midi1Supported = (byte3 & 0x01) !== 0;
+    const midi2Supported = (byte3 & 0x02) !== 0;
+    const jrTimestampsRx = (byte3 & 0x04) !== 0;
+    const jrTimestampsTx = (byte3 & 0x08) !== 0;
+    return {
+      kind: "stream",
+      group,
+      opcode: "endpointInfoNotification",
+      endpointInfoNotification: { staticFunctionBlocks, numberOfFunctionBlocks, midi1Supported, midi2Supported, jrTimestampsRx, jrTimestampsTx },
+      timestamp,
+    };
   }
   if (opcodeByte === STREAM_OPCODE_DEVICE_IDENTITY) {
     return { kind: "stream", group, opcode: "deviceIdentityNotification" };

@@ -196,14 +196,16 @@ function encodeStream(event: StreamEvent): Uint32Array {
     }
     case "endpointInfoNotification": {
       const info = event.endpointInfoNotification ?? {};
-      const s = info.staticFunctionBlocks ? 1 : 0;
+      const s = info.staticFunctionBlocks ? 0x80 : 0;
       const nfb = info.numberOfFunctionBlocks ?? 0;
       assertRange("numberOfFunctionBlocks", nfb, 0, 0x20);
-      const byte2 = ((info.umpVersionMajor ?? 0) & 0xff);
-      const byte3 = ((info.umpVersionMinor ?? 0) & 0xff);
+      const byte2 = s | (nfb & 0x3f);
+      let byte3 = 0;
+      if (info.midi1Supported) byte3 |= 0x01;
+      if (info.midi2Supported) byte3 |= 0x02;
+      if (info.jrTimestampsRx) byte3 |= 0x04;
+      if (info.jrTimestampsTx) byte3 |= 0x08;
       const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT_INFO << 16) | (byte2 << 8) | byte3;
-      // pack flags into separate word? Not defined here; keep capability flags in byte2/byte3? Schema uses body props only for bridge.
-      // Use data bytes: byte2=umpMajor, byte3=umpMinor; capabilities not encoded yet.
       return new Uint32Array([word0 >>> 0]);
     }
     case "deviceIdentityNotification": {
@@ -309,11 +311,17 @@ function decodeStream(word0: number, timestamp?: number): StreamEvent {
   }
 
   if (opcodeByte === STREAM_OPCODE_ENDPOINT_INFO) {
+    const staticFunctionBlocks = (byte2 & 0x80) !== 0;
+    const numberOfFunctionBlocks = byte2 & 0x3f;
+    const midi1Supported = (byte3 & 0x01) !== 0;
+    const midi2Supported = (byte3 & 0x02) !== 0;
+    const jrTimestampsRx = (byte3 & 0x04) !== 0;
+    const jrTimestampsTx = (byte3 & 0x08) !== 0;
     return {
       kind: "stream",
       group,
       opcode: "endpointInfoNotification",
-      endpointInfoNotification: {},
+      endpointInfoNotification: { staticFunctionBlocks, numberOfFunctionBlocks, midi1Supported, midi2Supported, jrTimestampsRx, jrTimestampsTx },
       timestamp,
     };
   }

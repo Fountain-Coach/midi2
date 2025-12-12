@@ -363,6 +363,28 @@ describe("Stream messages", () => {
     expect(decoded).toMatchObject({ kind: "stream", opcode: "endpointDiscovery", endpointDiscovery: { majorVersion: 1, minorVersion: 2, maxGroups: 3 } });
   });
 
+  it("encodes and decodes endpoint info flags", () => {
+    const evt: StreamEvent = {
+      kind: "stream",
+      group: 0,
+      opcode: "endpointInfoNotification",
+      endpointInfoNotification: { staticFunctionBlocks: true, numberOfFunctionBlocks: 4, midi1Supported: true, midi2Supported: true, jrTimestampsRx: true, jrTimestampsTx: false },
+    };
+    const decoded = decodeUmp(encodeUmp(evt));
+    expect(decoded).toMatchObject({
+      kind: "stream",
+      opcode: "endpointInfoNotification",
+      endpointInfoNotification: {
+        staticFunctionBlocks: true,
+        numberOfFunctionBlocks: 4,
+        midi1Supported: true,
+        midi2Supported: true,
+        jrTimestampsRx: true,
+        jrTimestampsTx: false,
+      },
+    });
+  });
+
   it("encodes and decodes function block info and discovery", () => {
     const info: StreamEvent = {
       kind: "stream",

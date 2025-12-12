@@ -54,6 +54,8 @@ export const STREAM_OPCODE_FUNCTION_BLOCK_NAME = 0x12;
 export const STREAM_OPCODE_START_OF_CLIP = 0x20;
 export const STREAM_OPCODE_END_OF_CLIP = 0x21;
 export const STREAM_OPCODE_PROCESS_INQUIRY = 0x03; // unchanged (shared request/reply flag in byte3 bit7)
+const DATA_STATUS_MDS_HEADER = 0x8;
+const DATA_STATUS_MDS_PAYLOAD = 0x9;
 const STATUS_RPN = 0x2;
 const STATUS_NRPN = 0x3;
 const STATUS_RPN_RELATIVE = 0x4;
@@ -894,37 +896,39 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     }
   }
   if (mt === 0x5) {
-    // MT=5 can be SysEx8 or MDS; detect SysEx8 framing (status nibble 0/1/2/3) vs MDS (0x8/0x9)
+    // MT=5 can be SysEx8 or MDS; detect Mixed Data Set status nibble 0x8/0x9 in first word
     if (packet.length % 4 !== 0) {
       return { kind: "rawUMP", words: packet, timestamp } as RawUMPEvent;
+    }
+    const statusNibble = (word0 >>> 20) & 0xf;
+    if (statusNibble === DATA_STATUS_MDS_HEADER || statusNibble === DATA_STATUS_MDS_PAYLOAD) {
+      // interpret as MDS
+      if (packet.length < 4) return null;
+      const header = packet.subarray(0, 4);
+      const totalValidBytes = ((header[1] >>> 16) & 0xffff);
+      const totalChunks = ((header[2] >>> 16) & 0xffff);
+      const messageId = (header[1] >>> 0) & 0xffff;
+      const chunks: MdsEvent["chunks"] = [];
+      let chunkIndex = 0;
+      for (let i = 4; i < packet.length; i += 4) {
+        const wordA = packet[i] >>> 0;
+        const status = (wordA >>> 20) & 0xf;
+        if (status !== DATA_STATUS_MDS_PAYLOAD) continue;
+        const validByteCount = (wordA >>> 8) & 0xff;
+        const payload = new Uint8Array(14);
+        const dv = new DataView(payload.buffer);
+        dv.setUint32(0, packet[i] << 8, false);
+        dv.setUint32(0, packet[i + 1] >>> 0, false);
+        dv.setUint32(4, packet[i + 2] >>> 0, false);
+        dv.setUint32(8, packet[i + 3] >>> 0, false);
+        chunks.push({ messageId, totalChunks, index: chunkIndex++, validByteCount, payload: payload.slice(0, validByteCount) });
+      }
+      const evt: MdsEvent = { kind: "mds", group: (word0 >>> 24) & 0x0f, messageId, totalChunks, chunks, timestamp };
+      return evt;
     }
     const packets: Uint32Array[] = [];
     for (let i = 0; i < packet.length; i += 4) {
       packets.push(packet.subarray(i, i + 4));
-    }
-    const firstStatus = (words[0] >>> 20) & 0xf;
-    if (firstStatus === 0x8 || firstStatus === 0x9) {
-      // Mixed Data Set
-      const chunks: MdsEvent["chunks"] = [];
-      const header = packets[0];
-      const validBytes = ((header[0] & 0xff) << 8) | ((header[1] >>> 24) & 0xff);
-      const messageId = ((header[1] >>> 8) & 0xffff);
-      const totalChunks = ((header[1] & 0xff) << 8) | ((header[2] >>> 24) & 0xff);
-      for (let i = 1; i < packets.length; i++) {
-        const p = packets[i];
-        const status = (p[0] >>> 20) & 0xf;
-        if (status !== 0x9) continue;
-        const mdsId = p[0] & 0x0f;
-        const validByteCount = (p[0] >>> 8) & 0xff;
-        const payloadBytes = new Uint8Array(14);
-        const dv = new DataView(payloadBytes.buffer);
-        dv.setUint32(0, p[1], false);
-        dv.setUint32(4, p[2], false);
-        dv.setUint32(8, p[3], false);
-        chunks.push({ messageId, totalChunks, index: mdsId, validByteCount, payload: payloadBytes.slice(0, validByteCount) });
-      }
-      const evt: MdsEvent = { kind: "mds", group: (words[0] >>> 24) & 0x0f, messageId, totalChunks, chunks, timestamp };
-      return evt;
     }
     try {
       const syx = reassembleSysEx8(packets);

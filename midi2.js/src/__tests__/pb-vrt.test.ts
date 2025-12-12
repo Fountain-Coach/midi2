@@ -55,8 +55,8 @@ describe("PB-VRT golden vectors", () => {
     const decodedInfo = decodeToPacketAndEvent(infoWords);
     expect(decodedInfo?.event).toMatchObject({
       kind: "stream",
-      opcode: "functionBlockInfo",
-      functionBlockInfo: { index: 1, firstGroup: 10, groupCount: 3 },
+      opcode: "functionBlockInfoNotification",
+      functionBlockInfoNotification: { index: 1, firstGroup: 10, groupCount: 3 },
     });
 
     const discovery = loadJSON("stream/function_block_discovery.json");

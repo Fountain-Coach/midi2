@@ -36,10 +36,19 @@ const MIDI1_CHANNEL_VOICE_MT = 0x2;
 const MIDI2_SYSTEM_MT = 0x1;
 const UTILITY_MT = 0x0;
 const STREAM_MT = 0xf;
-const STREAM_OPCODE_ENDPOINT = 0x00;
-const STREAM_OPCODE_CONFIG = 0x01;
-const STREAM_OPCODE_FUNCTION_BLOCK = 0x02;
-const STREAM_OPCODE_PROCESS_INQUIRY = 0x03;
+export const STREAM_OPCODE_ENDPOINT_DISCOVERY = 0x00;
+export const STREAM_OPCODE_ENDPOINT_INFO = 0x01;
+export const STREAM_OPCODE_DEVICE_IDENTITY = 0x02;
+export const STREAM_OPCODE_ENDPOINT_NAME = 0x03;
+export const STREAM_OPCODE_PRODUCT_INSTANCE_ID = 0x04;
+export const STREAM_OPCODE_STREAM_CONFIG_REQUEST = 0x05;
+export const STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION = 0x06;
+export const STREAM_OPCODE_FUNCTION_BLOCK_DISCOVERY = 0x10;
+export const STREAM_OPCODE_FUNCTION_BLOCK_INFO = 0x11;
+export const STREAM_OPCODE_FUNCTION_BLOCK_NAME = 0x12;
+export const STREAM_OPCODE_START_OF_CLIP = 0x20;
+export const STREAM_OPCODE_END_OF_CLIP = 0x21;
+export const STREAM_OPCODE_PROCESS_INQUIRY = 0x03; // unchanged (shared request/reply flag in byte3 bit7)
 const STATUS_RPN = 0x2;
 const STATUS_NRPN = 0x3;
 const STATUS_RPN_RELATIVE = 0x4;
@@ -152,11 +161,10 @@ function encodeUtility(event: UtilityEvent): Uint32Array {
 }
 
 function encodeStreamFlags(cfg: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean }, isNotification: boolean): number {
-  let flags = 0x20;
-  if ((cfg.protocol ?? "midi1") === "midi2") flags |= 0x01;
+  let flags = 0;
+  if ((cfg.protocol ?? "midi1") === "midi2") flags |= 0x20;
   if (cfg.jrTimestampsTx) flags |= 0x02;
   if (cfg.jrTimestampsRx && !isNotification) flags |= 0x04;
-  flags &= 0x27; // clear reserved bits
   return flags;
 }
 
@@ -164,7 +172,32 @@ function encodeStream(event: StreamEvent): Uint32Array {
   assertRange("group", event.group, 0, 0xf);
   switch (event.opcode) {
     case "endpointDiscovery": {
-      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT << 16);
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT_DISCOVERY << 16);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "endpointInfoNotification": {
+      const info = event.endpointInfoNotification ?? {};
+      const s = info.staticFunctionBlocks ? 1 : 0;
+      const nfb = info.numberOfFunctionBlocks ?? 0;
+      assertRange("numberOfFunctionBlocks", nfb, 0, 0x20);
+      const byte2 = ((info.umpVersionMajor ?? 0) & 0xff);
+      const byte3 = ((info.umpVersionMinor ?? 0) & 0xff);
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT_INFO << 16) | (byte2 << 8) | byte3;
+      // pack flags into separate word? Not defined here; keep capability flags in byte2/byte3? Schema uses body props only for bridge.
+      // Use data bytes: byte2=umpMajor, byte3=umpMinor; capabilities not encoded yet.
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "deviceIdentityNotification": {
+      // Device Identity carried in following words; for now bridge only transports opcode + zero payload.
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_DEVICE_IDENTITY << 16);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "endpointNameNotification": {
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT_NAME << 16);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "productInstanceIdNotification": {
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_PRODUCT_INSTANCE_ID << 16);
       return new Uint32Array([word0 >>> 0]);
     }
     case "streamConfigRequest":
@@ -172,30 +205,42 @@ function encodeStream(event: StreamEvent): Uint32Array {
       const isNotification = event.opcode === "streamConfigNotification";
       const cfg = event.streamConfigRequest ?? event.streamConfigNotification ?? {};
       const flags = encodeStreamFlags(cfg, isNotification);
-      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_CONFIG << 16) | (flags << 8);
+      const opcode = isNotification ? STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION : STREAM_OPCODE_STREAM_CONFIG_REQUEST;
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (opcode << 16) | (flags << 8);
       return new Uint32Array([word0 >>> 0]);
     }
-    case "functionBlockInfo": {
-      const info = event.functionBlockInfo ?? {};
+    case "functionBlockInfoNotification": {
+      const info = event.functionBlockInfoNotification ?? {};
       assertRange("index", info.index ?? 0, 0, 0xff);
       assertRange("firstGroup", info.firstGroup ?? 0, 0, 0x0f);
       assertRange("groupCount", info.groupCount ?? 0, 0, 0x0f);
       const word0 =
         (STREAM_MT << 28) |
         (event.group << 24) |
-        (STREAM_OPCODE_FUNCTION_BLOCK << 16) |
+        (STREAM_OPCODE_FUNCTION_BLOCK_INFO << 16) |
         ((info.index ?? 0) << 8) |
         (((info.firstGroup ?? 0) & 0x0f) << 4) |
         ((info.groupCount ?? 0) & 0x0f);
       return new Uint32Array([word0 >>> 0]);
     }
+    case "functionBlockNameNotification": {
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_FUNCTION_BLOCK_NAME << 16);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "startOfClip": {
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_START_OF_CLIP << 16);
+      return new Uint32Array([word0 >>> 0]);
+    }
+    case "endOfClip": {
+      const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_END_OF_CLIP << 16);
+      return new Uint32Array([word0 >>> 0]);
+    }
     case "functionBlockDiscovery": {
-      const filter = (event.functionBlockDiscovery?.filterBitmap ?? 0x8000) | 0x8000;
-      assertRange("filterBitmap", filter, 0, 0xffff);
+      const filter = (event.functionBlockDiscovery?.filterBitmap ?? 0) & 0xffff;
       const word0 =
         (STREAM_MT << 28) |
         (event.group << 24) |
-        (STREAM_OPCODE_FUNCTION_BLOCK << 16) |
+        (STREAM_OPCODE_FUNCTION_BLOCK_DISCOVERY << 16) |
         (((filter >> 8) & 0xff) << 8) |
         (filter & 0xff);
       return new Uint32Array([word0 >>> 0]);
@@ -234,48 +279,89 @@ function decodeStream(word0: number, timestamp?: number): StreamEvent {
   const byte2 = (word0 >>> 8) & 0xff;
   const byte3 = word0 & 0xff;
 
-  if (opcodeByte === STREAM_OPCODE_ENDPOINT) {
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT_DISCOVERY) {
     if (byte2 !== 0 || byte3 !== 0) {
       throw new RangeError("Stream endpoint discovery contains reserved data.");
     }
     return { kind: "stream", group, opcode: "endpointDiscovery", timestamp };
   }
 
-  if (opcodeByte === STREAM_OPCODE_CONFIG) {
-    if ((byte2 & 0xd8) !== 0) {
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT_INFO) {
+    return {
+      kind: "stream",
+      group,
+      opcode: "endpointInfoNotification",
+      endpointInfoNotification: {},
+      timestamp,
+    };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_DEVICE_IDENTITY) {
+    return { kind: "stream", group, opcode: "deviceIdentityNotification", deviceIdentityNotification: {}, timestamp };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT_NAME) {
+    return { kind: "stream", group, opcode: "endpointNameNotification", endpointNameNotification: { name: "" }, timestamp };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_PRODUCT_INSTANCE_ID) {
+    return {
+      kind: "stream",
+      group,
+      opcode: "productInstanceIdNotification",
+      productInstanceIdNotification: { productInstanceId: "" },
+      timestamp,
+    };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_STREAM_CONFIG_REQUEST || opcodeByte === STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION) {
+    if ((byte2 & 0xd9) !== 0) {
       throw new RangeError("Stream config flags have reserved bits set.");
     }
-    const protocol: "midi1" | "midi2" = (byte2 & 0x01) !== 0 ? "midi2" : "midi1";
+    const protocol: "midi1" | "midi2" = (byte2 & 0x20) !== 0 ? "midi2" : "midi1";
     const jrTx = (byte2 & 0x02) !== 0;
     const jrRx = (byte2 & 0x04) !== 0;
-    const isNotification = !jrRx;
     const cfg = { protocol, jrTimestampsTx: jrTx, jrTimestampsRx: jrRx };
+    const isNotification = opcodeByte === STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION;
     return isNotification
       ? { kind: "stream", group, opcode: "streamConfigNotification", streamConfigNotification: cfg, timestamp }
       : { kind: "stream", group, opcode: "streamConfigRequest", streamConfigRequest: cfg, timestamp };
   }
 
-  if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK) {
-    if (byte2 >= 0x80) {
-      const filterBitmap = (byte2 << 8) | byte3;
-      return {
-        kind: "stream",
-        group,
-        opcode: "functionBlockDiscovery",
-        functionBlockDiscovery: { filterBitmap },
-        timestamp,
-      };
-    }
+  if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK_DISCOVERY) {
+    const filterBitmap = (byte2 << 8) | byte3;
+    return {
+      kind: "stream",
+      group,
+      opcode: "functionBlockDiscovery",
+      functionBlockDiscovery: { filterBitmap },
+      timestamp,
+    };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK_INFO) {
     const index = byte2;
     const firstGroup = (byte3 >> 4) & 0x0f;
     const groupCount = byte3 & 0x0f;
     return {
       kind: "stream",
       group,
-      opcode: "functionBlockInfo",
-      functionBlockInfo: { index, firstGroup, groupCount },
+      opcode: "functionBlockInfoNotification",
+      functionBlockInfoNotification: { index, firstGroup, groupCount },
       timestamp,
     };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK_NAME) {
+    return { kind: "stream", group, opcode: "functionBlockNameNotification", functionBlockNameNotification: { functionBlock: 0, name: "" }, timestamp };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_START_OF_CLIP) {
+    return { kind: "stream", group, opcode: "startOfClip", timestamp };
+  }
+
+  if (opcodeByte === STREAM_OPCODE_END_OF_CLIP) {
+    return { kind: "stream", group, opcode: "endOfClip", timestamp };
   }
   if (opcodeByte === STREAM_OPCODE_PROCESS_INQUIRY) {
     const fb = byte2 & 0x7f;

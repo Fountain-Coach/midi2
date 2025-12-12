@@ -329,16 +329,16 @@ describe("Stream messages", () => {
     const info: StreamEvent = {
       kind: "stream",
       group: 0,
-      opcode: "functionBlockInfo",
-      functionBlockInfo: { index: 2, firstGroup: 1, groupCount: 4 },
+      opcode: "functionBlockInfoNotification",
+      functionBlockInfoNotification: { index: 2, firstGroup: 1, groupCount: 4 },
     };
     const infoWords = encodeUmp(info);
-    expect(infoWords[0]).toBe(0xf0020214);
+    expect(infoWords[0]).toBe(0xf0110214);
     const decodedInfo = decodeUmp(infoWords);
     expect(decodedInfo).toMatchObject({
       kind: "stream",
-      opcode: "functionBlockInfo",
-      functionBlockInfo: { index: 2, firstGroup: 1, groupCount: 4 },
+      opcode: "functionBlockInfoNotification",
+      functionBlockInfoNotification: { index: 2, firstGroup: 1, groupCount: 4 },
     });
 
     const discovery: StreamEvent = {

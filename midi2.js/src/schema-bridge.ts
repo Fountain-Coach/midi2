@@ -42,16 +42,28 @@ import {
   PropertyExchangeEvent,
   ProcessInquiryEvent,
 } from "./types";
-import { encodeUmp, decodeUmp } from "./ump";
+import {
+  encodeUmp,
+  decodeUmp,
+  STREAM_OPCODE_DEVICE_IDENTITY,
+  STREAM_OPCODE_ENDPOINT_DISCOVERY,
+  STREAM_OPCODE_ENDPOINT_INFO,
+  STREAM_OPCODE_ENDPOINT_NAME,
+  STREAM_OPCODE_END_OF_CLIP,
+  STREAM_OPCODE_FUNCTION_BLOCK_DISCOVERY,
+  STREAM_OPCODE_FUNCTION_BLOCK_INFO,
+  STREAM_OPCODE_FUNCTION_BLOCK_NAME,
+  STREAM_OPCODE_PROCESS_INQUIRY,
+  STREAM_OPCODE_PRODUCT_INSTANCE_ID,
+  STREAM_OPCODE_START_OF_CLIP,
+  STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION,
+  STREAM_OPCODE_STREAM_CONFIG_REQUEST,
+} from "./ump";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
 import { decodeMidiCiFromSysEx } from "./midici";
 
 type ScopeAddress = { scope: "group"; group: number } | { scope: "channel"; channel: number };
 const STREAM_MT = 0xf;
-const STREAM_OPCODE_ENDPOINT = 0x00;
-const STREAM_OPCODE_CONFIG = 0x01;
-const STREAM_OPCODE_FUNCTION_BLOCK = 0x02;
-const STREAM_OPCODE_PROCESS_INQUIRY = 0x03;
 
 function toAddress(group: number, channel?: number): ScopeAddress | undefined {
   if (channel === undefined) return { scope: "group", group };
@@ -851,19 +863,35 @@ function packGeneric32(packet: UmpPacket32): Uint32Array {
   return new Uint32Array([word0 >>> 0]);
 }
 
-function opcodeNumber(opcode: StreamEvent["opcode"]): 0 | 1 | 2 | 3 {
+function opcodeNumber(opcode: StreamEvent["opcode"]): StreamBody["opcode"] {
   switch (opcode) {
     case "endpointDiscovery":
       return 0;
-    case "streamConfigRequest":
-    case "streamConfigNotification":
+    case "endpointInfoNotification":
       return 1;
-    case "functionBlockDiscovery":
-    case "functionBlockInfo":
+    case "deviceIdentityNotification":
       return 2;
+    case "endpointNameNotification":
+      return 3;
+    case "productInstanceIdNotification":
+      return 4;
+    case "streamConfigRequest":
+      return 5;
+    case "streamConfigNotification":
+      return 6;
+    case "functionBlockDiscovery":
+      return 0x10;
+    case "functionBlockInfoNotification":
+      return 0x11;
+    case "functionBlockNameNotification":
+      return 0x12;
+    case "startOfClip":
+      return 0x20;
+    case "endOfClip":
+      return 0x21;
     case "processInquiry":
     case "processInquiryReply":
-      return 3;
+      return 0x03;
     default:
       return 0;
   }
@@ -880,15 +908,49 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
     };
   }
   if (opcode === 1) {
+    return { kind: "stream", group, opcode: "endpointInfoNotification", endpointInfoNotification: body.endpointInfoNotification };
+  }
+  if (opcode === 2) {
+    return { kind: "stream", group, opcode: "deviceIdentityNotification", deviceIdentityNotification: body.deviceIdentityNotification };
+  }
+  if (opcode === 3) {
+    return { kind: "stream", group, opcode: "endpointNameNotification", endpointNameNotification: body.endpointNameNotification };
+  }
+  if (opcode === 4) {
+    return { kind: "stream", group, opcode: "productInstanceIdNotification", productInstanceIdNotification: body.productInstanceIdNotification };
+  }
+  if (opcode === 5) {
     return {
       kind: "stream",
       group,
-      opcode: body.streamConfigRequest ? "streamConfigRequest" : "streamConfigNotification",
+      opcode: "streamConfigRequest",
       streamConfigRequest: body.streamConfigRequest,
+    };
+  }
+  if (opcode === 6) {
+    return {
+      kind: "stream",
+      group,
+      opcode: "streamConfigNotification",
       streamConfigNotification: body.streamConfigNotification,
     };
   }
-  if (opcode === 3) {
+  if (opcode === 0x10) {
+    return { kind: "stream", group, opcode: "functionBlockDiscovery", functionBlockDiscovery: body.functionBlockDiscovery };
+  }
+  if (opcode === 0x11) {
+    return { kind: "stream", group, opcode: "functionBlockInfoNotification", functionBlockInfoNotification: body.functionBlockInfo };
+  }
+  if (opcode === 0x12) {
+    return { kind: "stream", group, opcode: "functionBlockNameNotification", functionBlockNameNotification: { functionBlock: 0, name: "" } };
+  }
+  if (opcode === 0x20) {
+    return { kind: "stream", group, opcode: "startOfClip" };
+  }
+  if (opcode === 0x21) {
+    return { kind: "stream", group, opcode: "endOfClip" };
+  }
+  if (opcode === 0x03) {
     if (body.processInquiryReply) {
       return {
         kind: "stream",
@@ -907,9 +969,7 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
   return {
     kind: "stream",
     group,
-    opcode: body.functionBlockDiscovery ? "functionBlockDiscovery" : "functionBlockInfo",
-    functionBlockDiscovery: body.functionBlockDiscovery,
-    functionBlockInfo: body.functionBlockInfo,
+    opcode: "endpointDiscovery",
   };
 }
 
@@ -917,10 +977,14 @@ function streamBodyFromEvent(stream: StreamEvent): StreamBody {
   return {
     opcode: opcodeNumber(stream.opcode),
     endpointDiscovery: stream.endpointDiscovery,
+    endpointInfoNotification: stream.endpointInfoNotification,
+    deviceIdentityNotification: stream.deviceIdentityNotification,
+    endpointNameNotification: stream.endpointNameNotification,
+    productInstanceIdNotification: stream.productInstanceIdNotification,
     streamConfigRequest: stream.streamConfigRequest,
     streamConfigNotification: stream.streamConfigNotification,
     functionBlockDiscovery: stream.functionBlockDiscovery,
-    functionBlockInfo: stream.functionBlockInfo,
+    functionBlockInfo: stream.functionBlockInfoNotification,
     processInquiry: stream.processInquiry,
     processInquiryReply: stream.processInquiryReply,
   };
@@ -1170,23 +1234,24 @@ function packStream(stream: StreamEvent): Uint32Array {
   const opcodeByte = opcodeNumber(stream.opcode);
   if (stream.opcode === "streamConfigRequest" || stream.opcode === "streamConfigNotification") {
     const flags = encodeStreamFlags(stream.streamConfigRequest ?? stream.streamConfigNotification ?? {}, stream.opcode === "streamConfigNotification");
-    const word0 = mt | group | (STREAM_OPCODE_CONFIG << 16) | (flags << 8);
+    const opcode = stream.opcode === "streamConfigNotification" ? STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION : STREAM_OPCODE_STREAM_CONFIG_REQUEST;
+    const word0 = mt | group | (opcode << 16) | (flags << 8);
     return new Uint32Array([word0 >>> 0]);
   }
-  if (stream.opcode === "functionBlockInfo" && stream.functionBlockInfo) {
-    const idx = stream.functionBlockInfo.index ?? 0;
-    const firstGroup = stream.functionBlockInfo.firstGroup ?? 0;
-    const groupCount = stream.functionBlockInfo.groupCount ?? 0;
+  if (stream.opcode === "functionBlockInfoNotification" && stream.functionBlockInfoNotification) {
+    const idx = stream.functionBlockInfoNotification.index ?? 0;
+    const firstGroup = stream.functionBlockInfoNotification.firstGroup ?? 0;
+    const groupCount = stream.functionBlockInfoNotification.groupCount ?? 0;
     const byte2 = idx & 0xff;
     const byte3 = ((firstGroup & 0x0f) << 4) | (groupCount & 0x0f);
-    const word0 = mt | group | (opcodeByte << 16) | (byte2 << 8) | byte3;
+    const word0 = mt | group | (STREAM_OPCODE_FUNCTION_BLOCK_INFO << 16) | (byte2 << 8) | byte3;
     return new Uint32Array([word0 >>> 0]);
   }
   if (stream.opcode === "functionBlockDiscovery" && stream.functionBlockDiscovery) {
     const filter = stream.functionBlockDiscovery.filterBitmap ?? 0;
     const byte2 = (filter >> 8) & 0xff;
     const byte3 = filter & 0xff;
-    const word0 = mt | group | (STREAM_OPCODE_FUNCTION_BLOCK << 16) | (byte2 << 8) | byte3;
+    const word0 = mt | group | (STREAM_OPCODE_FUNCTION_BLOCK_DISCOVERY << 16) | (byte2 << 8) | byte3;
     return new Uint32Array([word0 >>> 0]);
   }
   if (stream.opcode === "processInquiry" && stream.processInquiry) {
@@ -1234,11 +1299,10 @@ function packStreamFromBody(packet: UmpPacket32): Uint32Array {
 }
 
 function encodeStreamFlags(cfg: any, isNotification: boolean): number {
-  let flags = 0x20;
-  if ((cfg.protocol ?? "midi1") === "midi2") flags |= 0x01;
+  let flags = 0;
+  if ((cfg.protocol ?? "midi1") === "midi2") flags |= 0x20;
   if (cfg.jrTimestampsTx) flags |= 0x02;
   if (cfg.jrTimestampsRx && !isNotification) flags |= 0x04;
-  flags &= 0x27; // clear reserved bits (7:5,3)
   return flags;
 }
 
@@ -1251,42 +1315,61 @@ export function decodeStreamWord(word: number): StreamEvent | null {
   const opcodeByte = (word >>> 16) & 0xff;
   const byte2 = (word >>> 8) & 0xff;
   const byte3 = word & 0xff;
-  if (opcodeByte === STREAM_OPCODE_ENDPOINT && (byte2 !== 0 || byte3 !== 0)) {
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT_DISCOVERY && (byte2 !== 0 || byte3 !== 0)) {
     return null; // reserved bits set for endpoint discovery
   }
-  if (opcodeByte === 0x01) {
-    const protocol = (byte2 & 0x01) !== 0 ? "midi2" : "midi1";
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT_DISCOVERY) {
+    return { kind: "stream", group, opcode: "endpointDiscovery" };
+  }
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT_INFO) {
+    return { kind: "stream", group, opcode: "endpointInfoNotification" };
+  }
+  if (opcodeByte === STREAM_OPCODE_DEVICE_IDENTITY) {
+    return { kind: "stream", group, opcode: "deviceIdentityNotification" };
+  }
+  if (opcodeByte === STREAM_OPCODE_ENDPOINT_NAME) {
+    return { kind: "stream", group, opcode: "endpointNameNotification" };
+  }
+  if (opcodeByte === STREAM_OPCODE_PRODUCT_INSTANCE_ID) {
+    return { kind: "stream", group, opcode: "productInstanceIdNotification" };
+  }
+  if (opcodeByte === STREAM_OPCODE_STREAM_CONFIG_REQUEST || opcodeByte === STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION) {
+    if ((byte2 & 0xd9) !== 0) return null;
+    const protocol = (byte2 & 0x20) !== 0 ? "midi2" : "midi1";
     const jrTx = (byte2 & 0x02) !== 0;
     const jrRx = (byte2 & 0x04) !== 0;
-    const isNotification = !jrRx;
-    const evt: StreamEvent = {
+    const isNotification = opcodeByte === STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION;
+    return {
       kind: "stream",
       group,
       opcode: isNotification ? "streamConfigNotification" : "streamConfigRequest",
       streamConfigRequest: isNotification ? undefined : { protocol, jrTimestampsTx: jrTx, jrTimestampsRx: jrRx },
       streamConfigNotification: isNotification ? { protocol, jrTimestampsTx: jrTx, jrTimestampsRx: jrRx } : undefined,
     };
-    return evt;
   }
-  if (opcodeByte === 0x02) {
-    if (byte2 >= 0x80) {
-      const filterBitmap = (byte2 << 8) | byte3;
-      return {
-        kind: "stream",
-        group,
-        opcode: "functionBlockDiscovery",
-        functionBlockDiscovery: { filterBitmap },
-      };
-    }
+  if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK_DISCOVERY) {
+    const filterBitmap = (byte2 << 8) | byte3;
+    return { kind: "stream", group, opcode: "functionBlockDiscovery", functionBlockDiscovery: { filterBitmap } };
+  }
+  if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK_INFO) {
     const index = byte2;
     const firstGroup = (byte3 >> 4) & 0x0f;
     const groupCount = byte3 & 0x0f;
     return {
       kind: "stream",
       group,
-      opcode: "functionBlockInfo",
-      functionBlockInfo: { index, firstGroup, groupCount },
+      opcode: "functionBlockInfoNotification",
+      functionBlockInfoNotification: { index, firstGroup, groupCount },
     };
+  }
+  if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK_NAME) {
+    return { kind: "stream", group, opcode: "functionBlockNameNotification", functionBlockNameNotification: { functionBlock: 0, name: "" } };
+  }
+  if (opcodeByte === STREAM_OPCODE_START_OF_CLIP) {
+    return { kind: "stream", group, opcode: "startOfClip" };
+  }
+  if (opcodeByte === STREAM_OPCODE_END_OF_CLIP) {
+    return { kind: "stream", group, opcode: "endOfClip" };
   }
   if (opcodeByte === STREAM_OPCODE_PROCESS_INQUIRY) {
     const fb = byte2 & 0x7f;

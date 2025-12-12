@@ -243,10 +243,17 @@ export interface RawUMPEvent {
 
 export type StreamOpcode =
   | "endpointDiscovery"
+  | "endpointInfoNotification"
+  | "deviceIdentityNotification"
+  | "endpointNameNotification"
+  | "productInstanceIdNotification"
   | "streamConfigRequest"
   | "streamConfigNotification"
   | "functionBlockDiscovery"
-  | "functionBlockInfo"
+  | "functionBlockInfoNotification"
+  | "functionBlockNameNotification"
+  | "startOfClip"
+  | "endOfClip"
   | "processInquiry"
   | "processInquiryReply";
 
@@ -255,10 +262,29 @@ export interface StreamEvent {
   group: number;
   opcode: StreamOpcode;
   endpointDiscovery?: { majorVersion?: number; minorVersion?: number; maxGroups?: number };
+  endpointInfoNotification?: {
+    staticFunctionBlocks?: boolean;
+    numberOfFunctionBlocks?: number;
+    umpVersionMajor?: number;
+    umpVersionMinor?: number;
+    midi2Supported?: boolean;
+    midi1Supported?: boolean;
+    jrTimestampsRx?: boolean;
+    jrTimestampsTx?: boolean;
+  };
+  deviceIdentityNotification?: {
+    manufacturerId?: number[];
+    deviceFamily?: number;
+    deviceModel?: number;
+    softwareRevision?: number;
+  };
+  endpointNameNotification?: { name: string };
+  productInstanceIdNotification?: { productInstanceId: string };
   streamConfigRequest?: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean };
   streamConfigNotification?: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean };
   functionBlockDiscovery?: { filterBitmap?: number };
-  functionBlockInfo?: { index?: number; firstGroup?: number; groupCount?: number };
+  functionBlockInfoNotification?: { index?: number; firstGroup?: number; groupCount?: number; active?: boolean; direction?: 0 | 1 | 2 | 3; midi1Bandwidth?: 0 | 1 | 2 };
+  functionBlockNameNotification?: { functionBlock: number; name: string };
   processInquiry?: { functionBlock?: number; part?: number };
   processInquiryReply?: { functionBlock?: number; part?: number };
   timestamp?: MidiTimestamp;

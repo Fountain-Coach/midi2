@@ -752,6 +752,29 @@
               },
               "groupCount": {
                 "$ref": "#/$defs/Uint4"
+              },
+              "active": {
+                "type": "boolean",
+                "description": "Function Block active flag (Figure 22, M2-104-UM v1.1.2 p.40)"
+              },
+              "direction": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2,
+                  3
+                ],
+                "description": "0=reserved, 1=input only, 2=output only, 3=bidirectional (Figure 22, p.40)"
+              },
+              "midi1Bandwidth": {
+                "type": "integer",
+                "enum": [
+                  0,
+                  1,
+                  2
+                ],
+                "description": "MIDI 1.0 bandwidth: 0=not MIDI1, 1=do not restrict, 2=restrict to 31.25 kbps (Figure 22, p.40)"
               }
             },
             "additionalProperties": false
@@ -1108,6 +1131,14 @@
             "type": "object",
             "description": "MIDI-CI ACK flow control message (Table 94, M2-103-UM v1.2 p.69)",
             "properties": {
+              "requestId": {
+                "$ref": "#/$defs/Uint8",
+                "description": "PE Request Id (Table 94)"
+              },
+              "chunkNumber": {
+                "$ref": "#/$defs/Uint16",
+                "description": "Chunk number (LSB first) in flow-control ACK"
+              },
               "status": {
                 "type": "integer",
                 "const": 17

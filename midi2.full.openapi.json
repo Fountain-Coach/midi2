@@ -1147,7 +1147,24 @@
             "items": {
               "type": "integer",
               "minimum": 100,
-              "maximum": 599
+              "maximum": 599,
+              "enum": [
+                200,
+                201,
+                341,
+                342,
+                343,
+                400,
+                403,
+                404,
+                405,
+                406,
+                407,
+                413,
+                415,
+                445,
+                500
+              ]
             },
             "description": "Property Exchange reply status codes (Table 15) or notify-only codes (Table 16 timeout wait via ACK)"
           },

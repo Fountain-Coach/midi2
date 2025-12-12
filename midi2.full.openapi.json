@@ -660,19 +660,27 @@
             "$ref": "#/$defs/Flex.Ruby"
           }
         ]
-      },
-      "StreamOpcode": {
-        "type": "integer",
-        "enum": [
-          0,
-          1,
-          2,
-          3
-        ]
-      },
-      "StreamBody": {
-        "type": "object",
-        "required": [
+    },
+    "StreamOpcode": {
+      "type": "integer",
+      "enum": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        16,
+        17,
+        18,
+        32,
+        33
+      ]
+    },
+    "StreamBody": {
+      "type": "object",
+      "required": [
           "opcode"
         ],
         "properties": {
@@ -718,14 +726,119 @@
                 },
                 "additionalProperties": false
               }
-            },
-            "additionalProperties": false
           },
-          "streamConfigRequest": {
-            "type": "object",
-            "properties": {
-              "protocol": {
-                "type": "string",
+          "additionalProperties": false
+        },
+        "endpointInfoNotification": {
+          "type": "object",
+          "properties": {
+            "staticFunctionBlocks": {
+              "type": "boolean",
+              "description": "S bit; when true Function Blocks are static and do not change after discovery (Figure 13, M2-104-UM v1.1.2 p.33)"
+            },
+            "numberOfFunctionBlocks": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 32,
+              "description": "Number of Function Blocks (0x00 = none, 0x01–0x20 = count, 0x21–0x7F reserved) (Figure 13, p.33)"
+            },
+            "umpVersionMajor": {
+              "$ref": "#/$defs/Uint8"
+            },
+            "umpVersionMinor": {
+              "$ref": "#/$defs/Uint8"
+            },
+            "midi2Supported": {
+              "type": "boolean",
+              "description": "M2 capability flag"
+            },
+            "midi1Supported": {
+              "type": "boolean",
+              "description": "M1 capability flag"
+            },
+            "jrTimestampsRx": {
+              "type": "boolean",
+              "description": "RXJR capability flag"
+            },
+            "jrTimestampsTx": {
+              "type": "boolean",
+              "description": "TXJR capability flag"
+            }
+          },
+          "additionalProperties": false
+        },
+        "deviceIdentityNotification": {
+          "type": "object",
+          "properties": {
+            "manufacturerId": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Uint8"
+                  },
+                  "minItems": 1,
+                  "maxItems": 1
+                },
+                {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/$defs/Uint8"
+                  },
+                  "minItems": 3,
+                  "maxItems": 3
+                }
+              ],
+              "description": "SysEx manufacturer ID (1-byte or 3-byte, pad with zeros when 1-byte) (Figure 14, M2-104-UM v1.1.2 p.34)"
+            },
+            "deviceFamily": {
+              "$ref": "#/$defs/Uint16",
+              "description": "Device family (SysEx Device Inquiry)"
+            },
+            "deviceModel": {
+              "$ref": "#/$defs/Uint16",
+              "description": "Device family model number"
+            },
+            "softwareRevision": {
+              "$ref": "#/$defs/Uint32",
+              "description": "Software revision level"
+            }
+          },
+          "additionalProperties": false
+        },
+        "endpointNameNotification": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string",
+              "maxLength": 98,
+              "description": "UTF-8 endpoint name; up to 98 bytes across Complete/Start/Continue/End forms (Figure 15, M2-104-UM v1.1.2 p.35)"
+            }
+          },
+          "required": [
+            "name"
+          ],
+          "additionalProperties": false
+        },
+        "productInstanceIdNotification": {
+          "type": "object",
+          "properties": {
+            "productInstanceId": {
+              "type": "string",
+              "maxLength": 42,
+              "description": "ASCII 0x20–0x7E Product Instance Id, up to 42 bytes across Complete/Start/Continue/End forms (Figure 16, M2-104-UM v1.1.2 p.35)"
+            }
+          },
+          "required": [
+            "productInstanceId"
+          ],
+          "additionalProperties": false
+        },
+        "streamConfigRequest": {
+          "type": "object",
+          "properties": {
+            "protocol": {
+              "type": "string",
                 "enum": [
                   "midi1",
                   "midi2"

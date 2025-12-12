@@ -666,10 +666,12 @@
               ]
             },
             "jrTimestampsTx": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "JR Transmit requested; if unsupported, receiver should send Stream Config Notification to switch protocol without JR (Section 7.2.2.3)"
             },
             "jrTimestampsRx": {
-              "type": "boolean"
+              "type": "boolean",
+              "description": "JR Receive requested; if unsupported, receiver should send Stream Config Notification to switch protocol without JR (Section 7.2.2.3)"
             }
           },
           "additionalProperties": false

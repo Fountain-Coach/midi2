@@ -39,6 +39,7 @@ Current log:
 | M2-103-UM v1.2 | PE flow-control ACK message length | 69–70 | `MidiCiPropertyExchangeBody.flowControlAck.messageLength` | Captured | Added messageLength field from Table 94/95 (0 when no message, reserved otherwise). |
 | M2-103-UM v1.2 | PE flowControl header flag usage | 69–71 | `MidiCiPropertyExchangeBody.header.flowControl` | Captured | Header flag `flowControl` indicates flow-control ACKs between chunks; error if resource doesn't support flow control (status 406/407 guidance). |
 | M2-103-UM v1.2 | PE flow-control error statuses | 69–71 | `MidiCiPropertyExchangeBody.flowControlError` | Captured | Added explicit flow-control error statuses 406/407 when flowControl is requested on unsupported resources. |
+| M2-103-UM v1.2 | PE terminate/timeout notify guidance | 47–49 | `MidiCiPropertyExchangeBody.timeoutStatus` | Captured | ACK/NAK replaces deprecated Notify for terminate/timeout; deprecated statuses (100/408) kept for compatibility. |
 
 Next actions:
 - Iterate through each spec section, fill in page references, and close the TODO rows; add rows as new sections are audited.

@@ -438,6 +438,25 @@ describe("Stream messages", () => {
     expect(decoded).toMatchObject({ opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { active: true, direction: 3, midi1Bandwidth: 2 } });
   });
 
+  it("decodes basic MDS chunk", () => {
+    const words = new Uint32Array([
+      0x50800000, // mt=5, status=0x8 header
+      0x12340000, // messageId=0x1234
+      0x00020000, // totalChunks=2
+      0x00000000,
+      0x50900401, // payload status=0x9, validByteCount=4, index=1
+      0x01020304,
+      0x00000000,
+      0x00000000,
+    ]);
+    const decoded = decodeUmp(words) as any;
+    expect(decoded?.kind).toBe("mds");
+    expect(decoded?.messageId).toBe(0x1234);
+    expect(decoded?.totalChunks).toBe(2);
+    expect(decoded?.chunks?.[0]?.validByteCount).toBe(4);
+    expect(Array.from(decoded?.chunks?.[0]?.payload ?? [])).toEqual([1, 2, 3, 4]);
+  });
+
   it("encodes and decodes function block info and discovery", () => {
     const info: StreamEvent = {
       kind: "stream",

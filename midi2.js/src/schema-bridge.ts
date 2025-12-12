@@ -485,10 +485,6 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
     }
     case "mds": {
       const mds: MdsEvent = event;
-      const packets: { streamStatus: "single" | "start" | "continue" | "end"; payload: number[] }[] = mds.chunks.map(chunk => ({
-        streamStatus: "single",
-        payload: Array.from(chunk.payload),
-      }));
       return {
         messageType: 5,
         group: mds.group,
@@ -817,6 +813,21 @@ function schemaPacketToEventInternal(packet: unknown): Midi2Event | null {
   if (packet.messageType === 5) {
     const p = packet as UmpPacket128;
     const body: any = p.body;
+    if (body.kind === "mds" && body.mds) {
+      return {
+        kind: "mds",
+        group: p.group ?? 0,
+        messageId: body.mds.messageId ?? 0,
+        totalChunks: body.mds.totalChunks ?? 0,
+        chunks: (body.mds.chunks ?? []).map((c: any) => ({
+          messageId: body.mds.messageId ?? 0,
+          totalChunks: body.mds.totalChunks ?? 0,
+          index: c.index ?? 0,
+          validByteCount: c.validByteCount ?? (c.payload?.length ?? 0),
+          payload: Uint8Array.from(c.payload ?? []),
+        })),
+      } as MdsEvent;
+    }
     if (body.kind === "sysex8" && body.sysex8) {
       const syx: SysEx8Event = {
         kind: "sysex8",

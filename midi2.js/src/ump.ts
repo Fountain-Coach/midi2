@@ -905,23 +905,22 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       // interpret as MDS
       if (packet.length < 4) return null;
       const header = packet.subarray(0, 4);
-      const totalValidBytes = ((header[1] >>> 16) & 0xffff);
-      const totalChunks = ((header[2] >>> 16) & 0xffff);
-      const messageId = (header[1] >>> 0) & 0xffff;
+      const messageId = (header[1] >>> 16) & 0xffff;
+      const totalChunks = (header[2] >>> 16) & 0xffff;
       const chunks: MdsEvent["chunks"] = [];
-      let chunkIndex = 0;
-      for (let i = 4; i < packet.length; i += 4) {
-        const wordA = packet[i] >>> 0;
-        const status = (wordA >>> 20) & 0xf;
+      for (let i = 4; i + 3 < packet.length; i += 4) {
+        const w0 = packet[i] >>> 0;
+        const status = (w0 >>> 20) & 0xf;
         if (status !== DATA_STATUS_MDS_PAYLOAD) continue;
-        const validByteCount = (wordA >>> 8) & 0xff;
-        const payload = new Uint8Array(14);
-        const dv = new DataView(payload.buffer);
-        dv.setUint32(0, packet[i] << 8, false);
+        const chunkIndex = w0 & 0x0f;
+        const validByteCount = (w0 >>> 8) & 0xff;
+        const payloadBytes = new Uint8Array(12);
+        const dv = new DataView(payloadBytes.buffer);
         dv.setUint32(0, packet[i + 1] >>> 0, false);
         dv.setUint32(4, packet[i + 2] >>> 0, false);
         dv.setUint32(8, packet[i + 3] >>> 0, false);
-        chunks.push({ messageId, totalChunks, index: chunkIndex++, validByteCount, payload: payload.slice(0, validByteCount) });
+        const payload = payloadBytes.slice(0, Math.min(validByteCount, 12));
+        chunks.push({ messageId, totalChunks, index: chunkIndex, validByteCount, payload });
       }
       const evt: MdsEvent = { kind: "mds", group: (word0 >>> 24) & 0x0f, messageId, totalChunks, chunks, timestamp };
       return evt;

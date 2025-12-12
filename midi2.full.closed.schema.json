@@ -1105,6 +1105,10 @@
               "$ref": "#/$defs/Uint16",
               "description": "Chunk number (LSB first) in flow-control ACK"
             },
+            "messageLength": {
+              "$ref": "#/$defs/Uint16",
+              "description": "Length of the message (0 when no message; reserved otherwise)"
+            },
             "status": {
               "type": "integer",
               "const": 17

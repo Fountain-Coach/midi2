@@ -35,6 +35,7 @@ Current log:
 | M2-103-UM v1.2 | PE Flow Control ACK (chunking) | 69 | `MidiCiPropertyExchangeBody.flowControlAck` | Captured | Added flow-control ACK status const 0x11 plus requestId (Uint8) and chunkNumber (Uint16) for chunked PE transfers (Table 94). |
 | M2-103-UM v1.2 | PE Flow Control NAK retransmit | 72 | `MidiCiPropertyExchangeBody.flowControlNak` | Captured | Added flow-control NAK status const 0x12 for retransmit of last chunk (Table 97). |
 | M2-103-UM v1.2 | PE chunk numbering/resend semantics | 69–72 | (future) PE chunk state | Pending | Flow control/NAK uses chunk sequencing; schema only captures status codes—mapping chunk numbers/request IDs into runtime state remains to do. |
+| M2-103-UM v1.2 | PE flow-control ACK message length | 69–70 | `MidiCiPropertyExchangeBody.flowControlAck.messageLength` | Captured | Added messageLength field from Table 94/95 (0 when no message, reserved otherwise). |
 
 Next actions:
 - Iterate through each spec section, fill in page references, and close the TODO rows; add rows as new sections are audited.

@@ -1093,6 +1093,14 @@
             408
           ]
         },
+        "flowControlError": {
+          "type": "integer",
+          "description": "Status to return when flowControl is requested but unsupported (406/407 per M2-103-UM v1.2 p.69–71)",
+          "enum": [
+            406,
+            407
+          ]
+        },
         "flowControlAck": {
           "type": "object",
           "description": "MIDI-CI ACK flow control message (Table 94, M2-103-UM v1.2 p.69)",

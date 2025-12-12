@@ -38,6 +38,7 @@ Current log:
 | M2-103-UM v1.2 | PE chunk numbering/resend semantics | 69–72 | (future) PE chunk state | Pending | Flow control/NAK uses chunk sequencing; schema only captures status codes—mapping chunk numbers/request IDs into runtime state remains to do. |
 | M2-103-UM v1.2 | PE flow-control ACK message length | 69–70 | `MidiCiPropertyExchangeBody.flowControlAck.messageLength` | Captured | Added messageLength field from Table 94/95 (0 when no message, reserved otherwise). |
 | M2-103-UM v1.2 | PE flowControl header flag usage | 69–71 | `MidiCiPropertyExchangeBody.header.flowControl` | Captured | Header flag `flowControl` indicates flow-control ACKs between chunks; error if resource doesn't support flow control (status 406/407 guidance). |
+| M2-103-UM v1.2 | PE flow-control error statuses | 69–71 | `MidiCiPropertyExchangeBody.flowControlError` | Captured | Added explicit flow-control error statuses 406/407 when flowControl is requested on unsupported resources. |
 
 Next actions:
 - Iterate through each spec section, fill in page references, and close the TODO rows; add rows as new sections are audited.

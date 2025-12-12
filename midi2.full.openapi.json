@@ -1114,6 +1114,17 @@
               }
             },
             "additionalProperties": false
+          },
+          "flowControlNak": {
+            "type": "object",
+            "description": "MIDI-CI NAK flow control retransmit request (Table 97, M2-103-UM v1.2 p.72)",
+            "properties": {
+              "status": {
+                "type": "integer",
+                "const": 18
+              }
+            },
+            "additionalProperties": false
           }
         },
         "additionalProperties": false

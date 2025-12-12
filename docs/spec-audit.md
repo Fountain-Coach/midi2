@@ -30,6 +30,8 @@ Current log:
 | M2-103-UM v1.2 | PE subscriptions partial/full/notify commands | 42 | (future) Subscription command handling | Pending | Command property usage (`start`, `partial`, `full`, `notify`, `end`) for subscription flows; no schema change yet—needs mapping to runtime subscription handling. |
 | M2-103-UM v1.2 | PE deprecated timeout notify statuses | 49 | `MidiCiPropertyExchangeBody.timeoutStatus` | Captured | Added deprecated notify status codes (100, 408) for backward compatibility; ACK timeout wait preferred. |
 | M2-103-UM v1.2 | PE Flow Control ACK (chunking) | 69 | `MidiCiPropertyExchangeBody.flowControlAck` | Captured | Added flow-control ACK status const 0x11 as a schema property for chunked PE transfers (Table 94). |
+| M2-103-UM v1.2 | PE Flow Control NAK retransmit | 72 | `MidiCiPropertyExchangeBody.flowControlNak` | Captured | Added flow-control NAK status const 0x12 for retransmit of last chunk (Table 97). |
+| M2-103-UM v1.2 | PE chunk numbering/resend semantics | 69–72 | (future) PE chunk state | Pending | Flow control/NAK uses chunk sequencing; schema only captures status codes—mapping chunk numbers/request IDs into runtime state remains to do. |
 
 Next actions:
 - Iterate through each spec section, fill in page references, and close the TODO rows; add rows as new sections are audited.

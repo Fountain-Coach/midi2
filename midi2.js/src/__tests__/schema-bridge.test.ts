@@ -186,6 +186,20 @@ describe("schema bridge", () => {
     expect(evt?.kind).toBe("propertyExchange");
   });
 
+  it("drops unsupported PE header keys and invalid status codes", () => {
+    const pe: PropertyExchangeEvent = {
+      kind: "propertyExchange",
+      group: 0,
+      command: "notify",
+      requestId: 1,
+      header: { resource: "/foo", schema: "bad", status: 9999 } as any,
+      data: Uint8Array.from([1, 2, 3]),
+    };
+    const evt = schemaPacketToEvent(eventToSchemaPacket(pe)!);
+    expect(evt?.kind).toBe("propertyExchange");
+    expect((evt as PropertyExchangeEvent).header).toEqual({ resource: "/foo" });
+  });
+
   it("falls back to notify when PE command is invalid", () => {
     const badPayload = new TextEncoder().encode(JSON.stringify({ command: "bogus", data: "0x0102" }));
     const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x21, version: 1, payload: badPayload, format: "sysex7" };

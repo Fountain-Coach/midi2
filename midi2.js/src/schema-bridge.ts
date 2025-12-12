@@ -1111,9 +1111,15 @@ function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
     const allowed = ["resource", "resId", "encoding", "flowControl", "status", "message", "cacheTime", "mediaType"];
     const sanitized: Record<string, any> = {};
     for (const key of allowed) {
-      if (Object.prototype.hasOwnProperty.call(evt.header, key)) {
-        sanitized[key] = (evt.header as any)[key];
+      if (!Object.prototype.hasOwnProperty.call(evt.header, key)) continue;
+      if (key === "status") {
+        const status = Number((evt.header as any)[key]);
+        if (Number.isInteger(status) && status >= 100 && status <= 999) {
+          sanitized.status = status;
+        }
+        continue;
       }
+      sanitized[key] = (evt.header as any)[key];
     }
     return Object.keys(sanitized).length ? sanitized : undefined;
   };
@@ -1320,8 +1326,27 @@ function sanitizePeEvent(evt: PropertyExchangeEvent, group: number): PropertyExc
   if (evt.encoding && !["json", "binary", "json+zlib", "binary+zlib", "mcoded7"].includes(evt.encoding)) {
     return { kind: "propertyExchange", group, command: "notify", data: evt.data, header: evt.header };
   }
-  if (evt.header && typeof evt.header !== "object") {
-    return { kind: "propertyExchange", group, command: "notify", data: evt.data };
+  const allowedHeaderKeys = new Set(["resource", "resId", "encoding", "flowControl", "status", "message", "cacheTime", "mediaType"]);
+  if (evt.header) {
+    if (typeof evt.header !== "object") {
+      return { kind: "propertyExchange", group, command: "notify", data: evt.data };
+    }
+    const sanitizedHeader: Record<string, any> = {};
+    for (const key of Object.keys(evt.header)) {
+      if (allowedHeaderKeys.has(key)) {
+        sanitizedHeader[key] = (evt.header as any)[key];
+      }
+    }
+    if (sanitizedHeader.status !== undefined) {
+      const status = Number(sanitizedHeader.status);
+      const allowedStatusCodes = [200, 201, 341, 342, 343, 400, 403, 404, 405, 406, 407, 413, 415, 445, 500];
+      if (!Number.isInteger(status) || !allowedStatusCodes.includes(status)) {
+        delete sanitizedHeader.status;
+      } else {
+        sanitizedHeader.status = status;
+      }
+    }
+    evt.header = Object.keys(sanitizedHeader).length ? sanitizedHeader : undefined;
   }
   if (evt.data && !(evt.data instanceof Uint8Array) && typeof evt.data !== "object") {
     return { kind: "propertyExchange", group, command: "notify", data: undefined };
@@ -1333,7 +1358,21 @@ function sanitizePeEvent(evt: PropertyExchangeEvent, group: number): PropertyExc
       return { kind: "propertyExchange", group, command: "notify", data: undefined };
     }
   }
-  return { ...evt, group, kind: "propertyExchange" };
+  const flowControlAck = evt.flowControlAck
+    ? {
+        status: 17 as const,
+        requestId: evt.flowControlAck.requestId,
+        chunkNumber: evt.flowControlAck.chunkNumber,
+        messageLength: evt.flowControlAck.messageLength,
+      }
+    : undefined;
+  const flowControlNak = evt.flowControlNak
+    ? {
+        status: 18 as const,
+        chunkNumber: evt.flowControlNak.chunkNumber,
+      }
+    : undefined;
+  return { ...evt, group, kind: "propertyExchange", flowControlAck, flowControlNak };
 }
 
 function processInquiryToBody(evt: ProcessInquiryEvent): Uint8Array {

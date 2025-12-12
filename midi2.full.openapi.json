@@ -1063,6 +1063,11 @@
               "terminate"
             ]
           },
+          "subscriptionId": {
+            "type": "string",
+            "maxLength": 64,
+            "description": "Subscription identifier used in PE subscription flows (e.g., sub3221)"
+          },
           "requestId": {
             "$ref": "#/$defs/Uint32"
           },

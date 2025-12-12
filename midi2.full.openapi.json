@@ -690,6 +690,33 @@
               },
               "maxGroups": {
                 "$ref": "#/$defs/Uint4"
+              },
+              "filter": {
+                "type": "object",
+                "description": "Filter bitmap (Figure 12, M2-104-UM v1.1.2 p.33)",
+                "properties": {
+                  "endpointInfo": {
+                    "type": "boolean",
+                    "description": "Request Endpoint Info Notification"
+                  },
+                  "deviceIdentity": {
+                    "type": "boolean",
+                    "description": "Request Device Identity Notification"
+                  },
+                  "endpointName": {
+                    "type": "boolean",
+                    "description": "Request Endpoint Name Notification"
+                  },
+                  "productInstanceId": {
+                    "type": "boolean",
+                    "description": "Request Product Instance ID Notification"
+                  },
+                  "streamConfig": {
+                    "type": "boolean",
+                    "description": "Request Stream Configuration Notification"
+                  }
+                },
+                "additionalProperties": false
               }
             },
             "additionalProperties": false

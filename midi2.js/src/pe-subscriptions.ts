@@ -27,6 +27,25 @@ export class PeSubscriptionManager {
   }
 
   /**
+   * Convenience that wraps {@link handle} and returns zero or more outbound
+   * `PropertyExchangeEvent`s to emit (subscribe replies, ACK/NAK, errors).
+   */
+  process(event: PropertyExchangeEvent): PropertyExchangeEvent[] {
+    const action = this.handle(event);
+    if (!action) return [];
+    if (action.kind === "reply") return [action.event];
+    // translate errors to notify with status in header
+    return [
+      {
+        kind: "propertyExchange",
+        group: event.group,
+        command: "notify",
+        header: { status: action.status, message: action.message },
+      },
+    ];
+  }
+
+  /**
    * Process an incoming Property Exchange event and return any action
    * (subscribe reply, flow-control ACK/NAK, or error) to emit.
    */

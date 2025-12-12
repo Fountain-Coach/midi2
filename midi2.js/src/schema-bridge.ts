@@ -59,6 +59,7 @@ import {
   STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION,
   STREAM_OPCODE_STREAM_CONFIG_REQUEST,
 } from "./ump";
+import { PeSubscriptionManager } from "./pe-subscriptions";
 import { fragmentSysEx7, fragmentSysEx8 } from "./sysex";
 import { decodeMidiCiFromSysEx } from "./midici";
 

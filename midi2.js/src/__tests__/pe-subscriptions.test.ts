@@ -10,43 +10,33 @@ describe("PeSubscriptionManager", () => {
   it("accepts subscribe and returns subscribeReply", () => {
     const mgr = new PeSubscriptionManager({ supportsFlowControl: true });
     const subEvt = pe({ command: "subscribe", subscriptionId: "sub1", requestId: 1, header: { flowControl: true } });
-    const action = mgr.handle(subEvt);
-    expect(action?.kind).toBe("reply");
-    if (action?.kind === "reply") {
-      expect(action.event).toMatchObject({ command: "subscribeReply", subscriptionId: "sub1", header: { status: 200, flowControl: true } });
-    }
+    const out = mgr.process(subEvt);
+    expect(out.length).toBe(1);
+    expect(out[0]).toMatchObject({ command: "subscribeReply", subscriptionId: "sub1", header: { status: 200, flowControl: true } });
   });
 
   it("rejects flowControl when unsupported", () => {
     const mgr = new PeSubscriptionManager({ supportsFlowControl: false });
     const subEvt = pe({ command: "subscribe", subscriptionId: "sub2", requestId: 2, header: { flowControl: true } });
-    const action = mgr.handle(subEvt);
-    expect(action?.kind).toBe("reply");
-    if (action?.kind === "reply") {
-      expect(action.event).toMatchObject({ command: "subscribeReply", header: { status: 406 } });
-    }
+    const out = mgr.process(subEvt);
+    expect(out.length).toBe(1);
+    expect(out[0]).toMatchObject({ command: "subscribeReply", header: { status: 406 } });
   });
 
   it("acks notify chunks when flowControl is active", () => {
     const mgr = new PeSubscriptionManager({ supportsFlowControl: true });
     mgr.handle(pe({ command: "subscribe", subscriptionId: "sub3", header: { flowControl: true } }));
     const notify = pe({ command: "notify", subscriptionId: "sub3", header: { flowControl: true }, data: new Uint8Array([1, 2, 3]) });
-    const action = mgr.handle(notify);
-    expect(action?.kind).toBe("reply");
-    if (action?.kind === "reply") {
-      expect(action.event.flowControlAck?.status).toBe(17);
-      expect(action.event.flowControlAck?.chunkNumber).toBeDefined();
-    }
+    const out = mgr.process(notify);
+    expect(out[0]?.flowControlAck?.status).toBe(17);
+    expect(out[0]?.flowControlAck?.chunkNumber).toBeDefined();
   });
 
   it("returns 404 notify when subscription unknown", () => {
     const mgr = new PeSubscriptionManager();
     const notify = pe({ command: "notify", subscriptionId: "missing" });
-    const action = mgr.handle(notify);
-    expect(action?.kind).toBe("reply");
-    if (action?.kind === "reply") {
-      expect(action.event?.header?.status).toBe(404);
-    }
+    const out = mgr.process(notify);
+    expect(out[0]?.header?.status).toBe(404);
   });
 
   it("removes subscription on terminate", () => {

@@ -12,10 +12,12 @@ public final class StreamNegotiationSession {
     }
 
     public let responderCaps: Capabilities
+    public let functionBlocks: GroupTerminalBlocks
     public private(set) var negotiated: StreamConfigurationMessage?
 
-    public init(responderCaps: Capabilities) {
+    public init(responderCaps: Capabilities, functionBlocks: GroupTerminalBlocks = GroupTerminalBlocks(blocks: [])) {
         self.responderCaps = responderCaps
+        self.functionBlocks = functionBlocks
     }
 
     /// Accept an Endpoint Discovery and return responder's discovery (echoing versions and max groups).
@@ -35,5 +37,20 @@ public final class StreamNegotiationSession {
         negotiated = notif
         return notif
     }
-}
 
+    /// Filter known function blocks in response to a discovery request. Filter bits map directly to block indexes; a zero filter returns all blocks.
+    public func onFunctionBlockDiscovery(_ req: FunctionBlockDiscovery) -> GroupTerminalBlocks {
+        guard req.filterBitmap != 0 else { return functionBlocks }
+        let filtered = functionBlocks.blocks.filter { block in
+            guard block.index < 32 else { return false }
+            let bit = UInt32(1) << UInt32(block.index)
+            return (req.filterBitmap & bit) != 0
+        }
+        return GroupTerminalBlocks(blocks: filtered)
+    }
+
+    /// Convenience that emits UMP packets for the selected function blocks.
+    public func onFunctionBlockDiscovery(_ req: FunctionBlockDiscovery, group: Uint4) -> [UmpPacket32] {
+        onFunctionBlockDiscovery(req).umps(group: group)
+    }
+}

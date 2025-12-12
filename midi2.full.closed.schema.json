@@ -705,6 +705,30 @@
             }
           },
           "additionalProperties": false
+        },
+        "processInquiry": {
+          "type": "object",
+          "properties": {
+            "functionBlock": {
+              "$ref": "#/$defs/Uint7"
+            },
+            "part": {
+              "$ref": "#/$defs/Uint4"
+            }
+          },
+          "additionalProperties": false
+        },
+        "processInquiryReply": {
+          "type": "object",
+          "properties": {
+            "functionBlock": {
+              "$ref": "#/$defs/Uint7"
+            },
+            "part": {
+              "$ref": "#/$defs/Uint4"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "description": "Endpoint discovery, protocol selection, and FB info.",
@@ -988,9 +1012,50 @@
           "type": "object",
           "description": "Bitmap/filters for message classes reported",
           "additionalProperties": false
+        },
+        "supportedFeatures": {
+          "type": "object",
+          "description": "Process Inquiry Supported Features bitmap (Table 42, M2-101-UM v1.2 p.60)",
+          "properties": {
+            "messageReport": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
+    },
+    "FunctionBlockNameNotification": {
+      "type": "object",
+      "properties": {
+        "functionBlock": {
+          "$ref": "#/$defs/Uint7"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 91,
+          "description": "UTF-8 name bytes; may span multiple packets (start/continue/end per Figure 23, M2-104-UM v1.1.2 p.42)"
+        }
+      },
+      "required": [
+        "functionBlock",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "UmpPacket": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/UmpPacket32"
+        },
+        {
+          "$ref": "#/$defs/UmpPacket64"
+        },
+        {
+          "$ref": "#/$defs/UmpPacket128"
+        }
+      ]
     },
     "UmpPacket32": {
       "type": "object",

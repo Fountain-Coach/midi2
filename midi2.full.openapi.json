@@ -1062,6 +1062,16 @@
             "type": "object",
             "description": "Bitmap/filters for message classes reported",
             "additionalProperties": false
+          },
+          "supportedFeatures": {
+            "type": "object",
+            "description": "Process Inquiry Supported Features bitmap (Table 42, M2-101-UM v1.2 p.60)",
+            "properties": {
+              "messageReport": {
+                "type": "boolean"
+              }
+            },
+            "additionalProperties": false
           }
         },
         "additionalProperties": false
@@ -1947,6 +1957,24 @@
           }
         },
         "description": "Flex Ruby (furigana).",
+        "additionalProperties": false
+      },
+      "FunctionBlockNameNotification": {
+        "type": "object",
+        "properties": {
+          "functionBlock": {
+            "$ref": "#/components/schemas/Uint7"
+          },
+          "name": {
+            "type": "string",
+            "maxLength": 91,
+            "description": "UTF-8 name bytes; may span multiple packets (start/continue/end per Figure 23, M2-104-UM v1.1.2 p.42)"
+          }
+        },
+        "required": [
+          "functionBlock",
+          "name"
+        ],
         "additionalProperties": false
       }
     }

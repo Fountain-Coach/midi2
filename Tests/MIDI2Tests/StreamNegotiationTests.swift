@@ -20,5 +20,36 @@ final class StreamNegotiationTests: XCTestCase {
         let reply = session.onStreamConfigRequest(req)
         XCTAssertEqual(reply.protocolSelection, .midi1)
     }
-}
 
+    func testFunctionBlockDiscoveryFiltersBlocksByMask() {
+        let gtb = GroupTerminalBlocks(blocks: [
+            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 4),
+            GroupTerminalBlock(index: 1, firstGroup: 4, groupCount: 4),
+            GroupTerminalBlock(index: 5, firstGroup: 8, groupCount: 2)
+        ])
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
+
+        let all = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: 0))
+        XCTAssertEqual(all.blocks, gtb.blocks)
+
+        let mask: UInt32 = (UInt32(1) << 0) | (UInt32(1) << 5)
+        let subset = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: mask))
+        XCTAssertEqual(subset.blocks.map { $0.index }, [0, 5])
+
+        let none = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 7))
+        XCTAssertTrue(none.blocks.isEmpty)
+    }
+
+    func testFunctionBlockDiscoveryUMPsRoundTrip() throws {
+        let gtb = GroupTerminalBlocks(blocks: [
+            GroupTerminalBlock(index: 2, firstGroup: 2, groupCount: 4),
+            GroupTerminalBlock(index: 4, firstGroup: 8, groupCount: 2)
+        ])
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
+        let req = FunctionBlockDiscovery(filterBitmap: UInt32(1) << 4)
+        let group = Uint4(3)!
+        let pkts = session.onFunctionBlockDiscovery(req, group: group)
+        let parsed = try GroupTerminalBlocks(parsingUMPs: pkts)
+        XCTAssertEqual(parsed.blocks, [GroupTerminalBlock(index: 4, firstGroup: 8, groupCount: 2)])
+    }
+}

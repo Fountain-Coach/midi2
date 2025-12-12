@@ -41,5 +41,23 @@ final class ProfileSessionTests: XCTestCase {
         XCTAssertEqual(en.first?.command, .disabledReport)
         XCTAssertEqual(en.first?.details?["ok"], 0)
     }
-}
 
+    func testEnableDisableReportsCarryChannelMask() {
+        let session = ProfileSession(supportedProfiles: ["/org.midi/piano"])
+        let channels: [Uint4] = [Uint4(1)!, Uint4(9)!] // cmL bit1, cmH bit1
+
+        let enable = MidiCiProfilesBody(command: .setOn, profileId: "/org.midi/piano", target: .channel, channels: channels)
+        let enabled = session.handle(enable)
+        XCTAssertEqual(enabled.first?.command, .enabledReport)
+        XCTAssertEqual(enabled.first?.details?["ok"], 1)
+        XCTAssertEqual(enabled.first?.details?["cmL"], 2)
+        XCTAssertEqual(enabled.first?.details?["cmH"], 2)
+
+        let disable = MidiCiProfilesBody(command: .setOff, profileId: "/org.midi/piano", target: .channel, channels: channels)
+        let disabled = session.handle(disable)
+        XCTAssertEqual(disabled.first?.command, .disabledReport)
+        XCTAssertEqual(disabled.first?.details?["ok"], 1)
+        XCTAssertEqual(disabled.first?.details?["cmL"], 2)
+        XCTAssertEqual(disabled.first?.details?["cmH"], 2)
+    }
+}

@@ -19,6 +19,8 @@
 
 - Docs
   - Conformance and gaps → docs/conformance-checklist.md, docs/quiet-frame-gap-closure.yaml
+  - PDF/image extraction → when spec facts are only present in diagrams/bitfield tables, render the exact pages to PNG (see AGENTS for the `gs` command), read the image content manually, and record the page/section reference alongside the corresponding updates in `midi2.full.closed.schema.json` and `midi2.full.openapi.json`.
+  - Spec audit log → docs/spec-audit.md tracks page-level citations and schema/OpenAPI mapping.
 
 - Tooling and quality gates
   - CI workflow → .github/workflows/ci.yml

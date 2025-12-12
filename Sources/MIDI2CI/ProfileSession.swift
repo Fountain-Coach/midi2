@@ -12,14 +12,27 @@ public final class ProfileSession {
         self.supportedProfiles = supportedProfiles
     }
 
+    private func channelMaskBytes(_ channels: [Uint4]?) -> (UInt8, UInt8) {
+        guard let channels, !channels.isEmpty else { return (0, 0) }
+        var mask: UInt16 = 0
+        for ch in channels { mask |= (1 << UInt16(ch.rawValue)) }
+        let low = UInt8(mask & 0x00FF)
+        let high = UInt8((mask >> 8) & 0x00FF)
+        return (low, high)
+    }
+
     /// Emit an addedReport for a newly available profile at the given scope.
     public func reportAdded(profileId: String, target: MidiCiProfilesBody.Target?, channels: [Uint4]?) -> MidiCiProfilesBody {
-        MidiCiProfilesBody(command: .addedReport, profileId: profileId, target: target, channels: channels, details: ["ok": 1])
+        let (cmL, cmH) = channelMaskBytes(channels)
+        let details: [String: UInt8] = ["ok": 1, "cmL": cmL, "cmH": cmH]
+        return MidiCiProfilesBody(command: .addedReport, profileId: profileId, target: target, channels: channels, details: details)
     }
 
     /// Emit a removedReport for a no-longer-available profile at the given scope.
     public func reportRemoved(profileId: String, target: MidiCiProfilesBody.Target?, channels: [Uint4]?) -> MidiCiProfilesBody {
-        MidiCiProfilesBody(command: .removedReport, profileId: profileId, target: target, channels: channels, details: ["ok": 1])
+        let (cmL, cmH) = channelMaskBytes(channels)
+        let details: [String: UInt8] = ["ok": 1, "cmL": cmL, "cmH": cmH]
+        return MidiCiProfilesBody(command: .removedReport, profileId: profileId, target: target, channels: channels, details: details)
     }
 
     private func key(for target: MidiCiProfilesBody.Target?, channels: [Uint4]?) -> String {
@@ -35,15 +48,6 @@ public final class ProfileSession {
 
     /// Handle a single Profiles message and return any reports/replies.
     public func handle(_ body: MidiCiProfilesBody) -> [MidiCiProfilesBody] {
-        func channelMaskBytes(_ channels: [Uint4]?) -> (UInt8, UInt8) {
-            var mask: UInt16 = 0
-            if let channels = channels {
-                for ch in channels { mask |= (1 << UInt16(ch.rawValue)) }
-            }
-            let low = UInt8(mask & 0x00FF)
-            let high = UInt8((mask >> 8) & 0x00FF)
-            return (low, high)
-        }
         switch body.command {
         case .inquiry:
             let k = key(for: body.target, channels: body.channels)
@@ -62,13 +66,17 @@ public final class ProfileSession {
         case .setOn:
             guard supportedProfiles.contains(body.profileId) else {
                 // Unsupported -> disabled report with ok=0
-                return [MidiCiProfilesBody(command: .disabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: ["ok": 0])]
+                let (cmL, cmH) = channelMaskBytes(body.channels)
+                let details: [String: UInt8] = ["ok": 0, "cmL": cmL, "cmH": cmH]
+                return [MidiCiProfilesBody(command: .disabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
             }
             let k = key(for: body.target, channels: body.channels)
             var set = enabled[k] ?? []
             set.insert(body.profileId)
             enabled[k] = set
-            return [MidiCiProfilesBody(command: .enabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: ["ok": 1])]
+            let (cmL, cmH) = channelMaskBytes(body.channels)
+            let details: [String: UInt8] = ["ok": 1, "cmL": cmL, "cmH": cmH]
+            return [MidiCiProfilesBody(command: .enabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
 
         case .setOff:
             let k = key(for: body.target, channels: body.channels)
@@ -76,7 +84,9 @@ public final class ProfileSession {
                 set.remove(body.profileId)
                 enabled[k] = set
             }
-            return [MidiCiProfilesBody(command: .disabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: ["ok": 1])]
+            let (cmL, cmH) = channelMaskBytes(body.channels)
+            let details: [String: UInt8] = ["ok": 1, "cmL": cmL, "cmH": cmH]
+            return [MidiCiProfilesBody(command: .disabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
 
         case .detailsInquiry:
             // Provide details: version and channel mask for the addressed scope

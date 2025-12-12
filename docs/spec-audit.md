@@ -1,0 +1,30 @@
+# Spec Audit Log (PDF → JSON schema/OpenAPI)
+
+Goal: ensure every normative fact in the MIDI Association specs is reflected in the canonical machine-readable artifacts (`midi2.full.closed.schema.json`, `midi2.full.openapi.json`) and cited by page/section.
+
+Process (per AGENTS):
+- Render the relevant spec pages to PNG (e.g., `gs -sDEVICE=png16m -o /tmp/page.png -dFirstPage=N -dLastPage=N <pdf>`).
+- If text is needed for search, use `Scripts/find_spec_page.py` (Ghostscript `txtwrite`) to locate pages by phrase.
+- Manually read/verify the bit layout or field definitions from the image/text.
+- Update both JSON artifacts in lockstep; record the page/section reference here and in commit notes.
+
+Current log:
+
+| Spec | Section/topic | Page(s) | JSON/OpenAPI mapping | Status | Notes |
+| --- | --- | --- | --- | --- | --- |
+| M2-104-UM v1.1.2 | Stream Process Inquiry / Reply fields | 121 | `midi2.full.closed.schema.json` → `$defs.StreamBody.processInquiry`, `$defs.StreamBody.processInquiryReply`; `midi2.full.openapi.json` mirrors via `components.schemas.StreamBody.*` | Captured | Located via `Scripts/find_spec_page.py "Process Inquiry"`; added to closed schema to match OpenAPI. |
+| M2-104-UM v1.1.2 | Stream Configuration Request/Notification bit layout | 37–38 | `$defs.StreamBody.streamConfigRequest`, `$defs.StreamBody.streamConfigNotification` | Captured | Figure 18/19 show protocol bits (0x01 MIDI 1.0, 0x02 MIDI 2.0; others reserved) and JR Rx/Tx flags; matches current schema fields. |
+| M2-104-UM v1.1.2 | UMP message types/Stream opcodes bit layout | TODO | `$defs.StreamBody`, `$defs.StreamOpcode`, `$defs.UmpPacket32` | Pending | Verify opcode ranges, reserved bits, and protocol selection/jitter flags against pages §5.x; note any deltas. |
+| M2-104-UM v1.1.2 | Function Block discovery/descriptor semantics (GTB) | TODO | `$defs.StreamBody.functionBlockDiscovery` / `functionBlockInfo`; `GroupTerminalBlocks` encoding | Pending | Confirm filter bitmap semantics, GTB encoding, and reserved bits. |
+| M2-104-UM v1.1.2 | Protocol selection overview | 24 | `$defs.StreamBody.streamConfigRequest` (protocol enum), `$defs.StreamOpcode` | Captured | Section 3 notes protocol selection via Stream Configuration Request; allowed protocols MIDI1 (0x01) and MIDI2 (0x02), others reserved. |
+| M2-104-UM v1.1.2 | Stream opcode map (mt=0xF) | 120 (Figure) | `$defs.StreamOpcode`, `$defs.StreamBody.*`, `$defs.UmpPacket32` | Captured | Figure shows endpoint discovery (0x00), stream config (0x01), function block info/notify (0x02), start/end of clip (0x20/0x21) marked reserved; matches current opcode enum (0x00–0x02) and reserved handling. |
+| M2-104-UM v1.1.2 | Function Block features/topology | 29–30 (Figures 7/8) | `$defs.StreamBody.functionBlockDiscovery`/`functionBlockInfo`; `GroupTerminalBlocks` | Captured | Function Blocks span 1–16 groups, up to 32 per endpoint; group numbers monotonic within a block; block indices map to group ranges. No schema gaps identified for bitmap+info pair, but GTB semantics remain to validate. |
+| M2-101-UM v1.2 | MIDI-CI Process Inquiry (Inquiry/Reply) envelopes | 59 | `MidiCiProcessInquiryBody` (command enum, filters TBD) | Captured (layout) | Table 40/41 define SysEx8 envelope: F0 7E 7F 0D 40/41, version byte, 4B src MUID, 4B dst MUID. Dest must be 0x7F (whole Function Block). Need to reflect filters/message categories in schema body. |
+| M2-101-UM v1.2 | Process Inquiry Supported Features bitmap | 60 (Table 42) | `MidiCiProcessInquiryBody.supportedFeatures` | Captured | Added `supportedFeatures.messageReport` boolean to both schemas to mirror the defined bitmap (D0 bit = MIDI Message Report). |
+| M2-104-UM v1.1.2 | Function Block Name Notification | 41–42 (Figure 23) | `FunctionBlockNameNotification` | Captured | Added schema entry with `functionBlock` (Uint7) and UTF-8 `name` (max 91 bytes), noting start/continue/end framing per Figure 23. |
+| M2-102-U v1.1 | MIDI-CI Profiles (added/removed/detail reports) | TODO | `MidiCiProfilesBody`, `ProfileSession` | Pending | Confirm channel masks, report payloads, and reserved bits. |
+| M2-103-UM v1.2 | Property Exchange JSON schema and chunking | TODO | `MidiCiPropertyExchangeBody`, PE schemas in JSON | Pending | Align property payload schema and error/NAK behaviors. |
+
+Next actions:
+- Iterate through each spec section, fill in page references, and close the TODO rows; add rows as new sections are audited.
+- For any gaps, update both JSON artifacts and cite the page(s) here.

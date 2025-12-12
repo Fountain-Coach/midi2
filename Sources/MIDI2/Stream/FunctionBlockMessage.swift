@@ -1,4 +1,4 @@
-/// Typed wrapper for Stream message opcode `.functionBlock` (mt=0xF).
+/// Typed wrapper for Stream message opcode `.functionBlockInfoNotification` (mt=0xF).
 ///
 /// Encapsulates Function Block discovery/information. The underlying 32-bit UMP
 /// packs two data bytes. Field semantics should follow M2-104-UM §5.4; this wrapper
@@ -34,17 +34,17 @@ public struct FunctionBlockMessage: Equatable {
     }
 
     public func ump(group: Uint4) -> UmpPacket32 {
-        StreamBody(opcode: .functionBlock, data1: data1, data2: data2).ump(group: group)
+        StreamBody(opcode: .functionBlockInfoNotification, data1: data1, data2: data2).ump(group: group)
     }
 
     public init?(ump: UmpPacket32) {
-        guard let body = StreamBody(ump: ump), body.opcode == .functionBlock else { return nil }
+        guard let body = StreamBody(ump: ump), body.opcode == .functionBlockInfoNotification else { return nil }
         self.init(data1: body.data1, data2: body.data2)
     }
 
     public init(parsingUMP ump: UmpPacket32) throws {
         let body = try StreamBody(parsingUMP: ump)
-        guard body.opcode == .functionBlock else {
+        guard body.opcode == .functionBlockInfoNotification else {
             throw MIDIError.malformedPacket("expected functionBlock opcode, got \(body.opcode)")
         }
         self.init(data1: body.data1, data2: body.data2)

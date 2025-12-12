@@ -101,20 +101,20 @@ func handleStream32(group: UInt8, word: UInt32) {
         var ep = EndpointDiscoveryMessage(majorVersion: 1, minorVersion: 0, maxGroups: 8)
         let reply = StreamBody(opcode: .endpointDiscovery, data1: ep.data1, data2: ep.data2).ump(group: Uint4(group)!)
         _ = sendUMP32(reply.word)
-    case .streamConfiguration:
-        // If request (notification=false), reply with notification set and same JR/proto
-        var sc = StreamConfigurationMessage(data1: body.data1, data2: body.data2)
+    case .streamConfigurationRequest, .streamConfigurationNotification:
+        // If request, reply with notification and same JR/proto
+        var sc = StreamConfigurationMessage(opcode: body.opcode, data1: body.data1, data2: body.data2)
         if sc.isNotification == false {
             sc.isNotification = true
-            let reply = StreamBody(opcode: .streamConfiguration, data1: sc.data1, data2: sc.data2).ump(group: Uint4(group)!)
+            let reply = StreamBody(opcode: .streamConfigurationNotification, data1: sc.data1, data2: sc.data2).ump(group: Uint4(group)!)
             _ = sendUMP32(reply.word)
         }
-    case .functionBlock:
+    case .functionBlockDiscovery:
         // Provide a simple FB info (two blocks of 4 groups starting at 0 then 4)
         let fb1 = FunctionBlockMessage(index: 0, firstGroup: 0, groupCount: 4)
         let fb2 = FunctionBlockMessage(index: 1, firstGroup: 4, groupCount: 4)
-        _ = sendUMP32(StreamBody(opcode: .functionBlock, data1: fb1.data1, data2: fb1.data2).ump(group: Uint4(group)!).word)
-        _ = sendUMP32(StreamBody(opcode: .functionBlock, data1: fb2.data1, data2: fb2.data2).ump(group: Uint4(group)!).word)
+        _ = sendUMP32(StreamBody(opcode: .functionBlockInfoNotification, data1: fb1.data1, data2: fb1.data2).ump(group: Uint4(group)!).word)
+        _ = sendUMP32(StreamBody(opcode: .functionBlockInfoNotification, data1: fb2.data1, data2: fb2.data2).ump(group: Uint4(group)!).word)
     default:
         break
     }
@@ -145,4 +145,3 @@ while true {
 #else
 print("midi2umpd is Linux-only")
 #endif
-

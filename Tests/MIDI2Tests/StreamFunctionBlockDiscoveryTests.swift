@@ -14,15 +14,14 @@ final class StreamFunctionBlockDiscoveryTests: XCTestCase {
 
     func testInvalidPacketCount() {
         let group = Uint4(0)!
-        let pkt = StreamBody(opcode: .functionBlock, data1: 0x00, data2: 0x01).ump(group: group)
+        let pkt = StreamBody(opcode: .functionBlockDiscovery, data1: 0x00, data2: 0x01).ump(group: group)
         XCTAssertThrowsError(try FunctionBlockDiscovery(parsingUMPs: [pkt]))
     }
 
     func testWrongOpcodeFails() {
         let group = Uint4(0)!
         let pkt1 = StreamBody(opcode: .endpointDiscovery, data1: 0x00, data2: 0x00).ump(group: group)
-        let pkt2 = StreamBody(opcode: .functionBlock, data1: 0x00, data2: 0x00).ump(group: group)
+        let pkt2 = StreamBody(opcode: .functionBlockDiscovery, data1: 0x00, data2: 0x00).ump(group: group)
         XCTAssertThrowsError(try FunctionBlockDiscovery(parsingUMPs: [pkt1, pkt2]))
     }
 }
-

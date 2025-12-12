@@ -91,13 +91,13 @@ final class UMPDevice {
         let pkt = UmpPacket32(word: word)
         guard let body = StreamBody(ump: pkt) else { return }
         switch body.opcode {
-        case .streamConfiguration:
-            // Interpret as request if notification bit is 0; reply with our capabilities
-            var sc = StreamConfigurationMessage(data1: body.data1, data2: body.data2)
+        case .streamConfigurationRequest, .streamConfigurationNotification:
+            // Interpret as request if opcode is the request; reply with our capabilities
+            var sc = StreamConfigurationMessage(opcode: body.opcode, data1: body.data1, data2: body.data2)
             if sc.isNotification == false {
-                // Prepare a reply: set notification bit and echo JR/proto selection
+                // Prepare a reply: switch opcode to notification and echo JR/proto selection
                 sc.isNotification = true
-                sendUMP32(StreamBody(opcode: .streamConfiguration, data1: sc.data1, data2: sc.data2).ump(group: Uint4(group)!))
+                sendUMP32(StreamBody(opcode: .streamConfigurationNotification, data1: sc.data1, data2: sc.data2).ump(group: Uint4(group)!))
             }
         case .endpointDiscovery:
             // Echo back info as a reply (same fields)

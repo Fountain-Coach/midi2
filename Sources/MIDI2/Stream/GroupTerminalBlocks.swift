@@ -18,7 +18,7 @@ public struct GroupTerminalBlocks: Equatable {
         self.blocks = blocks
     }
 
-    /// Encode into a sequence of `.functionBlock` info packets, one per block.
+    /// Encode into a sequence of `.functionBlockInfoNotification` packets, one per block.
     public func umps(group: Uint4) -> [UmpPacket32] {
         blocks.map { blk in
             FunctionBlockMessage(index: blk.index,
@@ -27,13 +27,13 @@ public struct GroupTerminalBlocks: Equatable {
         }
     }
 
-    /// Parse from a sequence of `.functionBlock` info packets.
+    /// Parse from a sequence of `.functionBlockInfoNotification` packets.
     public init(parsingUMPs packets: [UmpPacket32]) throws {
         var result: [GroupTerminalBlock] = []
         result.reserveCapacity(packets.count)
         for pkt in packets {
             let body = try StreamBody(parsingUMP: pkt)
-            guard body.opcode == .functionBlock else {
+            guard body.opcode == .functionBlockInfoNotification else {
                 throw MIDIError.malformedPacket("expected functionBlock opcode, got \(body.opcode)")
             }
             let msg = FunctionBlockMessage(data1: body.data1, data2: body.data2)
@@ -45,4 +45,3 @@ public struct GroupTerminalBlocks: Equatable {
         self.blocks = result
     }
 }
-

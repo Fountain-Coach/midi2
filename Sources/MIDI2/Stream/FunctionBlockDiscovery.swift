@@ -1,7 +1,7 @@
-/// Aggregate type for Function Block discovery (mt=0xF, opcode `.functionBlock`).
+/// Aggregate type for Function Block discovery (mt=0xF, opcode `.functionBlockDiscovery`).
 ///
 /// The schema models a 32‑bit `filterBitmap`. Stream messages carry only two
-/// data bytes, so discovery is transported as two consecutive `.functionBlock`
+/// data bytes, so discovery is transported as two consecutive `.functionBlockDiscovery`
 /// packets:
 ///  - First packet carries the high 16 bits (bits 31…16).
 ///  - Second packet carries the low 16 bits (bits 15…0).
@@ -19,10 +19,10 @@ public struct FunctionBlockDiscovery: Equatable {
     public func umps(group: Uint4) -> [UmpPacket32] {
         let high16 = UInt16((filterBitmap >> 16) & 0xFFFF)
         let low16 = UInt16(filterBitmap & 0xFFFF)
-        let hi = StreamBody(opcode: .functionBlock,
+        let hi = StreamBody(opcode: .functionBlockDiscovery,
                              data1: UInt8((high16 >> 8) & 0xFF),
                              data2: UInt8(high16 & 0xFF)).ump(group: group)
-        let lo = StreamBody(opcode: .functionBlock,
+        let lo = StreamBody(opcode: .functionBlockDiscovery,
                              data1: UInt8((low16 >> 8) & 0xFF),
                              data2: UInt8(low16 & 0xFF)).ump(group: group)
         return [hi, lo]
@@ -35,7 +35,7 @@ public struct FunctionBlockDiscovery: Equatable {
         }
         let hiBody = try StreamBody(parsingUMP: packets[0])
         let loBody = try StreamBody(parsingUMP: packets[1])
-        guard hiBody.opcode == .functionBlock, loBody.opcode == .functionBlock else {
+        guard hiBody.opcode == .functionBlockDiscovery, loBody.opcode == .functionBlockDiscovery else {
             throw MIDIError.malformedPacket("invalid opcode in FB discovery sequence")
         }
         let high16 = (UInt32(hiBody.data1) << 8) | UInt32(hiBody.data2)
@@ -43,4 +43,3 @@ public struct FunctionBlockDiscovery: Equatable {
         self.filterBitmap = (high16 << 16) | low16
     }
 }
-

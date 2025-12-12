@@ -29,11 +29,11 @@ final class StreamMappingTests: XCTestCase {
         msg.jrTimestampsTx = false
         msg.jrTimestampsRx = true
         msg.protocolSelection = .midi1
-        XCTAssertEqual(msg.data1 & 0x01, 0)
         XCTAssertEqual((msg.data1 & 0x02), 0)
         XCTAssertEqual((msg.data1 & 0x04), 0x04)
         XCTAssertEqual((msg.data1 >> 5) & 0x03, 0)
         XCTAssertEqual(msg.data2, 0x00)
+        XCTAssertEqual(msg.opcode, .streamConfigurationRequest)
     }
 
     func testFunctionBlockFieldsRoundTrip() throws {

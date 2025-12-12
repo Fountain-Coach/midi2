@@ -1225,6 +1225,10 @@
               "status": {
                 "type": "integer",
                 "const": 18
+              },
+              "chunkNumber": {
+                "$ref": "#/$defs/Uint16",
+                "description": "Chunk number to retransmit (LSB first)"
               }
             },
             "additionalProperties": false

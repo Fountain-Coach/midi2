@@ -1103,6 +1103,17 @@
               100,
               408
             ]
+          },
+          "flowControlAck": {
+            "type": "object",
+            "description": "MIDI-CI ACK flow control message (Table 94, M2-103-UM v1.2 p.69)",
+            "properties": {
+              "status": {
+                "type": "integer",
+                "const": 17
+              }
+            },
+            "additionalProperties": false
           }
         },
         "additionalProperties": false

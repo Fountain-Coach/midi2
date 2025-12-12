@@ -1066,6 +1066,11 @@
                 "type": "integer",
                 "minimum": 0,
                 "description": "Seconds the document may be cached"
+              },
+              "mediaType": {
+                "type": "string",
+                "maxLength": 75,
+                "description": "MIME type for non-JSON Property Data (Table 16, M2-103-UM v1.2 p.31)"
               }
             },
             "additionalProperties": false

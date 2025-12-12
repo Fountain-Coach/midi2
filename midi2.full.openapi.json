@@ -989,8 +989,8 @@
           },
           "details": {
             "type": "object",
-            "description": "Profile Details Inquiry fields (e.g., maxChannels, noteRange, optional features)",
-            "additionalProperties": true
+            "description": "Profile Details / Reports (e.g., channel mask bits cmL/cmH, ok flags)",
+            "additionalProperties": false
           }
         },
         "additionalProperties": false

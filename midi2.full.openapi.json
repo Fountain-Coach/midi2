@@ -1095,6 +1095,14 @@
               "maximum": 599
             },
             "description": "Property Exchange reply status codes (Table 15) or notify-only codes (Table 16 timeout wait via ACK)"
+          },
+          "timeoutStatus": {
+            "type": "integer",
+            "description": "Deprecated Notify timeout status codes (100, 408) for backward compatibility per M2-103-UM v1.2 p.49",
+            "enum": [
+              100,
+              408
+            ]
           }
         },
         "additionalProperties": false

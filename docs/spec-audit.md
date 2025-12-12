@@ -28,6 +28,7 @@ Current log:
 | M2-103-UM v1.2 | PE status codes / timeout ACK (notify) | 47–48 | `MidiCiPropertyExchangeBody.statusCodes` | Captured | Added statusCodes array with 100–599 range description noting timeout wait via ACK (Table 16). |
 | M2-103-UM v1.2 | PE mediaType for non-JSON payloads | 31 | `MidiCiPropertyExchangeBody.header.mediaType` | Captured | Added `mediaType` (max 75 chars) header property for non-JSON payloads per Table 16. |
 | M2-103-UM v1.2 | PE subscriptions partial/full/notify commands | 42 | (future) Subscription command handling | Pending | Command property usage (`start`, `partial`, `full`, `notify`, `end`) for subscription flows; no schema change yet—needs mapping to runtime subscription handling. |
+| M2-103-UM v1.2 | PE deprecated timeout notify statuses | 49 | `MidiCiPropertyExchangeBody.timeoutStatus` | Captured | Added deprecated notify status codes (100, 408) for backward compatibility; ACK timeout wait preferred. |
 
 Next actions:
 - Iterate through each spec section, fill in page references, and close the TODO rows; add rows as new sections are audited.

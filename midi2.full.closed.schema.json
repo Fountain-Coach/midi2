@@ -1029,6 +1029,14 @@
             "minimum": 100,
             "maximum": 599
           }
+        },
+        "timeoutStatus": {
+          "type": "integer",
+          "description": "Deprecated Notify timeout status codes (100, 408) for backward compatibility per M2-103-UM v1.2 p.49",
+          "enum": [
+            100,
+            408
+          ]
         }
       },
       "additionalProperties": false

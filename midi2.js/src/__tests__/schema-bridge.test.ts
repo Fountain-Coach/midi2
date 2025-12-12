@@ -200,6 +200,20 @@ describe("schema bridge", () => {
     expect((evt as PropertyExchangeEvent).header).toEqual({ resource: "/foo" });
   });
 
+  it("enforces flowControl boolean and valid status codes", () => {
+    const pe: PropertyExchangeEvent = {
+      kind: "propertyExchange",
+      group: 0,
+      command: "notify",
+      requestId: 2,
+      header: { resource: "/bar", flowControl: "yes" as any, status: 500 },
+      data: Uint8Array.from([1]),
+    };
+    const evt = schemaPacketToEvent(eventToSchemaPacket(pe)!);
+    expect(evt?.kind).toBe("propertyExchange");
+    expect((evt as PropertyExchangeEvent).header).toEqual({ resource: "/bar", flowControl: true, status: 500 });
+  });
+
   it("falls back to notify when PE command is invalid", () => {
     const badPayload = new TextEncoder().encode(JSON.stringify({ command: "bogus", data: "0x0102" }));
     const env: MidiCiEvent = { kind: "midiCi", group: 0, scope: "nonRealtime", subId2: 0x21, version: 1, payload: badPayload, format: "sysex7" };

@@ -1149,6 +1149,10 @@ function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
         }
         continue;
       }
+      if (key === "flowControl") {
+        sanitized.flowControl = Boolean((evt.header as any)[key]);
+        continue;
+      }
       sanitized[key] = (evt.header as any)[key];
     }
     return Object.keys(sanitized).length ? sanitized : undefined;

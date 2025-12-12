@@ -1,0 +1,61 @@
+import { describe, expect, it } from "vitest";
+import { PeSubscriptionManager } from "../pe-subscriptions";
+import { PropertyExchangeEvent } from "../types";
+
+function pe(base: Partial<PropertyExchangeEvent>): PropertyExchangeEvent {
+  return { kind: "propertyExchange", group: 0, command: "notify", ...base } as PropertyExchangeEvent;
+}
+
+describe("PeSubscriptionManager", () => {
+  it("accepts subscribe and returns subscribeReply", () => {
+    const mgr = new PeSubscriptionManager({ supportsFlowControl: true });
+    const subEvt = pe({ command: "subscribe", subscriptionId: "sub1", requestId: 1, header: { flowControl: true } });
+    const action = mgr.handle(subEvt);
+    expect(action?.kind).toBe("reply");
+    if (action?.kind === "reply") {
+      expect(action.event).toMatchObject({ command: "subscribeReply", subscriptionId: "sub1", header: { status: 200, flowControl: true } });
+    }
+  });
+
+  it("rejects flowControl when unsupported", () => {
+    const mgr = new PeSubscriptionManager({ supportsFlowControl: false });
+    const subEvt = pe({ command: "subscribe", subscriptionId: "sub2", requestId: 2, header: { flowControl: true } });
+    const action = mgr.handle(subEvt);
+    expect(action?.kind).toBe("reply");
+    if (action?.kind === "reply") {
+      expect(action.event).toMatchObject({ command: "subscribeReply", header: { status: 406 } });
+    }
+  });
+
+  it("acks notify chunks when flowControl is active", () => {
+    const mgr = new PeSubscriptionManager({ supportsFlowControl: true });
+    mgr.handle(pe({ command: "subscribe", subscriptionId: "sub3", header: { flowControl: true } }));
+    const notify = pe({ command: "notify", subscriptionId: "sub3", header: { flowControl: true }, data: new Uint8Array([1, 2, 3]) });
+    const action = mgr.handle(notify);
+    expect(action?.kind).toBe("reply");
+    if (action?.kind === "reply") {
+      expect(action.event.flowControlAck?.status).toBe(17);
+      expect(action.event.flowControlAck?.chunkNumber).toBeDefined();
+    }
+  });
+
+  it("returns 404 notify when subscription unknown", () => {
+    const mgr = new PeSubscriptionManager();
+    const notify = pe({ command: "notify", subscriptionId: "missing" });
+    const action = mgr.handle(notify);
+    expect(action?.kind).toBe("reply");
+    if (action?.kind === "reply") {
+      expect(action.event?.header?.status).toBe(404);
+    }
+  });
+
+  it("removes subscription on terminate", () => {
+    const mgr = new PeSubscriptionManager();
+    mgr.handle(pe({ command: "subscribe", subscriptionId: "sub4" }));
+    mgr.handle(pe({ command: "terminate", subscriptionId: "sub4" }));
+    const action = mgr.handle(pe({ command: "notify", subscriptionId: "sub4" }));
+    if (action?.kind === "reply") {
+      expect(action.event?.header?.status).toBe(404);
+    }
+  });
+});

@@ -220,10 +220,24 @@ export interface PropertyExchangeEvent {
   group: number;
   command: "capInquiry" | "capReply" | "get" | "getReply" | "set" | "setReply" | "subscribe" | "subscribeReply" | "notify" | "terminate";
   requestId?: number;
+  subscriptionId?: string;
+  subscriptionCommand?: "start" | "partial" | "full" | "notify" | "end";
   encoding?: "json" | "binary" | "json+zlib" | "binary+zlib" | "mcoded7";
-  header?: Record<string, unknown>;
+  header?: {
+    resource?: string;
+    resId?: number;
+    encoding?: "json" | "binary" | "json+zlib" | "binary+zlib" | "mcoded7";
+    flowControl?: boolean;
+    status?: number;
+    message?: string;
+    cacheTime?: number;
+    mediaType?: string;
+    [key: string]: unknown;
+  };
   data?: Record<string, unknown> | Uint8Array;
   ack?: { ack: boolean; statusCode?: number; message?: string };
+  flowControlAck?: { status: 17; requestId?: number; chunkNumber?: number; messageLength?: number };
+  flowControlNak?: { status: 18; chunkNumber?: number };
   timestamp?: MidiTimestamp;
 }
 

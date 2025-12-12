@@ -296,6 +296,32 @@ describe("UMP channel voice encode/decode", () => {
     const decoded = decodeUmp(words);
     expect(decoded).toMatchObject(evt);
   });
+
+  it("encodes and decodes flex text", () => {
+    const evt = { kind: "flexText", group: 1, channel: 3, text: "caption" } as const;
+    const words = encodeUmp(evt);
+    const decoded = decodeUmp(words);
+    expect(decoded).toMatchObject(evt);
+  });
+
+  it("encodes and decodes flex chord name", () => {
+    const evt = { kind: "flexChordName", group: 2, chord: "Gmaj7" } as const;
+    const words = encodeUmp(evt);
+    const decoded = decodeUmp(words);
+    expect(decoded).toMatchObject(evt);
+  });
+
+  it("encodes and decodes flex ruby", () => {
+    const evt = { kind: "flexRuby", group: 0, channel: 2, ruby: "kana" } as const;
+    const decoded = decodeUmp(encodeUmp(evt));
+    expect(decoded).toMatchObject({ kind: "flexRuby", ruby: evt.ruby, channel: 2, group: 0 });
+  });
+
+  it("encodes and decodes flex metronome", () => {
+    const evt = { kind: "flexMetronome", group: 0, channel: 1, clicksPerBeat: 4, accentPattern: "x--x" } as const;
+    const decoded = decodeUmp(encodeUmp(evt));
+    expect(decoded).toMatchObject(evt);
+  });
 });
 
 describe("Stream messages", () => {
@@ -358,6 +384,11 @@ describe("Stream messages", () => {
     const endpointWord = new Uint32Array([0xf0000101]);
     expect(() => decodeUmp(endpointWord)).toThrow(RangeError);
   });
+
+  it("rejects stream packet with unknown opcode", () => {
+    const word = new Uint32Array([0xf00f0000]);
+    expect(() => decodeUmp(word)).toThrow(RangeError);
+  });
 });
 
 describe("SysEx helpers", () => {
@@ -413,6 +444,35 @@ describe("SysEx helpers", () => {
   it("rejects SysEx with too many packets", () => {
     const packets = Array.from({ length: 0x10000 }, () => fragmentSysEx7([0x7d], [1], 0)[0]);
     expect(() => reassembleSysEx7(packets)).toThrow(RangeError);
+  });
+
+  it("rejects oversize SysEx payloads", () => {
+    const payload = new Uint8Array(0x10000);
+    expect(() => fragmentSysEx7([0x7d], payload, 0)).toThrow(RangeError);
+    expect(() => fragmentSysEx8([0x7d], payload, 0)).toThrow(RangeError);
+  });
+
+  it("rejects SysEx chunk sequences with invalid ordering", () => {
+    const packets = fragmentSysEx7([0x7d], [1, 2, 3, 4, 5, 6, 7, 8], 0);
+    // Swap first two packets so start is no longer first.
+    const swapped = [packets[1], packets[0], ...packets.slice(2)];
+    expect(() => reassembleSysEx7(swapped)).toThrow(RangeError);
+  });
+
+  it("decodes SysEx7 UMP packets into events", () => {
+    const packets = fragmentSysEx7([0x7d], [1, 2, 3, 4, 5, 6, 7, 8], 0);
+    const combined = Uint32Array.from(packets.flatMap(p => Array.from(p)));
+    const decoded = decodeUmp(combined);
+    expect(decoded).toMatchObject({ kind: "sysex7", manufacturerId: [0x7d], group: 0 });
+    expect(Array.from((decoded as SysEx7Event).payload)).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+  });
+
+  it("decodes SysEx8 UMP packets into events", () => {
+    const packets = fragmentSysEx8([0x00, 0x20, 0x33], Array.from({ length: 20 }, (_, i) => i + 1), 3);
+    const combined = Uint32Array.from(packets.flatMap(p => Array.from(p)));
+    const decoded = decodeUmp(combined);
+    expect(decoded).toMatchObject({ kind: "sysex8", manufacturerId: [0x00, 0x20, 0x33], group: 3 });
+    expect(Array.from((decoded as SysEx8Event).payload)).toHaveLength(20);
   });
 
   it("encodes and decodes MIDI-CI envelope", () => {

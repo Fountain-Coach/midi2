@@ -193,6 +193,39 @@ export interface FlexLyricEvent {
   timestamp?: MidiTimestamp;
 }
 
+export interface FlexTextEvent {
+  kind: "flexText";
+  group: number;
+  channel?: number;
+  text: string;
+  timestamp?: MidiTimestamp;
+}
+
+export interface FlexChordNameEvent {
+  kind: "flexChordName";
+  group: number;
+  channel?: number;
+  chord: string;
+  timestamp?: MidiTimestamp;
+}
+
+export interface FlexRubyEvent {
+  kind: "flexRuby";
+  group: number;
+  channel?: number;
+  ruby: string;
+  timestamp?: MidiTimestamp;
+}
+
+export interface FlexMetronomeEvent {
+  kind: "flexMetronome";
+  group: number;
+  channel?: number;
+  clicksPerBeat: number;
+  accentPattern: string;
+  timestamp?: MidiTimestamp;
+}
+
 export interface ProfileEvent {
   kind: "profile";
   group: number;
@@ -327,6 +360,10 @@ export type Midi2Event =
   | FlexTimeSignatureEvent
   | FlexKeySignatureEvent
   | FlexLyricEvent
+  | FlexTextEvent
+  | FlexChordNameEvent
+  | FlexRubyEvent
+  | FlexMetronomeEvent
   | SysEx7Event
   | SysEx8Event
   | MidiCiEvent

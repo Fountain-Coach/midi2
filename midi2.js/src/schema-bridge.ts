@@ -3,10 +3,15 @@ import {
   Flex_Tempo,
   Flex_KeySignature,
   Flex_TimeSignature,
+  Flex_Text,
+  Flex_ChordName,
+  Flex_Ruby,
+  Flex_Metronome,
   UmpPacket,
   UmpPacket32,
   UmpPacket64,
   UmpPacket128,
+  isMidiCiPropertyExchangeBody,
   isUmpPacket,
   StreamBody,
   isStreamBody,
@@ -37,6 +42,10 @@ import {
   FlexTimeSignatureEvent,
   FlexKeySignatureEvent,
   FlexLyricEvent,
+  FlexTextEvent,
+  FlexChordNameEvent,
+  FlexRubyEvent,
+  FlexMetronomeEvent,
   StreamEvent,
   ProfileEvent,
   PropertyExchangeEvent,
@@ -65,6 +74,18 @@ import { decodeMidiCiFromSysEx } from "./midici";
 
 type ScopeAddress = { scope: "group"; group: number } | { scope: "channel"; channel: number };
 const STREAM_MT = 0xf;
+
+export interface SchemaEventOptions {
+  peSubscriptionManager?: PeSubscriptionManager;
+  peOutboundEvents?: PropertyExchangeEvent[];
+  peOutboundWords?: Uint32Array[];
+}
+
+export interface SchemaEventResult {
+  event: Midi2Event | null;
+  outboundEvents: PropertyExchangeEvent[];
+  outboundWords: Uint32Array[];
+}
 
 function toAddress(group: number, channel?: number): ScopeAddress | undefined {
   if (channel === undefined) return { scope: "group", group };
@@ -398,6 +419,46 @@ function asUmpPacket128(event: Midi2Event): UmpPacket128 | null {
       };
       return { messageType: 13, group: flex.group, body };
     }
+    case "flexText": {
+      const flex: FlexTextEvent = event;
+      const body: Flex_Text = {
+        statusClass: 17,
+        status: 1,
+        address: toAddress(flex.group, flex.channel),
+        data: { text: flex.text },
+      };
+      return { messageType: 13, group: flex.group, body };
+    }
+    case "flexChordName": {
+      const flex: FlexChordNameEvent = event;
+      const body: Flex_ChordName = {
+        statusClass: 16,
+        status: 5,
+        address: toAddress(flex.group, flex.channel),
+        data: { chord: flex.chord },
+      };
+      return { messageType: 13, group: flex.group, body };
+    }
+    case "flexRuby": {
+      const flex: FlexRubyEvent = event;
+      const body: Flex_Ruby = {
+        statusClass: 17,
+        status: 3,
+        address: toAddress(flex.group, flex.channel),
+        data: { ruby: flex.ruby },
+      };
+      return { messageType: 13, group: flex.group, body };
+    }
+    case "flexMetronome": {
+      const flex: FlexMetronomeEvent = event;
+      const body: Flex_Metronome = {
+        statusClass: 16,
+        status: 3,
+        address: toAddress(flex.group, flex.channel),
+        data: { clicksPerBeat: flex.clicksPerBeat, accentPattern: flex.accentPattern },
+      };
+      return { messageType: 13, group: flex.group, body };
+    }
     default:
       return null;
   }
@@ -509,7 +570,7 @@ export function eventToSchemaPacket(event: Midi2Event): UmpPacket | null {
   return (asUmpPacket64(event) as UmpPacket | null) ?? (asUmpPacket128(event) as UmpPacket | null) ?? (asUmpPacket32(event) as UmpPacket | null);
 }
 
-export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
+function schemaPacketToEventInternal(packet: unknown): Midi2Event | null {
   if (!isUmpPacket(packet)) {
     if (typeof packet === "object" && packet && ("messageType" in packet)) {
       const mt = (packet as any).messageType;
@@ -718,10 +779,18 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
         return { kind: "flexTempo", group: p.group ?? 0, channel, bpm: body.data?.bpm ?? 0 };
       case "16-2":
         return { kind: "flexTimeSignature", group: p.group ?? 0, channel, numerator: body.data?.numerator ?? 0, denominatorPow2: body.data?.denominatorPow2 ?? 0 };
+      case "16-3":
+        return { kind: "flexMetronome", group: p.group ?? 0, channel, clicksPerBeat: body.data?.clicksPerBeat ?? 0, accentPattern: body.data?.accentPattern ?? "" };
       case "16-4":
         return { kind: "flexKeySignature", group: p.group ?? 0, channel, key: body.data?.key ?? "" };
+      case "16-5":
+        return { kind: "flexChordName", group: p.group ?? 0, channel, chord: body.data?.chord ?? "" };
+      case "17-1":
+        return { kind: "flexText", group: p.group ?? 0, channel, text: body.data?.text ?? "" };
       case "17-2":
         return { kind: "flexLyric", group: p.group ?? 0, channel, text: body.data?.lyric ?? "" };
+      case "17-3":
+        return { kind: "flexRuby", group: p.group ?? 0, channel, ruby: body.data?.ruby ?? "" };
       default:
         return null;
     }
@@ -784,6 +853,31 @@ export function schemaPacketToEvent(packet: unknown): Midi2Event | null {
   return null;
 }
 
+export function schemaPacketToEvent(packet: unknown, opts?: SchemaEventOptions): Midi2Event | null {
+  return schemaPacketToEventWithResponses(packet, opts).event;
+}
+
+export function schemaPacketToEventWithResponses(packet: unknown, opts?: SchemaEventOptions): SchemaEventResult {
+  const event = schemaPacketToEventInternal(packet);
+  const outboundEvents: PropertyExchangeEvent[] = [];
+  const outboundWords: Uint32Array[] = [];
+
+  if (event && opts?.peSubscriptionManager && event.kind === "propertyExchange") {
+    const replies = opts.peSubscriptionManager.process(event);
+    outboundEvents.push(...replies);
+    opts.peOutboundEvents?.push(...replies);
+    for (const reply of replies) {
+      const words = eventToSchemaPacketWords(reply);
+      if (words) {
+        outboundWords.push(...words);
+        opts.peOutboundWords?.push(...words);
+      }
+    }
+  }
+
+  return { event, outboundEvents, outboundWords };
+}
+
 export function schemaPacketToWords(packet: unknown): Uint32Array[] | null {
   const event = schemaPacketToEvent(packet);
   if (!event) return null;
@@ -799,10 +893,22 @@ export function schemaPacketToWords(packet: unknown): Uint32Array[] | null {
   if (event.kind === "rawUMP") {
     return [event.words instanceof Uint32Array ? event.words : Uint32Array.from(event.words)];
   }
+  if (event.kind === "propertyExchange") {
+    const scope = 0x7e;
+    const body = propertyExchangeToBody(event);
+    const payload = Uint8Array.from([scope, 0x0d, 0x21, 0x01, ...body]);
+    return fragmentSysEx7([scope], payload, event.group);
+  }
   return [encodeUmp(event)];
 }
 
 export function eventToSchemaPacketWords(event: Midi2Event): Uint32Array[] | null {
+  if (event.kind === "propertyExchange") {
+    const scope = 0x7e;
+    const body = propertyExchangeToBody(event);
+    const payload = Uint8Array.from([scope, 0x0d, 0x21, 0x01, ...body]);
+    return fragmentSysEx7([scope], payload, event.group);
+  }
   const packet = eventToSchemaPacket(event);
   if (!packet) return null;
   return schemaPacketToWords(packet);
@@ -967,11 +1073,7 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
       processInquiry: body.processInquiry,
     };
   }
-  return {
-    kind: "stream",
-    group,
-    opcode: "endpointDiscovery",
-  };
+  return null;
 }
 
 function streamBodyFromEvent(stream: StreamEvent): StreamBody {
@@ -1010,6 +1112,10 @@ function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
     encoding: evt.encoding,
     header: evt.header,
   };
+  if (evt.subscriptionId) base.subscriptionId = evt.subscriptionId;
+  if (evt.subscriptionCommand) base.subscriptionCommand = evt.subscriptionCommand;
+  if (evt.flowControlAck) base.flowControlAck = evt.flowControlAck;
+  if (evt.flowControlNak) base.flowControlNak = evt.flowControlNak;
   if (evt.data instanceof Uint8Array) {
     base.data = Array.from(evt.data);
   } else if (evt.data) {
@@ -1105,6 +1211,17 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
   try {
     const text = new TextDecoder().decode(payload);
     const obj = JSON.parse(text);
+    const candidate = { ...obj };
+    if (candidate.flowControlAck && typeof candidate.flowControlAck === "object" && !("status" in candidate.flowControlAck)) {
+      candidate.flowControlAck = { ...candidate.flowControlAck, status: 17 };
+    }
+    if (candidate.flowControlNak && typeof candidate.flowControlNak === "object" && !("status" in candidate.flowControlNak)) {
+      candidate.flowControlNak = { ...candidate.flowControlNak, status: 18 };
+    }
+    delete (candidate as any).ack;
+    delete (candidate as any).statusCode;
+    delete (candidate as any).message;
+    if (!isMidiCiPropertyExchangeBody(candidate)) return { command: "notify", data: payload };
     const valid = new Set([
       "capInquiry",
       "capReply",
@@ -1127,8 +1244,12 @@ function decodePropertyExchangeBody(payload: Uint8Array): Omit<PropertyExchangeE
       requestId: obj.requestId,
       encoding: obj.encoding,
       header: obj.header,
+      subscriptionId: obj.subscriptionId,
+      subscriptionCommand: obj.subscriptionCommand,
+      flowControlAck: obj.flowControlAck ? { status: 17, ...obj.flowControlAck } : undefined,
+      flowControlNak: obj.flowControlNak ? { status: 18, ...obj.flowControlNak } : undefined,
       data: parsedData,
-      ack: obj.ack !== undefined ? { ack: !!obj.ack, statusCode: obj.statusCode, message: obj.message } : undefined,
+      ack: obj.ack !== undefined ? { ack: !!obj.ack, statusCode: (obj as any).statusCode, message: (obj as any).message } : undefined,
     };
     return evt;
   } catch {
@@ -1391,9 +1512,5 @@ export function decodeStreamWord(word: number): StreamEvent | null {
       processInquiry: { functionBlock: fb, part },
     };
   }
-  return {
-    kind: "stream",
-    group,
-    opcode: "endpointDiscovery",
-  };
+  return null;
 }

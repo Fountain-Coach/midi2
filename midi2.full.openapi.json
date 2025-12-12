@@ -1190,6 +1190,11 @@
             "maximum": 65535,
             "description": "DCTPQ for Delta Clockstamp timing (0 reserved; Figure 33, M2-104-UM v1.1.2 p.45)"
           },
+          "cacheTime": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Seconds the Property Data may be cached (Section 7.4.3, M2-103-UM v1.2 p.30–31)"
+          },
           "flowControlAck": {
             "type": "object",
             "description": "MIDI-CI ACK flow control message (Table 94, M2-103-UM v1.2 p.69)",

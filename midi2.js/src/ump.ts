@@ -209,17 +209,46 @@ function encodeStream(event: StreamEvent): Uint32Array {
       return new Uint32Array([word0 >>> 0]);
     }
     case "deviceIdentityNotification": {
-      // Device Identity carried in following words; for now bridge only transports opcode + zero payload.
+      const id = event.deviceIdentityNotification ?? {};
+      const mId = id.manufacturerId ?? [];
+      const family = id.deviceFamily ?? 0;
+      const model = id.deviceModel ?? 0;
+      const sw = id.softwareRevision ?? 0;
       const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_DEVICE_IDENTITY << 16);
-      return new Uint32Array([word0 >>> 0]);
+      const word1 =
+        (((mId[0] ?? 0) & 0xff) << 24) |
+        (((mId[1] ?? 0) & 0xff) << 16) |
+        (((mId[2] ?? 0) & 0xff) << 8) |
+        ((family >> 8) & 0xff);
+      const word2 =
+        ((family & 0xff) << 24) |
+        ((model >> 8) & 0xff) << 16 |
+        ((model & 0xff) << 8) |
+        ((sw >> 24) & 0xff);
+      const word3 = ((sw >> 16) & 0xff) << 24 | ((sw >> 8) & 0xff) << 16 | (sw & 0xff) << 8;
+      return new Uint32Array([word0 >>> 0, word1 >>> 0, word2 >>> 0, word3 >>> 0]);
     }
     case "endpointNameNotification": {
+      const name = event.endpointNameNotification?.name ?? "";
+      const bytes = Array.from(new TextEncoder().encode(name)).slice(0, 98);
+      const words: number[] = [];
+      for (let i = 0; i < bytes.length; i += 4) {
+        const w = ((bytes[i] ?? 0) << 24) | ((bytes[i + 1] ?? 0) << 16) | ((bytes[i + 2] ?? 0) << 8) | (bytes[i + 3] ?? 0);
+        words.push(w >>> 0);
+      }
       const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_ENDPOINT_NAME << 16);
-      return new Uint32Array([word0 >>> 0]);
+      return new Uint32Array([word0 >>> 0, ...words]);
     }
     case "productInstanceIdNotification": {
+      const id = event.productInstanceIdNotification?.productInstanceId ?? "";
+      const bytes = Array.from(new TextEncoder().encode(id)).slice(0, 42);
+      const words: number[] = [];
+      for (let i = 0; i < bytes.length; i += 4) {
+        const w = ((bytes[i] ?? 0) << 24) | ((bytes[i + 1] ?? 0) << 16) | ((bytes[i + 2] ?? 0) << 8) | (bytes[i + 3] ?? 0);
+        words.push(w >>> 0);
+      }
       const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_PRODUCT_INSTANCE_ID << 16);
-      return new Uint32Array([word0 >>> 0]);
+      return new Uint32Array([word0 >>> 0, ...words]);
     }
     case "streamConfigRequest":
     case "streamConfigNotification": {
@@ -235,6 +264,9 @@ function encodeStream(event: StreamEvent): Uint32Array {
       assertRange("index", info.index ?? 0, 0, 0xff);
       assertRange("firstGroup", info.firstGroup ?? 0, 0, 0x0f);
       assertRange("groupCount", info.groupCount ?? 0, 0, 0x0f);
+      const active = info.active ? 0x80 : 0x00;
+      const direction = (info.direction ?? 0) & 0x03;
+      const midi1Bandwidth = (info.midi1Bandwidth ?? 0) & 0x03;
       const word0 =
         (STREAM_MT << 28) |
         (event.group << 24) |
@@ -242,7 +274,8 @@ function encodeStream(event: StreamEvent): Uint32Array {
         ((info.index ?? 0) << 8) |
         (((info.firstGroup ?? 0) & 0x0f) << 4) |
         ((info.groupCount ?? 0) & 0x0f);
-      return new Uint32Array([word0 >>> 0]);
+      const word1 = (active << 24) | (direction << 16) | (midi1Bandwidth << 8);
+      return new Uint32Array([word0 >>> 0, word1 >>> 0]);
     }
     case "functionBlockNameNotification": {
       const word0 = (STREAM_MT << 28) | (event.group << 24) | (STREAM_OPCODE_FUNCTION_BLOCK_NAME << 16);
@@ -287,7 +320,8 @@ function encodeStream(event: StreamEvent): Uint32Array {
   }
 }
 
-function decodeStream(word0: number, timestamp?: number): StreamEvent {
+function decodeStream(words: Uint32Array, timestamp?: number): StreamEvent {
+  const word0 = words[0];
   if ((word0 & 0x00000008) !== 0) {
     throw new RangeError("Stream packet has reserved bit set.");
   }
@@ -327,21 +361,38 @@ function decodeStream(word0: number, timestamp?: number): StreamEvent {
   }
 
   if (opcodeByte === STREAM_OPCODE_DEVICE_IDENTITY) {
+    if (words.length >= 4) {
+      const w1 = words[1];
+      const w2 = words[2];
+      const w3 = words[3];
+      const manufacturerIdRaw = [(w1 >>> 24) & 0xff, (w1 >>> 16) & 0xff, (w1 >>> 8) & 0xff].filter((b, idx) => idx === 0 || b !== 0);
+      const manufacturerId = manufacturerIdRaw.length === 1 ? [manufacturerIdRaw[0]] : manufacturerIdRaw;
+      const family = ((w1 & 0xff) << 8) | ((w2 >>> 24) & 0xff);
+      const model = ((w2 >>> 16) & 0xff) << 8 | ((w2 >>> 8) & 0xff);
+      const sw = ((w2 & 0xff) << 24) | ((w3 >>> 24) & 0xff) << 16 | ((w3 >>> 16) & 0xff) << 8 | ((w3 >>> 8) & 0xff);
+      return { kind: "stream", group, opcode: "deviceIdentityNotification", deviceIdentityNotification: { manufacturerId, deviceFamily: family, deviceModel: model, softwareRevision: sw }, timestamp };
+    }
     return { kind: "stream", group, opcode: "deviceIdentityNotification", deviceIdentityNotification: {}, timestamp };
   }
 
   if (opcodeByte === STREAM_OPCODE_ENDPOINT_NAME) {
-    return { kind: "stream", group, opcode: "endpointNameNotification", endpointNameNotification: { name: "" }, timestamp };
+    const bytes: number[] = [];
+    for (let i = 1; i < words.length; i++) {
+      const w = words[i];
+      bytes.push((w >>> 24) & 0xff, (w >>> 16) & 0xff, (w >>> 8) & 0xff, w & 0xff);
+    }
+    const name = new TextDecoder().decode(Uint8Array.from(bytes.filter(b => b !== 0)));
+    return { kind: "stream", group, opcode: "endpointNameNotification", endpointNameNotification: { name }, timestamp };
   }
 
   if (opcodeByte === STREAM_OPCODE_PRODUCT_INSTANCE_ID) {
-    return {
-      kind: "stream",
-      group,
-      opcode: "productInstanceIdNotification",
-      productInstanceIdNotification: { productInstanceId: "" },
-      timestamp,
-    };
+    const bytes: number[] = [];
+    for (let i = 1; i < words.length; i++) {
+      const w = words[i];
+      bytes.push((w >>> 24) & 0xff, (w >>> 16) & 0xff, (w >>> 8) & 0xff, w & 0xff);
+    }
+    const productInstanceId = new TextDecoder().decode(Uint8Array.from(bytes.filter(b => b !== 0)));
+    return { kind: "stream", group, opcode: "productInstanceIdNotification", productInstanceIdNotification: { productInstanceId }, timestamp };
   }
 
   if (opcodeByte === STREAM_OPCODE_STREAM_CONFIG_REQUEST || opcodeByte === STREAM_OPCODE_STREAM_CONFIG_NOTIFICATION) {
@@ -373,11 +424,15 @@ function decodeStream(word0: number, timestamp?: number): StreamEvent {
     const index = byte2;
     const firstGroup = (byte3 >> 4) & 0x0f;
     const groupCount = byte3 & 0x0f;
+    const word1 = words.length > 1 ? words[1] : 0;
+    const active = (word1 & 0x80000000) !== 0;
+    const direction = (word1 >>> 16) & 0x03;
+    const midi1Bandwidth = (word1 >>> 8) & 0x03;
     return {
       kind: "stream",
       group,
       opcode: "functionBlockInfoNotification",
-      functionBlockInfoNotification: { index, firstGroup, groupCount },
+      functionBlockInfoNotification: { index, firstGroup, groupCount, active, direction: direction as any, midi1Bandwidth: midi1Bandwidth as any },
       timestamp,
     };
   }
@@ -812,7 +867,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   const word0 = packet[0];
   const mt = (word0 >>> 28) & 0xf;
   if (mt === STREAM_MT) {
-    return decodeStream(word0, timestamp);
+    return decodeStream(packet, timestamp);
   }
   if (mt === 0x3) {
     if (packet.length % 2 !== 0) {

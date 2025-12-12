@@ -385,6 +385,59 @@ describe("Stream messages", () => {
     });
   });
 
+  it("encodes and decodes device identity", () => {
+    const evt: StreamEvent = {
+      kind: "stream",
+      group: 0,
+      opcode: "deviceIdentityNotification",
+      deviceIdentityNotification: {
+        manufacturerId: [0x00, 0x20, 0x33],
+        deviceFamily: 0x1234,
+        deviceModel: 0x5678,
+        softwareRevision: 0x01020304,
+      },
+    };
+    const decoded = decodeUmp(encodeUmp(evt));
+    expect(decoded).toMatchObject({
+      kind: "stream",
+      opcode: "deviceIdentityNotification",
+      deviceIdentityNotification: {
+        manufacturerId: [0x00, 0x20, 0x33],
+        deviceFamily: 0x1234,
+        deviceModel: 0x5678,
+        softwareRevision: 0x01020304,
+      },
+    });
+  });
+
+  it("encodes and decodes endpoint and product names", () => {
+    const nameEvt: StreamEvent = {
+      kind: "stream",
+      group: 0,
+      opcode: "endpointNameNotification",
+      endpointNameNotification: { name: "My Endpoint" },
+    };
+    const prodEvt: StreamEvent = {
+      kind: "stream",
+      group: 0,
+      opcode: "productInstanceIdNotification",
+      productInstanceIdNotification: { productInstanceId: "PID-12345" },
+    };
+    expect(decodeUmp(encodeUmp(nameEvt))).toMatchObject({ opcode: "endpointNameNotification", endpointNameNotification: { name: "My Endpoint" } });
+    expect(decodeUmp(encodeUmp(prodEvt))).toMatchObject({ opcode: "productInstanceIdNotification", productInstanceIdNotification: { productInstanceId: "PID-12345" } });
+  });
+
+  it("encodes and decodes function block flags", () => {
+    const evt: StreamEvent = {
+      kind: "stream",
+      group: 0,
+      opcode: "functionBlockInfoNotification",
+      functionBlockInfoNotification: { index: 1, firstGroup: 2, groupCount: 3, active: true, direction: 3, midi1Bandwidth: 2 },
+    };
+    const decoded = decodeUmp(encodeUmp(evt));
+    expect(decoded).toMatchObject({ opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { active: true, direction: 3, midi1Bandwidth: 2 } });
+  });
+
   it("encodes and decodes function block info and discovery", () => {
     const info: StreamEvent = {
       kind: "stream",

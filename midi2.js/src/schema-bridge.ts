@@ -1417,14 +1417,52 @@ function packStream(stream: StreamEvent): Uint32Array {
     const word0 = mt | group | (opcode << 16) | (flags << 8);
     return new Uint32Array([word0 >>> 0]);
   }
+  if (stream.opcode === "deviceIdentityNotification" && stream.deviceIdentityNotification) {
+    const id = stream.deviceIdentityNotification;
+    const mId = id.manufacturerId ?? [];
+    const family = id.deviceFamily ?? 0;
+    const model = id.deviceModel ?? 0;
+    const sw = id.softwareRevision ?? 0;
+    const word0 = mt | group | (STREAM_OPCODE_DEVICE_IDENTITY << 16);
+    const word1 = ((mId[0] ?? 0) & 0xff) << 24 | ((mId[1] ?? 0) & 0xff) << 16 | ((mId[2] ?? 0) & 0xff) << 8 | ((family >> 8) & 0xff);
+    const word2 = ((family & 0xff) << 24) | ((model >> 8) & 0xff) << 16 | ((model & 0xff) << 8) | ((sw >> 24) & 0xff);
+    const word3 = ((sw >> 16) & 0xff) << 24 | ((sw >> 8) & 0xff) << 16 | (sw & 0xff) << 8;
+    return new Uint32Array([word0 >>> 0, word1 >>> 0, word2 >>> 0, word3 >>> 0]);
+  }
+  if (stream.opcode === "endpointNameNotification") {
+    const name = stream.endpointNameNotification?.name ?? "";
+    const bytes = Array.from(new TextEncoder().encode(name)).slice(0, 98);
+    const words: number[] = [];
+    for (let i = 0; i < bytes.length; i += 4) {
+      const w = ((bytes[i] ?? 0) << 24) | ((bytes[i + 1] ?? 0) << 16) | ((bytes[i + 2] ?? 0) << 8) | (bytes[i + 3] ?? 0);
+      words.push(w >>> 0);
+    }
+    const word0 = mt | group | (STREAM_OPCODE_ENDPOINT_NAME << 16);
+    return new Uint32Array([word0 >>> 0, ...words]);
+  }
+  if (stream.opcode === "productInstanceIdNotification") {
+    const id = stream.productInstanceIdNotification?.productInstanceId ?? "";
+    const bytes = Array.from(new TextEncoder().encode(id)).slice(0, 42);
+    const words: number[] = [];
+    for (let i = 0; i < bytes.length; i += 4) {
+      const w = ((bytes[i] ?? 0) << 24) | ((bytes[i + 1] ?? 0) << 16) | ((bytes[i + 2] ?? 0) << 8) | (bytes[i + 3] ?? 0);
+      words.push(w >>> 0);
+    }
+    const word0 = mt | group | (STREAM_OPCODE_PRODUCT_INSTANCE_ID << 16);
+    return new Uint32Array([word0 >>> 0, ...words]);
+  }
   if (stream.opcode === "functionBlockInfoNotification" && stream.functionBlockInfoNotification) {
     const idx = stream.functionBlockInfoNotification.index ?? 0;
     const firstGroup = stream.functionBlockInfoNotification.firstGroup ?? 0;
     const groupCount = stream.functionBlockInfoNotification.groupCount ?? 0;
+    const active = stream.functionBlockInfoNotification.active ? 0x80 : 0;
+    const direction = (stream.functionBlockInfoNotification.direction ?? 0) & 0x03;
+    const midi1Bandwidth = (stream.functionBlockInfoNotification.midi1Bandwidth ?? 0) & 0x03;
     const byte2 = idx & 0xff;
     const byte3 = ((firstGroup & 0x0f) << 4) | (groupCount & 0x0f);
     const word0 = mt | group | (STREAM_OPCODE_FUNCTION_BLOCK_INFO << 16) | (byte2 << 8) | byte3;
-    return new Uint32Array([word0 >>> 0]);
+    const word1 = (active << 24) | (direction << 16) | (midi1Bandwidth << 8);
+    return new Uint32Array([word0 >>> 0, word1 >>> 0]);
   }
   if (stream.opcode === "functionBlockDiscovery" && stream.functionBlockDiscovery) {
     const filter = stream.functionBlockDiscovery.filterBitmap ?? 0;

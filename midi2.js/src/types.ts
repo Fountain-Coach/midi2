@@ -317,8 +317,6 @@ export interface StreamEvent {
   endpointInfoNotification?: {
     staticFunctionBlocks?: boolean;
     numberOfFunctionBlocks?: number;
-    umpVersionMajor?: number;
-    umpVersionMinor?: number;
     midi2Supported?: boolean;
     midi1Supported?: boolean;
     jrTimestampsRx?: boolean;

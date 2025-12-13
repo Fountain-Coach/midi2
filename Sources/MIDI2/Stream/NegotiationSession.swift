@@ -49,8 +49,8 @@ public final class StreamNegotiationSession {
         return GroupTerminalBlocks(blocks: filtered)
     }
 
-    /// Convenience that emits UMP packets for the selected function blocks.
-    public func onFunctionBlockDiscovery(_ req: FunctionBlockDiscovery, group: Uint4) -> [UmpPacket32] {
-        onFunctionBlockDiscovery(req).umps(group: group)
+    /// Convenience that emits UMP packets for the selected function blocks (64-bit Function Block Info).
+    public func onFunctionBlockDiscovery(_ req: FunctionBlockDiscovery, group: Uint4) throws -> [UmpPacket64] {
+        try onFunctionBlockDiscovery(req).umps(group: group)
     }
 }

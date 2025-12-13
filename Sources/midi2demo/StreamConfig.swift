@@ -219,13 +219,13 @@ struct StreamGTB: ParsableCommand {
         guard let g = Uint4(UInt8(group)) else { throw ValidationError("Invalid group") }
         let blocks: [GroupTerminalBlock] = try blocks.map(parseBlock)
         let gtb = GroupTerminalBlocks(blocks: blocks)
-        let pkts = gtb.umps(group: g)
+        let pkts = try gtb.umps(group: g)
         for (i, pkt) in pkts.enumerated() {
-            print(String(format: "GTB pkt%u: 0x%08X", i, pkt.word))
+            print(String(format: "GTB pkt%u: w0=0x%08X w1=0x%08X", i, pkt.word0, pkt.word1))
         }
         let parsed = try GroupTerminalBlocks(parsingUMPs: pkts)
         for blk in parsed.blocks {
-            print("  index=\(blk.index) firstGroup=\(blk.firstGroup) groupCount=\(blk.groupCount)")
+            print("  index=\(blk.index) firstGroup=\(blk.firstGroup) groupCount=\(blk.groupCount) active=\(blk.active) dir=\(blk.direction) bw=\(blk.midi1Bandwidth)")
         }
     }
 }
@@ -268,14 +268,24 @@ struct StreamHandshake: ParsableCommand {
 
         // 4) Function Block information (responder → initiator)
         // Example: two function blocks
-        let fbInfo = FunctionBlockMessage(index: 0x00, firstGroup: 0x0, groupCount: 0x4)
+        let fbInfo = try FunctionBlockInfoNotification(index: 0x00,
+                                                       firstGroup: 0x0,
+                                                       groupCount: 0x4,
+                                                       active: true,
+                                                       direction: .bidirectional,
+                                                       midi1Bandwidth: .unrestricted)
         let fbPkt = fbInfo.ump(group: g)
-        print(String(format: "Function Block (info):  0x%08X", fbPkt.word))
-        print("  index=\(fbInfo.index) firstGroup=\(fbInfo.firstGroup) groupCount=\(fbInfo.groupCount)")
+        print(String(format: "Function Block (info):  w0=0x%08X w1=0x%08X", fbPkt.word0, fbPkt.word1))
+        print("  index=\(fbInfo.index) firstGroup=\(fbInfo.firstGroup) groupCount=\(fbInfo.groupCount) active=\(fbInfo.active) dir=\(fbInfo.direction) bw=\(fbInfo.midi1Bandwidth)")
 
-        let fbInfo2 = FunctionBlockMessage(index: 0x01, firstGroup: 0x4, groupCount: 0x4)
+        let fbInfo2 = try FunctionBlockInfoNotification(index: 0x01,
+                                                        firstGroup: 0x4,
+                                                        groupCount: 0x4,
+                                                        active: false,
+                                                        direction: .output,
+                                                        midi1Bandwidth: .restrict31_25kbps)
         let fbPkt2 = fbInfo2.ump(group: g)
-        print(String(format: "Function Block (info):  0x%08X", fbPkt2.word))
-        print("  index=\(fbInfo2.index) firstGroup=\(fbInfo2.firstGroup) groupCount=\(fbInfo2.groupCount)")
+        print(String(format: "Function Block (info):  w0=0x%08X w1=0x%08X", fbPkt2.word0, fbPkt2.word1))
+        print("  index=\(fbInfo2.index) firstGroup=\(fbInfo2.firstGroup) groupCount=\(fbInfo2.groupCount) active=\(fbInfo2.active) dir=\(fbInfo2.direction) bw=\(fbInfo2.midi1Bandwidth)")
     }
 }

@@ -48,8 +48,8 @@ final class StreamNegotiationTests: XCTestCase {
         let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
         let req = FunctionBlockDiscovery(filterBitmap: UInt32(1) << 4)
         let group = Uint4(3)!
-        let pkts = session.onFunctionBlockDiscovery(req, group: group)
+        let pkts = try session.onFunctionBlockDiscovery(req, group: group)
         let parsed = try GroupTerminalBlocks(parsingUMPs: pkts)
-        XCTAssertEqual(parsed.blocks, [GroupTerminalBlock(index: 4, firstGroup: 8, groupCount: 2)])
+        XCTAssertEqual(parsed.blocks, [GroupTerminalBlock(index: 4, firstGroup: 8, groupCount: 2, active: false, direction: .reserved, midi1Bandwidth: .notMidi1)])
     }
 }

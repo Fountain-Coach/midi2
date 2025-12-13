@@ -21,30 +21,29 @@
 ## High Priority Gaps (Critical Path)
 
 ### Gap 2.2.1: Property Exchange Subscription Lifecycle
-**Status**: 🔴 Not Started  
+**Status**: 🟢 Complete  
 **Priority**: High | **Effort**: 5-7 days | **Target Sprint**: 1
 
 **Spec Reference**: M2-103-UM v1.2, Tables 43-47 (p.42-43)
 
 **Current State**:
 - ✅ Schema fields captured (`MidiCiPropertyExchangeBody.subscriptionCommand`)
-- 🟢 TypeScript subscription manager models start/partial/full/notify/end lifecycle with flow-control ACK/NAK, resource checks, exponential backoff + retry-capped timeout NAK→408, and tests
-- 🟢 Swift subscription manager mirrors lifecycle, ACK/NAK, resource checks, exponential backoff + retry-capped timeout NAK→408; tests added
-- 🟢 Backoff/retransmit policy implemented at helper level; higher-level retry wiring optional
+- ✅ TS and Swift subscription managers implement start/partial/full/notify/end lifecycle with flow-control ACK/NAK, resource checks, chunk order enforcement, exponential backoff + retry-capped timeout (408), and tests
+- ✅ Backoff/retransmit policy implemented at helper level; higher-level retry wiring remains optional
 
 **Acceptance Criteria**:
-- [ ] Subscription state machine implemented (start → partial → full → notify → end)
-- [ ] Flow-control ACK handler with chunk number tracking
-- [ ] Flow-control NAK handler with retransmit logic
-- [ ] Resource-level flow-control capability negotiation
-- [ ] Active subscription map/tracker
-- [ ] Comprehensive test suite covering:
-  - [ ] Subscription lifecycle sequences
-  - [ ] Partial vs. full update patterns
-  - [ ] Flow-control ACK timeout handling
-  - [ ] NAK retransmit scenarios
-  - [ ] Error conditions (406/407 status codes)
-- [ ] Documentation updated
+- [x] Subscription state machine implemented (start → partial → full → notify → end)
+- [x] Flow-control ACK handler with chunk number tracking
+- [x] Flow-control NAK handler with retransmit/backoff logic
+- [x] Resource-level flow-control capability negotiation
+- [x] Active subscription map/tracker
+- [x] Comprehensive test suite covering:
+  - [x] Subscription lifecycle sequences
+  - [x] Partial vs. full update patterns
+  - [x] Flow-control ACK timeout handling
+  - [x] NAK retransmit scenarios
+  - [x] Error conditions (406/407 status codes)
+- [x] Documentation updated
 
 **Implementation Steps**:
 1. Design subscription state machine

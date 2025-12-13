@@ -7,6 +7,8 @@
 
 ## 📊 Executive Summary
 
+**Note**: These metrics represent the state as of the last audit update. Refer to [gap-closure-tracker.md](gap-closure-tracker.md) for current gap status.
+
 | Metric | Value | Target | Status |
 |--------|-------|--------|--------|
 | **Overall Compliance** | 62% | 95% | 🟡 In Progress |

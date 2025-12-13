@@ -35,7 +35,7 @@
 | NOOP (0x00) | 44 | ✅ | ✅ | ✅ | ✅ | ✅ | Complete |
 | JR Clock (0x01) | 45 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 17 |
 | JR Timestamp (0x02) | 45 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 17 |
-| Delta Clockstamp (0x03) | 45 | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | 📄 Row 49 - needs TPQN range validation (0 reserved, max 65535) |
+| Delta Clockstamp (0x03) | 45 | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | 📄 Row 49 - needs Ticks Per Quarter Note (TPQN) range validation (0 reserved, max 65535) |
 | Delta Clockstamp TPQN (0x04) | 45 | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | 📄 Row 49 - needs TPQN field extraction tests |
 | Reserved opcodes (0x05-0x0F) | 44 | 📋 | ⚠️ | ⚠️ | ❌ | ⚠️ | Gap 1.2.2 - needs negative tests |
 

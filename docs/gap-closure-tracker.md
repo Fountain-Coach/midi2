@@ -130,6 +130,7 @@
 - 🟡 MT=0xF/0x0 reception restriction guards in place via GTB allowed-MT enforcement (TS decoder/dispatch) and Swift GTB enforcement helper; descriptor↔function-block coverage validation added
 - 🟡 GTB-Function Block overlap/coverage validation started (descriptor groups must map to blocks)
 - 🟡 TS descriptor applicator validates against Function Block notifications (optional)
+- 🟡 TS JSON loader (`loadGtbDescriptorFromJson`) to seed GTB context from descriptor artifacts
 - 🟡 MT=0xF/MT=0x0 reception restrictions guarded; integration into runtime negotiation pending
 - ❌ Protocol negotiation for GTB contexts incomplete
 

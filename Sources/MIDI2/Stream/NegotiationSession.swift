@@ -13,14 +13,16 @@ public final class StreamNegotiationSession {
 
     public let responderCaps: Capabilities
     public let functionBlocks: GroupTerminalBlocks
+    public let allowGtbOverlap: Bool
     private var profileMap: [UInt8: [String]] = [:]
     private var gtbAllowedMt: [UInt8: Set<UInt8>] = [:]
     public private(set) var negotiated: StreamConfigurationMessage?
     public private(set) var gtbDescriptor: GtbDescriptor?
 
-    public init(responderCaps: Capabilities, functionBlocks: GroupTerminalBlocks = GroupTerminalBlocks(blocks: [])) {
+    public init(responderCaps: Capabilities, functionBlocks: GroupTerminalBlocks = GroupTerminalBlocks(blocks: []), allowGtbOverlap: Bool = false) {
         self.responderCaps = responderCaps
         self.functionBlocks = functionBlocks
+        self.allowGtbOverlap = allowGtbOverlap
         for block in functionBlocks.blocks {
             if !block.profiles.isEmpty {
                 profileMap[block.index] = block.profiles
@@ -100,8 +102,9 @@ public final class StreamNegotiationSession {
 
     /// Apply a GTB descriptor (e.g., parsed from USB) to seed per-group allowed message types.
     /// Validates that descriptor groups are covered by known function blocks.
-    public func apply(gtbDescriptor: GtbDescriptor, allowOverlap: Bool = false) throws {
-        try GTBValidator.validate(descriptor: gtbDescriptor, blocks: functionBlocks.blocks, allowOverlap: allowOverlap)
+    public func apply(gtbDescriptor: GtbDescriptor, allowOverlap: Bool? = nil) throws {
+        let allow = allowOverlap ?? allowGtbOverlap
+        try GTBValidator.validate(descriptor: gtbDescriptor, blocks: functionBlocks.blocks, allowOverlap: allow)
         for (group, mts) in gtbDescriptor.groups {
             setGtbAllowedMessageTypes(for: group, allowed: mts)
         }
@@ -136,7 +139,7 @@ public final class StreamNegotiationSession {
 
     /// Simulated GTB negotiation step: validate and store descriptor; seeds allowed MT map.
     @discardableResult
-    public func negotiate(gtbDescriptor: GtbDescriptor, allowOverlap: Bool = false) throws -> Bool {
+    public func negotiate(gtbDescriptor: GtbDescriptor, allowOverlap: Bool? = nil) throws -> Bool {
         try apply(gtbDescriptor: gtbDescriptor, allowOverlap: allowOverlap)
         return true
     }

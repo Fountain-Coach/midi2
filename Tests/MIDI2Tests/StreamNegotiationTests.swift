@@ -127,4 +127,14 @@ final class StreamNegotiationTests: XCTestCase {
         XCTAssertEqual(session.gtbDescriptor?.groups[0], Set([0xF]))
         XCTAssertEqual(session.allowedMessageTypes(for: 0), Set([0xF]))
     }
+
+    func testGtbNegotiationRespectsAllowOverlapFlag() throws {
+        let overlapping = GroupTerminalBlocks(blocks: [
+            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 3),
+            GroupTerminalBlock(index: 1, firstGroup: 2, groupCount: 2)
+        ])
+        let desc = GtbDescriptor(raw: [2: [0xF]])
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: overlapping, allowGtbOverlap: true)
+        XCTAssertNoThrow(try session.negotiate(gtbDescriptor: desc))
+    }
 }

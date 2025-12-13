@@ -225,7 +225,8 @@ struct StreamGTB: ParsableCommand {
         }
         let parsed = try GroupTerminalBlocks(parsingUMPs: pkts)
         for blk in parsed.blocks {
-            print("  index=\(blk.index) firstGroup=\(blk.firstGroup) groupCount=\(blk.groupCount) active=\(blk.active) dir=\(blk.direction) bw=\(blk.midi1Bandwidth)")
+            let profiles = blk.profiles.isEmpty ? "" : " profiles=\(blk.profiles.joined(separator: \",\"))"
+            print("  index=\(blk.index) firstGroup=\(blk.firstGroup) groupCount=\(blk.groupCount) active=\(blk.active) dir=\(blk.direction) bw=\(blk.midi1Bandwidth)\(profiles)")
         }
     }
 }

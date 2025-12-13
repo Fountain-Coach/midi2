@@ -31,4 +31,4 @@ This document describes how we associate MIDI-CI Profile IDs with Function Block
 ## Next Steps
 
 - Wire runtime updates from actual Profile enable/disable/report handlers into the profile map (hook available via `ProfileSession.onProfileAssociationChange`; map function block index from target/functionBlock scope as needed).
-- Optionally expose profile associations in CLI/diagnostics outputs alongside Function Block info.
+- Expose profile associations in CLI/diagnostics outputs alongside Function Block info (demo responder in `midi2umpd` already updates its FB profile map on Profile enable/disable).

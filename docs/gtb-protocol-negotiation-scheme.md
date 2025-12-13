@@ -32,6 +32,7 @@ Target: enforce Appendix I GTB semantics without changing UMP wire format.
 - **Ingress**: every UMP path calls GTB guard (words/packets).
 - **Egress**: apply same guard before sending stream/utility MTs.
 - **Error policy**: on GTB violation, drop and optionally log/notify; do not mutate UMP payloads.
+- TS helper: `negotiateGtbContext` seeds context and `guardIngress/guardEgress` reuse the same enforcement for word arrays.
 
 ## Open items
 - Wire GTB context into runtime negotiation/session state so ingress/egress automatically invoke enforcement helpers.

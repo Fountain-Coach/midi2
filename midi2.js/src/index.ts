@@ -12,3 +12,4 @@ export { fragmentSysEx7, fragmentSysEx8, reassembleSysEx7, reassembleSysEx8 } fr
 export * from "./adapters/webaudio";
 export * from "./adapters/three";
 export * from "./adapters/cannon";
+export * from "./gtb-negotiation";

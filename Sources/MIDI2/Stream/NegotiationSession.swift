@@ -18,6 +18,7 @@ public final class StreamNegotiationSession {
     private var gtbAllowedMt: [UInt8: Set<UInt8>] = [:]
     public private(set) var negotiated: StreamConfigurationMessage?
     public private(set) var gtbDescriptor: GtbDescriptor?
+    public private(set) var lastConfigMismatch: Bool = false
 
     public init(responderCaps: Capabilities, functionBlocks: GroupTerminalBlocks = GroupTerminalBlocks(blocks: []), allowGtbOverlap: Bool = false) {
         self.responderCaps = responderCaps
@@ -39,11 +40,18 @@ public final class StreamNegotiationSession {
     /// Process a Stream Configuration request and return a notification reflecting negotiated settings.
     public func onStreamConfigRequest(_ req: StreamConfigurationMessage) -> StreamConfigurationMessage {
         var notif = StreamConfigurationMessage(isNotification: true, jrTimestampsTx: false, jrTimestampsRx: false, protocolSelection: .midi1)
+        lastConfigMismatch = false
         // Protocol negotiation
         notif.protocolSelection = responderCaps.supportsMIDI2 && (req.protocolSelection == .midi2) ? .midi2 : .midi1
+        if notif.protocolSelection != req.protocolSelection {
+            lastConfigMismatch = true
+        }
         // JR flags intersection
         notif.jrTimestampsTx = responderCaps.jrTx && req.jrTimestampsTx
         notif.jrTimestampsRx = responderCaps.jrRx && req.jrTimestampsRx
+        if notif.jrTimestampsTx != req.jrTimestampsTx || notif.jrTimestampsRx != req.jrTimestampsRx {
+            lastConfigMismatch = true
+        }
         negotiated = notif
         return notif
     }

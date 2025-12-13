@@ -19,6 +19,17 @@ final class StreamNegotiationTests: XCTestCase {
         let req = StreamConfigurationMessage(isNotification: false, jrTimestampsTx: true, jrTimestampsRx: true, protocolSelection: .midi2)
         let reply = session.onStreamConfigRequest(req)
         XCTAssertEqual(reply.protocolSelection, .midi1)
+        XCTAssertTrue(session.lastConfigMismatch)
+    }
+
+    func testJrFallbackAndMismatchFlag() {
+        let session = StreamNegotiationSession(responderCaps: .init(supportsMIDI2: true, jrTx: false, jrRx: false))
+        let req = StreamConfigurationMessage(isNotification: false, jrTimestampsTx: true, jrTimestampsRx: true, protocolSelection: .midi2)
+        let reply = session.onStreamConfigRequest(req)
+        XCTAssertEqual(reply.protocolSelection, .midi2)
+        XCTAssertFalse(reply.jrTimestampsTx)
+        XCTAssertFalse(reply.jrTimestampsRx)
+        XCTAssertTrue(session.lastConfigMismatch)
     }
 
     func testFunctionBlockDiscoveryFiltersBlocksByMask() {

@@ -27,3 +27,13 @@ export function validateFunctionBlockLayouts(events: StreamEvent[], allowOverlap
     }
   }
 }
+
+/**
+ * Enforce allowed message types for a GTB context.
+ * Throws RangeError if the message type nibble is disallowed.
+ */
+export function enforceAllowedMessageType(mt: number, allowed: Set<number>): void {
+  if (!allowed.has(mt & 0xf)) {
+    throw new RangeError(`GTB disallows message type 0x${(mt & 0xf).toString(16)}`);
+  }
+}

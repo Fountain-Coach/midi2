@@ -29,4 +29,9 @@ final class GroupTerminalBlocksTests: XCTestCase {
         ]
         XCTAssertThrowsError(try GTBValidator.validate(blocks: blocks))
     }
+
+    func testGTBValidatorAllowedMessageTypes() {
+        XCTAssertNoThrow(try GTBValidator.enforceAllowedMessageType(mt: 0x5, allowed: [0x5, 0xF]))
+        XCTAssertThrowsError(try GTBValidator.enforceAllowedMessageType(mt: 0x2, allowed: [0x5, 0xF]))
+    }
 }

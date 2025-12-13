@@ -26,4 +26,15 @@ public enum GTBValidator {
             }
         }
     }
+
+    /// Enforce message-type restrictions for a GTB context.
+    /// - Parameters:
+    ///   - mt: Message type nibble.
+    ///   - allowed: Set of allowed MT values.
+    /// - Throws: ``MIDIError.malformedPacket`` if disallowed.
+    public static func enforceAllowedMessageType(mt: UInt8, allowed: Set<UInt8>) throws {
+        if !allowed.contains(mt) {
+            throw MIDIError.malformedPacket("GTB disallows message type 0x\(String(mt, radix: 16))")
+        }
+    }
 }

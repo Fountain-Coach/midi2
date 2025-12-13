@@ -48,4 +48,12 @@ final class Midi1ChannelVoiceBodyTests: XCTestCase {
         XCTAssertNil(Midi1ChannelVoiceMessage(ump: word))
         XCTAssertThrowsError(try Midi1ChannelVoiceMessage(parsingUMP: word))
     }
+
+    func testRejectsOutOfRangeDataBytes() {
+        let g = Uint4(0)!
+        // Data1 beyond 0x7F for note on
+        let word = UmpPacket32(mt: 0x2, group: g, status: 0x90, data1: 0xFF, data2: 0)
+        XCTAssertNil(Midi1ChannelVoiceMessage(ump: word))
+        XCTAssertThrowsError(try Midi1ChannelVoiceMessage(parsingUMP: word))
+    }
 }

@@ -562,6 +562,8 @@
 - **Low Priority**: 8
 
 ### Status Summary
+**Note**: This represents the baseline state as of December 13, 2025. Update this section as work progresses.
+
 - 🔴 Not Started: 21 (100%)
 - 🟡 In Progress: 0 (0%)
 - 🟢 Complete: 0 (0%)

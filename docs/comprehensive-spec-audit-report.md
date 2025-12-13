@@ -1097,6 +1097,10 @@ This section provides a comprehensive mapping between specification requirements
 **Spec Audit Completion**:
 - Current: 49/52 entries captured (94%)
 - Target: 100% captured with all pending items resolved
+- Uncaptured entries:
+  1. USB GTB considerations (M2-104-UM p.122) - Runtime guidance pending
+  2. PE subscription lifecycle runtime (M2-103-UM Tables 43-47) - State machine pending
+  3. Remaining spec sections audit - Target: Q1 2026
 
 **Test Coverage**:
 - Swift: 107 tests → Target: 150+ tests
@@ -1109,8 +1113,8 @@ This section provides a comprehensive mapping between specification requirements
 - Target: 100% of normative spec fields documented with page references
 
 **Gap Closure**:
-- Current: 16 identified gaps
-- Target: Close 12+ high/medium priority gaps in 8 weeks
+- Current: 21 identified gaps (detailed in section 11)
+- Target: Close 13+ high/medium priority gaps in 8 weeks (prioritizing critical path)
 
 ### 15.2 Qualitative Metrics
 

@@ -65,16 +65,15 @@
 ---
 
 ### Gap 4.2.1: Function Block Descriptor Details
-**Status**: 🔴 Not Started  
+**Status**: 🟡 In Progress  
 **Priority**: High | **Effort**: 4-5 days | **Target Sprint**: 1
 
 **Spec Reference**: M2-104-UM v1.1.2, Figure 22 (p.40), Appendix I (p.122)
 
 **Current State**:
 - ✅ Basic fields (index, firstGroup, groupCount)
-- ❌ Direction field (2 bits) not extracted
-- ❌ MIDI 1.0 bandwidth field (2 bits) not extracted
-- ❌ Active flag not extracted
+- 🟡 TypeScript decode validation for active/direction/midi1Bandwidth + reserved bits (2025-12-13)
+- 🟡 Swift typed `FunctionBlockInfoNotification` wrapper (64-bit) with direction/bandwidth/active validation (2025-12-13)
 - ❌ UI hints not captured
 - ❌ Discovery/response flow semantics incomplete
 
@@ -565,10 +564,10 @@
 - **Low Priority**: 8
 
 ### Status Summary
-**Note**: Updated December 13, 2025 after completing Gap 4.2.4 validation/tests (TS + Swift).
+**Note**: Updated December 13, 2025 after starting Gap 4.2.1 validation work.
 
-- 🔴 Not Started: 19 (90%)
-- 🟡 In Progress: 0 (0%)
+- 🔴 Not Started: 18 (86%)
+- 🟡 In Progress: 1 (5%)
 - 🟢 Complete: 2 (10%)
 - ⏸️ Blocked: 0 (0%)
 
@@ -592,6 +591,7 @@
 
 | Date | Gap ID | Status Change | Notes |
 |------|--------|---------------|-------|
+| 2025-12-13 | 4.2.1 | 🟡 Started | Added TS/Swift validation for Function Block Info (direction/bandwidth/active + reserved bits) |
 | 2025-12-13 | 4.2.4 | 🟢 Complete | Added Swift endpoint info validation + tests; TS validation already in place |
 | 2025-12-13 | 4.2.4 | 🟡 Started | Added TypeScript endpoint info reserved-bit validation and Vitest coverage |
 | 2025-12-13 | All | 🔴 Initial | Comprehensive audit completed |

@@ -70,4 +70,37 @@ final class StreamMappingTests: XCTestCase {
         XCTAssertThrowsError(try EndpointInfoNotification(parsingUMP: UmpPacket32(mt: 0xF, group: group, status: status, data1: 0x21, data2: 0x00)))
         XCTAssertThrowsError(try EndpointInfoNotification(parsingUMP: UmpPacket32(mt: 0xF, group: group, status: status, data1: 0x01, data2: 0x10)))
     }
+
+    func testFunctionBlockInfoRoundTrip64() throws {
+        let msg = try FunctionBlockInfoNotification(
+            index: 0x02,
+            firstGroup: 0x1,
+            groupCount: 0x4,
+            active: true,
+            direction: .bidirectional,
+            midi1Bandwidth: .restrict31_25kbps
+        )
+        let packet = msg.ump(group: Uint4(0x0)!)
+        let parsed = try FunctionBlockInfoNotification(parsingUMP64: packet)
+        XCTAssertEqual(parsed, msg)
+    }
+
+    func testFunctionBlockInfoRejectsReservedBits() throws {
+        let group = Uint4(0x0)!
+        // Reserved bits set in word1
+        let pkt = UmpPacket64(
+            word0: (UInt32(0xF) << 28) | (UInt32(group.rawValue) << 24) | (UInt32(StreamOpcode.functionBlockInfoNotification.rawValue) << 16) | (UInt32(0x02) << 8),
+            word1: 0x01000000 // reserved bit 24 set
+        )
+        XCTAssertThrowsError(try FunctionBlockInfoNotification(parsingUMP64: pkt))
+    }
+
+    func testFunctionBlockInfoRejectsReservedBandwidth() throws {
+        let group = Uint4(0x0)!
+        let pkt = UmpPacket64(
+            word0: (UInt32(0xF) << 28) | (UInt32(group.rawValue) << 24) | (UInt32(StreamOpcode.functionBlockInfoNotification.rawValue) << 16),
+            word1: 0x00000300 // midi1Bandwidth = 3
+        )
+        XCTAssertThrowsError(try FunctionBlockInfoNotification(parsingUMP64: pkt))
+    }
 }

@@ -268,6 +268,9 @@ function encodeStream(event: StreamEvent): Uint32Array {
       assertRange("index", info.index ?? 0, 0, 0xff);
       assertRange("firstGroup", info.firstGroup ?? 0, 0, 0x0f);
       assertRange("groupCount", info.groupCount ?? 0, 0, 0x0f);
+      assertRange("direction", info.direction ?? 0, 0, 0x03);
+      // 0..2 valid, 3 reserved (spec Appendix I); guard upper bound only
+      assertRange("midi1Bandwidth", info.midi1Bandwidth ?? 0, 0, 0x02);
       const active = info.active ? 0x80 : 0x00;
       const direction = (info.direction ?? 0) & 0x03;
       const midi1Bandwidth = (info.midi1Bandwidth ?? 0) & 0x03;
@@ -434,13 +437,23 @@ function decodeStream(words: Uint32Array, timestamp?: number): StreamEvent {
   }
 
   if (opcodeByte === STREAM_OPCODE_FUNCTION_BLOCK_INFO) {
+    if (words.length < 2) {
+      throw new RangeError("Function block info must contain two words.");
+    }
     const index = byte2;
     const firstGroup = (byte3 >> 4) & 0x0f;
     const groupCount = byte3 & 0x0f;
-    const word1 = words.length > 1 ? words[1] : 0;
+    const word1 = words[1];
     const active = (word1 & 0x80000000) !== 0;
     const direction = (word1 >>> 16) & 0x03;
     const midi1Bandwidth = (word1 >>> 8) & 0x03;
+    const reservedMask = ~(0x80030300 >>> 0);
+    if ((word1 & reservedMask) !== 0) {
+      throw new RangeError("Function block info has reserved bits set.");
+    }
+    if (midi1Bandwidth > 0x02) {
+      throw new RangeError("Function block info has reserved midi1Bandwidth value.");
+    }
     return {
       kind: "stream",
       group,

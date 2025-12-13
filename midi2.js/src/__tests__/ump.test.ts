@@ -453,6 +453,27 @@ describe("Stream messages", () => {
     expect(decoded).toMatchObject({ opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { active: true, direction: 3, midi1Bandwidth: 2 } });
   });
 
+  it("rejects function block info with reserved bits", () => {
+    const words = new Uint32Array([
+      0xf0112303, // word0 (index=0x11, firstGroup=2, groupCount=3)
+      0x7f000000, // reserved high bits set
+    ]);
+    expect(() => decodeUmp(words)).toThrow(RangeError);
+  });
+
+  it("rejects function block info with reserved midi1 bandwidth value", () => {
+    const words = new Uint32Array([
+      0xf0112303,
+      0x00000300, // midi1Bandwidth=3 (reserved)
+    ]);
+    expect(() => decodeUmp(words)).toThrow(RangeError);
+  });
+
+  it("rejects function block info missing second word", () => {
+    const words = new Uint32Array([0xf0112303]);
+    expect(() => decodeUmp(words)).toThrow(RangeError);
+  });
+
   it("decodes basic MDS chunk", () => {
     const words = new Uint32Array([
       0x50841104, // mt=5, status=0x8 header, mdsId=0x11, validByteCount=4

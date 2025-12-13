@@ -1,0 +1,7 @@
+{
+  "groups": {
+    "0": ["0xf", "0x5"],
+    "1": ["0xf"]
+  },
+  "notes": "Example GTB context; in USB-MIDI 2.0 scenarios these values come from descriptors."
+}

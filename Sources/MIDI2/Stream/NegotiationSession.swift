@@ -97,6 +97,13 @@ public final class StreamNegotiationSession {
         gtbAllowedMt[group & 0x0F] = allowed
     }
 
+    /// Apply a GTB descriptor (e.g., parsed from USB) to seed per-group allowed message types.
+    public func apply(gtbDescriptor: GtbDescriptor) {
+        for (group, mts) in gtbDescriptor.groups {
+            setGtbAllowedMessageTypes(for: group, allowed: mts)
+        }
+    }
+
     /// Get allowed message types (if any) for a given group.
     public func allowedMessageTypes(for group: UInt8) -> Set<UInt8>? {
         gtbAllowedMt[group & 0x0F]

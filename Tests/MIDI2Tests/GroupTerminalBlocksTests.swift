@@ -34,4 +34,19 @@ final class GroupTerminalBlocksTests: XCTestCase {
         XCTAssertNoThrow(try GTBValidator.enforceAllowedMessageType(mt: 0x5, allowed: [0x5, 0xF]))
         XCTAssertThrowsError(try GTBValidator.enforceAllowedMessageType(mt: 0x2, allowed: [0x5, 0xF]))
     }
+
+    func testGtbDescriptorJsonLoad() throws {
+        let json = """
+        {
+          "groups": {
+            "0": ["0xf", 5],
+            "2": ["7", "0x2"]
+          }
+        }
+        """
+        let data = try XCTUnwrap(json.data(using: .utf8))
+        let desc = try GtbDescriptor.load(jsonData: data)
+        XCTAssertEqual(desc.groups[0], Set([0xF, 0x5]))
+        XCTAssertEqual(desc.groups[2], Set([0x7, 0x2]))
+    }
 }

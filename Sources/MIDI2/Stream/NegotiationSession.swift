@@ -14,6 +14,7 @@ public final class StreamNegotiationSession {
     public let responderCaps: Capabilities
     public let functionBlocks: GroupTerminalBlocks
     private var profileMap: [UInt8: [String]] = [:]
+    private var gtbAllowedMt: [UInt8: Set<UInt8>] = [:]
     public private(set) var negotiated: StreamConfigurationMessage?
 
     public init(responderCaps: Capabilities, functionBlocks: GroupTerminalBlocks = GroupTerminalBlocks(blocks: [])) {
@@ -89,5 +90,22 @@ public final class StreamNegotiationSession {
             existing.removeAll { $0 == profileId }
         }
         profileMap[index] = existing
+    }
+
+    /// Set allowed message types (mt nibble) for a given group in a GTB context.
+    public func setGtbAllowedMessageTypes(for group: UInt8, allowed: Set<UInt8>) {
+        gtbAllowedMt[group & 0x0F] = allowed
+    }
+
+    /// Get allowed message types (if any) for a given group.
+    public func allowedMessageTypes(for group: UInt8) -> Set<UInt8>? {
+        gtbAllowedMt[group & 0x0F]
+    }
+
+    /// Enforce allowed message types if GTB context exists for the group.
+    public func enforceAllowedMessageType(mt: UInt8, group: UInt8) throws {
+        if let allowed = allowedMessageTypes(for: group) {
+            try GTBValidator.enforceAllowedMessageType(mt: mt, allowed: allowed)
+        }
     }
 }

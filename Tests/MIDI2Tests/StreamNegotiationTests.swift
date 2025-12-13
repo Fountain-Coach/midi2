@@ -76,7 +76,7 @@ final class StreamNegotiationTests: XCTestCase {
         ])
         let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
         session.setProfileAssociations(for: 1, profiles: ["/org.midi/piano", "/org.midi/organ"])
-        let subset = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 1))
+        let subset = try session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 1))
         XCTAssertEqual(subset.blocks.first?.profiles ?? [], ["/org.midi/piano", "/org.midi/organ"])
     }
 
@@ -87,10 +87,18 @@ final class StreamNegotiationTests: XCTestCase {
         let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
         session.updateProfileAssociation(functionBlock: 2, profileId: "/org.midi/piano", enabled: true)
         session.updateProfileAssociation(functionBlock: 2, profileId: "/org.midi/organ", enabled: true)
-        var subset = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 2))
+        var subset = try session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 2))
         XCTAssertEqual(Set(subset.blocks.first?.profiles ?? []), Set(["/org.midi/piano", "/org.midi/organ"]))
         session.updateProfileAssociation(functionBlock: 2, profileId: "/org.midi/piano", enabled: false)
-        subset = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 2))
+        subset = try session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 2))
         XCTAssertEqual(subset.blocks.first?.profiles ?? [], ["/org.midi/organ"])
+    }
+
+    func testGtbAllowedMessageTypesContext() throws {
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: GroupTerminalBlocks(blocks: []))
+        session.setGtbAllowedMessageTypes(for: 1, allowed: [0xF])
+        XCTAssertEqual(session.allowedMessageTypes(for: 1), [0xF])
+        XCTAssertNoThrow(try session.enforceAllowedMessageType(mt: 0xF, group: 1))
+        XCTAssertThrowsError(try session.enforceAllowedMessageType(mt: 0x2, group: 1))
     }
 }

@@ -14,4 +14,9 @@ final class FlexAddressNegativeTests: XCTestCase {
         let pkt = Ump128(word0: word0, word1: 0, word2: 0, word3: 0)!
         XCTAssertNil(FlexLyric.decode(pkt))
     }
+
+    func testMetronomeRejectsClicksBelowOne() {
+        let addr = FlexMetronome.Address.group(Uint4(0)!)
+        XCTAssertThrowsError(try FlexMetronome(address: addr, clicksPerBeat: 0, accentPattern: "1000"))
+    }
 }

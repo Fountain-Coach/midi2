@@ -16,8 +16,10 @@ public struct FlexMetronome: Equatable {
     public var accentPattern: String
 
     /// Creates a metronome message.
-    public init(address: Address, clicksPerBeat: UInt16, accentPattern: String) {
-        precondition(clicksPerBeat >= 1, "clicksPerBeat must be at least 1")
+    public init(address: Address, clicksPerBeat: UInt16, accentPattern: String) throws {
+        guard clicksPerBeat >= 1 else {
+            throw MIDIError.valueOutOfRange(name: "clicksPerBeat", value: UInt64(clicksPerBeat), range: 1...UInt64.max)
+        }
         self.address = address
         self.clicksPerBeat = clicksPerBeat
         self.accentPattern = accentPattern
@@ -103,7 +105,6 @@ public struct FlexMetronome: Equatable {
         guard clicks >= 1 else { return nil }
         let patternBytes = bytes[2...].prefix { $0 != 0 }
         let pattern = String(bytes: patternBytes, encoding: .utf8) ?? ""
-        return FlexMetronome(address: address, clicksPerBeat: clicks, accentPattern: pattern)
+        return try? FlexMetronome(address: address, clicksPerBeat: clicks, accentPattern: pattern)
     }
 }
-

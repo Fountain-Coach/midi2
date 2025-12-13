@@ -4,7 +4,7 @@ import XCTest
 final class FlexMetronomeTests: XCTestCase {
     func testRoundTrip() {
         let addr = FlexMetronome.Address.group(Uint4(3)!)
-        let msg = FlexMetronome(address: addr, clicksPerBeat: 4, accentPattern: "1000")
+        let msg = try! FlexMetronome(address: addr, clicksPerBeat: 4, accentPattern: "1000")
         let packet = msg.encode()
         XCTAssertEqual(FlexMetronome.decode(packet), msg)
     }

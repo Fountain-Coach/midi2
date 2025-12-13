@@ -24,6 +24,7 @@ This memo captures initial plan/design for implementing Group Terminal Block (GT
 - Implement Swift GTB validator + enforcement hooks. ✅ (overlap + MT guards; integrated into discovery)
 - Implement TS guards in decode path for GTB-restricted groups. ✅ (validator + GTB-aware decode helper + context map; wire context from negotiation/runtime)
 - Add PB-VRT GTB fixture and test coverage. ✅ (`docs/pb-vrt/stream/gtb_overlap.json`, loaded in PB-VRT tests)
+- Add descriptor ↔ Function Block coverage validation (TS + Swift) and enforce MT=0x0/0xF via allowed-MT guard rails. ✅
 
 ## Context Sources
 - Preferred: parse USB-MIDI 2.0 GTB descriptors (class-specific interface) into the `group -> {mt}` map and feed negotiation.

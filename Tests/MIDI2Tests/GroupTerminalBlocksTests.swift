@@ -49,4 +49,15 @@ final class GroupTerminalBlocksTests: XCTestCase {
         XCTAssertEqual(desc.groups[0], Set([0xF, 0x5]))
         XCTAssertEqual(desc.groups[2], Set([0x7, 0x2]))
     }
+
+    func testGtbDescriptorValidatedAgainstBlocks() throws {
+        let blocks = [
+            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 2),
+            GroupTerminalBlock(index: 1, firstGroup: 2, groupCount: 2)
+        ]
+        let valid = GtbDescriptor(raw: [0: [0xF], 3: [0xF]])
+        XCTAssertNoThrow(try GTBValidator.validate(descriptor: valid, blocks: blocks))
+        let invalid = GtbDescriptor(raw: [4: [0xF]])
+        XCTAssertThrowsError(try GTBValidator.validate(descriptor: invalid, blocks: blocks))
+    }
 }

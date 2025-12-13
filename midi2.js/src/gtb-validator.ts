@@ -29,6 +29,36 @@ export function validateFunctionBlockLayouts(events: StreamEvent[], allowOverlap
 }
 
 /**
+ * Ensure GTB descriptor groups are covered by known Function Blocks.
+ * Throws RangeError when a descriptor references a group outside any block.
+ */
+export function validateDescriptorGroupsAgainstFunctionBlocks(
+  descriptor: { groups?: Record<string | number, Array<number | string>> },
+  events: StreamEvent[],
+  allowOverlap = false,
+): void {
+  validateFunctionBlockLayouts(events, allowOverlap);
+  const ranges: Array<{ start: number; end: number }> = [];
+  for (const evt of events) {
+    if (evt.kind === "stream" && evt.opcode === "functionBlockInfoNotification") {
+      const fb = evt.functionBlockInfoNotification ?? {};
+      const start = (fb.firstGroup ?? 0) & 0x0f;
+      const count = (fb.groupCount ?? 0) & 0x0f;
+      const end = start + Math.max(0, count - 1);
+      ranges.push({ start, end });
+    }
+  }
+  const groups = descriptor.groups ?? {};
+  for (const [groupKey] of Object.entries(groups)) {
+    const g = Number(groupKey) & 0xf;
+    const covered = ranges.some(r => r.start <= g && g <= r.end);
+    if (!covered) {
+      throw new RangeError(`GTB descriptor group ${groupKey} not covered by any Function Block`);
+    }
+  }
+}
+
+/**
  * Enforce allowed message types for a GTB context.
  * Throws RangeError if the message type nibble is disallowed.
  */

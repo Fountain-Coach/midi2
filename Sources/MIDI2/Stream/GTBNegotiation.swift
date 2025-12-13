@@ -27,6 +27,28 @@ public enum GTBValidator {
         }
     }
 
+    /// Validate a GTB descriptor against known function blocks (ensures group coverage).
+    /// - Parameters:
+    ///   - descriptor: GTB descriptor with per-group permissions.
+    ///   - blocks: Function blocks to validate against.
+    ///   - allowOverlap: Allow overlapping block ranges when true.
+    public static func validate(descriptor: GtbDescriptor, blocks: [GroupTerminalBlock], allowOverlap: Bool = false) throws {
+        try validate(blocks: blocks, allowOverlap: allowOverlap)
+        let ranges: [ClosedRange<Int>] = blocks.map { blk in
+            let start = Int(blk.firstGroup & 0x0F)
+            let count = Int(blk.groupCount & 0x0F)
+            let end = start + max(0, count - 1)
+            return start...end
+        }
+        for (group, _) in descriptor.groups {
+            let g = Int(group & 0x0F)
+            let covered = ranges.contains { $0.contains(g) }
+            if !covered {
+                throw MIDIError.malformedPacket("GTB descriptor group \(group) not covered by any Function Block")
+            }
+        }
+    }
+
     /// Enforce message-type restrictions for a GTB context.
     /// - Parameters:
     ///   - mt: Message type nibble.

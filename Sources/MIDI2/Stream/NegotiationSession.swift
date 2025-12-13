@@ -98,7 +98,9 @@ public final class StreamNegotiationSession {
     }
 
     /// Apply a GTB descriptor (e.g., parsed from USB) to seed per-group allowed message types.
-    public func apply(gtbDescriptor: GtbDescriptor) {
+    /// Validates that descriptor groups are covered by known function blocks.
+    public func apply(gtbDescriptor: GtbDescriptor, allowOverlap: Bool = false) throws {
+        try GTBValidator.validate(descriptor: gtbDescriptor, blocks: functionBlocks.blocks, allowOverlap: allowOverlap)
         for (group, mts) in gtbDescriptor.groups {
             setGtbAllowedMessageTypes(for: group, allowed: mts)
         }

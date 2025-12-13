@@ -10,7 +10,7 @@ This doc captures where GTB message-type permissions come from, how we inject th
 The current spec does **not** put MT permissions in the MIDI-CI discovery payload, so a descriptor/config source is required.
 
 ## Injection Points
-- **Swift**: `GtbDescriptor.load(from:)` reads the JSON shape above; `StreamNegotiationSession.apply(gtbDescriptor:)` seeds the per-group allowed MT map for enforcement (`enforceAllowedMessageType`).
+- **Swift**: `GtbDescriptor.load(from:)` reads the JSON shape above; `StreamNegotiationSession.apply(gtbDescriptor:)` (validated against Function Blocks) seeds the per-group allowed MT map for enforcement (`enforceAllowedMessageType`).
 - **TypeScript**: `applyGtbDescriptor` (in `midi2.js/src/gtb-descriptor.ts`) applies the same map into the shared GTB context consumed by the guarded decoders.
 
 ## Proposed scheme

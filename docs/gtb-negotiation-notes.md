@@ -21,6 +21,6 @@ This memo captures initial plan/design for implementing Group Terminal Block (GT
    - Add negative tests for invalid GTB layouts and message-type restrictions.
 
 ## Next Steps
-- Implement Swift GTB validator + enforcement hooks.
-- Implement TS guards in decode path for GTB-restricted groups.
-- Add PB-VRT GTB fixture and test coverage.
+- Implement Swift GTB validator + enforcement hooks. ✅ (overlap + MT guards; integrated into discovery)
+- Implement TS guards in decode path for GTB-restricted groups. ⏳ (validator present; not yet wired into dispatch)
+- Add PB-VRT GTB fixture and test coverage. ✅ (`docs/pb-vrt/stream/gtb_overlap.json`, loaded in PB-VRT tests)

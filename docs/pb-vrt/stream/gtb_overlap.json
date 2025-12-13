@@ -1,0 +1,7 @@
+{
+  "functionBlocks": [
+    { "index": 0, "firstGroup": 0, "groupCount": 4 },
+    { "index": 1, "firstGroup": 3, "groupCount": 2 }
+  ],
+  "description": "Example of overlapping function block group ranges (invalid unless overlap explicitly allowed)"
+}

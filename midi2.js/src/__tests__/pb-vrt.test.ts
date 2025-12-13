@@ -71,6 +71,12 @@ describe("PB-VRT golden vectors", () => {
     expect(profiles["1"]).toEqual(["/org.midi/drums"]);
   });
 
+  it("loads GTB overlap metadata fixture", () => {
+    const gtb = loadJSON("stream/gtb_overlap.json");
+    expect(gtb.functionBlocks.length).toBe(2);
+    expect(gtb.functionBlocks[0]).toMatchObject({ index: 0, firstGroup: 0, groupCount: 4 });
+  });
+
   it("decodes JR clock/timestamp sequence", () => {
     const jr = loadJSON("jr/clock_timestamp.json").sequence;
     const events = jr.map((e: any) =>

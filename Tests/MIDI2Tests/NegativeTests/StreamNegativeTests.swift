@@ -31,4 +31,10 @@ final class StreamNegativeValidationTests: XCTestCase {
         let unsupportedStatus = UmpPacket32(word: (UInt32(0x0) << 28) | (UInt32(0x00) << 24) | (UInt32(0x7F) << 16))
         XCTAssertThrowsError(try Utility(parsingUMP: unsupportedStatus))
     }
+
+    func testSysEx7And8RejectOversizePayloads() {
+        let oversized = Array(repeating: UInt8(0), count: 0x10000)
+        XCTAssertThrowsError(try SysEx7.fragment(manufacturerID: [0x7D], payload: oversized))
+        XCTAssertThrowsError(try SysEx8.fragment(manufacturerID: [0x7D], payload: oversized))
+    }
 }

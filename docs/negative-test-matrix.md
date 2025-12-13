@@ -10,6 +10,7 @@
 | Stream – Function Block Info | M2-104-UM Fig.22 | Reserved `midi1Bandwidth=3`, reserved bits | Rejected (Swift + TS) |
 | Stream – Reserved bit in mt=0xF word | M2-104-UM §5.1 | Low reserved bit set | Rejected (TS) |
 | Utility – Groupless + status | M2-104-UM §5.1 | Group nibble non-zero; unsupported status | Rejected (Swift + TS) |
+| SysEx7/SysEx8 – Oversize payload | M2-104-UM §4.2 | Payload > 0xFFFF | Rejected (Swift + TS) |
 
 ## Next Targets
 - SysEx8/SysEx7 reserved/oversize edge cases (already partially covered; add matrix entries).

@@ -22,5 +22,5 @@ This memo captures initial plan/design for implementing Group Terminal Block (GT
 
 ## Next Steps
 - Implement Swift GTB validator + enforcement hooks. ✅ (overlap + MT guards; integrated into discovery)
-- Implement TS guards in decode path for GTB-restricted groups. 🟡 (validator + GTB-aware decode helper added; integrate where GTB context is known)
+- Implement TS guards in decode path for GTB-restricted groups. ✅ (validator + GTB-aware decode helper + context map; wire context from negotiation/runtime)
 - Add PB-VRT GTB fixture and test coverage. ✅ (`docs/pb-vrt/stream/gtb_overlap.json`, loaded in PB-VRT tests)

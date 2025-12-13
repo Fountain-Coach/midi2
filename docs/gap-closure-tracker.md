@@ -125,7 +125,7 @@
 - ✅ GTB structure defined (`GroupTerminalBlocks.swift`)
 - ✅ Basic GTB tests
 - 🟡 GTB negotiation notes drafted (`docs/gtb-negotiation-notes.md`)
-- 🟡 Overlap/allowed-MT validators added (Swift + TS); PB-VRT fixture present
+- 🟡 Overlap/allowed-MT validators added (Swift + TS); PB-VRT fixture present; TS GTB context map + guarded decoder available
 - ❌ GTB-Function Block overlap logic missing
 - ❌ MT=0xF/MT=0x0 reception restrictions not enforced
 - ❌ Protocol negotiation for GTB contexts incomplete

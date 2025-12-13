@@ -162,7 +162,7 @@
 ## Medium Priority Gaps (Sprint 2-4)
 
 ### Gap 4.2.3: Stream Configuration Semantics
-**Status**: 🔴 Not Started  
+**Status**: 🟡 In Progress  
 **Priority**: Medium | **Effort**: 3-4 days | **Target Sprint**: 2
 
 **Spec Reference**: M2-104-UM v1.1.2, Figures 18/19 (p.37-38), Section 7.2.2.3 (p.45)
@@ -170,9 +170,9 @@
 **Current State**:
 - ✅ Protocol bits defined (0x01 MIDI 1.0, 0x02 MIDI 2.0)
 - ✅ JR Tx/Rx flags in schema
-- ❌ JR fallback behavior not implemented
-- ❌ Protocol switching logic incomplete
-- ❌ Stream Config Notification on mismatch missing
+- 🟡 JR fallback and protocol switching implemented in `StreamNegotiationSession` (mismatch tracking added)
+- ❌ Explicit mismatch notification policy not encoded beyond reply
+- ❌ Full protocol switching state machine and tests missing
 
 **Acceptance Criteria**:
 - [ ] JR fallback when receiver doesn't support JR

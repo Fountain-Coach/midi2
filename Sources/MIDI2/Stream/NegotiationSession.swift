@@ -45,7 +45,7 @@ public final class StreamNegotiationSession {
     }
 
     /// Filter known function blocks in response to a discovery request. Filter bits map directly to block indexes; a zero filter returns all blocks.
-    public func onFunctionBlockDiscovery(_ req: FunctionBlockDiscovery) -> GroupTerminalBlocks {
+    public func onFunctionBlockDiscovery(_ req: FunctionBlockDiscovery) throws -> GroupTerminalBlocks {
         let sourceBlocks = functionBlocks.blocks.map { blk -> GroupTerminalBlock in
             var copy = blk
             if let profiles = profileMap[blk.index] {
@@ -53,6 +53,7 @@ public final class StreamNegotiationSession {
             }
             return copy
         }
+        try GTBValidator.validate(blocks: sourceBlocks)
         guard req.filterBitmap != 0 else { return GroupTerminalBlocks(blocks: sourceBlocks) }
         let filtered = sourceBlocks.filter { block in
             guard block.index < 32 else { return false }

@@ -29,14 +29,14 @@ final class StreamNegotiationTests: XCTestCase {
         ])
         let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
 
-        let all = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: 0))
+        let all = try! session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: 0))
         XCTAssertEqual(all.blocks, gtb.blocks)
 
         let mask: UInt32 = (UInt32(1) << 0) | (UInt32(1) << 5)
-        let subset = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: mask))
+        let subset = try! session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: mask))
         XCTAssertEqual(subset.blocks.map { $0.index }, [0, 5])
 
-        let none = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 7))
+        let none = try! session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 7))
         XCTAssertTrue(none.blocks.isEmpty)
     }
 

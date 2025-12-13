@@ -75,7 +75,8 @@
 - 🟡 TypeScript decode validation for active/direction/midi1Bandwidth + reserved bits (2025-12-13)
 - 🟡 Swift typed `FunctionBlockInfoNotification` (64-bit) with direction/bandwidth/active/uiHints validation + GroupTerminalBlocks round-trip (2025-12-13)
 - ✅ UI hints captured (TS + Swift, schema bridge)
-- ❌ Discovery/response flow semantics incomplete
+- 🟡 Discovery/response flow partially covered (FB discovery packets carry active/direction/bandwidth/uiHints)
+- ❌ Profile report associations
 
 **Acceptance Criteria**:
 - [ ] Extended `FunctionBlockMessage` structure with:

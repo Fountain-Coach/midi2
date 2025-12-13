@@ -9,6 +9,7 @@ type SubscriptionState = {
   requestId?: number;
   flowControl: boolean;
   stage: SubscriptionStage;
+  lastChunkNumber: number;
 };
 
 type SubscriptionStage = "start" | "partial" | "full" | "active";
@@ -146,6 +147,7 @@ export class PeSubscriptionManager {
           requestId: event.requestId,
           flowControl: Boolean(event.header?.flowControl),
           stage: "start",
+          lastChunkNumber: -1,
         };
         this.subs.set(id, state);
         return {
@@ -190,6 +192,26 @@ export class PeSubscriptionManager {
           return { kind: "reply", event: { kind: "propertyExchange", group: event.group, command: "notify", header: { status: 409 } } };
         }
         sub.stage = "active";
+        const chunkNumber = typeof (event.header as any)?.chunkNumber === "number" ? (event.header as any).chunkNumber : sub.lastChunkNumber + 1;
+        if (sub.flowControl && event.header?.flowControl) {
+          if (chunkNumber !== sub.lastChunkNumber + 1) {
+            sub.lastChunkNumber = chunkNumber;
+            this.subs.set(id, sub);
+            return {
+              kind: "reply",
+              event: {
+                kind: "propertyExchange",
+                group: event.group,
+                command: "notify",
+                flowControlNak: {
+                  status: 18,
+                  chunkNumber,
+                },
+              },
+            };
+          }
+          sub.lastChunkNumber = chunkNumber;
+        }
         this.subs.set(id, sub);
         if (sub.flowControl && event.header?.flowControl) {
           return {

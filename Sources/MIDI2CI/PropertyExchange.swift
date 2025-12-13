@@ -398,6 +398,7 @@ private final class PropertyExchangeSubscriptionManager {
         var id: String
         var stage: Stage
         var flowControl: Bool
+        var lastChunk: Int
     }
 
     private var subs: [String: Subscription] = [:]
@@ -418,7 +419,7 @@ private final class PropertyExchangeSubscriptionManager {
         switch subCmd {
         case "start":
             let wantsFC = (req.header["flowControl"] == "true")
-            subs[subId] = Subscription(id: subId, stage: .start, flowControl: wantsFC)
+            subs[subId] = Subscription(id: subId, stage: .start, flowControl: wantsFC, lastChunk: -1)
             return [reply(command: .subscribeReply, req: req, status: 200, extra: ["subscriptionCommand": "start", "flowControl": wantsFC ? "true" : "false"])]
         case "partial":
             guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }
@@ -434,6 +435,14 @@ private final class PropertyExchangeSubscriptionManager {
             guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }
             guard s.stage == .full || s.stage == .active else { return [reply(command: .notify, req: req, status: 409)] }
             s.stage = .active
+            if s.flowControl, let chunkStr = req.header["chunkNumber"], let chunk = Int(chunkStr) {
+                if chunk != s.lastChunk + 1 {
+                    s.lastChunk = chunk
+                    subs[subId] = s
+                    return [flowControlNak(for: req, chunkNumber: chunk)]
+                }
+                s.lastChunk = chunk
+            }
             subs[subId] = s
             if s.flowControl, let lengthStr = req.header["length"], let len = Int(lengthStr) {
                 return [flowControlAck(for: req, length: len)]
@@ -466,6 +475,18 @@ private final class PropertyExchangeSubscriptionManager {
             "status": "17",
             "chunkNumber": String(chunkNum),
             "messageLength": String(length)
+        ]
+        return MidiCiPropertyExchangeBody(command: .notify,
+                                          requestId: req.requestId,
+                                          encoding: req.encoding,
+                                          header: hdr,
+                                          data: [])
+    }
+
+    private func flowControlNak(for req: MidiCiPropertyExchangeBody, chunkNumber: Int) -> MidiCiPropertyExchangeBody {
+        let hdr: [String: String] = [
+            "status": "18",
+            "chunkNumber": String(chunkNumber)
         ]
         return MidiCiPropertyExchangeBody(command: .notify,
                                           requestId: req.requestId,

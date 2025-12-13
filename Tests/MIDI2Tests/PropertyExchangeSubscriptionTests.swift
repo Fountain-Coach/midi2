@@ -21,6 +21,9 @@ final class PropertyExchangeSubscriptionTests: XCTestCase {
         XCTAssertFalse(replies.isEmpty)
         let ackStatus = try XCTUnwrap(replies.first?.header["status"])
         XCTAssertEqual(ackStatus, "17")
+        // Out-of-order chunk should NAK
+        replies = session.handle(body(.notify, header: ["subscriptionId": "sub1", "subscriptionCommand": "notify", "flowControl": "true", "length": "4", "chunkNumber": "5"]))
+        XCTAssertEqual(replies.first?.header["status"], "18")
         replies = session.handle(body(.terminate, header: ["subscriptionId": "sub1", "subscriptionCommand": "end"]))
         XCTAssertFalse(replies.isEmpty)
         let endStatus = try XCTUnwrap(replies.first?.header["status"])

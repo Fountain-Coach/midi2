@@ -21,6 +21,10 @@ describe("PeSubscriptionManager", () => {
     const ack = mgr.process(notify);
     expect(ack[0]?.flowControlAck?.status).toBe(17);
 
+    // Out-of-order chunk should yield NAK
+    const nak = mgr.process(pe({ command: "notify", subscriptionCommand: "notify", subscriptionId: "sub1", header: { flowControl: true, chunkNumber: 5 }, data: new Uint8Array([3]) }));
+    expect(nak[0]?.flowControlNak?.status).toBe(18);
+
     const endOut = mgr.process(pe({ command: "notify", subscriptionCommand: "end", subscriptionId: "sub1" }));
     expect(endOut[0]).toMatchObject({ command: "subscribeReply", subscriptionCommand: "end", header: { status: 200 } });
   });

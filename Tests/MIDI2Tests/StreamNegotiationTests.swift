@@ -101,4 +101,19 @@ final class StreamNegotiationTests: XCTestCase {
         XCTAssertNoThrow(try session.enforceAllowedMessageType(mt: 0xF, group: 1))
         XCTAssertThrowsError(try session.enforceAllowedMessageType(mt: 0x2, group: 1))
     }
+
+    func testGtbAllowedMessageTypesEnforcementOnUmpPackets() throws {
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: GroupTerminalBlocks(blocks: []))
+        session.setGtbAllowedMessageTypes(for: 2, allowed: [0x0, 0xF])
+        // Stream (0xF) on group 2 passes
+        let streamWord0: UInt32 = (UInt32(0xF) << 28) | (UInt32(2) << 24)
+        let streamPkt = UmpPacket64(word0: streamWord0, word1: 0)
+        XCTAssertNoThrow(try session.enforceAllowedMessageType(for: streamPkt))
+        // Utility (0x0) on group 2 passes
+        let utilPkt = UmpPacket32(mt: 0x0, group: Uint4(2)!, status: 0, data1: 0, data2: 0)
+        XCTAssertNoThrow(try session.enforceAllowedMessageType(for: utilPkt))
+        // Disallowed MT on group 2 fails
+        let channelPkt = UmpPacket64(word0: (UInt32(0x2) << 28) | (UInt32(2) << 24), word1: 0)
+        XCTAssertThrowsError(try session.enforceAllowedMessageType(for: channelPkt))
+    }
 }

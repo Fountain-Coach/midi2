@@ -117,4 +117,18 @@ public final class StreamNegotiationSession {
             try GTBValidator.enforceAllowedMessageType(mt: mt, allowed: allowed)
         }
     }
+
+    /// Enforce allowed message type against a 64-bit UMP using GTB context.
+    public func enforceAllowedMessageType(for ump: UmpPacket64) throws {
+        let mt = UInt8((ump.word0 >> 28) & 0x0F)
+        let group = UInt8((ump.word0 >> 24) & 0x0F)
+        try enforceAllowedMessageType(mt: mt, group: group)
+    }
+
+    /// Enforce allowed message type against a 32-bit UMP using GTB context.
+    public func enforceAllowedMessageType(for ump: UmpPacket32) throws {
+        let mt = UInt8((ump.word >> 28) & 0x0F)
+        let group = UInt8((ump.word >> 24) & 0x0F)
+        try enforceAllowedMessageType(mt: mt, group: group)
+    }
 }

@@ -7,6 +7,8 @@ public final class ProfileSession {
     /// Enabled profiles keyed by target and optional channel list string key.
     /// Key format: "T:<target>|C:<comma-separated channels or *>".
     private var enabled: [String: Set<String>] = [:]
+    /// Optional hook invoked when a profile is enabled/disabled; set by host to update FB associations.
+    public var onProfileAssociationChange: ((String, MidiCiProfilesBody.Target?, [Uint4]?, Bool) -> Void)?
 
     public init(supportedProfiles: Set<String> = []) {
         self.supportedProfiles = supportedProfiles
@@ -74,6 +76,7 @@ public final class ProfileSession {
             var set = enabled[k] ?? []
             set.insert(body.profileId)
             enabled[k] = set
+            onProfileAssociationChange?(body.profileId, body.target, body.channels, true)
             let (cmL, cmH) = channelMaskBytes(body.channels)
             let details: [String: UInt8] = ["ok": 1, "cmL": cmL, "cmH": cmH]
             return [MidiCiProfilesBody(command: .enabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
@@ -84,6 +87,7 @@ public final class ProfileSession {
                 set.remove(body.profileId)
                 enabled[k] = set
             }
+            onProfileAssociationChange?(body.profileId, body.target, body.channels, false)
             let (cmL, cmH) = channelMaskBytes(body.channels)
             let details: [String: UInt8] = ["ok": 1, "cmL": cmL, "cmH": cmH]
             return [MidiCiProfilesBody(command: .disabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]

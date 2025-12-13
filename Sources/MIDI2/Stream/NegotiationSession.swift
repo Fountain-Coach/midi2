@@ -16,6 +16,7 @@ public final class StreamNegotiationSession {
     private var profileMap: [UInt8: [String]] = [:]
     private var gtbAllowedMt: [UInt8: Set<UInt8>] = [:]
     public private(set) var negotiated: StreamConfigurationMessage?
+    public private(set) var gtbDescriptor: GtbDescriptor?
 
     public init(responderCaps: Capabilities, functionBlocks: GroupTerminalBlocks = GroupTerminalBlocks(blocks: [])) {
         self.responderCaps = responderCaps
@@ -104,6 +105,7 @@ public final class StreamNegotiationSession {
         for (group, mts) in gtbDescriptor.groups {
             setGtbAllowedMessageTypes(for: group, allowed: mts)
         }
+        self.gtbDescriptor = gtbDescriptor
     }
 
     /// Get allowed message types (if any) for a given group.
@@ -130,5 +132,12 @@ public final class StreamNegotiationSession {
         let mt = UInt8((ump.word >> 28) & 0x0F)
         let group = UInt8((ump.word >> 24) & 0x0F)
         try enforceAllowedMessageType(mt: mt, group: group)
+    }
+
+    /// Simulated GTB negotiation step: validate and store descriptor; seeds allowed MT map.
+    @discardableResult
+    public func negotiate(gtbDescriptor: GtbDescriptor, allowOverlap: Bool = false) throws -> Bool {
+        try apply(gtbDescriptor: gtbDescriptor, allowOverlap: allowOverlap)
+        return true
     }
 }

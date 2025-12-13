@@ -8,8 +8,8 @@ Target: enforce Appendix I GTB semantics without changing UMP wire format.
 
 ## Flow (receiver side)
 1. **Load GTB descriptor**  
-   - Swift: `GtbDescriptor.load(...)` → `StreamNegotiationSession.apply(gtbDescriptor:)`.  
-   - TS: `loadGtbDescriptorFromJson` / `applyGtbDescriptor`.
+- Swift: `GtbDescriptor.load(...)` → `StreamNegotiationSession.apply(gtbDescriptor:)`.  
+- TS: `loadGtbDescriptorFromJson` / `applyGtbDescriptor`.
 2. **Validate coverage**  
    - Descriptor groups must be covered by Function Blocks; overlap allowed only when explicitly configured.
 3. **Publish Function Blocks**  
@@ -22,7 +22,7 @@ Target: enforce Appendix I GTB semantics without changing UMP wire format.
    - Before sending stream/utility packets, apply the same allowed-MT check to avoid emitting disallowed traffic.
 
 ## Runtime integration sketch
-- Swift: when a GTB descriptor is present, `StreamNegotiationSession` should stash the map and expose a helper to gate ingress/egress. Hook into dispatch/receive paths to call `enforceAllowedMessageType` automatically.
+- Swift: when a GTB descriptor is present, `StreamNegotiationSession` should stash the map and expose a helper to gate ingress/egress. `negotiate(gtbDescriptor:)` now validates, stores, and seeds the allowed-MT map; hook into dispatch/receive paths to call `enforceAllowedMessageType` automatically.
 - TS: keep the GTB context map populated during negotiation; wrap decoders/dispatchers with `decodeWithGtbContext` or `applyGtbGuards` so callers don't need to pass explicit allowed sets.
 
 ## Open items

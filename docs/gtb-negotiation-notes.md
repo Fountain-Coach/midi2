@@ -27,6 +27,7 @@ This memo captures initial plan/design for implementing Group Terminal Block (GT
 - Add descriptor ↔ Function Block coverage validation (TS + Swift) and enforce MT=0x0/0xF via allowed-MT guard rails. ✅
 - Document protocol scheme and integration points. ✅ (`docs/gtb-protocol-negotiation-scheme.md`)
 - Add PB-VRT blocked MT scenario. ✅ (`docs/pb-vrt/stream/gtb_block_mt.json` + test)
+- Clarify overlap policy and escape hatch. ✅ (`docs/gtb-overlap-policy.md`)
 
 ## Context Sources
 - Preferred: parse USB-MIDI 2.0 GTB descriptors (class-specific interface) into the `group -> {mt}` map and feed negotiation.

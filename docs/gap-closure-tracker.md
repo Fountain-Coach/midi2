@@ -135,6 +135,9 @@
 - 🟡 Dispatch guards now consume GTB context map when no explicit allowed set provided (stream+utility)
 - 🟡 Default TS decoder enforces GTB allowed MTs when a context map is present
 - 🟡 PB-VRT fixture added for GTB MT blocking (`docs/pb-vrt/stream/gtb_block_mt.json`) and enforced in tests
+- 🟡 Overlap policy documented with allowOverlap escape hatch (`docs/gtb-overlap-policy.md`)
+- 🟡 PB-VRT fixture for utility MT blocking (`docs/pb-vrt/stream/gtb_block_utility.json`) and enforced in tests
+- 🟡 Swift negotiation session can store/apply GTB descriptor via `negotiate(gtbDescriptor:)`, seeding allowed-MT map
 - 🟡 MT=0xF/MT=0x0 reception restrictions guarded; integration into runtime negotiation pending
 - ❌ Protocol negotiation for GTB contexts incomplete
 

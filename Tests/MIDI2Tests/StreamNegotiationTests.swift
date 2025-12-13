@@ -116,4 +116,15 @@ final class StreamNegotiationTests: XCTestCase {
         let channelPkt = UmpPacket64(word0: (UInt32(0x2) << 28) | (UInt32(2) << 24), word1: 0)
         XCTAssertThrowsError(try session.enforceAllowedMessageType(for: channelPkt))
     }
+
+    func testGtbNegotiationStoresDescriptorAndSeedsMap() throws {
+        let blocks = GroupTerminalBlocks(blocks: [
+            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 2)
+        ])
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: blocks)
+        let desc = GtbDescriptor(raw: [0: [0xF]])
+        try session.negotiate(gtbDescriptor: desc)
+        XCTAssertEqual(session.gtbDescriptor?.groups[0], Set([0xF]))
+        XCTAssertEqual(session.allowedMessageTypes(for: 0), Set([0xF]))
+    }
 }

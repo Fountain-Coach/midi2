@@ -89,6 +89,14 @@ describe("PB-VRT golden vectors", () => {
     expect(() => decodeToPacketAndEvent(blockedWords)).toThrow(RangeError);
   });
 
+  it("blocks utility MT when GTB restricts group to stream only", () => {
+    const gtb = loadJSON("stream/gtb_block_utility.json");
+    clearGtbContext();
+    loadGtbDescriptorFromJson(gtb.descriptor);
+    const blockedWords = new Uint32Array([hexToWord(gtb.blockedWord)]);
+    expect(() => decodeToPacketAndEvent(blockedWords)).toThrow(RangeError);
+  });
+
   it("decodes JR clock/timestamp sequence", () => {
     const jr = loadJSON("jr/clock_timestamp.json").sequence;
     const events = jr.map((e: any) =>

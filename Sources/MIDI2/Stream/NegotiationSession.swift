@@ -13,11 +13,17 @@ public final class StreamNegotiationSession {
 
     public let responderCaps: Capabilities
     public let functionBlocks: GroupTerminalBlocks
+    private var profileMap: [UInt8: [String]] = [:]
     public private(set) var negotiated: StreamConfigurationMessage?
 
     public init(responderCaps: Capabilities, functionBlocks: GroupTerminalBlocks = GroupTerminalBlocks(blocks: [])) {
         self.responderCaps = responderCaps
         self.functionBlocks = functionBlocks
+        for block in functionBlocks.blocks {
+            if !block.profiles.isEmpty {
+                profileMap[block.index] = block.profiles
+            }
+        }
     }
 
     /// Accept an Endpoint Discovery and return responder's discovery (echoing versions and max groups).
@@ -40,8 +46,15 @@ public final class StreamNegotiationSession {
 
     /// Filter known function blocks in response to a discovery request. Filter bits map directly to block indexes; a zero filter returns all blocks.
     public func onFunctionBlockDiscovery(_ req: FunctionBlockDiscovery) -> GroupTerminalBlocks {
-        guard req.filterBitmap != 0 else { return functionBlocks }
-        let filtered = functionBlocks.blocks.filter { block in
+        let sourceBlocks = functionBlocks.blocks.map { blk -> GroupTerminalBlock in
+            var copy = blk
+            if let profiles = profileMap[blk.index] {
+                copy.profiles = profiles
+            }
+            return copy
+        }
+        guard req.filterBitmap != 0 else { return GroupTerminalBlocks(blocks: sourceBlocks) }
+        let filtered = sourceBlocks.filter { block in
             guard block.index < 32 else { return false }
             let bit = UInt32(1) << UInt32(block.index)
             return (req.filterBitmap & bit) != 0
@@ -57,5 +70,10 @@ public final class StreamNegotiationSession {
     /// Return profile associations for a function block index (if provided in the session's blocks).
     public func profileAssociations(for index: UInt8) -> [String] {
         functionBlocks.blocks.first(where: { $0.index == index })?.profiles ?? []
+    }
+
+    /// Update profile associations for a function block index.
+    public func setProfileAssociations(for index: UInt8, profiles: [String]) {
+        profileMap[index] = profiles
     }
 }

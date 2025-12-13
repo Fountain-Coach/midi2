@@ -1080,7 +1080,7 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
     return { kind: "stream", group, opcode: "functionBlockDiscovery", functionBlockDiscovery: body.functionBlockDiscovery };
   }
   if (opcode === 0x11) {
-    return { kind: "stream", group, opcode: "functionBlockInfoNotification", functionBlockInfoNotification: body.functionBlockInfo };
+    return { kind: "stream", group, opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { ...body.functionBlockInfo, uiHints: body.functionBlockInfo?.uiHints } };
   }
   if (opcode === 0x12) {
     return { kind: "stream", group, opcode: "functionBlockNameNotification", functionBlockNameNotification: { functionBlock: 0, name: "" } };
@@ -1496,10 +1496,11 @@ function packStream(stream: StreamEvent): Uint32Array {
     const active = stream.functionBlockInfoNotification.active ? 0x80 : 0;
     const direction = (stream.functionBlockInfoNotification.direction ?? 0) & 0x03;
     const midi1Bandwidth = (stream.functionBlockInfoNotification.midi1Bandwidth ?? 0) & 0x03;
+    const uiHints = stream.functionBlockInfoNotification.uiHints ?? 0;
     const byte2 = idx & 0xff;
     const byte3 = ((firstGroup & 0x0f) << 4) | (groupCount & 0x0f);
     const word0 = mt | group | (STREAM_OPCODE_FUNCTION_BLOCK_INFO << 16) | (byte2 << 8) | byte3;
-    const word1 = (active << 24) | (direction << 16) | (midi1Bandwidth << 8);
+    const word1 = (active << 24) | (direction << 16) | (midi1Bandwidth << 8) | (uiHints & 0xff);
     return new Uint32Array([word0 >>> 0, word1 >>> 0]);
   }
   if (stream.opcode === "functionBlockDiscovery" && stream.functionBlockDiscovery) {

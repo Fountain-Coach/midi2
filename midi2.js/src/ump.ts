@@ -1140,6 +1140,11 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     }
     const data1 = (word0 >>> 8) & 0xff;
     const data2 = word0 & 0xff;
+    const statusNibble = status >> 4;
+    const oneDataByte = statusNibble === 0xc || statusNibble === 0xd;
+    if (data1 > 0x7f || (!oneDataByte && data2 > 0x7f)) {
+      throw new RangeError("MIDI 1.0 channel voice data out of range");
+    }
     const event: Midi1ChannelVoiceEvent = {
       kind: "midi1ChannelVoice",
       group,

@@ -8,6 +8,7 @@ struct GroupState {
     var profiles = ProfileSession(supportedProfiles: ["/org.midi/piano"]) // demo profile
     var pe = PropertyExchangeSession(initialStore: [:], maxDataPerMessage: 80)
     var pi = ProcessInquirySession(filters: ["noteOn": 1, "ci": 1])
+    var fbProfiles: [UInt8: [String]] = [:]
 }
 
 var groups: [UInt8: GroupState] = [:]
@@ -44,6 +45,19 @@ func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
                 var st = groups[group] ?? GroupState()
                 switch env.body {
                 case .profiles(let b):
+                    // Hook: update FB profile associations if target is functionBlock
+                    if b.target == .functionBlock, let fbIdxByte = b.channels?.first?.rawValue {
+                        let fbIdx = UInt8(fbIdxByte)
+                        let profileId = b.profileId
+                        let enable = b.command == .setOn || b.command == .enabledReport
+                        var set = Set(st.fbProfiles[fbIdx] ?? [])
+                        if enable {
+                            set.insert(profileId)
+                        } else {
+                            set.remove(profileId)
+                        }
+                        st.fbProfiles[fbIdx] = Array(set)
+                    }
                     for rep in st.profiles.handle(b) {
                         let payload = rep.sysEx8Bytes()
                         if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: Int(group)) {
@@ -110,11 +124,11 @@ func handleStream32(group: UInt8, word: UInt32) {
             _ = sendUMP32(reply.word)
         }
     case .functionBlockDiscovery:
-        // Provide a simple FB info (two blocks of 4 groups starting at 0 then 4)
-        let fb1 = FunctionBlockMessage(index: 0, firstGroup: 0, groupCount: 4)
-        let fb2 = FunctionBlockMessage(index: 1, firstGroup: 4, groupCount: 4)
-        _ = sendUMP32(StreamBody(opcode: .functionBlockInfoNotification, data1: fb1.data1, data2: fb1.data2).ump(group: Uint4(group)!).word)
-        _ = sendUMP32(StreamBody(opcode: .functionBlockInfoNotification, data1: fb2.data1, data2: fb2.data2).ump(group: Uint4(group)!).word)
+        // Provide FB info (two blocks of 4 groups starting at 0 then 4) with profile hints in metadata
+        let fb1 = try? FunctionBlockInfoNotification(index: 0, firstGroup: 0, groupCount: 4, active: true, direction: .bidirectional, midi1Bandwidth: .unrestricted, uiHints: 0x10)
+        let fb2 = try? FunctionBlockInfoNotification(index: 1, firstGroup: 4, groupCount: 4, active: true, direction: .output, midi1Bandwidth: .restrict31_25kbps, uiHints: 0x20)
+        if let fb1 = fb1 { _ = sendUMP128(fb1.ump(group: Uint4(group)!)) }
+        if let fb2 = fb2 { _ = sendUMP128(fb2.ump(group: Uint4(group)!)) }
     default:
         break
     }

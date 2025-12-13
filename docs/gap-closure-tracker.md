@@ -76,7 +76,7 @@
 - 🟡 Swift typed `FunctionBlockInfoNotification` (64-bit) with direction/bandwidth/active/uiHints validation + GroupTerminalBlocks round-trip (2025-12-13)
 - ✅ UI hints captured (TS + Swift, schema bridge)
 - 🟡 Discovery/response flow partially covered (FB discovery packets carry active/direction/bandwidth/uiHints)
-- 🟡 Profile associations stored in negotiation layer (metadata map, Swift + TS; PB-VRT fixture added; demo responder updates map on Profile enable/disable targeting FB)
+- 🟡 Profile associations stored in negotiation layer (metadata map, Swift + TS; PB-VRT fixture added; demo responder updates map on Profile enable/disable targeting FB; CLI demo surfaces profiles)
 
 **Acceptance Criteria**:
 - [ ] Extended `FunctionBlockMessage` structure with:

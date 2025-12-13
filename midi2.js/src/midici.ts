@@ -48,6 +48,7 @@ export function decodeMidiCiFromSysEx(event: SysEx7Event | SysEx8Event): MidiCiE
   const subId2 = format === "sysex7" ? data[2] & 0x7f : data[2];
   const version = format === "sysex7" ? data[3] & 0x7f : data[3];
   const payload = data.slice(4);
+  if (payload.length === 0) return null;
   return {
     kind: "midiCi",
     group: event.group,

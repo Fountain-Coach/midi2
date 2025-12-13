@@ -56,4 +56,12 @@ final class Midi1ChannelVoiceBodyTests: XCTestCase {
         XCTAssertNil(Midi1ChannelVoiceMessage(ump: word))
         XCTAssertThrowsError(try Midi1ChannelVoiceMessage(parsingUMP: word))
     }
+
+    func testRejectsPerNoteStatusReserved() {
+        let g = Uint4(0)!
+        // Status nibble 0xF is not a valid MIDI 1 Channel Voice nibble
+        let word = UmpPacket32(mt: 0x2, group: g, status: 0xF0, data1: 0, data2: 0)
+        XCTAssertNil(Midi1ChannelVoiceMessage(ump: word))
+        XCTAssertThrowsError(try Midi1ChannelVoiceMessage(parsingUMP: word))
+    }
 }

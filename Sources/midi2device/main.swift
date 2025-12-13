@@ -12,6 +12,7 @@ final class UMPDevice {
     private var client = MIDIClientRef()
     private var source = MIDIEndpointRef()
     private var destination = MIDIEndpointRef()
+    private let streamSession = StreamNegotiationSession(responderCaps: .init())
 
     // Simple stateful sessions for CI flows
     private let profiles = ProfileSession(supportedProfiles: ["/org.midi/piano"]) // example profile
@@ -21,6 +22,7 @@ final class UMPDevice {
     init() throws {
         try createClient()
         try createEndpoints()
+        loadGtbContextIfPresent()
     }
 
     deinit {
@@ -43,6 +45,18 @@ final class UMPDevice {
         guard status == noErr else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(status)) }
     }
 
+    /// Seed GTB allowed MTs from config if available (non-fatal).
+    private func loadGtbContextIfPresent() {
+        let path = FileManager.default.currentDirectoryPath + "/docs/config/gtb.context.json"
+        guard FileManager.default.fileExists(atPath: path) else { return }
+        do {
+            let desc = try GtbDescriptor.load(from: URL(fileURLWithPath: path))
+            try streamSession.negotiate(gtbDescriptor: desc)
+        } catch {
+            // Ignore failures; GTB enforcement remains disabled.
+        }
+    }
+
     // MARK: - Receive and handle
 
     private func handleEventList(_ list: UnsafePointer<MIDIEventList>) {
@@ -59,6 +73,8 @@ final class UMPDevice {
                     for i in 0..<wc { arr.append(base[i]) }
                     return arr
                 }
+                // GTB ingress guard (no-op if no descriptor is loaded)
+                try? streamSession.guardIncoming(words: words)
                 process(words: words, hostTime: time)
                 p = MIDIEventPacketNext(p)
             }
@@ -183,6 +199,7 @@ final class UMPDevice {
     }
 
     private func sendUMP32(_ pkt: UmpPacket32) {
+        try? streamSession.guardOutgoing(words: [pkt.word])
         var l = MIDIEventList()
         l.protocol = ._2_0
         withUnsafeMutablePointer(to: &l.packet) { p in
@@ -199,6 +216,7 @@ final class UMPDevice {
     private func sendUMP128(_ pkt: UmpPacket128) {
         // Build event list with 4 words
         let words = [pkt.word0, pkt.word1, pkt.word2, pkt.word3]
+        try? streamSession.guardOutgoing(words: words)
         words.withUnsafeBufferPointer { buf in
             var l = MIDIEventList()
             l.protocol = ._2_0

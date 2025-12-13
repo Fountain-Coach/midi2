@@ -1,0 +1,29 @@
+import { describe, expect, it } from "vitest";
+import { decodeUmp } from "../ump";
+
+function decode(words: number[]) {
+  return () => decodeUmp(new Uint32Array(words.map(w => w >>> 0)));
+}
+
+describe("negative decode coverage (reserved/invalid values)", () => {
+  it("rejects stream packets with reserved bit set", () => {
+    const word0 = (0xf << 28) | 0x8; // reserved low bit set
+    expect(decode([word0])).toThrow(RangeError);
+  });
+
+  it("rejects endpoint info with reserved numberOfFunctionBlocks", () => {
+    const word0 = (0xf << 28) | (0x01 << 16) | (0x21 << 8); // opcode=endpointInfo, nfb=0x21
+    expect(decode([word0])).toThrow(RangeError);
+  });
+
+  it("rejects stream config with reserved flag bits set", () => {
+    const word0 = (0xf << 28) | (0x05 << 16) | (0x08 << 8); // opcode=request, reserved bit3 in data1
+    expect(decode([word0])).toThrow(RangeError);
+  });
+
+  it("rejects function block info with reserved midi1Bandwidth", () => {
+    const word0 = (0xf << 28) | (0x11 << 16) | (0x00 << 8) | 0x01; // opcode=fb info, groupCount=1
+    const word1 = (1 << 16) | (3 << 8); // direction=input, midi1Bandwidth=3 (reserved)
+    expect(decode([word0, word1])).toThrow(RangeError);
+  });
+});

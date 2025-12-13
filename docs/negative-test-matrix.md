@@ -1,0 +1,21 @@
+# Negative Test Matrix (Reserved/Invalid Values)
+
+**Scope**: Gap 8.2.3 – expand negative coverage across MIDI 2.0 decoders/encoders.  
+**Status**: 🟡 In Progress (stream section seeded; remaining message families pending).
+
+| Area | Spec Ref | Cases Added | Outcome |
+|------|----------|-------------|---------|
+| Stream – Endpoint Info | M2-104-UM Fig.13 | Reserved `numberOfFunctionBlocks > 0x20` | Rejected (Swift + TS) |
+| Stream – Stream Config | M2-104-UM Fig.18/19 | Reserved flag bits set | Rejected (TS; Swift covered via StreamReservedBitsTests) |
+| Stream – Function Block Info | M2-104-UM Fig.22 | Reserved `midi1Bandwidth=3`, reserved bits | Rejected (Swift + TS) |
+| Stream – Reserved bit in mt=0xF word | M2-104-UM §5.1 | Low reserved bit set | Rejected (TS) |
+
+## Next Targets
+- SysEx8/SysEx7 reserved/oversize edge cases (already partially covered; add matrix entries).
+- Utility/Channel Voice reserved opcodes and out-of-range fields.
+- Flex Data reserved status classes and invalid channel addressing.
+- MIDI-CI Process Inquiry/profile/detail negative cases.
+
+## Usage Notes
+- Swift: see `Tests/MIDI2Tests/NegativeTests/StreamNegativeTests.swift`.
+- TypeScript: see `midi2.js/src/__tests__/negative.test.ts`.

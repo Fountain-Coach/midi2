@@ -200,13 +200,15 @@
 ---
 
 ### Gap 8.2.3: Negative Test Coverage Expansion
-**Status**: 🔴 Not Started  
+**Status**: 🟡 In Progress  
 **Priority**: Medium | **Effort**: 4-5 days | **Target Sprint**: 3
 
 **Spec Reference**: M2-104-UM v1.1.2 (reserved values throughout)
 
 **Current State**:
 - ✅ Some negative tests (Stream, SysEx8, MDS, profiles, PE compression)
+- ✅ Initial reserved-value matrix seeded (`docs/negative-test-matrix.md`)
+- ✅ Stream reserved-value cases added (Endpoint Info nfb > 0x20, stream config reserved bits, Function Block midi1Bandwidth=3, reserved mt bit) in Swift + TS
 - ❌ Incomplete coverage across all decoders
 - ❌ No comprehensive reserved value matrix
 
@@ -221,8 +223,8 @@
 - [ ] Documentation of reserved value handling
 
 **Implementation Steps**:
-1. Create comprehensive reserved value matrix from specs
-2. Add negative tests for each message type
+1. Create comprehensive reserved value matrix from specs (started)
+2. Add negative tests for each message type (stream coverage started)
 3. Implement consistent error types/messages
 4. Add fuzzing test suite
 5. Document reserved value handling strategy
@@ -567,10 +569,10 @@
 - **Low Priority**: 8
 
 ### Status Summary
-- **Note**: Updated December 13, 2025 after closing Stream Config (Gap 4.2.3).
+- **Note**: Updated December 13, 2025 after closing Stream Config (Gap 4.2.3) and starting Gap 8.2.3.
 
-- 🔴 Not Started: 16 (76%)
-- 🟡 In Progress: 0 (0%)
+- 🔴 Not Started: 15 (71%)
+- 🟡 In Progress: 1 (5%)
 - 🟢 Complete: 5 (24%)
 - ⏸️ Blocked: 0 (0%)
 
@@ -594,6 +596,7 @@
 
 | Date | Gap ID | Status Change | Notes |
 |------|--------|---------------|-------|
+| 2025-12-13 | 8.2.3 | 🟡 Started | Added reserved-value matrix + initial stream negative tests (Swift/TS) |
 | 2025-12-13 | 4.2.3 | 🟢 Complete | Stream config mismatch policy + notification rules; negotiation state machine + tests; doc |
 | 2025-12-13 | 4.2.1 | 🟢 Complete | Function Block info validation/uiHints, profile associations, discovery/name flow, PB-VRT fixtures |
 | 2025-12-13 | 4.2.1 | 🟡 Started | Added TS/Swift validation for Function Block Info (direction/bandwidth/active + reserved bits) |

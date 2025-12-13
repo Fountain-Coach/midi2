@@ -137,6 +137,13 @@ public final class StreamNegotiationSession {
         try enforceAllowedMessageType(mt: mt, group: group)
     }
 
+    /// Enforce allowed message type against any UniversalPacket using GTB context.
+    public func enforceAllowedMessageType<P: UniversalPacket>(for packet: P) throws {
+        let mt = UInt8((packet.words.first ?? 0) >> 28) & 0x0F
+        let group = UInt8((packet.words.first ?? 0) >> 24) & 0x0F
+        try enforceAllowedMessageType(mt: mt, group: group)
+    }
+
     /// Simulated GTB negotiation step: validate and store descriptor; seeds allowed MT map.
     @discardableResult
     public func negotiate(gtbDescriptor: GtbDescriptor, allowOverlap: Bool? = nil) throws -> Bool {

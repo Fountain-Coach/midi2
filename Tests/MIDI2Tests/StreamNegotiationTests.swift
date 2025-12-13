@@ -137,4 +137,13 @@ final class StreamNegotiationTests: XCTestCase {
         let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: overlapping, allowGtbOverlap: true)
         XCTAssertNoThrow(try session.negotiate(gtbDescriptor: desc))
     }
+
+    func testGtbEnforcementForUniversalPacket() throws {
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: GroupTerminalBlocks(blocks: []))
+        session.setGtbAllowedMessageTypes(for: 3, allowed: [0xF])
+        let allowed = UmpPacket128(word0: (UInt32(0xF) << 28) | (UInt32(3) << 24), word1: 0, word2: 0, word3: 0)
+        try session.enforceAllowedMessageType(for: allowed)
+        let blocked = UmpPacket128(word0: (UInt32(0x2) << 28) | (UInt32(3) << 24), word1: 0, word2: 0, word3: 0)
+        XCTAssertThrowsError(try session.enforceAllowedMessageType(for: blocked))
+    }
 }

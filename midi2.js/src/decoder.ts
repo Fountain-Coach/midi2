@@ -2,6 +2,7 @@ import { UmpPacket } from "./generated/openapi-types";
 import { decodeUmp } from "./ump";
 import { Midi2Event } from "./types";
 import { eventToSchemaPacket, decodeStreamWord } from "./schema-bridge";
+import { enforceAllowedMessageType } from "./gtb-validator";
 
 export interface DecodedUmp {
   packet: UmpPacket | null;
@@ -25,4 +26,20 @@ export function decodeToPacketAndEvent(words: ArrayLike<number>): DecodedUmp | n
   }
   const packet = eventToSchemaPacket(event);
   return { packet, event };
+}
+
+/**
+ * Decode with optional GTB guards.
+ * - `allowedMessageTypes`: set of MT nibbles allowed in the current GTB context.
+ */
+export function decodeToPacketAndEventWithGuards(
+  words: ArrayLike<number>,
+  opts?: { allowedMessageTypes?: Set<number> },
+): DecodedUmp | null {
+  const word0 = words[0] ?? 0;
+  if (opts?.allowedMessageTypes) {
+    const mt = (word0 >>> 28) & 0xf;
+    enforceAllowedMessageType(mt, opts.allowedMessageTypes);
+  }
+  return decodeToPacketAndEvent(words);
 }

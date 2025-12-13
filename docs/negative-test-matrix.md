@@ -11,6 +11,7 @@
 | Stream – Reserved bit in mt=0xF word | M2-104-UM §5.1 | Low reserved bit set | Rejected (TS) |
 | Utility – Groupless + status | M2-104-UM §5.1 | Group nibble non-zero; unsupported status | Rejected (Swift + TS) |
 | SysEx7/SysEx8 – Oversize payload | M2-104-UM §4.2 | Payload > 0xFFFF | Rejected (Swift + TS) |
+| Flex – Tempo / Time Signature | Flex spec | BPM < 1; denominatorPow2 > 0x1F | Rejected (TS; Swift pending guard refactor) |
 
 ## Next Targets
 - SysEx8/SysEx7 reserved/oversize edge cases (already partially covered; add matrix entries).

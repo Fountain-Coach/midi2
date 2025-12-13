@@ -22,4 +22,10 @@ final class MidiCiProfilesBodyTests: XCTestCase {
         XCTAssertEqual(parsed.channels, body.channels)
         XCTAssertEqual(parsed.details?["v"], 1)
     }
+
+    func testMalformedProfileIdLengthDefaultsToEmpty() {
+        let bytes: [UInt8] = [0x00, 0x05, 0x01, 0x02] // claims 5 bytes, only 2 present
+        let parsed = MidiCiProfilesBody(sysEx7Bytes: bytes)
+        XCTAssertEqual(parsed.profileId, "")
+    }
 }

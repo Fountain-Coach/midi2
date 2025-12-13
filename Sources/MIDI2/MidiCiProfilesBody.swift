@@ -34,7 +34,6 @@ public struct MidiCiProfilesBody: Equatable {
                 target: Target? = nil,
                 channels: [Uint4]? = nil,
                 details: [String: UInt8]? = nil) {
-        precondition(!profileId.isEmpty, "profileId must not be empty")
         self.command = command
         self.profileId = profileId
         self.target = target
@@ -97,26 +96,38 @@ public struct MidiCiProfilesBody: Equatable {
 
     public init(sysEx7Bytes bytes: [UInt8]) {
         var index = 0
-        let cmd = Command(rawValue: bytes[index]) ?? .inquiry
+        let cmd = Command(rawValue: bytes[safe: index] ?? 0) ?? .inquiry
         index += 1
-        let idLen = Int(bytes[index])
+        let idLen = Int(bytes[safe: index] ?? 0)
         index += 1
+        guard bytes.count >= index + idLen else {
+            self = MidiCiProfilesBody(command: cmd, profileId: "")
+            return
+        }
         let idBytes = Array(bytes[index..<index+idLen])
         index += idLen
         let profileId = String(bytes: idBytes, encoding: .utf8) ?? ""
-        let targetRaw = bytes[index]
+        let targetRaw = bytes[safe: index] ?? 0x7F
         index += 1
         let target = Target(rawValue: targetRaw)
-        let chanCount = Int(bytes[index])
+        let chanCount = Int(bytes[safe: index] ?? 0)
         index += 1
         var channels: [Uint4] = []
-        for _ in 0..<chanCount { channels.append(Uint4(bytes[index])!) ; index += 1 }
-        let detailsLen = Int(bytes[index])
+        for _ in 0..<chanCount {
+            guard let chVal = bytes[safe: index], let ch = Uint4(chVal) else { break }
+            channels.append(ch)
+            index += 1
+        }
+        let detailsLen = Int(bytes[safe: index] ?? 0)
         index += 1
         var details: [String: UInt8]? = nil
-        if detailsLen > 0 {
+        if detailsLen > 0, bytes.count >= index + detailsLen {
             let data = Data(bytes[index..<index+detailsLen])
             details = (try? JSONSerialization.jsonObject(with: data)) as? [String: UInt8]
+        }
+        guard !profileId.isEmpty else {
+            self = MidiCiProfilesBody(command: cmd, profileId: "")
+            return
         }
         self.command = cmd
         self.profileId = profileId
@@ -127,26 +138,38 @@ public struct MidiCiProfilesBody: Equatable {
 
     public init(sysEx8Bytes bytes: [UInt8]) {
         var index = 0
-        let cmd = Command(rawValue: bytes[index]) ?? .inquiry
+        let cmd = Command(rawValue: bytes[safe: index] ?? 0) ?? .inquiry
         index += 1
-        let idLen = Int(bytes[index])
+        let idLen = Int(bytes[safe: index] ?? 0)
         index += 1
+        guard bytes.count >= index + idLen else {
+            self = MidiCiProfilesBody(command: cmd, profileId: "")
+            return
+        }
         let idBytes = Array(bytes[index..<index+idLen])
         index += idLen
         let profileId = String(bytes: idBytes, encoding: .utf8) ?? ""
-        let targetRaw = bytes[index]
+        let targetRaw = bytes[safe: index] ?? 0xFF
         index += 1
         let target = Target(rawValue: targetRaw)
-        let chanCount = Int(bytes[index])
+        let chanCount = Int(bytes[safe: index] ?? 0)
         index += 1
         var channels: [Uint4] = []
-        for _ in 0..<chanCount { channels.append(Uint4(bytes[index])!) ; index += 1 }
-        let detailsLen = Int(bytes[index])
+        for _ in 0..<chanCount {
+            guard let chVal = bytes[safe: index], let ch = Uint4(chVal) else { break }
+            channels.append(ch)
+            index += 1
+        }
+        let detailsLen = Int(bytes[safe: index] ?? 0)
         index += 1
         var details: [String: UInt8]? = nil
-        if detailsLen > 0 {
+        if detailsLen > 0, bytes.count >= index + detailsLen {
             let data = Data(bytes[index..<index+detailsLen])
             details = (try? JSONSerialization.jsonObject(with: data)) as? [String: UInt8]
+        }
+        guard !profileId.isEmpty else {
+            self = MidiCiProfilesBody(command: cmd, profileId: "")
+            return
         }
         self.command = cmd
         self.profileId = profileId

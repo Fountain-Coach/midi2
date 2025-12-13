@@ -28,9 +28,10 @@
 
 **Current State**:
 - ✅ Schema fields captured (`MidiCiPropertyExchangeBody.subscriptionCommand`)
-- ❌ Runtime state machine not implemented
-- ❌ Flow-control ACK/NAK handlers missing
-- ❌ Subscription tracking absent
+- 🟡 TypeScript subscription manager now models start/partial/full/notify/end lifecycle with flow-control ACKs and tests
+- ❌ Runtime state machine not implemented in Swift
+- ❌ Flow-control ACK/NAK handlers missing (Swift)
+- ❌ Subscription tracking absent (Swift)
 
 **Acceptance Criteria**:
 - [ ] Subscription state machine implemented (start → partial → full → notify → end)

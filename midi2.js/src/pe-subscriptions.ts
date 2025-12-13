@@ -8,13 +8,16 @@ type SubscriptionState = {
   subscriptionId: string;
   requestId?: number;
   flowControl: boolean;
+  stage: SubscriptionStage;
 };
+
+type SubscriptionStage = "start" | "partial" | "full" | "active";
 
 /**
  * Minimal in-memory manager for MIDI-CI Property Exchange subscriptions.
  *
- * Handles start/notify/end lifecycle, enforces flowControl support, and returns
- * acknowledgements or errors encoded as PropertyExchangeEvent stubs.
+ * Handles start/partial/full/notify/end lifecycle, enforces flowControl support,
+ * and returns acknowledgements or errors encoded as PropertyExchangeEvent stubs.
  *
  * This is a pure helper and does not send I/O directly.
  */
@@ -50,6 +53,10 @@ export class PeSubscriptionManager {
    * (subscribe reply, flow-control ACK/NAK, or error) to emit.
    */
   handle(event: PropertyExchangeEvent): SubscriptionAction | null {
+    if (event.subscriptionCommand) {
+      return this.handleLifecycle(event);
+    }
+
     if (event.command === "subscribe") {
       if (!event.subscriptionId) {
         return { kind: "error", status: 400, message: "missing subscriptionId" };
@@ -93,6 +100,9 @@ export class PeSubscriptionManager {
       if (!sub) {
         return { kind: "reply", event: { kind: "propertyExchange", group: event.group, command: "notify", header: { status: 404 } } };
       }
+       if (sub.stage !== "active") {
+        return { kind: "reply", event: { kind: "propertyExchange", group: event.group, command: "notify", header: { status: 409 } } };
+      }
       // Flow control ACK on each chunk when requested and supported.
       if (sub.flowControl && event.header?.flowControl) {
         return {
@@ -121,5 +131,100 @@ export class PeSubscriptionManager {
     }
 
     return null;
+  }
+
+  private handleLifecycle(event: PropertyExchangeEvent): SubscriptionAction | null {
+    const id = event.subscriptionId;
+    if (!id) {
+      return { kind: "error", status: 400, message: "missing subscriptionId" };
+    }
+    const sub = this.subs.get(id);
+    switch (event.subscriptionCommand) {
+      case "start": {
+        const state: SubscriptionState = {
+          subscriptionId: id,
+          requestId: event.requestId,
+          flowControl: Boolean(event.header?.flowControl),
+          stage: "start",
+        };
+        this.subs.set(id, state);
+        return {
+          kind: "reply",
+          event: {
+            kind: "propertyExchange",
+            group: event.group,
+            command: "subscribeReply",
+            subscriptionId: id,
+            subscriptionCommand: "start",
+            header: { status: 200, flowControl: state.flowControl },
+          },
+        };
+      }
+      case "partial": {
+        if (!sub) return { kind: "error", status: 404, message: "subscription not found" };
+        sub.stage = "partial";
+        this.subs.set(id, sub);
+        return null;
+      }
+      case "full": {
+        if (!sub) return { kind: "error", status: 404, message: "subscription not found" };
+        sub.stage = "full";
+        this.subs.set(id, sub);
+        return {
+          kind: "reply",
+          event: {
+            kind: "propertyExchange",
+            group: event.group,
+            command: "subscribeReply",
+            subscriptionId: id,
+            subscriptionCommand: "full",
+            header: { status: 200 },
+          },
+        };
+      }
+      case "notify": {
+        if (!sub) {
+          return { kind: "reply", event: { kind: "propertyExchange", group: event.group, command: "notify", header: { status: 404 } } };
+        }
+        if (sub.stage !== "full" && sub.stage !== "active") {
+          return { kind: "reply", event: { kind: "propertyExchange", group: event.group, command: "notify", header: { status: 409 } } };
+        }
+        sub.stage = "active";
+        this.subs.set(id, sub);
+        if (sub.flowControl && event.header?.flowControl) {
+          return {
+            kind: "reply",
+            event: {
+              kind: "propertyExchange",
+              group: event.group,
+              command: "notify",
+              flowControlAck: {
+                status: 17,
+                requestId: (event.header as any)?.requestId ?? 0,
+                chunkNumber: (event.header as any)?.chunkNumber ?? 0,
+                messageLength: event.data instanceof Uint8Array ? event.data.byteLength : 0,
+              },
+            },
+          };
+        }
+        return null;
+      }
+      case "end": {
+        this.subs.delete(id);
+        return {
+          kind: "reply",
+          event: {
+            kind: "propertyExchange",
+            group: event.group,
+            command: "subscribeReply",
+            subscriptionId: id,
+            subscriptionCommand: "end",
+            header: { status: 200 },
+          },
+        };
+      }
+      default:
+        return { kind: "error", status: 400, message: "unknown subscriptionCommand" };
+    }
   }
 }

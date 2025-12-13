@@ -26,10 +26,12 @@ type SubscriptionStage = "start" | "partial" | "full" | "active";
  */
 export class PeSubscriptionManager {
   private readonly supportsFlowControl: boolean;
+  private readonly maxNakRetries: number;
   private readonly subs = new Map<string, SubscriptionState>();
 
-  constructor(opts?: { supportsFlowControl?: boolean }) {
+  constructor(opts?: { supportsFlowControl?: boolean; maxNakRetries?: number }) {
     this.supportsFlowControl = opts?.supportsFlowControl ?? true;
+    this.maxNakRetries = opts?.maxNakRetries ?? 3;
   }
 
   /**
@@ -207,6 +209,7 @@ export class PeSubscriptionManager {
           if (chunkNumber !== sub.lastChunkNumber + 1) {
             sub.lastChunkNumber = chunkNumber;
             sub.lastActivityMs = Date.now();
+            sub.nakCount = (sub.nakCount ?? 0) + 1;
             this.subs.set(id, sub);
             return {
               kind: "reply",
@@ -222,6 +225,7 @@ export class PeSubscriptionManager {
             };
           }
           sub.lastChunkNumber = chunkNumber;
+          sub.nakCount = 0;
         }
         sub.lastActivityMs = Date.now();
         this.subs.set(id, sub);
@@ -272,6 +276,18 @@ export class PeSubscriptionManager {
       if (!sub.flowControl || sub.stage !== "active") continue;
       if (nowMs - sub.lastActivityMs >= timeoutMs) {
         const expectedChunk = sub.lastChunkNumber + 1;
+        const nakCount = (sub.nakCount ?? 0) + 1;
+        if (nakCount > this.maxNakRetries) {
+          out.push({
+            kind: "propertyExchange",
+            group: 0,
+            command: "notify",
+            subscriptionId: id,
+            header: { status: 408 },
+          });
+          this.subs.delete(id);
+          continue;
+        }
         out.push({
           kind: "propertyExchange",
           group: 0,
@@ -280,7 +296,7 @@ export class PeSubscriptionManager {
           flowControlNak: { status: 18, chunkNumber: expectedChunk },
         });
         // keep state so retry can proceed
-        this.subs.set(id, { ...sub, lastActivityMs: nowMs });
+        this.subs.set(id, { ...sub, lastActivityMs: nowMs, nakCount });
       }
     }
     return out;

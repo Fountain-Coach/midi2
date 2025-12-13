@@ -229,10 +229,12 @@ public enum PropertyExchangeBuilder {
     /// Manages a property store, subscriptions by resource, and produces replies.
     public final class PropertyExchangeSession {
         public var store: [String: [UInt8]]
-        private let subscriptionManager = PropertyExchangeSubscriptionManager()
+    private let subscriptionManager = PropertyExchangeSubscriptionManager()
     private var notifySeq: Int = 0
     public var maxDataPerMessage: Int
     private let setAllowed: (String, [UInt8]) -> Bool
+    private let subscriptionTimeout: TimeInterval = 1.0
+    private let maxNakRetries: Int = 3
     private struct SetAccumulator {
         var requestId: UInt32
         var resource: String
@@ -258,6 +260,11 @@ public enum PropertyExchangeBuilder {
 
     /// Handle a single request and return zero or more reply/notify messages.
     public func handle(_ request: MidiCiPropertyExchangeBody) -> [MidiCiPropertyExchangeBody] {
+        // Emit timeout NAKs before handling new message to keep flow-control moving.
+        let timeoutEvents = subscriptionManager.collectTimeouts(timeout: subscriptionTimeout, maxNakRetries: maxNakRetries)
+        if !timeoutEvents.isEmpty {
+            return timeoutEvents
+        }
         func failureSetReply(_ res: String, _ req: MidiCiPropertyExchangeBody, code: String, msg: String) -> [MidiCiPropertyExchangeBody] {
             let replyHeader = ["res": res, "ok": "0", "err": code, "msg": msg]
             return [MidiCiPropertyExchangeBody(command: .setReply,
@@ -406,6 +413,7 @@ private final class PropertyExchangeSubscriptionManager {
         var lastChunk: Int
         var resource: String?
         var lastActivity: Date
+        var nakCount: Int
     }
 
     private var subs: [String: Subscription] = [:]
@@ -416,21 +424,32 @@ private final class PropertyExchangeSubscriptionManager {
     }
 
     /// Emit NAKs when flow-control chunks are stalled beyond timeout.
-    func collectTimeouts(now: Date = Date(), timeout: TimeInterval = 1.0) -> [MidiCiPropertyExchangeBody] {
+    func collectTimeouts(now: Date = Date(), timeout: TimeInterval = 1.0, maxNakRetries: Int = 3) -> [MidiCiPropertyExchangeBody] {
         var out: [MidiCiPropertyExchangeBody] = []
         for (id, sub) in subs {
             guard sub.flowControl, sub.stage == .active else { continue }
             if now.timeIntervalSince(sub.lastActivity) >= timeout {
                 let chunkNumber = sub.lastChunk + 1
-                let dummy = MidiCiPropertyExchangeBody(command: .notify,
-                                                       requestId: 0,
-                                                       encoding: .json,
-                                                       header: ["subscriptionId": id, "chunkNumber": String(chunkNumber)],
-                                                       data: [])
-                out.append(flowControlNak(for: dummy, chunkNumber: chunkNumber))
                 var updated = sub
-                updated.lastActivity = now
-                subs[id] = updated
+                updated.nakCount += 1
+                if updated.nakCount > maxNakRetries {
+                    let timeoutEvt = MidiCiPropertyExchangeBody(command: .notify,
+                                                               requestId: 0,
+                                                               encoding: .json,
+                                                               header: ["status": "408", "subscriptionId": id],
+                                                               data: [])
+                    out.append(timeoutEvt)
+                    subs.removeValue(forKey: id)
+                } else {
+                    let dummy = MidiCiPropertyExchangeBody(command: .notify,
+                                                           requestId: 0,
+                                                           encoding: .json,
+                                                           header: ["subscriptionId": id, "chunkNumber": String(chunkNumber)],
+                                                           data: [])
+                    out.append(flowControlNak(for: dummy, chunkNumber: chunkNumber))
+                    updated.lastActivity = now
+                    subs[id] = updated
+                }
             }
         }
         return out
@@ -447,7 +466,7 @@ private final class PropertyExchangeSubscriptionManager {
         switch subCmd {
         case "start":
             let wantsFC = (req.header["flowControl"] == "true")
-            subs[subId] = Subscription(id: subId, stage: .start, flowControl: wantsFC, lastChunk: -1, resource: resource, lastActivity: Date())
+            subs[subId] = Subscription(id: subId, stage: .start, flowControl: wantsFC, lastChunk: -1, resource: resource, lastActivity: Date(), nakCount: 0)
             return [reply(command: .subscribeReply, req: req, status: 200, extra: ["subscriptionCommand": "start", "flowControl": wantsFC ? "true" : "false"])]
         case "partial":
             guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }

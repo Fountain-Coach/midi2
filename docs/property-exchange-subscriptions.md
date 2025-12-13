@@ -12,6 +12,6 @@ start → partial (optional, chunked) → full → notify* → end
 - Tests cover lifecycle, missing IDs, out-of-order notify, unknown subscriptions.
 
 ## Swift status / TODO
-- Added subscription state machine in `PropertyExchangeSession` (start/partial/full/notify/end, flow-control ACK/NAK for chunk order + timeout NAKs).
-- Track `subscriptionId`, stage, flow-control intent, resource, chunk order; reply with status codes (200/404/409) and ACK=17/NAK=18.
-- TODO: retransmit policy beyond timeout NAK (e.g., retry count/backoff).
+- Added subscription state machine in `PropertyExchangeSession` (start/partial/full/notify/end, flow-control ACK/NAK for chunk order + timeout NAKs with retry cap).
+- Track `subscriptionId`, stage, flow-control intent, resource, chunk order; reply with status codes (200/404/409) and ACK=17/NAK=18, timeout emits 408 after retry cap.
+- TODO: wire timeout NAKs into higher-level retry/backoff strategy if needed.

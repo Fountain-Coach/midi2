@@ -58,5 +58,18 @@ describe("PeSubscriptionManager", () => {
     // simulate timeout
     const nakEvents = mgr.collectTimeouts(Date.now() + 2000, 1);
     expect(nakEvents[0]?.flowControlNak?.status).toBe(18);
+    // Exhaust retries to force timeout status
+    const mgr2 = new PeSubscriptionManager({ supportsFlowControl: true, maxNakRetries: 1 });
+    mgr2.process(pe({ command: "subscribe", subscriptionCommand: "start", subscriptionId: "subY", header: { resource: "resA", flowControl: true } }));
+    mgr2.process(pe({ command: "notify", subscriptionCommand: "full", subscriptionId: "subY", header: { resource: "resA" } }));
+    mgr2.process(pe({ command: "notify", subscriptionCommand: "notify", subscriptionId: "subY", header: { resource: "resA", flowControl: true, chunkNumber: 0 }, data: new Uint8Array([1]) }));
+    // First timeout emits NAK (18)
+    const timeoutEvents1 = mgr2.collectTimeouts(Date.now() + 2000, 1);
+    const statuses1 = timeoutEvents1.map(ev => ev.header?.status ?? ev.flowControlNak?.status);
+    expect(statuses1).toContain(18);
+    // Second timeout should exceed retries and emit 408
+    const timeoutEvents2 = mgr2.collectTimeouts(Date.now() + 4000, 1);
+    const statuses2 = timeoutEvents2.map(ev => ev.header?.status ?? ev.flowControlNak?.status);
+    expect(statuses2).toContain(408);
   });
 });

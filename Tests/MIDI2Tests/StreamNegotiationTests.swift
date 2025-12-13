@@ -52,4 +52,20 @@ final class StreamNegotiationTests: XCTestCase {
         let parsed = try GroupTerminalBlocks(parsingUMPs: pkts)
         XCTAssertEqual(parsed.blocks, [GroupTerminalBlock(index: 4, firstGroup: 8, groupCount: 2, active: false, direction: .reserved, midi1Bandwidth: .notMidi1, uiHints: 0)])
     }
+
+    func testFunctionBlockDiscoveryUMPsCarryFlags() throws {
+        let gtb = GroupTerminalBlocks(blocks: [
+            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 4, active: true, direction: .bidirectional, midi1Bandwidth: .restrict31_25kbps, uiHints: 0x5A)
+        ])
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
+        let req = FunctionBlockDiscovery(filterBitmap: 0)
+        let group = Uint4(1)!
+        let pkts = try session.onFunctionBlockDiscovery(req, group: group)
+        XCTAssertEqual(pkts.count, 1)
+        let word1 = pkts[0].word1
+        XCTAssertEqual((word1 & 0x80000000) != 0, true)
+        XCTAssertEqual((word1 >> 16) & 0x03, 3)
+        XCTAssertEqual((word1 >> 8) & 0x03, 2)
+        XCTAssertEqual(word1 & 0xFF, 0x5A)
+    }
 }

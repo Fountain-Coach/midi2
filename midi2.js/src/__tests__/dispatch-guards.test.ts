@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyGtbGuards } from "../dispatch-guards";
+import { setGtbAllowedMessageTypes, clearGtbContext } from "../gtb-context";
 import { StreamEvent, UtilityEvent } from "../types";
 
 describe("dispatch guards", () => {
@@ -16,5 +17,14 @@ describe("dispatch guards", () => {
     const utility: UtilityEvent = { kind: "utility", status: "noop", group: 0 };
     expect(() => applyGtbGuards([utility], { allowedMessageTypes: new Set([0xf]) })).toThrow(RangeError);
     expect(() => applyGtbGuards([utility], { allowedMessageTypes: new Set([0x0, 0xf]) })).not.toThrow();
+  });
+
+  it("uses GTB context map when no allowed set provided", () => {
+    clearGtbContext();
+    setGtbAllowedMessageTypes(2, new Set([0xf]));
+    const streamEvt: StreamEvent = { kind: "stream", group: 2, opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { index: 0, firstGroup: 0, groupCount: 1 } };
+    expect(() => applyGtbGuards([streamEvt])).not.toThrow();
+    const utilityEvt: UtilityEvent = { kind: "utility", status: "noop", group: 2 };
+    expect(() => applyGtbGuards([utilityEvt])).toThrow(RangeError);
   });
 });

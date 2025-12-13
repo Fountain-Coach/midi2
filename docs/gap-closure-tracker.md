@@ -132,6 +132,7 @@
 - 🟡 TS descriptor applicator validates against Function Block notifications (optional)
 - 🟡 TS JSON loader (`loadGtbDescriptorFromJson`) to seed GTB context from descriptor artifacts
 - 🟡 Protocol scheme documented (`docs/gtb-protocol-negotiation-scheme.md`) detailing ingestion/enforcement flow
+- 🟡 Dispatch guards now consume GTB context map when no explicit allowed set provided (stream+utility)
 - 🟡 MT=0xF/MT=0x0 reception restrictions guarded; integration into runtime negotiation pending
 - ❌ Protocol negotiation for GTB contexts incomplete
 

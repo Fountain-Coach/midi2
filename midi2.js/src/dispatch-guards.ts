@@ -1,4 +1,5 @@
 import { enforceAllowedMessageType, validateFunctionBlockLayouts } from "./gtb-validator";
+import { getGtbAllowedMessageTypesForGroup } from "./gtb-context";
 import { StreamEvent, UtilityEvent } from "./types";
 
 /**
@@ -12,13 +13,14 @@ export function applyGtbGuards(
 ): void {
   const allowOverlap = opts?.allowOverlap ?? false;
   validateFunctionBlockLayouts(events.filter((e): e is StreamEvent => e.kind === "stream"), allowOverlap);
-  if (opts?.allowedMessageTypes) {
-    for (const evt of events) {
-      if (evt.kind === "stream") {
-        enforceAllowedMessageType(0xf, opts.allowedMessageTypes);
-      } else if (evt.kind === "utility") {
-        enforceAllowedMessageType(0x0, opts.allowedMessageTypes);
-      }
+  for (const evt of events) {
+    const group = evt.kind === "stream" ? evt.group : evt.group ?? 0;
+    const allowed = opts?.allowedMessageTypes ?? getGtbAllowedMessageTypesForGroup(group);
+    if (!allowed) continue;
+    if (evt.kind === "stream") {
+      enforceAllowedMessageType(0xf, allowed);
+    } else if (evt.kind === "utility") {
+      enforceAllowedMessageType(0x0, allowed);
     }
   }
 }

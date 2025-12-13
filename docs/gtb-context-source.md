@@ -11,7 +11,7 @@ The current spec does **not** put MT permissions in the MIDI-CI discovery payloa
 
 ## Injection Points
 - **Swift**: `GtbDescriptor.load(from:)` reads the JSON shape above; `StreamNegotiationSession.apply(gtbDescriptor:)` (validated against Function Blocks) seeds the per-group allowed MT map for enforcement (`enforceAllowedMessageType`).
-- **TypeScript**: `applyGtbDescriptor` (in `midi2.js/src/gtb-descriptor.ts`) applies the same map into the shared GTB context consumed by the guarded decoders.
+- **TypeScript**: `applyGtbDescriptor` (in `midi2.js/src/gtb-descriptor.ts`) applies the same map into the shared GTB context consumed by the guarded decoders and can validate descriptor groups against Function Block notifications.
 
 ## Proposed scheme
 1. Parse USB descriptors when available and emit the JSON shape above (keeping group/index nibble-masked).

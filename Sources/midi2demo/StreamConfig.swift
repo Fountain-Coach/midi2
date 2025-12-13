@@ -262,11 +262,16 @@ struct StreamHandshake: ParsableCommand {
         print("  isNotification=\(scReqParsed.isNotification) jrTx=\(scReqParsed.jrTimestampsTx) jrRx=\(scReqParsed.jrTimestampsRx) proto=\(scReqParsed.protocolSelection == .midi2 ? "midi2" : "midi1")")
 
         // 3) Stream Configuration Notification (responder → initiator) via session
-        let scReply = session.onStreamConfigRequest(scReq)
+        let scResult = session.negotiateStreamConfig(scReq)
+        let scReply = scResult.notification
         let scPkt = scReply.ump(group: g)
         print(String(format: "Stream Config (reply):  0x%08X", scPkt.word))
         let scParsed = try StreamConfigurationMessage(parsingUMP: scPkt)
         print("  isNotification=\(scParsed.isNotification) jrTx=\(scParsed.jrTimestampsTx) jrRx=\(scParsed.jrTimestampsRx) proto=\(scParsed.protocolSelection == .midi2 ? "midi2" : "midi1")")
+        if !scResult.mismatches.isEmpty {
+            print("  mismatches=\(scResult.mismatches)")
+        }
+        print("  shouldNotifyPeer=\(scResult.shouldNotifyPeer) switchedProtocol=\(scResult.switchedProtocol)")
 
         // 4) Function Block information (responder → initiator)
         // Example: two function blocks

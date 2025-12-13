@@ -43,7 +43,7 @@
 - ✅ Discovery & Handshake
 - ✅ ACK/NAK
 - ✅ Basic Property Exchange
-- ⚠️ PE Subscription Lifecycle (Gap 2.2.1) 🔴 **Critical**
+- ✅ PE Subscription Lifecycle (Gap 2.2.1)
 - ⚠️ Profile Details (Gap 2.2.2)
 - ⚠️ Process Inquiry (Gap 2.2.3)
 - ⚠️ MUID Management (Gap 2.2.4)
@@ -53,10 +53,10 @@
 ██████████░░░░░░░░░░░░ 43% Complete (12/28)
 ```
 - ✅ Endpoint Discovery
-- ⚠️ Endpoint Info (Gap 4.2.4)
-- ⚠️ Function Block Descriptors (Gap 4.2.1) 🔴 **Critical**
-- ⚠️ GTB Negotiation (Gap 4.2.2) 🔴 **Critical**
-- ⚠️ Stream Config Semantics (Gap 4.2.3)
+- ✅ Endpoint Info (Gap 4.2.4)
+- ✅ Function Block Descriptors (Gap 4.2.1)
+- ✅ GTB Negotiation (Gap 4.2.2)
+- ✅ Stream Config Semantics (Gap 4.2.3)
 
 ### Profiles & PSD
 ```
@@ -75,49 +75,22 @@
 - ✅ Chunking
 - ✅ Compression (zlib, mcoded7)
 - ✅ Headers & Encodings
-- ⚠️ Subscription State Machine (Gap 2.2.1) 🔴 **Critical**
-- ⚠️ Flow-Control ACK/NAK (Gap 2.2.1) 🔴 **Critical**
+- ✅ Subscription State Machine (Gap 2.2.1)
+- ✅ Flow-Control ACK/NAK (Gap 2.2.1)
 
 ---
 
 ## 🚨 Critical Gaps (Must Fix)
 
 ### 1. Property Exchange Subscription Lifecycle
-**Gap ID**: 2.2.1 | **Priority**: 🔴 High | **Effort**: 5-7 days
-
-**Impact**: Blocks complete MIDI-CI compliance  
-**Status**: 🔴 Not Started  
-**Sprint**: 1 (Week 1-2)
-
-**Missing**:
-- Subscription state machine (start → partial → full → notify → end)
-- Flow-control ACK handler with chunk tracking
-- Flow-control NAK retransmit logic
-- Resource capability negotiation
-
-**Acceptance**: 
-- [ ] State machine implemented
-- [ ] ACK/NAK handlers with chunk validation
-- [ ] Comprehensive test suite (Tables 43-47)
+**Gap ID**: 2.2.1 | **Priority**: 🔴 High | **Effort**: 5-7 days  
+**Status**: 🟢 Complete (subscription manager + flow-control ACK/NAK/backoff tests)
 
 ---
 
 ### 2. Function Block Descriptor Details
-**Gap ID**: 4.2.1 | **Priority**: 🔴 High | **Effort**: 4-5 days
-
-**Impact**: Blocks Stream §5 compliance  
-**Status**: 🔴 Not Started  
-**Sprint**: 1 (Week 1-2)
-
-**Missing**:
-- Direction field (input/output/bidirectional)
-- MIDI 1.0 bandwidth field
-- Active flag
-- Discovery/response flow
-
-**Acceptance**:
-- [ ] Extended FunctionBlockMessage structure
-- [ ] All fields from Figure 22 (M2-104-UM p.40)
+**Gap ID**: 4.2.1 | **Priority**: 🔴 High | **Effort**: 4-5 days  
+**Status**: 🟢 Complete (direction/bandwidth/active/uiHints validation, discovery flow, profile associations)
 - [ ] Runtime validation
 
 ---

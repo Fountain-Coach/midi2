@@ -32,6 +32,42 @@ final class StreamNegotiationTests: XCTestCase {
         XCTAssertTrue(session.lastConfigMismatch)
     }
 
+    func testNegotiationResultReportsMismatchReasons() {
+        let session = StreamNegotiationSession(responderCaps: .init(supportsMIDI2: false, jrTx: false, jrRx: true))
+        let req = StreamConfigurationMessage(isNotification: false, jrTimestampsTx: true, jrTimestampsRx: true, protocolSelection: .midi2)
+        let result = session.negotiateStreamConfig(req)
+        XCTAssertEqual(result.notification.protocolSelection, .midi1)
+        XCTAssertEqual(result.notification.jrTimestampsTx, false)
+        XCTAssertEqual(result.notification.jrTimestampsRx, true)
+        XCTAssertEqual(result.mismatches, [.protocolDowngraded(requested: .midi2, selected: .midi1), .jrTxRejected])
+        XCTAssertTrue(result.shouldNotifyPeer)
+        XCTAssertTrue(session.lastConfigMismatch)
+        XCTAssertEqual(session.lastMismatchReasons, result.mismatches)
+    }
+
+    func testRepeatedRequestDoesNotForceNotification() {
+        let session = StreamNegotiationSession(responderCaps: .init(supportsMIDI2: true, jrTx: true, jrRx: true))
+        let req = StreamConfigurationMessage(isNotification: false, jrTimestampsTx: true, jrTimestampsRx: true, protocolSelection: .midi2)
+        _ = session.negotiateStreamConfig(req)
+        let second = session.negotiateStreamConfig(req)
+        XCTAssertTrue(second.notification.isNotification)
+        XCTAssertTrue(second.mismatches.isEmpty)
+        XCTAssertFalse(second.switchedProtocol)
+        XCTAssertFalse(second.shouldNotifyPeer)
+    }
+
+    func testProtocolSwitchTriggersNotification() {
+        let session = StreamNegotiationSession(responderCaps: .init(supportsMIDI2: true, jrTx: true, jrRx: true))
+        let midi1Req = StreamConfigurationMessage(isNotification: false, jrTimestampsTx: false, jrTimestampsRx: false, protocolSelection: .midi1)
+        _ = session.negotiateStreamConfig(midi1Req)
+        let midi2Req = StreamConfigurationMessage(isNotification: false, jrTimestampsTx: true, jrTimestampsRx: true, protocolSelection: .midi2)
+        let second = session.negotiateStreamConfig(midi2Req)
+        XCTAssertEqual(second.notification.protocolSelection, .midi2)
+        XCTAssertTrue(second.switchedProtocol)
+        XCTAssertTrue(second.shouldNotifyPeer)
+        XCTAssertTrue(second.mismatches.isEmpty)
+    }
+
     func testFunctionBlockDiscoveryFiltersBlocksByMask() {
         let gtb = GroupTerminalBlocks(blocks: [
             GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 4),

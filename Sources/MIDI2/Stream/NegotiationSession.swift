@@ -19,6 +19,25 @@ public final class StreamNegotiationSession {
     public private(set) var negotiated: StreamConfigurationMessage?
     public private(set) var gtbDescriptor: GtbDescriptor?
     public private(set) var lastConfigMismatch: Bool = false
+    public private(set) var lastMismatchReasons: [StreamConfigMismatch] = []
+    public private(set) var currentConfiguration: StreamConfigurationMessage?
+
+    /// Captures reasons for config divergence between a request and the responder's capabilities.
+    public enum StreamConfigMismatch: Equatable {
+        case protocolDowngraded(requested: StreamConfigurationMessage.ProtocolSelection, selected: StreamConfigurationMessage.ProtocolSelection)
+        case jrTxRejected
+        case jrRxRejected
+    }
+
+    /// Detailed negotiation result including mismatch reasons and whether a notification should be emitted.
+    public struct StreamConfigNegotiationResult: Equatable {
+        public var notification: StreamConfigurationMessage
+        public var mismatches: [StreamConfigMismatch]
+        public var switchedProtocol: Bool
+        public var shouldNotifyPeer: Bool
+
+        public var accepted: Bool { mismatches.isEmpty }
+    }
 
     public init(responderCaps: Capabilities, functionBlocks: GroupTerminalBlocks = GroupTerminalBlocks(blocks: []), allowGtbOverlap: Bool = false) {
         self.responderCaps = responderCaps
@@ -37,23 +56,51 @@ public final class StreamNegotiationSession {
         EndpointDiscoveryMessage(majorVersion: req.majorVersion, minorVersion: req.minorVersion, maxGroups: req.maxGroups)
     }
 
-    /// Process a Stream Configuration request and return a notification reflecting negotiated settings.
-    public func onStreamConfigRequest(_ req: StreamConfigurationMessage) -> StreamConfigurationMessage {
+    /// Core stream configuration negotiation logic (Figure 18/19, M2-104-UM v1.1.2).
+    @discardableResult
+    public func negotiateStreamConfig(_ req: StreamConfigurationMessage, forceNotification: Bool = false) -> StreamConfigNegotiationResult {
         var notif = StreamConfigurationMessage(isNotification: true, jrTimestampsTx: false, jrTimestampsRx: false, protocolSelection: .midi1)
-        lastConfigMismatch = false
-        // Protocol negotiation
-        notif.protocolSelection = responderCaps.supportsMIDI2 && (req.protocolSelection == .midi2) ? .midi2 : .midi1
-        if notif.protocolSelection != req.protocolSelection {
-            lastConfigMismatch = true
+        var mismatches: [StreamConfigMismatch] = []
+
+        // Protocol negotiation (only MIDI1 or MIDI2 allowed)
+        let selectedProtocol: StreamConfigurationMessage.ProtocolSelection
+        if responderCaps.supportsMIDI2 && req.protocolSelection == .midi2 {
+            selectedProtocol = .midi2
+        } else {
+            selectedProtocol = .midi1
         }
-        // JR flags intersection
-        notif.jrTimestampsTx = responderCaps.jrTx && req.jrTimestampsTx
-        notif.jrTimestampsRx = responderCaps.jrRx && req.jrTimestampsRx
-        if notif.jrTimestampsTx != req.jrTimestampsTx || notif.jrTimestampsRx != req.jrTimestampsRx {
-            lastConfigMismatch = true
+        notif.protocolSelection = selectedProtocol
+        if selectedProtocol != req.protocolSelection {
+            mismatches.append(.protocolDowngraded(requested: req.protocolSelection, selected: selectedProtocol))
         }
+
+        // JR flags intersection (receiver must clear unsupported directions)
+        let jrTx = responderCaps.jrTx && req.jrTimestampsTx
+        let jrRx = responderCaps.jrRx && req.jrTimestampsRx
+        notif.jrTimestampsTx = jrTx
+        notif.jrTimestampsRx = jrRx
+        if jrTx != req.jrTimestampsTx {
+            mismatches.append(.jrTxRejected)
+        }
+        if jrRx != req.jrTimestampsRx {
+            mismatches.append(.jrRxRejected)
+        }
+
+        let switchedProtocol = currentConfiguration?.protocolSelection != selectedProtocol
+        let shouldNotify = forceNotification || !mismatches.isEmpty || currentConfiguration == nil || switchedProtocol
+
+        lastConfigMismatch = !mismatches.isEmpty
+        lastMismatchReasons = mismatches
         negotiated = notif
-        return notif
+        currentConfiguration = notif
+
+        return StreamConfigNegotiationResult(notification: notif, mismatches: mismatches, switchedProtocol: switchedProtocol, shouldNotifyPeer: shouldNotify)
+    }
+
+    /// Compatibility wrapper that returns only the notification payload.
+    /// Prefer `negotiateStreamConfig(_:forceNotification:)` when mismatch detail is needed.
+    public func onStreamConfigRequest(_ req: StreamConfigurationMessage, forceNotification: Bool = false) -> StreamConfigurationMessage {
+        negotiateStreamConfig(req, forceNotification: forceNotification).notification
     }
 
     /// Filter known function blocks in response to a discovery request. Filter bits map directly to block indexes; a zero filter returns all blocks.

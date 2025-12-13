@@ -162,7 +162,7 @@
 ## Medium Priority Gaps (Sprint 2-4)
 
 ### Gap 4.2.3: Stream Configuration Semantics
-**Status**: 🟡 In Progress  
+**Status**: 🟢 Complete  
 **Priority**: Medium | **Effort**: 3-4 days | **Target Sprint**: 2
 
 **Spec Reference**: M2-104-UM v1.1.2, Figures 18/19 (p.37-38), Section 7.2.2.3 (p.45)
@@ -170,16 +170,17 @@
 **Current State**:
 - ✅ Protocol bits defined (0x01 MIDI 1.0, 0x02 MIDI 2.0)
 - ✅ JR Tx/Rx flags in schema
-- 🟡 JR fallback and protocol switching implemented in `StreamNegotiationSession` (mismatch tracking added)
-- ❌ Explicit mismatch notification policy not encoded beyond reply
-- ❌ Full protocol switching state machine and tests missing
+- ✅ JR fallback + protocol switching with stateful negotiation (`negotiateStreamConfig`)
+- ✅ Mismatch policy + `shouldNotifyPeer` surfaced for when to emit notifications (mismatch/protocol switch/first config/forced)
+- ✅ Tests cover downgrade, JR fallback, repeated-request idempotence, and protocol switch notification policy
+- ✅ Design doc: `docs/stream-config-negotiation.md`
 
 **Acceptance Criteria**:
-- [ ] JR fallback when receiver doesn't support JR
-- [ ] Protocol switching (MIDI 1.0 ↔ MIDI 2.0)
-- [ ] Stream Config Notification sending on capability mismatch
-- [ ] Tests for negotiation failures and fallbacks
-- [ ] Documentation of negotiation flows
+- [x] JR fallback when receiver doesn't support JR
+- [x] Protocol switching (MIDI 1.0 ↔ MIDI 2.0)
+- [x] Stream Config Notification sending on capability mismatch
+- [x] Tests for negotiation failures and fallbacks
+- [x] Documentation of negotiation flows
 
 **Implementation Steps**:
 1. Implement JR capability checking
@@ -566,11 +567,11 @@
 - **Low Priority**: 8
 
 ### Status Summary
-- **Note**: Updated December 13, 2025 after completing Gap 4.2.1 and starting Gap 4.2.2.
+- **Note**: Updated December 13, 2025 after closing Stream Config (Gap 4.2.3).
 
-- 🔴 Not Started: 18 (86%)
+- 🔴 Not Started: 16 (76%)
 - 🟡 In Progress: 0 (0%)
-- 🟢 Complete: 3 (14%)
+- 🟢 Complete: 5 (24%)
 - ⏸️ Blocked: 0 (0%)
 
 ### Sprint Allocation
@@ -593,6 +594,7 @@
 
 | Date | Gap ID | Status Change | Notes |
 |------|--------|---------------|-------|
+| 2025-12-13 | 4.2.3 | 🟢 Complete | Stream config mismatch policy + notification rules; negotiation state machine + tests; doc |
 | 2025-12-13 | 4.2.1 | 🟢 Complete | Function Block info validation/uiHints, profile associations, discovery/name flow, PB-VRT fixtures |
 | 2025-12-13 | 4.2.1 | 🟡 Started | Added TS/Swift validation for Function Block Info (direction/bandwidth/active + reserved bits) |
 | 2025-12-13 | 4.2.4 | 🟢 Complete | Added Swift endpoint info validation + tests; TS validation already in place |

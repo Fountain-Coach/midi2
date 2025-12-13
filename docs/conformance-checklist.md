@@ -14,19 +14,16 @@ This document summarizes current implementation state against the MIDI 2.0 speci
   - Evidence: Sources/MIDI2/MidiCiProfilesBody.swift:1, Sources/MIDI2CI/ProfileSession.swift:1, Sources/MIDI2CI/CIHandshake.swift:1; tests in Tests/MIDI2Tests/ProfileSessionTests.swift:1
 - Profile Configuration Details: Partial
   - Evidence: Details replies include version and channel mask; PSD supported; added/removed helpers; demos print details.
-- Function Block discovery: Partial
-  - Evidence: Sources/MIDI2/Stream/FunctionBlockMessage.swift:1 (typed info: index/firstGroup/groupCount), Sources/MIDI2/Stream/FunctionBlockDiscovery.swift:1 (filterBitmap aggregate), Tests/MIDI2Tests/StreamFunctionBlockDiscoveryTests.swift:1 (roundtrip + errors)
-  - Gap: Descriptor details beyond index/group range; discovery/response flow semantics; profile reports.
+- Function Block discovery: Implemented
+  - Evidence: Sources/MIDI2/Stream/FunctionBlockMessage.swift:1 (direction/bandwidth/active/uiHints), Sources/MIDI2/Stream/FunctionBlockDiscovery.swift:1, Tests/MIDI2Tests/StreamFunctionBlockDiscoveryTests.swift:1 (roundtrip + errors), Tests/MIDI2Tests/StreamNegotiationTests.swift:1 (profile associations + validation)
 
 ## UMP Stream Configuration (M2-104-UM §5)
-- Endpoint Discovery (Endpoint/Device Info): Partial → Typed
+- Endpoint Discovery (Endpoint/Device Info): Implemented
   - Evidence: Sources/MIDI2/Stream/EndpointDiscoveryMessage.swift:1 (major/minor/maxGroups mapping, reserved validation), Tests/MIDI2Tests/StreamMappingTests.swift:1
-  - Gap: Device Info/advertisement content (beyond version/max groups).
-- Stream Configuration Request/Reply: Partial
-  - Evidence: Sources/MIDI2/Stream/StreamConfigurationMessage.swift:1 (typed fields + reserved-bit validation), Sources/midi2demo/StreamConfig.swift:100 (typed request/notification), Tests/MIDI2Tests/StreamReservedBitsTests.swift:1, Tests/MIDI2Tests/StreamTypedTests.swift:1
-  - Gap: GTB negotiation and additional §5 semantics.
+- Stream Configuration Request/Reply: Implemented (JR fallback + mismatch notification policy)
+  - Evidence: Sources/MIDI2/Stream/StreamConfigurationMessage.swift:1; negotiation state + mismatch reasons in Sources/MIDI2/Stream/NegotiationSession.swift:1; demo in Sources/midi2demo/StreamConfig.swift:252; tests in Tests/MIDI2Tests/StreamNegotiationTests.swift:1
 - Group Terminal Blocks (GTB): Implemented
-  - Evidence: Sources/MIDI2/Stream/GroupTerminalBlocks.swift:1; tests in Tests/MIDI2Tests/GroupTerminalBlocksTests.swift:1
+  - Evidence: Sources/MIDI2/Stream/GroupTerminalBlocks.swift:1; tests in Tests/MIDI2Tests/GroupTerminalBlocksTests.swift:1; negotiation guards in Sources/MIDI2/Stream/NegotiationSession.swift:1
 
 ## Jitter Reduction (JR)
 - JR Clock (sender): Implemented

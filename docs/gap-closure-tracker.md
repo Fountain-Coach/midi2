@@ -116,7 +116,7 @@
 ---
 
 ### Gap 4.2.2: GTB Negotiation Semantics
-**Status**: 🔴 Not Started  
+**Status**: 🟡 In Progress  
 **Priority**: High | **Effort**: 4-5 days | **Target Sprint**: 2
 
 **Spec Reference**: M2-104-UM v1.1.2, Appendix I (p.122)
@@ -124,6 +124,7 @@
 **Current State**:
 - ✅ GTB structure defined (`GroupTerminalBlocks.swift`)
 - ✅ Basic GTB tests
+- 🟡 GTB negotiation notes drafted (`docs/gtb-negotiation-notes.md`)
 - ❌ GTB-Function Block overlap logic missing
 - ❌ MT=0xF/MT=0x0 reception restrictions not enforced
 - ❌ Protocol negotiation for GTB contexts incomplete
@@ -152,7 +153,7 @@
 - Swift: `Sources/MIDI2/Stream/GroupTerminalBlocks.swift`
 - Swift: Add `Sources/MIDI2/Stream/GTBNegotiation.swift` (new)
 - Tests: `Tests/MIDI2Tests/GroupTerminalBlocksTests.swift`
-- Docs: Add GTB negotiation guide
+- Docs: Add GTB negotiation guide (notes started)
 
 **Dependencies**: Gap 4.2.1 (Function Block details)
 
@@ -565,7 +566,7 @@
 - **Low Priority**: 8
 
 ### Status Summary
-**Note**: Updated December 13, 2025 after completing Gap 4.2.1.
+- **Note**: Updated December 13, 2025 after completing Gap 4.2.1 and starting Gap 4.2.2.
 
 - 🔴 Not Started: 18 (86%)
 - 🟡 In Progress: 0 (0%)

@@ -140,6 +140,7 @@
 - 🟡 Swift negotiation session can store/apply GTB descriptor via `negotiate(gtbDescriptor:)`, seeding allowed-MT map, honoring allow-overlap flag, and enforcing on UniversalPacket
 - 🟡 Swift guard helpers for raw incoming/outgoing UMP words; TS raw-word guard (`guardUmpWordsWithGtb`)
 - 🟡 Demo runtime (`midi2device`) applies GTB ingress/egress guards and loads `docs/config/gtb.context.json` if present
+- 🟡 Negotiation state machine sketch documented; protocol wiring still pending implementation
 - 🟡 MT=0xF/MT=0x0 reception restrictions guarded; integration into runtime negotiation pending
 - ❌ Protocol negotiation for GTB contexts incomplete
 

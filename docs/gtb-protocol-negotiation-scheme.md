@@ -25,6 +25,14 @@ Target: enforce Appendix I GTB semantics without changing UMP wire format.
 - Swift: when a GTB descriptor is present, `StreamNegotiationSession` should stash the map and expose a helper to gate ingress/egress. `negotiate(gtbDescriptor:)` now validates, stores, and seeds the allowed-MT map; hook into dispatch/receive paths to call `enforceAllowedMessageType` / `guardIncoming` automatically.
 - TS: keep the GTB context map populated during negotiation; wrap decoders/dispatchers with `decodeWithGtbContext` or `applyGtbGuards` so callers don't need to pass explicit allowed sets. For raw UMP words, use `guardUmpWordsWithGtb`.
 
+## Negotiation state machine sketch (to implement)
+- **Inputs**: device descriptor (preferred) or config artifact; Function Block discovery results.
+- **Receiver init**: parse descriptor → validate vs FB layout → seed allowed MT map.
+- **On Stream Config request**: if no descriptor/context exists, permit all MTs; otherwise respond as normal but retain GTB map in session.
+- **Ingress**: every UMP path calls GTB guard (words/packets).
+- **Egress**: apply same guard before sending stream/utility MTs.
+- **Error policy**: on GTB violation, drop and optionally log/notify; do not mutate UMP payloads.
+
 ## Open items
 - Wire GTB context into runtime negotiation/session state so ingress/egress automatically invoke enforcement helpers.
 - Add PB-VRT scenarios for MT=0x0/0xF blocking by GTB.

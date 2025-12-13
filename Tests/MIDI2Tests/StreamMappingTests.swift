@@ -48,4 +48,26 @@ final class StreamMappingTests: XCTestCase {
         XCTAssertEqual(msg.data1, 0x01)
         XCTAssertEqual(msg.data2, 0xA3)
     }
+
+    func testEndpointInfoValidationAndRoundTrip() throws {
+        let msg = try EndpointInfoNotification(
+            staticFunctionBlocks: true,
+            numberOfFunctionBlocks: 0x20,
+            midi1Supported: true,
+            midi2Supported: true,
+            jrTimestampsRx: true,
+            jrTimestampsTx: false
+        )
+        let packet = msg.ump(group: Uint4(0)!)
+        let decoded = try EndpointInfoNotification(parsingUMP: packet)
+        XCTAssertEqual(decoded, msg)
+    }
+
+    func testEndpointInfoRejectsReservedBits() throws {
+        let group = Uint4(0)!
+        let status = StreamOpcode.endpointInfoNotification.rawValue
+        XCTAssertThrowsError(try EndpointInfoNotification(parsingUMP: UmpPacket32(mt: 0xF, group: group, status: status, data1: 0x41, data2: 0x00)))
+        XCTAssertThrowsError(try EndpointInfoNotification(parsingUMP: UmpPacket32(mt: 0xF, group: group, status: status, data1: 0x21, data2: 0x00)))
+        XCTAssertThrowsError(try EndpointInfoNotification(parsingUMP: UmpPacket32(mt: 0xF, group: group, status: status, data1: 0x01, data2: 0x10)))
+    }
 }

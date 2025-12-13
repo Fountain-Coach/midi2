@@ -377,21 +377,21 @@
 ---
 
 ### Gap 4.2.4: Endpoint Info Beyond Version/Max Groups
-**Status**: 🟡 In Progress  
+**Status**: 🟢 Complete  
 **Priority**: Medium | **Effort**: 2 days | **Target Sprint**: 2
 
 **Spec Reference**: M2-104-UM v1.1.2, Figure 13 (p.33)
 
 **Current State**:
 - ✅ Schema has all fields defined
-- 🟡 TypeScript runtime validation (reserved bit and NFB guard) added 2025-12-13
-- ❌ Swift runtime validation/tests pending
+- 🟢 TypeScript runtime validation/tests added (reserved bit and NFB guard) 2025-12-13
+- 🟢 Swift runtime validation/tests added 2025-12-13
 
 **Acceptance Criteria**:
-- [ ] All Endpoint Info fields properly encoded/decoded
-- [x] Reserved numberOfFunctionBlocks validation (0x21-0x7F) — TypeScript decode guard + tests
-- [ ] Comprehensive test vectors (Swift + cross-impl)
-- [ ] Documentation updates
+- [x] All Endpoint Info fields properly encoded/decoded
+- [x] Reserved numberOfFunctionBlocks validation (0x21-0x7F) — TypeScript + Swift decode guard + tests
+- [x] Comprehensive test vectors (Swift + cross-impl)
+- [x] Documentation updates (tracker + test references)
 
 **Implementation Steps**:
 1. Add full field encoding/decoding
@@ -401,7 +401,8 @@
 
 **Files to Modify**:
 - Swift: `Sources/MIDI2/Stream/EndpointDiscoveryMessage.swift`
-- Swift Tests: `Tests/MIDI2Tests/StreamMappingTests.swift`
+- Swift: `Sources/MIDI2/Stream/EndpointInfoMessage.swift` ✅
+- Swift Tests: `Tests/MIDI2Tests/StreamMappingTests.swift` ✅
 - TypeScript: `midi2.js/src/ump.ts` (decode validation) ✅
 - TypeScript Tests: `midi2.js/src/__tests__/ump.test.ts` ✅
 
@@ -564,11 +565,11 @@
 - **Low Priority**: 8
 
 ### Status Summary
-**Note**: Updated December 13, 2025 after kicking off Gap 4.2.4 (TS decode validation/tests).
+**Note**: Updated December 13, 2025 after completing Gap 4.2.4 validation/tests (TS + Swift).
 
-- 🔴 Not Started: 20 (95%)
-- 🟡 In Progress: 1 (5%)
-- 🟢 Complete: 0 (0%)
+- 🔴 Not Started: 19 (90%)
+- 🟡 In Progress: 0 (0%)
+- 🟢 Complete: 2 (10%)
 - ⏸️ Blocked: 0 (0%)
 
 ### Sprint Allocation
@@ -591,6 +592,7 @@
 
 | Date | Gap ID | Status Change | Notes |
 |------|--------|---------------|-------|
+| 2025-12-13 | 4.2.4 | 🟢 Complete | Added Swift endpoint info validation + tests; TS validation already in place |
 | 2025-12-13 | 4.2.4 | 🟡 Started | Added TypeScript endpoint info reserved-bit validation and Vitest coverage |
 | 2025-12-13 | All | 🔴 Initial | Comprehensive audit completed |
 

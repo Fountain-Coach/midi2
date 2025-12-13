@@ -34,6 +34,7 @@ public struct MidiCiProfilesBody: Equatable {
                 target: Target? = nil,
                 channels: [Uint4]? = nil,
                 details: [String: UInt8]? = nil) {
+        precondition(!profileId.isEmpty, "profileId must not be empty")
         self.command = command
         self.profileId = profileId
         self.target = target

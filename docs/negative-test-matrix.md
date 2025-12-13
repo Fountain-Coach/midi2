@@ -15,6 +15,7 @@
 | MIDI-CI Process Inquiry | M2-101-UM v1.2 | Invalid command byte; length overrun | Rejected (Swift throwing validator) |
 | MIDI-CI Profiles Details | M2-102-U v1.1 Table 6 | Missing profileId in details inquiry; unsupported setOn | Rejected (Swift replies disabled/empty) |
 | Flex – Reserved status class | Flex spec | Status class ≠ 0x10 | Rejected (Swift + TS) |
+| MIDI 1 Ch Voice – Data bounds | MIDI 1.0 | Data bytes >0x7F, invalid statuses | Rejected (Swift + TS) |
 
 ## Next Targets
 - SysEx8/SysEx7 reserved/oversize edge cases (already partially covered; add matrix entries).

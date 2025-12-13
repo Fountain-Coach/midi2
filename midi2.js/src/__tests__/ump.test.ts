@@ -385,6 +385,21 @@ describe("Stream messages", () => {
     });
   });
 
+  it("rejects endpoint info with reserved number of function blocks", () => {
+    const words = new Uint32Array([0xf0012100]); // nfb=0x21 (reserved)
+    expect(() => decodeUmp(words)).toThrow(RangeError);
+  });
+
+  it("rejects endpoint info with reserved byte2 flag", () => {
+    const words = new Uint32Array([0xf0014000]); // reserved bit 0x40 set
+    expect(() => decodeUmp(words)).toThrow(RangeError);
+  });
+
+  it("rejects endpoint info with reserved capability bits", () => {
+    const words = new Uint32Array([0xf0010010]); // reserved bit set in capability flags
+    expect(() => decodeUmp(words)).toThrow(RangeError);
+  });
+
   it("encodes and decodes device identity", () => {
     const evt: StreamEvent = {
       kind: "stream",
@@ -440,20 +455,25 @@ describe("Stream messages", () => {
 
   it("decodes basic MDS chunk", () => {
     const words = new Uint32Array([
-      0x50800000, // mt=5, status=0x8 header
-      0x12340000, // messageId=0x1234
-      0x00020000, // totalChunks=2
-      0x00000000,
-      0x50900401, // payload status=0x9, validByteCount=4, index=1
+      0x50841104, // mt=5, status=0x8 header, mdsId=0x11, validByteCount=4
+      0x00020001, // totalChunks=2, chunkIndex=1
+      0x12345678, // manufacturerId=0x1234, deviceId=0x5678
+      0x9abcdef0, // subId1=0x9abc, subId2=0xdef0
+      0x50941100, // payload status=0x9, byteCount=4, mdsId=0x11
       0x01020304,
       0x00000000,
       0x00000000,
     ]);
     const decoded = decodeUmp(words) as any;
     expect(decoded?.kind).toBe("mds");
-    expect(decoded?.messageId).toBe(0x1234);
+    expect(decoded?.messageId).toBe(0x11);
     expect(decoded?.totalChunks).toBe(2);
+    expect(decoded?.chunks?.[0]?.index).toBe(1);
     expect(decoded?.chunks?.[0]?.validByteCount).toBe(4);
+    expect(decoded?.chunks?.[0]?.manufacturerId).toBe(0x1234);
+    expect(decoded?.chunks?.[0]?.deviceId).toBe(0x5678);
+    expect(decoded?.chunks?.[0]?.subId1).toBe(0x9abc);
+    expect(decoded?.chunks?.[0]?.subId2).toBe(0xdef0);
     expect(Array.from(decoded?.chunks?.[0]?.payload ?? [])).toEqual([1, 2, 3, 4]);
   });
 

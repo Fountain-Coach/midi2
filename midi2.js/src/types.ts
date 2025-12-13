@@ -128,6 +128,10 @@ export interface MdsChunk {
   index: number;
   validByteCount: number;
   payload: Uint8Array;
+  manufacturerId?: number;
+  deviceId?: number;
+  subId1?: number;
+  subId2?: number;
 }
 
 export interface MdsEvent {

@@ -377,20 +377,20 @@
 ---
 
 ### Gap 4.2.4: Endpoint Info Beyond Version/Max Groups
-**Status**: 🔴 Not Started  
+**Status**: 🟡 In Progress  
 **Priority**: Medium | **Effort**: 2 days | **Target Sprint**: 2
 
 **Spec Reference**: M2-104-UM v1.1.2, Figure 13 (p.33)
 
 **Current State**:
 - ✅ Schema has all fields defined
-- ❌ Runtime validation incomplete
-- ❌ Reserved value checking missing
+- 🟡 TypeScript runtime validation (reserved bit and NFB guard) added 2025-12-13
+- ❌ Swift runtime validation/tests pending
 
 **Acceptance Criteria**:
 - [ ] All Endpoint Info fields properly encoded/decoded
-- [ ] Reserved numberOfFunctionBlocks validation (0x21-0x7F)
-- [ ] Comprehensive test vectors
+- [x] Reserved numberOfFunctionBlocks validation (0x21-0x7F) — TypeScript decode guard + tests
+- [ ] Comprehensive test vectors (Swift + cross-impl)
 - [ ] Documentation updates
 
 **Implementation Steps**:
@@ -401,7 +401,9 @@
 
 **Files to Modify**:
 - Swift: `Sources/MIDI2/Stream/EndpointDiscoveryMessage.swift`
-- Tests: `Tests/MIDI2Tests/StreamMappingTests.swift`
+- Swift Tests: `Tests/MIDI2Tests/StreamMappingTests.swift`
+- TypeScript: `midi2.js/src/ump.ts` (decode validation) ✅
+- TypeScript Tests: `midi2.js/src/__tests__/ump.test.ts` ✅
 
 **Dependencies**: None
 
@@ -562,10 +564,10 @@
 - **Low Priority**: 8
 
 ### Status Summary
-**Note**: This represents the baseline state as of December 13, 2025. Update this section as work progresses.
+**Note**: Updated December 13, 2025 after kicking off Gap 4.2.4 (TS decode validation/tests).
 
-- 🔴 Not Started: 21 (100%)
-- 🟡 In Progress: 0 (0%)
+- 🔴 Not Started: 20 (95%)
+- 🟡 In Progress: 1 (5%)
 - 🟢 Complete: 0 (0%)
 - ⏸️ Blocked: 0 (0%)
 
@@ -589,6 +591,7 @@
 
 | Date | Gap ID | Status Change | Notes |
 |------|--------|---------------|-------|
+| 2025-12-13 | 4.2.4 | 🟡 Started | Added TypeScript endpoint info reserved-bit validation and Vitest coverage |
 | 2025-12-13 | All | 🔴 Initial | Comprehensive audit completed |
 
 ---

@@ -825,6 +825,10 @@ function schemaPacketToEventInternal(packet: unknown): Midi2Event | null {
           index: c.index ?? 0,
           validByteCount: c.validByteCount ?? (c.payload?.length ?? 0),
           payload: Uint8Array.from(c.payload ?? []),
+          manufacturerId: c.manufacturerId,
+          deviceId: c.deviceId,
+          subId1: c.subId1,
+          subId2: c.subId2,
         })),
       } as MdsEvent;
     }

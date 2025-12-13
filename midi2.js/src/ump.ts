@@ -18,6 +18,7 @@ import {
   RawUMPEvent,
   SysEx7Event,
   SysEx8Event,
+  MdsChunk,
   MdsEvent,
   MidiCiEvent,
   Midi2SystemEvent,
@@ -349,11 +350,20 @@ function decodeStream(words: Uint32Array, timestamp?: number): StreamEvent {
 
   if (opcodeByte === STREAM_OPCODE_ENDPOINT_INFO) {
     const staticFunctionBlocks = (byte2 & 0x80) !== 0;
+    if ((byte2 & 0x40) !== 0) {
+      throw new RangeError("Endpoint info has reserved bit set.");
+    }
     const numberOfFunctionBlocks = byte2 & 0x3f;
+    if (numberOfFunctionBlocks > 0x20) {
+      throw new RangeError("Endpoint info uses reserved numberOfFunctionBlocks value.");
+    }
     const midi1Supported = (byte3 & 0x01) !== 0;
     const midi2Supported = (byte3 & 0x02) !== 0;
     const jrTimestampsRx = (byte3 & 0x04) !== 0;
     const jrTimestampsTx = (byte3 & 0x08) !== 0;
+    if ((byte3 & 0xf0) !== 0) {
+      throw new RangeError("Endpoint info has reserved capability bits set.");
+    }
     return {
       kind: "stream",
       group,
@@ -904,25 +914,51 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     if (statusNibble === DATA_STATUS_MDS_HEADER || statusNibble === DATA_STATUS_MDS_PAYLOAD) {
       // interpret as MDS
       if (packet.length < 4) return null;
-      const header = packet.subarray(0, 4);
-      const messageId = (header[1] >>> 16) & 0xffff;
-      const totalChunks = (header[2] >>> 16) & 0xffff;
-      const chunks: MdsEvent["chunks"] = [];
+      const headerStatus = (packet[0] >>> 20) & 0xf;
+      if (headerStatus !== DATA_STATUS_MDS_HEADER) {
+        return { kind: "rawUMP", words: packet, timestamp } as RawUMPEvent;
+      }
+      const group = (packet[0] >>> 24) & 0x0f;
+      const mdsId = (packet[0] >>> 8) & 0xff;
+      const headerValidBytes = packet[0] & 0xff;
+      const totalChunks = (packet[1] >>> 16) & 0xffff;
+      const chunkIndex = packet[1] & 0xffff;
+      const manufacturerId = (packet[2] >>> 16) & 0xffff;
+      const deviceId = packet[2] & 0xffff;
+      const subId1 = (packet[3] >>> 16) & 0xffff;
+      const subId2 = packet[3] & 0xffff;
+
+      const payloadParts: number[] = [];
       for (let i = 4; i + 3 < packet.length; i += 4) {
         const w0 = packet[i] >>> 0;
         const status = (w0 >>> 20) & 0xf;
         if (status !== DATA_STATUS_MDS_PAYLOAD) continue;
-        const chunkIndex = w0 & 0x0f;
-        const validByteCount = (w0 >>> 8) & 0xff;
+        const payloadMdsId = (w0 >>> 8) & 0xff;
+        if (payloadMdsId !== mdsId) continue;
+        const byteCount = (w0 >>> 16) & 0x0f;
         const payloadBytes = new Uint8Array(12);
         const dv = new DataView(payloadBytes.buffer);
         dv.setUint32(0, packet[i + 1] >>> 0, false);
         dv.setUint32(4, packet[i + 2] >>> 0, false);
         dv.setUint32(8, packet[i + 3] >>> 0, false);
-        const payload = payloadBytes.slice(0, Math.min(validByteCount, 12));
-        chunks.push({ messageId, totalChunks, index: chunkIndex, validByteCount, payload });
+        const bytesToTake = byteCount > 0 ? Math.min(byteCount, payloadBytes.length) : payloadBytes.length;
+        payloadParts.push(...payloadBytes.slice(0, bytesToTake));
       }
-      const evt: MdsEvent = { kind: "mds", group: (word0 >>> 24) & 0x0f, messageId, totalChunks, chunks, timestamp };
+
+      const validByteCount = headerValidBytes || payloadParts.length;
+      const chunkPayload = Uint8Array.from(payloadParts).slice(0, validByteCount);
+      const chunk: MdsChunk = {
+        messageId: mdsId,
+        totalChunks,
+        index: chunkIndex,
+        validByteCount,
+        payload: chunkPayload,
+        manufacturerId,
+        deviceId,
+        subId1,
+        subId2,
+      };
+      const evt: MdsEvent = { kind: "mds", group, messageId: mdsId, totalChunks, chunks: [chunk], timestamp };
       return evt;
     }
     const packets: Uint32Array[] = [];

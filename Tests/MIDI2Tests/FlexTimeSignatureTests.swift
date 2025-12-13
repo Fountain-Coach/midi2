@@ -4,7 +4,7 @@ import XCTest
 final class FlexTimeSignatureTests: XCTestCase {
     func testRoundTrip() {
         let addr = FlexTimeSignature.Address.group(Uint4(2)!)
-        let msg = FlexTimeSignature(address: addr, numerator: 3, denominatorPow2: 2)
+        let msg = try! FlexTimeSignature(address: addr, numerator: 3, denominatorPow2: 2)
         let packet = msg.encode()
         XCTAssertEqual(FlexTimeSignature.decode(packet), msg)
     }

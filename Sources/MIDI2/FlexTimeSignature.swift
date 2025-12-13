@@ -16,8 +16,13 @@ public struct FlexTimeSignature: Equatable {
     public var denominatorPow2: UInt8
 
     /// Creates a time signature message.
-    public init(address: Address, numerator: UInt8, denominatorPow2: UInt8) {
-        precondition(numerator >= 1, "numerator must be at least 1")
+    public init(address: Address, numerator: UInt8, denominatorPow2: UInt8) throws {
+        guard numerator >= 1 else {
+            throw MIDIError.valueOutOfRange(name: "numerator", value: UInt64(numerator), range: 1...UInt64.max)
+        }
+        guard denominatorPow2 <= 0x1F else {
+            throw MIDIError.valueOutOfRange(name: "denominatorPow2", value: UInt64(denominatorPow2), range: 0...0x1F)
+        }
         self.address = address
         self.numerator = numerator
         self.denominatorPow2 = denominatorPow2
@@ -69,8 +74,7 @@ public struct FlexTimeSignature: Equatable {
 
         let numerator = UInt8((packet.word1 >> 24) & 0xFF)
         let denom = UInt8((packet.word1 >> 16) & 0xFF)
-        guard numerator >= 1 else { return nil }
-        return FlexTimeSignature(address: address, numerator: numerator, denominatorPow2: denom)
+        guard let decoded = try? FlexTimeSignature(address: address, numerator: numerator, denominatorPow2: denom) else { return nil }
+        return decoded
     }
 }
-

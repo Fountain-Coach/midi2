@@ -1132,6 +1132,9 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   if (mt === MIDI1_CHANNEL_VOICE_MT) {
     const group = (word0 >>> 24) & 0xf;
     const status = (word0 >>> 16) & 0xff;
+    if (status < 0x80 || status > 0xef) {
+      throw new RangeError("Invalid MIDI 1.0 channel voice status");
+    }
     const data1 = (word0 >>> 8) & 0xff;
     const data2 = word0 & 0xff;
     const event: Midi1ChannelVoiceEvent = {

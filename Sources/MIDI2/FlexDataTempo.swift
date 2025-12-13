@@ -2,8 +2,10 @@
 public struct FlexDataTempo: Equatable {
     public var beatsPerMinute: Double
 
-    public init(beatsPerMinute: Double) {
-        precondition(beatsPerMinute >= 1, "Tempo must be at least 1 BPM")
+    public init(beatsPerMinute: Double) throws {
+        guard beatsPerMinute >= 1 else {
+            throw MIDIError.valueOutOfRange(name: "beatsPerMinute", value: UInt64(beatsPerMinute), range: 1...UInt64.max)
+        }
         self.beatsPerMinute = beatsPerMinute
     }
 
@@ -29,6 +31,6 @@ public struct FlexDataTempo: Equatable {
               UInt8((packet.word0 >> 16) & 0xFF) == statusClass,
               UInt8((packet.word0 >> 8) & 0xFF) == status else { return nil }
         let bpm = Double(packet.word1) / scale
-        return FlexDataTempo(beatsPerMinute: bpm)
+        return try? FlexDataTempo(beatsPerMinute: bpm)
     }
 }

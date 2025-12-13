@@ -36,4 +36,10 @@ describe("negative decode coverage (reserved/invalid values)", () => {
     const word0 = (0x0 << 28) | (0x0 << 24) | (0x7f << 16);
     expect(decode([word0])).toThrow(RangeError);
   });
+
+  it("rejects MIDI 1 channel voice with invalid status byte", () => {
+    // status 0x70 is below MIDI1 channel voice range
+    const word0 = (0x2 << 28) | (0x0 << 24) | (0x70 << 16);
+    expect(decode([word0])).toThrow(RangeError);
+  });
 });

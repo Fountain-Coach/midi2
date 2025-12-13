@@ -3,7 +3,7 @@ import XCTest
 
 final class FlexDataTempoTests: XCTestCase {
     func testRoundTrip() {
-        let original = FlexDataTempo(beatsPerMinute: 123.456)
+        let original = try! FlexDataTempo(beatsPerMinute: 123.456)
         let packet = original.encode(group: 2)
         let decoded = FlexDataTempo.decode(packet)
         XCTAssertNotNil(decoded)
@@ -13,7 +13,7 @@ final class FlexDataTempoTests: XCTestCase {
     }
 
     func testSemanticEncoding() {
-        let tempo = FlexDataTempo(beatsPerMinute: 120)
+        let tempo = try! FlexDataTempo(beatsPerMinute: 120)
         let packet = tempo.encode()
         XCTAssertEqual(packet.word1, 0x00780000)
         guard let decoded = FlexDataTempo.decode(packet) else { return XCTFail("decode failed") }

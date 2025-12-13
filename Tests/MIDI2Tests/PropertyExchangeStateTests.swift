@@ -13,7 +13,8 @@ final class PropertyExchangeStateTests: XCTestCase {
         let subReplies = session.handle(subReq)
         XCTAssertEqual(subReplies.count, 1)
         XCTAssertEqual(subReplies.first?.command, .subscribeReply)
-        XCTAssertEqual(subReplies.first?.header["ok"], "1")
+        XCTAssertEqual(subReplies.first?.header["status"], "200")
+        XCTAssertEqual(subReplies.first?.header["subscriptionCommand"], "start")
 
         // Set new value, expect setReply + notify
         let newValue = Array("Grand Piano".utf8)
@@ -52,4 +53,3 @@ final class PropertyExchangeStateTests: XCTestCase {
         XCTAssertEqual(setReplies.first?.command, .setReply)
     }
 }
-

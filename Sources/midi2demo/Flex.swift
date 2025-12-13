@@ -40,7 +40,7 @@ extension Flex {
             guard bpm >= 1 else {
                 throw ValidationError("Tempo must be at least 1 BPM")
             }
-            let tempo = FlexDataTempo(beatsPerMinute: bpm)
+            let tempo = try FlexDataTempo(beatsPerMinute: bpm)
             let packet = tempo.encode(group: g.rawValue)
             print(String(format: "UMP: 0x%08X 0x%08X 0x%08X 0x%08X",
                          packet.word0, packet.word1, packet.word2, packet.word3))
@@ -86,7 +86,7 @@ extension Flex {
                 throw ValidationError("Denominator must be power of two")
             }
             let denomPow2 = UInt8(log2(Double(denominator)))
-            let msg = FlexTimeSignature(address: address, numerator: numerator, denominatorPow2: denomPow2)
+            let msg = try FlexTimeSignature(address: address, numerator: numerator, denominatorPow2: denomPow2)
             let packet = msg.encode()
             print(String(format: "UMP: 0x%08X 0x%08X 0x%08X 0x%08X",
                          packet.word0, packet.word1, packet.word2, packet.word3))
@@ -236,4 +236,3 @@ extension Flex {
         }
     }
 }
-

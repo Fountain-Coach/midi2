@@ -46,28 +46,38 @@ public struct MidiCiProcessInquiryBody: Equatable {
     }
 
     public init(sysEx7Bytes bytes: [UInt8]) {
-        let cmd = Command(rawValue: bytes.first ?? 0) ?? .capInquiry
-        self.command = cmd
-        let len = Int(bytes.dropFirst().first ?? 0)
-        if len > 0 {
-            let slice = bytes.dropFirst(2).prefix(len)
-            let data = Data(slice)
-            self.filters = (try? JSONSerialization.jsonObject(with: data)) as? [String: UInt8]
-        } else {
-            self.filters = nil
-        }
+        self = (try? MidiCiProcessInquiryBody(validatingSysEx7Bytes: bytes)) ?? MidiCiProcessInquiryBody(command: .capInquiry, filters: nil)
     }
 
     public init(sysEx8Bytes bytes: [UInt8]) {
-        let cmd = Command(rawValue: bytes.first ?? 0) ?? .capInquiry
-        self.command = cmd
+        self = (try? MidiCiProcessInquiryBody(validatingSysEx8Bytes: bytes)) ?? MidiCiProcessInquiryBody(command: .capInquiry, filters: nil)
+    }
+
+    public init(validatingSysEx7Bytes bytes: [UInt8]) throws {
+        try self.init(validatingBytes: bytes, sevenBit: true)
+    }
+
+    public init(validatingSysEx8Bytes bytes: [UInt8]) throws {
+        try self.init(validatingBytes: bytes, sevenBit: false)
+    }
+
+    private init(validatingBytes bytes: [UInt8], sevenBit: Bool) throws {
+        guard let cmd = Command(rawValue: bytes.first ?? 0) else {
+            throw MIDIError.malformedPacket("invalid Process Inquiry command")
+        }
         let len = Int(bytes.dropFirst().first ?? 0)
-        if len > 0 {
-            let slice = bytes.dropFirst(2).prefix(len)
-            let data = Data(slice)
+        guard bytes.count >= 2 + len else {
+            throw MIDIError.malformedPacket("invalid Process Inquiry length")
+        }
+        let payload = bytes.dropFirst(2).prefix(len)
+        if sevenBit {
+            let sanitized = payload.map { $0 & 0x7F }
+            let data = Data(sanitized)
             self.filters = (try? JSONSerialization.jsonObject(with: data)) as? [String: UInt8]
         } else {
-            self.filters = nil
+            let data = Data(payload)
+            self.filters = (try? JSONSerialization.jsonObject(with: data)) as? [String: UInt8]
         }
+        self.command = cmd
     }
 }

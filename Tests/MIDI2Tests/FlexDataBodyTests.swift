@@ -3,7 +3,7 @@ import XCTest
 
 final class FlexDataBodyTests: XCTestCase {
     func testDecodeTempo() {
-        let tempo = FlexDataTempo(beatsPerMinute: 90)
+        let tempo = try! FlexDataTempo(beatsPerMinute: 90)
         let pkt = tempo.encode()
         XCTAssertEqual(FlexDataBody(packet: pkt), .tempo(tempo))
     }

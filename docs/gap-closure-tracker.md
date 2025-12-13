@@ -74,7 +74,7 @@
 - ✅ Basic fields (index, firstGroup, groupCount)
 - 🟡 TypeScript decode validation for active/direction/midi1Bandwidth + reserved bits (2025-12-13)
 - 🟡 Swift typed `FunctionBlockInfoNotification` (64-bit) with direction/bandwidth/active/uiHints validation + GroupTerminalBlocks round-trip (2025-12-13)
-- ❌ UI hints not captured
+- ✅ UI hints captured (TS + Swift, schema bridge)
 - ❌ Discovery/response flow semantics incomplete
 
 **Acceptance Criteria**:

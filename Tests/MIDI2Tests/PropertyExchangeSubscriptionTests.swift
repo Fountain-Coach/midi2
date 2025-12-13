@@ -21,6 +21,9 @@ final class PropertyExchangeSubscriptionTests: XCTestCase {
         XCTAssertFalse(replies.isEmpty)
         let ackStatus = try XCTUnwrap(replies.first?.header["status"])
         XCTAssertEqual(ackStatus, "17")
+        // Timeout should emit NAK for next expected chunk
+        let naks = session.collectSubscriptionTimeouts(now: Date().addingTimeInterval(2), timeout: 0.5)
+        XCTAssertEqual(naks.first?.header["status"], "18")
         // Out-of-order chunk should NAK
         replies = session.handle(body(.notify, header: ["subscriptionId": "sub1", "subscriptionCommand": "notify", "flowControl": "true", "length": "4", "chunkNumber": "5"]))
         XCTAssertEqual(replies.first?.header["status"], "18")
@@ -41,5 +44,8 @@ final class PropertyExchangeSubscriptionTests: XCTestCase {
         XCTAssertFalse(replies.isEmpty)
         let orderStatus = try XCTUnwrap(replies.first?.header["status"])
         XCTAssertEqual(orderStatus, "409")
+        // Resource mismatch
+        replies = session.handle(body(.notify, header: ["subscriptionId": "sub2", "subscriptionCommand": "notify", "resource": "foo"]))
+        XCTAssertEqual(replies.first?.header["status"], "409")
     }
 }

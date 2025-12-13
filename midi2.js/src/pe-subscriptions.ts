@@ -10,6 +10,8 @@ type SubscriptionState = {
   flowControl: boolean;
   stage: SubscriptionStage;
   lastChunkNumber: number;
+  resource?: string;
+  lastActivityMs: number;
 };
 
 type SubscriptionStage = "start" | "partial" | "full" | "active";
@@ -140,6 +142,7 @@ export class PeSubscriptionManager {
       return { kind: "error", status: 400, message: "missing subscriptionId" };
     }
     const sub = this.subs.get(id);
+    const resource = (event.header as any)?.resource ?? (event.header as any)?.res;
     switch (event.subscriptionCommand) {
       case "start": {
         const state: SubscriptionState = {
@@ -148,6 +151,8 @@ export class PeSubscriptionManager {
           flowControl: Boolean(event.header?.flowControl),
           stage: "start",
           lastChunkNumber: -1,
+          resource,
+          lastActivityMs: Date.now(),
         };
         this.subs.set(id, state);
         return {
@@ -165,12 +170,14 @@ export class PeSubscriptionManager {
       case "partial": {
         if (!sub) return { kind: "error", status: 404, message: "subscription not found" };
         sub.stage = "partial";
+        sub.lastActivityMs = Date.now();
         this.subs.set(id, sub);
         return null;
       }
       case "full": {
         if (!sub) return { kind: "error", status: 404, message: "subscription not found" };
         sub.stage = "full";
+        sub.lastActivityMs = Date.now();
         this.subs.set(id, sub);
         return {
           kind: "reply",
@@ -188,6 +195,9 @@ export class PeSubscriptionManager {
         if (!sub) {
           return { kind: "reply", event: { kind: "propertyExchange", group: event.group, command: "notify", header: { status: 404 } } };
         }
+        if (sub.resource && resource && sub.resource !== resource) {
+          return { kind: "reply", event: { kind: "propertyExchange", group: event.group, command: "notify", header: { status: 409 } } };
+        }
         if (sub.stage !== "full" && sub.stage !== "active") {
           return { kind: "reply", event: { kind: "propertyExchange", group: event.group, command: "notify", header: { status: 409 } } };
         }
@@ -196,6 +206,7 @@ export class PeSubscriptionManager {
         if (sub.flowControl && event.header?.flowControl) {
           if (chunkNumber !== sub.lastChunkNumber + 1) {
             sub.lastChunkNumber = chunkNumber;
+            sub.lastActivityMs = Date.now();
             this.subs.set(id, sub);
             return {
               kind: "reply",
@@ -212,6 +223,7 @@ export class PeSubscriptionManager {
           }
           sub.lastChunkNumber = chunkNumber;
         }
+        sub.lastActivityMs = Date.now();
         this.subs.set(id, sub);
         if (sub.flowControl && event.header?.flowControl) {
           return {
@@ -248,5 +260,29 @@ export class PeSubscriptionManager {
       default:
         return { kind: "error", status: 400, message: "unknown subscriptionCommand" };
     }
+  }
+
+  /**
+   * Emit NAKs for subscriptions whose flow-control ACK window has timed out.
+   * Returns PropertyExchangeEvents to send; caller controls timing.
+   */
+  collectTimeouts(nowMs = Date.now(), timeoutMs = 1000): PropertyExchangeEvent[] {
+    const out: PropertyExchangeEvent[] = [];
+    for (const [id, sub] of this.subs) {
+      if (!sub.flowControl || sub.stage !== "active") continue;
+      if (nowMs - sub.lastActivityMs >= timeoutMs) {
+        const expectedChunk = sub.lastChunkNumber + 1;
+        out.push({
+          kind: "propertyExchange",
+          group: 0,
+          command: "notify",
+          subscriptionId: id,
+          flowControlNak: { status: 18, chunkNumber: expectedChunk },
+        });
+        // keep state so retry can proceed
+        this.subs.set(id, { ...sub, lastActivityMs: nowMs });
+      }
+    }
+    return out;
   }
 }

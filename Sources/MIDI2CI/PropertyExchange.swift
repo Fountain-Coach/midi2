@@ -225,11 +225,11 @@ public enum PropertyExchangeBuilder {
 
 // MARK: - Session handling for Set / Subscribe / Notify
 
-/// Minimal in-memory Property Exchange session.
-/// Manages a property store, subscriptions by resource, and produces replies.
-public final class PropertyExchangeSession {
-    public var store: [String: [UInt8]]
-    private let subscriptionManager = PropertyExchangeSubscriptionManager()
+    /// Minimal in-memory Property Exchange session.
+    /// Manages a property store, subscriptions by resource, and produces replies.
+    public final class PropertyExchangeSession {
+        public var store: [String: [UInt8]]
+        private let subscriptionManager = PropertyExchangeSubscriptionManager()
     private var notifySeq: Int = 0
     public var maxDataPerMessage: Int
     private let setAllowed: (String, [UInt8]) -> Bool
@@ -249,6 +249,11 @@ public final class PropertyExchangeSession {
         self.store = initialStore
         self.maxDataPerMessage = max(1, maxDataPerMessage)
         self.setAllowed = setAllowed
+    }
+
+    /// Emit flow-control NAKs for stalled subscriptions (if any).
+    public func collectSubscriptionTimeouts(now: Date = Date(), timeout: TimeInterval = 1.0) -> [MidiCiPropertyExchangeBody] {
+        subscriptionManager.collectTimeouts(now: now, timeout: timeout)
     }
 
     /// Handle a single request and return zero or more reply/notify messages.
@@ -399,14 +404,36 @@ private final class PropertyExchangeSubscriptionManager {
         var stage: Stage
         var flowControl: Bool
         var lastChunk: Int
+        var resource: String?
+        var lastActivity: Date
     }
 
     private var subs: [String: Subscription] = [:]
 
     /// Convenience helper for state check used by notify senders.
-    func isActive(resource _: String) -> Bool {
-        // Resource-level subscriptions could be added later; for now return true if any subscription exists.
-        !subs.isEmpty
+    func isActive(resource: String) -> Bool {
+        subs.values.contains(where: { $0.resource == nil || $0.resource == resource })
+    }
+
+    /// Emit NAKs when flow-control chunks are stalled beyond timeout.
+    func collectTimeouts(now: Date = Date(), timeout: TimeInterval = 1.0) -> [MidiCiPropertyExchangeBody] {
+        var out: [MidiCiPropertyExchangeBody] = []
+        for (id, sub) in subs {
+            guard sub.flowControl, sub.stage == .active else { continue }
+            if now.timeIntervalSince(sub.lastActivity) >= timeout {
+                let chunkNumber = sub.lastChunk + 1
+                let dummy = MidiCiPropertyExchangeBody(command: .notify,
+                                                       requestId: 0,
+                                                       encoding: .json,
+                                                       header: ["subscriptionId": id, "chunkNumber": String(chunkNumber)],
+                                                       data: [])
+                out.append(flowControlNak(for: dummy, chunkNumber: chunkNumber))
+                var updated = sub
+                updated.lastActivity = now
+                subs[id] = updated
+            }
+        }
+        return out
     }
 
     func handle(_ req: MidiCiPropertyExchangeBody) -> [MidiCiPropertyExchangeBody] {
@@ -416,33 +443,41 @@ private final class PropertyExchangeSubscriptionManager {
             return [reply(command: .subscribeReply, req: req, status: 400, extra: ["msg": "missing subscriptionId"])]
         }
         let subCmd = req.header["subscriptionCommand"] ?? (cmd == .subscribe ? "start" : cmd == .terminate ? "end" : nil)
+        let resource = req.header["res"] ?? req.header["resource"]
         switch subCmd {
         case "start":
             let wantsFC = (req.header["flowControl"] == "true")
-            subs[subId] = Subscription(id: subId, stage: .start, flowControl: wantsFC, lastChunk: -1)
+            subs[subId] = Subscription(id: subId, stage: .start, flowControl: wantsFC, lastChunk: -1, resource: resource, lastActivity: Date())
             return [reply(command: .subscribeReply, req: req, status: 200, extra: ["subscriptionCommand": "start", "flowControl": wantsFC ? "true" : "false"])]
         case "partial":
             guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }
             s.stage = .partial
+            s.lastActivity = Date()
             subs[subId] = s
             return []
         case "full":
             guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }
             s.stage = .full
+            s.lastActivity = Date()
             subs[subId] = s
             return [reply(command: .subscribeReply, req: req, status: 200, extra: ["subscriptionCommand": "full"])]
         case "notify":
             guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }
+            if let res = resource, let subRes = s.resource, res != subRes {
+                return [reply(command: .notify, req: req, status: 409)]
+            }
             guard s.stage == .full || s.stage == .active else { return [reply(command: .notify, req: req, status: 409)] }
             s.stage = .active
             if s.flowControl, let chunkStr = req.header["chunkNumber"], let chunk = Int(chunkStr) {
                 if chunk != s.lastChunk + 1 {
                     s.lastChunk = chunk
+                    s.lastActivity = Date()
                     subs[subId] = s
                     return [flowControlNak(for: req, chunkNumber: chunk)]
                 }
                 s.lastChunk = chunk
             }
+            s.lastActivity = Date()
             subs[subId] = s
             if s.flowControl, let lengthStr = req.header["length"], let len = Int(lengthStr) {
                 return [flowControlAck(for: req, length: len)]
@@ -494,4 +529,5 @@ private final class PropertyExchangeSubscriptionManager {
                                           header: hdr,
                                           data: [])
     }
+
 }

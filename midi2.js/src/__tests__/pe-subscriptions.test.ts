@@ -47,4 +47,16 @@ describe("PeSubscriptionManager", () => {
     const out = mgr.process(pe({ command: "notify", subscriptionCommand: "notify", subscriptionId: "missing" }));
     expect(out[0]?.header?.status).toBe(404);
   });
+
+  it("rejects resource mismatch and emits timeout NAKs", () => {
+    const mgr = new PeSubscriptionManager({ supportsFlowControl: true });
+    mgr.process(pe({ command: "subscribe", subscriptionCommand: "start", subscriptionId: "subX", header: { resource: "resA", flowControl: true } }));
+    mgr.process(pe({ command: "notify", subscriptionCommand: "full", subscriptionId: "subX", header: { resource: "resA" } }));
+    mgr.process(pe({ command: "notify", subscriptionCommand: "notify", subscriptionId: "subX", header: { resource: "resA", flowControl: true, chunkNumber: 0 }, data: new Uint8Array([1]) }));
+    const mismatch = mgr.process(pe({ command: "notify", subscriptionCommand: "notify", subscriptionId: "subX", header: { resource: "resB" } }));
+    expect(mismatch[0]?.header?.status).toBe(409);
+    // simulate timeout
+    const nakEvents = mgr.collectTimeouts(Date.now() + 2000, 1);
+    expect(nakEvents[0]?.flowControlNak?.status).toBe(18);
+  });
 });

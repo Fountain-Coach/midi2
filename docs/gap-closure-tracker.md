@@ -28,10 +28,9 @@
 
 **Current State**:
 - ✅ Schema fields captured (`MidiCiPropertyExchangeBody.subscriptionCommand`)
-- 🟡 TypeScript subscription manager models start/partial/full/notify/end lifecycle with flow-control ACKs and tests
-- 🟡 Swift subscription manager added (PropertyExchangeSession) handling start/partial/full/notify/end and flow-control ACKs; basic tests added
-- ❌ Flow-control NAK handlers missing (Swift + TS)
-- ❌ ACK timeout / retransmit handling missing
+- 🟡 TypeScript subscription manager models start/partial/full/notify/end lifecycle with flow-control ACK/NAK, resource checks, timeout NAKs, and tests
+- 🟡 Swift subscription manager added (PropertyExchangeSession) handling start/partial/full/notify/end with flow-control ACK/NAK, resource checks, and timeout NAKs; tests added
+- ❌ ACK timeout / retransmit policy beyond timeout NAK (both implementations)
 
 **Acceptance Criteria**:
 - [ ] Subscription state machine implemented (start → partial → full → notify → end)

@@ -1,4 +1,4 @@
 {
-  "word": "0xF01101A3",
-  "fields": {"opcode": "functionBlockInfoNotification", "index": 1, "firstGroup": 10, "groupCount": 3}
+  "words": ["0xF01101A3", "0x80030255"],
+  "fields": {"opcode": "functionBlockInfoNotification", "index": 1, "firstGroup": 10, "groupCount": 3, "active": true, "direction": 3, "midi1Bandwidth": 2, "uiHints": 85}
 }

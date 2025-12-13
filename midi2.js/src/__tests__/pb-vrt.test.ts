@@ -51,12 +51,12 @@ describe("PB-VRT golden vectors", () => {
 
   it("decodes function block info and discovery", () => {
     const info = loadJSON("stream/function_block_info.json");
-    const infoWords = new Uint32Array([hexToWord(info.word)]);
-    const decodedInfo = decodeToPacketAndEvent(infoWords);
+    const infoWordArray = info.words ? info.words.map((w: string) => hexToWord(w)) : [hexToWord(info.word)];
+    const decodedInfo = decodeToPacketAndEvent(new Uint32Array(infoWordArray));
     expect(decodedInfo?.event).toMatchObject({
       kind: "stream",
       opcode: "functionBlockInfoNotification",
-      functionBlockInfoNotification: { index: 1, firstGroup: 10, groupCount: 3 },
+      functionBlockInfoNotification: { index: 1, firstGroup: 10, groupCount: 3, active: true, direction: 3, midi1Bandwidth: 2, uiHints: 0x55 },
     });
 
     const discovery = loadJSON("stream/function_block_discovery.json");

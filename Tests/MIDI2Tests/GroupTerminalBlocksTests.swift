@@ -21,4 +21,12 @@ final class GroupTerminalBlocksTests: XCTestCase {
         let pkt = UmpPacket64(word0: w0, word1: 0)
         XCTAssertThrowsError(try GroupTerminalBlocks(parsingUMPs: [pkt]))
     }
+
+    func testGTBValidatorRejectsOverlap() {
+        let blocks = [
+            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 4),
+            GroupTerminalBlock(index: 1, firstGroup: 3, groupCount: 2)
+        ]
+        XCTAssertThrowsError(try GTBValidator.validate(blocks: blocks))
+    }
 }

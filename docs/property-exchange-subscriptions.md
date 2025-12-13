@@ -11,8 +11,7 @@ start → partial (optional, chunked) → full → notify* → end
 - Helpers return `PropertyExchangeEvent` stubs; I/O wiring remains up to the caller.
 - Tests cover lifecycle, missing IDs, out-of-order notify, unknown subscriptions.
 
-## Swift TODO
-- Add a subscription state machine to `PropertyExchangeSession` (or dedicated tracker) mirroring the TS lifecycle.
-- Track `subscriptionId`, stage, flow-control intent, last chunk number.
-- Emit `subscribeReply`, flow-control ACK/NAK, and errors (404/409) per spec tables.
-- Add tests for lifecycle sequences, ACK timeout, and NAK retransmit policy.
+## Swift status / TODO
+- Added subscription state machine in `PropertyExchangeSession` (start/partial/full/notify/end, flow-control ACK).
+- Track `subscriptionId`, stage, and flow-control intent; reply with status codes (200/404/409) and ACK=17.
+- TODO: add NAK handling, ACK timeout/retransmit policy, and resource-level filtering.

@@ -229,7 +229,7 @@ public enum PropertyExchangeBuilder {
 /// Manages a property store, subscriptions by resource, and produces replies.
 public final class PropertyExchangeSession {
     public var store: [String: [UInt8]]
-    private var subscriptions: Set<String>
+    private let subscriptionManager = PropertyExchangeSubscriptionManager()
     private var notifySeq: Int = 0
     public var maxDataPerMessage: Int
     private let setAllowed: (String, [UInt8]) -> Bool
@@ -247,7 +247,6 @@ public final class PropertyExchangeSession {
                 maxDataPerMessage: Int = 80,
                 setAllowed: @escaping (String, [UInt8]) -> Bool = { _, _ in true }) {
         self.store = initialStore
-        self.subscriptions = []
         self.maxDataPerMessage = max(1, maxDataPerMessage)
         self.setAllowed = setAllowed
     }
@@ -261,6 +260,12 @@ public final class PropertyExchangeSession {
                                                encoding: req.encoding,
                                                header: replyHeader,
                                                data: [])]
+        }
+        // Subscription lifecycle handling (applies to subscribe/notify/terminate with subscriptionCommand headers).
+        if request.command == .subscribe || request.command == .notify || request.command == .terminate {
+            if request.header["subscriptionId"] != nil || request.header["subscriptionCommand"] != nil {
+                return subscriptionManager.handle(request)
+            }
         }
         switch request.command {
         case .get:
@@ -331,7 +336,7 @@ public final class PropertyExchangeSession {
                                                                  encoding: request.encoding,
                                                                  header: replyHeader,
                                                                  data: [])]
-                        if subscriptions.contains(res) {
+                        if subscriptionManager.isActive(resource: res) {
                             notifySeq &+= 1
                             // Chunk notify if needed
                             let notifies = PropertyExchangeChunker.chunkNotify(resource: res,
@@ -357,7 +362,7 @@ public final class PropertyExchangeSession {
                                                              encoding: request.encoding,
                                                              header: replyHeader,
                                                              data: [])]
-                    if subscriptions.contains(res) {
+                    if subscriptionManager.isActive(resource: res) {
                         notifySeq &+= 1
                         let notifies = PropertyExchangeChunker.chunkNotify(resource: res,
                                                                           requestId: request.requestId,
@@ -373,25 +378,99 @@ public final class PropertyExchangeSession {
                 }
             }
         case .subscribe:
-            let res = request.header["res"] ?? ""
-            subscriptions.insert(res)
-            let replyHeader = ["res": res, "ok": "1"]
-            return [MidiCiPropertyExchangeBody(command: .subscribeReply,
-                                               requestId: request.requestId,
-                                               encoding: request.encoding,
-                                               header: replyHeader,
-                                               data: [])]
+            return subscriptionManager.handle(request)
         case .terminate:
-            let res = request.header["res"] ?? ""
-            subscriptions.remove(res)
-            let replyHeader = ["res": res, "ok": "1"]
-            return [MidiCiPropertyExchangeBody(command: .subscribeReply,
-                                               requestId: request.requestId,
-                                               encoding: request.encoding,
-                                               header: replyHeader,
-                                               data: [])]
+            return subscriptionManager.handle(request)
         default:
             return []
         }
+    }
+}
+
+// MARK: - Subscription state machine
+
+private final class PropertyExchangeSubscriptionManager {
+    private enum Stage {
+        case start, partial, full, active
+    }
+
+    private struct Subscription {
+        var id: String
+        var stage: Stage
+        var flowControl: Bool
+    }
+
+    private var subs: [String: Subscription] = [:]
+
+    /// Convenience helper for state check used by notify senders.
+    func isActive(resource _: String) -> Bool {
+        // Resource-level subscriptions could be added later; for now return true if any subscription exists.
+        !subs.isEmpty
+    }
+
+    func handle(_ req: MidiCiPropertyExchangeBody) -> [MidiCiPropertyExchangeBody] {
+        let cmd = req.command
+        let subId = req.header["subscriptionId"] ?? req.header["res"] ?? ""
+        guard !subId.isEmpty else {
+            return [reply(command: .subscribeReply, req: req, status: 400, extra: ["msg": "missing subscriptionId"])]
+        }
+        let subCmd = req.header["subscriptionCommand"] ?? (cmd == .subscribe ? "start" : cmd == .terminate ? "end" : nil)
+        switch subCmd {
+        case "start":
+            let wantsFC = (req.header["flowControl"] == "true")
+            subs[subId] = Subscription(id: subId, stage: .start, flowControl: wantsFC)
+            return [reply(command: .subscribeReply, req: req, status: 200, extra: ["subscriptionCommand": "start", "flowControl": wantsFC ? "true" : "false"])]
+        case "partial":
+            guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }
+            s.stage = .partial
+            subs[subId] = s
+            return []
+        case "full":
+            guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }
+            s.stage = .full
+            subs[subId] = s
+            return [reply(command: .subscribeReply, req: req, status: 200, extra: ["subscriptionCommand": "full"])]
+        case "notify":
+            guard var s = subs[subId] else { return [reply(command: .notify, req: req, status: 404)] }
+            guard s.stage == .full || s.stage == .active else { return [reply(command: .notify, req: req, status: 409)] }
+            s.stage = .active
+            subs[subId] = s
+            if s.flowControl, let lengthStr = req.header["length"], let len = Int(lengthStr) {
+                return [flowControlAck(for: req, length: len)]
+            }
+            return []
+        case "end":
+            subs.removeValue(forKey: subId)
+            return [reply(command: .subscribeReply, req: req, status: 200, extra: ["subscriptionCommand": "end"])]
+        default:
+            return [reply(command: .subscribeReply, req: req, status: 400, extra: ["msg": "unknown subscriptionCommand"])]
+        }
+    }
+
+    private func reply(command: MidiCiPropertyExchangeBody.Command,
+                       req: MidiCiPropertyExchangeBody,
+                       status: Int,
+                       extra: [String: String] = [:]) -> MidiCiPropertyExchangeBody {
+        var header: [String: String] = ["status": String(status)]
+        header.merge(extra) { _, new in new }
+        return MidiCiPropertyExchangeBody(command: command,
+                                          requestId: req.requestId,
+                                          encoding: req.encoding,
+                                          header: header,
+                                          data: [])
+    }
+
+    private func flowControlAck(for req: MidiCiPropertyExchangeBody, length: Int) -> MidiCiPropertyExchangeBody {
+        let chunkNum = Int(req.header["chunkNumber"] ?? "") ?? 0
+        let hdr: [String: String] = [
+            "status": "17",
+            "chunkNumber": String(chunkNum),
+            "messageLength": String(length)
+        ]
+        return MidiCiPropertyExchangeBody(command: .notify,
+                                          requestId: req.requestId,
+                                          encoding: req.encoding,
+                                          header: hdr,
+                                          data: [])
     }
 }

@@ -109,6 +109,7 @@ func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
 func handleStream32(group: UInt8, word: UInt32) {
     let pkt = UmpPacket32(word: word)
     guard let body = StreamBody(ump: pkt) else { return }
+    // Track a minimal state for negotiated protocol if needed
     switch body.opcode {
     case .endpointDiscovery:
         // Echo a standard endpoint discovery reply
@@ -129,6 +130,23 @@ func handleStream32(group: UInt8, word: UInt32) {
         let fb2 = try? FunctionBlockInfoNotification(index: 1, firstGroup: 4, groupCount: 4, active: true, direction: .output, midi1Bandwidth: .restrict31_25kbps, uiHints: 0x20)
         if let fb1 = fb1 { _ = sendUMP128(fb1.ump(group: Uint4(group)!)) }
         if let fb2 = fb2 { _ = sendUMP128(fb2.ump(group: Uint4(group)!)) }
+        // Send Function Block names to mirror Figure 22 sequence (optional)
+        let names: [(UInt8, String)] = [(0, "FB 0 (BiDir)"), (1, "FB 1 (Out)")]
+        for (idx, name) in names {
+            let nameBytes = Array(name.utf8).prefix(12)
+            var bytesPadded = Array(nameBytes)
+            while bytesPadded.count < 12 { bytesPadded.append(0) }
+            let word0 = (UInt32(0xF) << 28) | (UInt32(group) << 24) | (UInt32(StreamOpcode.functionBlockNameNotification.rawValue) << 16)
+            let word1 = (UInt32(idx) << 24) | (UInt32(bytesPadded[0]) << 16) | (UInt32(bytesPadded[1]) << 8) | UInt32(bytesPadded[2])
+            let word2 = (UInt32(bytesPadded[3]) << 24) | (UInt32(bytesPadded[4]) << 16) | (UInt32(bytesPadded[5]) << 8) | UInt32(bytesPadded[6])
+            let word3 = (UInt32(bytesPadded[7]) << 24) | (UInt32(bytesPadded[8]) << 16) | (UInt32(bytesPadded[9]) << 8) | UInt32(bytesPadded[10])
+            let word4 = (UInt32(bytesPadded[11]) << 24)
+            _ = sendUMP32(word0)
+            _ = sendUMP32(word1)
+            _ = sendUMP32(word2)
+            _ = sendUMP32(word3)
+            _ = sendUMP32(word4)
+        }
     default:
         break
     }

@@ -1110,18 +1110,17 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     }
   }
   if (mt === UTILITY_MT) {
+    const groupNibble = (word0 >>> 24) & 0x0f;
+    if (groupNibble !== 0) {
+      throw new RangeError("Utility packet must use groupless encoding (group=0).");
+    }
     const statusByte = (word0 >>> 16) & 0xff;
     const value = word0 & 0xffff;
     let status: UtilityEvent["status"];
     if (statusByte === 0x00) status = "noop";
     else if (statusByte === 0x01) status = "jrClock";
     else if (statusByte === 0x02) status = "jrTimestamp";
-    else
-      return {
-        kind: "rawUMP",
-        words: packet,
-        timestamp,
-      } as RawUMPEvent;
+    else throw new RangeError("Unsupported utility status");
     const event: UtilityEvent = {
       kind: "utility",
       status,

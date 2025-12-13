@@ -26,4 +26,14 @@ describe("negative decode coverage (reserved/invalid values)", () => {
     const word1 = (1 << 16) | (3 << 8); // direction=input, midi1Bandwidth=3 (reserved)
     expect(decode([word0, word1])).toThrow(RangeError);
   });
+
+  it("rejects utility packets with non-zero group nibble", () => {
+    const word0 = (0x0 << 28) | (0x1 << 24); // mt=0, group=1
+    expect(decode([word0])).toThrow(RangeError);
+  });
+
+  it("rejects utility packets with unsupported status", () => {
+    const word0 = (0x0 << 28) | (0x0 << 24) | (0x7f << 16);
+    expect(decode([word0])).toThrow(RangeError);
+  });
 });

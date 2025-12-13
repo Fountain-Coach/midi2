@@ -895,6 +895,9 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   const packet = toUint32Array(words);
   const word0 = packet[0];
   const mt = (word0 >>> 28) & 0xf;
+  if (mt === FLEX_STATUS_CLASS && ((word0 >>> 16) & 0xff) !== FLEX_STATUS_CLASS) {
+    throw new RangeError("Invalid flex status class");
+  }
   if (mt === STREAM_MT) {
     return decodeStream(packet, timestamp);
   }

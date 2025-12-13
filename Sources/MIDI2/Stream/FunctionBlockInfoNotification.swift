@@ -13,6 +13,7 @@ public enum Midi1Bandwidth: UInt8, Equatable {
     case notMidi1 = 0
     case unrestricted = 1
     case restrict31_25kbps = 2
+    case reserved = 3
 }
 
 /// Fully-typed Function Block Info Notification (mt=0xF, opcode=0x11).
@@ -23,6 +24,7 @@ public struct FunctionBlockInfoNotification: Equatable {
     public var active: Bool
     public var direction: FunctionBlockDirection
     public var midi1Bandwidth: Midi1Bandwidth
+    public var uiHints: UInt8
 
     public init(
         index: UInt8,
@@ -30,7 +32,8 @@ public struct FunctionBlockInfoNotification: Equatable {
         groupCount: UInt8,
         active: Bool,
         direction: FunctionBlockDirection,
-        midi1Bandwidth: Midi1Bandwidth
+        midi1Bandwidth: Midi1Bandwidth,
+        uiHints: UInt8 = 0
     ) throws {
         guard firstGroup <= 0x0F else {
             throw MIDIError.valueOutOfRange(name: "firstGroup", value: UInt64(firstGroup), range: 0...0x0F)
@@ -38,12 +41,16 @@ public struct FunctionBlockInfoNotification: Equatable {
         guard groupCount <= 0x0F else {
             throw MIDIError.valueOutOfRange(name: "groupCount", value: UInt64(groupCount), range: 0...0x0F)
         }
+        guard midi1Bandwidth != .reserved else {
+            throw MIDIError.malformedPacket("reserved midi1Bandwidth value 3")
+        }
         self.index = index
         self.firstGroup = firstGroup
         self.groupCount = groupCount
         self.active = active
         self.direction = direction
         self.midi1Bandwidth = midi1Bandwidth
+        self.uiHints = uiHints
     }
 
     private var word0: UInt32 {
@@ -58,7 +65,8 @@ public struct FunctionBlockInfoNotification: Equatable {
         let activeBit: UInt32 = active ? 0x80000000 : 0
         let directionBits: UInt32 = UInt32(direction.rawValue & 0x03) << 16
         let bandwidthBits: UInt32 = UInt32(midi1Bandwidth.rawValue & 0x03) << 8
-        return activeBit | directionBits | bandwidthBits
+        let uiBits: UInt32 = UInt32(uiHints)
+        return activeBit | directionBits | bandwidthBits | uiBits
     }
 
     /// Encode to a 64-bit UMP in the given group.
@@ -97,7 +105,7 @@ public struct FunctionBlockInfoNotification: Equatable {
         let gc = UInt8(w0 & 0x0F)
 
         let w1 = ump.word1
-        let reservedMask: UInt32 = ~(0x80030300)
+        let reservedMask: UInt32 = ~(0x800303FF)
         guard (w1 & reservedMask) == 0 else {
             throw MIDIError.malformedPacket("reserved bits set in function block info")
         }
@@ -106,11 +114,12 @@ public struct FunctionBlockInfoNotification: Equatable {
             throw MIDIError.malformedPacket("invalid direction \(dirRaw)")
         }
         let bwRaw = UInt8((w1 >> 8) & 0x03)
-        guard let bw = Midi1Bandwidth(rawValue: bwRaw) else {
+        guard let bw = Midi1Bandwidth(rawValue: bwRaw), bw != .reserved else {
             throw MIDIError.malformedPacket("reserved midi1Bandwidth value \(bwRaw)")
         }
+        let hints = UInt8(w1 & 0xFF)
         let act = (w1 & 0x80000000) != 0
 
-        try self.init(index: idx, firstGroup: fg, groupCount: gc, active: act, direction: dir, midi1Bandwidth: bw)
+        try self.init(index: idx, firstGroup: fg, groupCount: gc, active: act, direction: dir, midi1Bandwidth: bw, uiHints: hints)
     }
 }

@@ -354,7 +354,7 @@ export interface StreamEvent {
   streamConfigRequest?: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean };
   streamConfigNotification?: { protocol?: "midi1" | "midi2"; jrTimestampsTx?: boolean; jrTimestampsRx?: boolean };
   functionBlockDiscovery?: { filterBitmap?: number };
-  functionBlockInfoNotification?: { index?: number; firstGroup?: number; groupCount?: number; active?: boolean; direction?: 0 | 1 | 2 | 3; midi1Bandwidth?: 0 | 1 | 2 };
+  functionBlockInfoNotification?: { index?: number; firstGroup?: number; groupCount?: number; active?: boolean; direction?: 0 | 1 | 2 | 3; midi1Bandwidth?: 0 | 1 | 2; uiHints?: number };
   functionBlockNameNotification?: { functionBlock: number; name: string };
   processInquiry?: { functionBlock?: number; part?: number };
   processInquiryReply?: { functionBlock?: number; part?: number };

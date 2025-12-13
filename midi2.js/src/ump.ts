@@ -271,9 +271,11 @@ function encodeStream(event: StreamEvent): Uint32Array {
       assertRange("direction", info.direction ?? 0, 0, 0x03);
       // 0..2 valid, 3 reserved (spec Appendix I); guard upper bound only
       assertRange("midi1Bandwidth", info.midi1Bandwidth ?? 0, 0, 0x02);
+      if (info.uiHints !== undefined) assertRange("uiHints", info.uiHints, 0, 0xff);
       const active = info.active ? 0x80 : 0x00;
       const direction = (info.direction ?? 0) & 0x03;
       const midi1Bandwidth = (info.midi1Bandwidth ?? 0) & 0x03;
+      const uiHints = info.uiHints ?? 0;
       const word0 =
         (STREAM_MT << 28) |
         (event.group << 24) |
@@ -281,7 +283,7 @@ function encodeStream(event: StreamEvent): Uint32Array {
         ((info.index ?? 0) << 8) |
         (((info.firstGroup ?? 0) & 0x0f) << 4) |
         ((info.groupCount ?? 0) & 0x0f);
-      const word1 = (active << 24) | (direction << 16) | (midi1Bandwidth << 8);
+      const word1 = (active << 24) | (direction << 16) | (midi1Bandwidth << 8) | (uiHints & 0xff);
       return new Uint32Array([word0 >>> 0, word1 >>> 0]);
     }
     case "functionBlockNameNotification": {
@@ -447,7 +449,8 @@ function decodeStream(words: Uint32Array, timestamp?: number): StreamEvent {
     const active = (word1 & 0x80000000) !== 0;
     const direction = (word1 >>> 16) & 0x03;
     const midi1Bandwidth = (word1 >>> 8) & 0x03;
-    const reservedMask = ~(0x80030300 >>> 0);
+    const uiHints = word1 & 0xff;
+    const reservedMask = ~(0x800303ff >>> 0);
     if ((word1 & reservedMask) !== 0) {
       throw new RangeError("Function block info has reserved bits set.");
     }
@@ -458,7 +461,7 @@ function decodeStream(words: Uint32Array, timestamp?: number): StreamEvent {
       kind: "stream",
       group,
       opcode: "functionBlockInfoNotification",
-      functionBlockInfoNotification: { index, firstGroup, groupCount, active, direction: direction as any, midi1Bandwidth: midi1Bandwidth as any },
+      functionBlockInfoNotification: { index, firstGroup, groupCount, active, direction: direction as any, midi1Bandwidth: midi1Bandwidth as any, uiHints },
       timestamp,
     };
   }

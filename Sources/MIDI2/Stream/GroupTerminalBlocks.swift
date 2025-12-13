@@ -6,14 +6,16 @@ public struct GroupTerminalBlock: Equatable {
     public var active: Bool
     public var direction: FunctionBlockDirection
     public var midi1Bandwidth: Midi1Bandwidth
+    public var uiHints: UInt8
 
-    public init(index: UInt8, firstGroup: UInt8, groupCount: UInt8, active: Bool = false, direction: FunctionBlockDirection = .reserved, midi1Bandwidth: Midi1Bandwidth = .notMidi1) {
+    public init(index: UInt8, firstGroup: UInt8, groupCount: UInt8, active: Bool = false, direction: FunctionBlockDirection = .reserved, midi1Bandwidth: Midi1Bandwidth = .notMidi1, uiHints: UInt8 = 0) {
         self.index = index
         self.firstGroup = firstGroup & 0x0F
         self.groupCount = groupCount & 0x0F
         self.active = active
         self.direction = direction
         self.midi1Bandwidth = midi1Bandwidth
+        self.uiHints = uiHints
     }
 }
 
@@ -33,7 +35,8 @@ public struct GroupTerminalBlocks: Equatable {
                 groupCount: blk.groupCount,
                 active: blk.active,
                 direction: blk.direction,
-                midi1Bandwidth: blk.midi1Bandwidth
+                midi1Bandwidth: blk.midi1Bandwidth,
+                uiHints: blk.uiHints
             )
             return info.ump(group: group)
         }
@@ -50,7 +53,8 @@ public struct GroupTerminalBlocks: Equatable {
                                          groupCount: info.groupCount,
                                          active: info.active,
                                          direction: info.direction,
-                                         midi1Bandwidth: info.midi1Bandwidth)
+                                         midi1Bandwidth: info.midi1Bandwidth,
+                                         uiHints: info.uiHints)
             result.append(blk)
         }
         self.blocks = result

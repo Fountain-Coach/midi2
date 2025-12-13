@@ -447,10 +447,10 @@ describe("Stream messages", () => {
       kind: "stream",
       group: 0,
       opcode: "functionBlockInfoNotification",
-      functionBlockInfoNotification: { index: 1, firstGroup: 2, groupCount: 3, active: true, direction: 3, midi1Bandwidth: 2 },
+      functionBlockInfoNotification: { index: 1, firstGroup: 2, groupCount: 3, active: true, direction: 3, midi1Bandwidth: 2, uiHints: 0xaa },
     };
     const decoded = decodeUmp(encodeUmp(evt));
-    expect(decoded).toMatchObject({ opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { active: true, direction: 3, midi1Bandwidth: 2 } });
+    expect(decoded).toMatchObject({ opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { active: true, direction: 3, midi1Bandwidth: 2, uiHints: 0xaa } });
   });
 
   it("rejects function block info with reserved bits", () => {

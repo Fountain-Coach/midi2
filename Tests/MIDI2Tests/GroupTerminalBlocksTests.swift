@@ -4,8 +4,8 @@ import XCTest
 final class GroupTerminalBlocksTests: XCTestCase {
     func testRoundTrip() throws {
         let blocks = [
-            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 4, active: true, direction: .input, midi1Bandwidth: .unrestricted),
-            GroupTerminalBlock(index: 1, firstGroup: 4, groupCount: 4, active: false, direction: .output, midi1Bandwidth: .restrict31_25kbps)
+            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 4, active: true, direction: .input, midi1Bandwidth: .unrestricted, uiHints: 0x12),
+            GroupTerminalBlock(index: 1, firstGroup: 4, groupCount: 4, active: false, direction: .output, midi1Bandwidth: .restrict31_25kbps, uiHints: 0x34)
         ]
         let gtb = GroupTerminalBlocks(blocks: blocks)
         let group = Uint4(0x3)!

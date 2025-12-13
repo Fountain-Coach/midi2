@@ -50,6 +50,6 @@ final class StreamNegotiationTests: XCTestCase {
         let group = Uint4(3)!
         let pkts = try session.onFunctionBlockDiscovery(req, group: group)
         let parsed = try GroupTerminalBlocks(parsingUMPs: pkts)
-        XCTAssertEqual(parsed.blocks, [GroupTerminalBlock(index: 4, firstGroup: 8, groupCount: 2, active: false, direction: .reserved, midi1Bandwidth: .notMidi1)])
+        XCTAssertEqual(parsed.blocks, [GroupTerminalBlock(index: 4, firstGroup: 8, groupCount: 2, active: false, direction: .reserved, midi1Bandwidth: .notMidi1, uiHints: 0)])
     }
 }

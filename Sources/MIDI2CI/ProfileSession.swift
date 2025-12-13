@@ -93,6 +93,7 @@ public final class ProfileSession {
             return [MidiCiProfilesBody(command: .disabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
 
         case .detailsInquiry:
+            guard !body.profileId.isEmpty else { return [] }
             // Provide details: version and channel mask for the addressed scope
             let (cmL, cmH) = channelMaskBytes(body.channels)
             return [MidiCiProfilesBody(command: .detailsReply, profileId: body.profileId, target: body.target, channels: body.channels, details: ["ver": 1, "cmL": cmL, "cmH": cmH])]

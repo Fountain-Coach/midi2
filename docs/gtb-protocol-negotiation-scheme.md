@@ -21,6 +21,10 @@ Target: enforce Appendix I GTB semantics without changing UMP wire format.
 5. **Egress (optional)**  
    - Before sending stream/utility packets, apply the same allowed-MT check to avoid emitting disallowed traffic.
 
+## Runtime integration sketch
+- Swift: when a GTB descriptor is present, `StreamNegotiationSession` should stash the map and expose a helper to gate ingress/egress. Hook into dispatch/receive paths to call `enforceAllowedMessageType` automatically.
+- TS: keep the GTB context map populated during negotiation; wrap decoders/dispatchers with `decodeWithGtbContext` or `applyGtbGuards` so callers don't need to pass explicit allowed sets.
+
 ## Open items
 - Wire GTB context into runtime negotiation/session state so ingress/egress automatically invoke enforcement helpers.
 - Add PB-VRT scenarios for MT=0x0/0xF blocking by GTB.

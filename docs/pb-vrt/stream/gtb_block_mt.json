@@ -1,0 +1,6 @@
+{
+  "descriptor": { "groups": { "1": ["0xf"] } },
+  "blockedWord": "0x21000000",
+  "allowedWord": "0xf1000000",
+  "description": "GTB allows only MT=0xF on group 1; MT=0x2 must be rejected"
+}

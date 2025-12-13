@@ -134,6 +134,7 @@
 - 🟡 Protocol scheme documented (`docs/gtb-protocol-negotiation-scheme.md`) detailing ingestion/enforcement flow
 - 🟡 Dispatch guards now consume GTB context map when no explicit allowed set provided (stream+utility)
 - 🟡 Default TS decoder enforces GTB allowed MTs when a context map is present
+- 🟡 PB-VRT fixture added for GTB MT blocking (`docs/pb-vrt/stream/gtb_block_mt.json`) and enforced in tests
 - 🟡 MT=0xF/MT=0x0 reception restrictions guarded; integration into runtime negotiation pending
 - ❌ Protocol negotiation for GTB contexts incomplete
 

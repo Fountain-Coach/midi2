@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { decodeToPacketAndEvent } from "../decoder";
+import { clearGtbContext } from "../gtb-context";
+import { loadGtbDescriptorFromJson } from "../gtb-descriptor-loader";
 import { eventToSchemaPacket, reassemblePeChunks } from "../schema-bridge";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -75,6 +77,16 @@ describe("PB-VRT golden vectors", () => {
     const gtb = loadJSON("stream/gtb_overlap.json");
     expect(gtb.functionBlocks.length).toBe(2);
     expect(gtb.functionBlocks[0]).toMatchObject({ index: 0, firstGroup: 0, groupCount: 4 });
+  });
+
+  it("applies GTB descriptor PB-VRT fixture and blocks disallowed MT", () => {
+    const gtb = loadJSON("stream/gtb_block_mt.json");
+    clearGtbContext();
+    loadGtbDescriptorFromJson(gtb.descriptor);
+    const allowedWords = new Uint32Array([hexToWord(gtb.allowedWord)]);
+    expect(() => decodeToPacketAndEvent(allowedWords)).not.toThrow();
+    const blockedWords = new Uint32Array([hexToWord(gtb.blockedWord)]);
+    expect(() => decodeToPacketAndEvent(blockedWords)).toThrow(RangeError);
   });
 
   it("decodes JR clock/timestamp sequence", () => {

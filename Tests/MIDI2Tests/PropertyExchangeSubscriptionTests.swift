@@ -24,6 +24,7 @@ final class PropertyExchangeSubscriptionTests: XCTestCase {
         // Timeout should emit NAK for next expected chunk
         let naks = session.collectSubscriptionTimeouts(now: Date().addingTimeInterval(2), timeout: 0.5)
         XCTAssertEqual(naks.first?.header["status"], "18")
+        XCTAssertNotNil(naks.first?.header["retryAfterMs"])
         // Out-of-order chunk should NAK
         replies = session.handle(body(.notify, header: ["subscriptionId": "sub1", "subscriptionCommand": "notify", "flowControl": "true", "length": "4", "chunkNumber": "5"]))
         XCTAssertEqual(replies.first?.header["status"], "18")

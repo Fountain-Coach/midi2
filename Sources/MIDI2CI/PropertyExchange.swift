@@ -235,6 +235,7 @@ public enum PropertyExchangeBuilder {
     private let setAllowed: (String, [UInt8]) -> Bool
     private let subscriptionTimeout: TimeInterval = 1.0
     private let maxNakRetries: Int = 3
+    private let maxRetryDelay: TimeInterval = 4.0
     private struct SetAccumulator {
         var requestId: UInt32
         var resource: String
@@ -261,7 +262,7 @@ public enum PropertyExchangeBuilder {
     /// Handle a single request and return zero or more reply/notify messages.
     public func handle(_ request: MidiCiPropertyExchangeBody) -> [MidiCiPropertyExchangeBody] {
         // Emit timeout NAKs before handling new message to keep flow-control moving.
-        let timeoutEvents = subscriptionManager.collectTimeouts(timeout: subscriptionTimeout, maxNakRetries: maxNakRetries)
+        let timeoutEvents = subscriptionManager.collectTimeouts(timeout: subscriptionTimeout, maxNakRetries: maxNakRetries, maxRetryDelay: maxRetryDelay)
         if !timeoutEvents.isEmpty {
             return timeoutEvents
         }
@@ -424,7 +425,7 @@ private final class PropertyExchangeSubscriptionManager {
     }
 
     /// Emit NAKs when flow-control chunks are stalled beyond timeout.
-    func collectTimeouts(now: Date = Date(), timeout: TimeInterval = 1.0, maxNakRetries: Int = 3) -> [MidiCiPropertyExchangeBody] {
+    func collectTimeouts(now: Date = Date(), timeout: TimeInterval = 1.0, maxNakRetries: Int = 3, maxRetryDelay: TimeInterval = 4.0) -> [MidiCiPropertyExchangeBody] {
         var out: [MidiCiPropertyExchangeBody] = []
         for (id, sub) in subs {
             guard sub.flowControl, sub.stage == .active else { continue }
@@ -441,12 +442,13 @@ private final class PropertyExchangeSubscriptionManager {
                     out.append(timeoutEvt)
                     subs.removeValue(forKey: id)
                 } else {
+                    let retryAfter = min(maxRetryDelay, timeout * pow(2.0, Double(updated.nakCount - 1)))
                     let dummy = MidiCiPropertyExchangeBody(command: .notify,
                                                            requestId: 0,
                                                            encoding: .json,
                                                            header: ["subscriptionId": id, "chunkNumber": String(chunkNumber)],
                                                            data: [])
-                    out.append(flowControlNak(for: dummy, chunkNumber: chunkNumber))
+                    out.append(flowControlNak(for: dummy, chunkNumber: chunkNumber, retryAfterMs: Int(retryAfter * 1000)))
                     updated.lastActivity = now
                     subs[id] = updated
                 }
@@ -537,11 +539,14 @@ private final class PropertyExchangeSubscriptionManager {
                                           data: [])
     }
 
-    private func flowControlNak(for req: MidiCiPropertyExchangeBody, chunkNumber: Int) -> MidiCiPropertyExchangeBody {
-        let hdr: [String: String] = [
+    private func flowControlNak(for req: MidiCiPropertyExchangeBody, chunkNumber: Int, retryAfterMs: Int? = nil) -> MidiCiPropertyExchangeBody {
+        var hdr: [String: String] = [
             "status": "18",
             "chunkNumber": String(chunkNumber)
         ]
+        if let retryAfterMs {
+            hdr["retryAfterMs"] = String(retryAfterMs)
+        }
         return MidiCiPropertyExchangeBody(command: .notify,
                                           requestId: req.requestId,
                                           encoding: req.encoding,

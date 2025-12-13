@@ -12,6 +12,7 @@ type SubscriptionState = {
   lastChunkNumber: number;
   resource?: string;
   lastActivityMs: number;
+  nakCount: number;
 };
 
 type SubscriptionStage = "start" | "partial" | "full" | "active";
@@ -155,6 +156,7 @@ export class PeSubscriptionManager {
           lastChunkNumber: -1,
           resource,
           lastActivityMs: Date.now(),
+          nakCount: 0,
         };
         this.subs.set(id, state);
         return {
@@ -288,12 +290,14 @@ export class PeSubscriptionManager {
           this.subs.delete(id);
           continue;
         }
+        const retryAfterMs = Math.min(4000, timeoutMs * Math.pow(2, nakCount - 1));
         out.push({
           kind: "propertyExchange",
           group: 0,
           command: "notify",
           subscriptionId: id,
           flowControlNak: { status: 18, chunkNumber: expectedChunk },
+          header: { retryAfterMs },
         });
         // keep state so retry can proceed
         this.subs.set(id, { ...sub, lastActivityMs: nowMs, nakCount });

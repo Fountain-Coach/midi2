@@ -67,6 +67,7 @@ describe("PeSubscriptionManager", () => {
     const timeoutEvents1 = mgr2.collectTimeouts(Date.now() + 2000, 1);
     const statuses1 = timeoutEvents1.map(ev => ev.header?.status ?? ev.flowControlNak?.status);
     expect(statuses1).toContain(18);
+    expect(timeoutEvents1[0]?.header?.retryAfterMs).toBeGreaterThan(0);
     // Second timeout should exceed retries and emit 408
     const timeoutEvents2 = mgr2.collectTimeouts(Date.now() + 4000, 1);
     const statuses2 = timeoutEvents2.map(ev => ev.header?.status ?? ev.flowControlNak?.status);

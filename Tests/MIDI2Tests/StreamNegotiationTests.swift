@@ -146,4 +146,13 @@ final class StreamNegotiationTests: XCTestCase {
         let blocked = UmpPacket128(word0: (UInt32(0x2) << 28) | (UInt32(3) << 24), word1: 0, word2: 0, word3: 0)
         XCTAssertThrowsError(try session.enforceAllowedMessageType(for: blocked))
     }
+
+    func testGtbGuardIncomingWords() throws {
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: GroupTerminalBlocks(blocks: []))
+        session.setGtbAllowedMessageTypes(for: 1, allowed: [0xF])
+        let allowedWords: [UInt32] = [(UInt32(0xF) << 28) | (UInt32(1) << 24)]
+        XCTAssertNoThrow(try session.guardIncoming(words: allowedWords))
+        let blockedWords: [UInt32] = [(UInt32(0x2) << 28) | (UInt32(1) << 24)]
+        XCTAssertThrowsError(try session.guardIncoming(words: blockedWords))
+    }
 }

@@ -144,6 +144,14 @@ public final class StreamNegotiationSession {
         try enforceAllowedMessageType(mt: mt, group: group)
     }
 
+    /// Enforce allowed message type for a raw UMP word sequence (32/64/128-bit).
+    public func guardIncoming(words: [UInt32]) throws {
+        guard let word0 = words.first else { return }
+        let mt = UInt8((word0 >> 28) & 0x0F)
+        let group = UInt8((word0 >> 24) & 0x0F)
+        try enforceAllowedMessageType(mt: mt, group: group)
+    }
+
     /// Simulated GTB negotiation step: validate and store descriptor; seeds allowed MT map.
     @discardableResult
     public func negotiate(gtbDescriptor: GtbDescriptor, allowOverlap: Bool? = nil) throws -> Bool {

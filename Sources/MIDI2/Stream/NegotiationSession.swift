@@ -76,4 +76,17 @@ public final class StreamNegotiationSession {
     public func setProfileAssociations(for index: UInt8, profiles: [String]) {
         profileMap[index] = profiles
     }
+
+    /// Add or remove a single profile association for a function block index.
+    public func updateProfileAssociation(functionBlock index: UInt8, profileId: String, enabled: Bool) {
+        var existing = profileMap[index] ?? []
+        if enabled {
+            if !existing.contains(profileId) {
+                existing.append(profileId)
+            }
+        } else {
+            existing.removeAll { $0 == profileId }
+        }
+        profileMap[index] = existing
+    }
 }

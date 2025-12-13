@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getProfileAssociations, getProfileAssociationsWithTimestamp, setProfileAssociations } from "../stream-profiles";
+import { getProfileAssociations, getProfileAssociationsWithTimestamp, setProfileAssociations, updateProfileAssociation } from "../stream-profiles";
 
 describe("stream profile associations", () => {
   it("stores and returns profile ids per function block", () => {
@@ -14,5 +14,13 @@ describe("stream profile associations", () => {
     setProfileAssociations(0x1ff, ["/org.midi/piano"]);
     expect(getProfileAssociations(0x1ff)).toEqual(["/org.midi/piano"]);
     expect(getProfileAssociations(0xff)).toEqual(["/org.midi/piano"]);
+  });
+
+  it("adds and removes a single profile association", () => {
+    updateProfileAssociation(3, "/org.midi/piano", true);
+    updateProfileAssociation(3, "/org.midi/organ", true);
+    expect(new Set(getProfileAssociations(3))).toEqual(new Set(["/org.midi/piano", "/org.midi/organ"]));
+    updateProfileAssociation(3, "/org.midi/piano", false);
+    expect(getProfileAssociations(3)).toEqual(["/org.midi/organ"]);
   });
 });

@@ -79,4 +79,18 @@ final class StreamNegotiationTests: XCTestCase {
         let subset = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 1))
         XCTAssertEqual(subset.blocks.first?.profiles ?? [], ["/org.midi/piano", "/org.midi/organ"])
     }
+
+    func testProfileAssociationIncrementalUpdates() throws {
+        let gtb = GroupTerminalBlocks(blocks: [
+            GroupTerminalBlock(index: 2, firstGroup: 0, groupCount: 4)
+        ])
+        let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
+        session.updateProfileAssociation(functionBlock: 2, profileId: "/org.midi/piano", enabled: true)
+        session.updateProfileAssociation(functionBlock: 2, profileId: "/org.midi/organ", enabled: true)
+        var subset = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 2))
+        XCTAssertEqual(Set(subset.blocks.first?.profiles ?? []), Set(["/org.midi/piano", "/org.midi/organ"]))
+        session.updateProfileAssociation(functionBlock: 2, profileId: "/org.midi/piano", enabled: false)
+        subset = session.onFunctionBlockDiscovery(FunctionBlockDiscovery(filterBitmap: UInt32(1) << 2))
+        XCTAssertEqual(subset.blocks.first?.profiles ?? [], ["/org.midi/organ"])
+    }
 }

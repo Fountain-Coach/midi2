@@ -21,6 +21,7 @@ This document describes how we associate MIDI-CI Profile IDs with Function Block
   - `setProfileAssociations(index: number, profiles: string[])`
   - `getProfileAssociations(index: number): string[]`
   - `getProfileAssociationsWithTimestamp(index: number)`
+  - `updateProfileAssociation(index: number, profileId: string, enabled: boolean)`
 
 ## Testing
 

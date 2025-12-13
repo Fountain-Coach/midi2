@@ -13,3 +13,15 @@ export function getProfileAssociationsWithTimestamp(index: number): { profiles: 
   const entry = profileMap.get(index & 0xff);
   return { profiles: entry?.profiles.slice() ?? [], lastUpdated: entry?.lastUpdated ?? null };
 }
+
+export function updateProfileAssociation(index: number, profileId: string, enabled: boolean): void {
+  const key = index & 0xff;
+  const entry = profileMap.get(key) ?? { profiles: [], lastUpdated: Date.now() };
+  const next = new Set(entry.profiles);
+  if (enabled) {
+    next.add(profileId);
+  } else {
+    next.delete(profileId);
+  }
+  profileMap.set(key, { profiles: Array.from(next), lastUpdated: Date.now() });
+}

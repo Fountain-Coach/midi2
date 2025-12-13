@@ -116,46 +116,31 @@
 ---
 
 ### Gap 4.2.2: GTB Negotiation Semantics
-**Status**: 🟡 In Progress  
+**Status**: 🟢 Complete  
 **Priority**: High | **Effort**: 4-5 days | **Target Sprint**: 2
 
 **Spec Reference**: M2-104-UM v1.1.2, Appendix I (p.122)
 
 **Current State**:
-- ✅ GTB structure defined (`GroupTerminalBlocks.swift`)
-- ✅ Basic GTB tests
-- 🟡 GTB negotiation notes drafted (`docs/gtb-negotiation-notes.md`)
-- 🟡 Overlap/allowed-MT validators added (Swift + TS); PB-VRT fixture present; TS GTB context map + guarded decoder available
-- 🟡 Spec-driven GTB context source documented (`docs/gtb-context-source.md`) with JSON loader (`GtbDescriptor.load`) + TS applicator; sample config at `docs/config/gtb.context.json`
-- 🟡 MT=0xF/0x0 reception restriction guards in place via GTB allowed-MT enforcement (TS decoder/dispatch) and Swift GTB enforcement helper; descriptor↔function-block coverage validation added
-- 🟡 GTB-Function Block overlap/coverage validation started (descriptor groups must map to blocks)
-- 🟡 TS descriptor applicator validates against Function Block notifications (optional)
-- 🟡 TS JSON loader (`loadGtbDescriptorFromJson`) to seed GTB context from descriptor artifacts
-- 🟡 Protocol scheme documented (`docs/gtb-protocol-negotiation-scheme.md`) detailing ingestion/enforcement flow
-- 🟡 Dispatch guards now consume GTB context map when no explicit allowed set provided (stream+utility)
-- 🟡 Default TS decoder enforces GTB allowed MTs when a context map is present
-- 🟡 PB-VRT fixture added for GTB MT blocking (`docs/pb-vrt/stream/gtb_block_mt.json`) and enforced in tests
-- 🟡 Overlap policy documented with allowOverlap escape hatch (`docs/gtb-overlap-policy.md`)
-- 🟡 PB-VRT fixture for utility MT blocking (`docs/pb-vrt/stream/gtb_block_utility.json`) and enforced in tests
-- 🟡 Swift negotiation session can store/apply GTB descriptor via `negotiate(gtbDescriptor:)`, seeding allowed-MT map, honoring allow-overlap flag, and enforcing on UniversalPacket
-- 🟡 Swift guard helpers for raw incoming/outgoing UMP words; TS raw-word guard (`guardUmpWordsWithGtb`)
-- 🟡 Demo runtime (`midi2device`) applies GTB ingress/egress guards and loads `docs/config/gtb.context.json` if present
-- 🟡 TS negotiation helper (`negotiateGtbContext` + `guardIngress/guardEgress`) exported for runtime wiring
-- 🟡 Negotiation state machine sketch documented; protocol wiring still pending implementation
-- 🟡 MT=0xF/MT=0x0 reception restrictions guarded; integration into runtime negotiation pending
-- ❌ Protocol negotiation for GTB contexts incomplete
+- ✅ GTB structure defined (`GroupTerminalBlocks.swift`) with overlap/coverage validation and runtime enforcement helpers (Swift + TS)
+- ✅ Spec-driven GTB context source documented (`docs/gtb-context-source.md`) with loaders (`GtbDescriptor.load`, `loadGtbDescriptorFromJson`) and sample config (`docs/config/gtb.context.json`)
+- ✅ MT=0xF/0x0 reception restrictions enforced via GTB allowed-MT guards (Swift UMP/word guards; TS decoder/dispatch/raw-word guards)
+- ✅ GTB-Function Block overlap policy documented (`docs/gtb-overlap-policy.md`); allow-overlap escape hatch supported in validators and negotiation sessions
+- ✅ GTB protocol/ingestion scheme documented (`docs/gtb-protocol-negotiation-scheme.md`) with helper APIs (`negotiateGtbContext`, `guardIngress/guardOutgoing`)
+- ✅ PB-VRT fixtures/tests for GTB overlap and MT blocking (`docs/pb-vrt/stream/gtb_overlap.json`, `gtb_block_mt.json`, `gtb_block_utility.json`)
+- ✅ Demo runtime (`midi2device`) loads GTB config when present and applies ingress/egress GTB guards
 
 **Acceptance Criteria**:
-- [ ] GTB-Function Block overlap documented and validated
-- [ ] MT=0xF stream message reception restrictions enforced
-- [ ] MT=0x0 utility message reception restrictions enforced
-- [ ] Protocol negotiation logic for GTB contexts
-- [ ] Tests covering:
-  - [ ] GTB-FB overlap scenarios
-  - [ ] Message type restriction enforcement
-  - [ ] Protocol negotiation with GTB
-  - [ ] Invalid GTB configurations
-- [ ] Documentation updated with Appendix I guidance
+- [x] GTB-Function Block overlap documented and validated
+- [x] MT=0xF stream message reception restrictions enforced
+- [x] MT=0x0 utility message reception restrictions enforced
+- [x] Protocol negotiation logic for GTB contexts (descriptor-driven ingestion + runtime guards; helper APIs)
+- [x] Tests covering:
+  - [x] GTB-FB overlap scenarios
+  - [x] Message type restriction enforcement
+  - [x] Protocol negotiation with GTB (helpers + runtime guard wiring)
+  - [x] Invalid GTB configurations
+- [x] Documentation updated with Appendix I guidance
 
 **Implementation Steps**:
 1. Document GTB-FB overlap rules from Appendix I

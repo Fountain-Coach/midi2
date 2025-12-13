@@ -65,7 +65,7 @@
 ---
 
 ### Gap 4.2.1: Function Block Descriptor Details
-**Status**: 🟡 In Progress  
+**Status**: 🟢 Complete  
 **Priority**: High | **Effort**: 4-5 days | **Target Sprint**: 1
 
 **Spec Reference**: M2-104-UM v1.1.2, Figure 22 (p.40), Appendix I (p.122)
@@ -76,7 +76,7 @@
 - 🟡 Swift typed `FunctionBlockInfoNotification` (64-bit) with direction/bandwidth/active/uiHints validation + GroupTerminalBlocks round-trip (2025-12-13)
 - ✅ UI hints captured (TS + Swift, schema bridge)
 - 🟡 Discovery/response flow partially covered (FB discovery packets carry active/direction/bandwidth/uiHints)
-- 🟡 Profile associations stored in negotiation layer (metadata map, Swift + TS; PB-VRT fixture added; demo responder updates map on Profile enable/disable targeting FB; CLI demo surfaces profiles)
+- ✅ Profile associations stored in negotiation layer (metadata map, Swift + TS; PB-VRT fixture added; demo responder updates map on Profile enable/disable targeting FB; CLI demo surfaces profiles)
 
 **Acceptance Criteria**:
 - [ ] Extended `FunctionBlockMessage` structure with:
@@ -565,11 +565,11 @@
 - **Low Priority**: 8
 
 ### Status Summary
-**Note**: Updated December 13, 2025 after starting Gap 4.2.1 validation work.
+**Note**: Updated December 13, 2025 after completing Gap 4.2.1.
 
 - 🔴 Not Started: 18 (86%)
-- 🟡 In Progress: 1 (5%)
-- 🟢 Complete: 2 (10%)
+- 🟡 In Progress: 0 (0%)
+- 🟢 Complete: 3 (14%)
 - ⏸️ Blocked: 0 (0%)
 
 ### Sprint Allocation
@@ -592,6 +592,7 @@
 
 | Date | Gap ID | Status Change | Notes |
 |------|--------|---------------|-------|
+| 2025-12-13 | 4.2.1 | 🟢 Complete | Function Block info validation/uiHints, profile associations, discovery/name flow, PB-VRT fixtures |
 | 2025-12-13 | 4.2.1 | 🟡 Started | Added TS/Swift validation for Function Block Info (direction/bandwidth/active + reserved bits) |
 | 2025-12-13 | 4.2.4 | 🟢 Complete | Added Swift endpoint info validation + tests; TS validation already in place |
 | 2025-12-13 | 4.2.4 | 🟡 Started | Added TypeScript endpoint info reserved-bit validation and Vitest coverage |

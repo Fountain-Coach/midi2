@@ -55,7 +55,7 @@ final class StreamNegotiationTests: XCTestCase {
 
     func testFunctionBlockDiscoveryUMPsCarryFlags() throws {
         let gtb = GroupTerminalBlocks(blocks: [
-            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 4, active: true, direction: .bidirectional, midi1Bandwidth: .restrict31_25kbps, uiHints: 0x5A)
+            GroupTerminalBlock(index: 0, firstGroup: 0, groupCount: 4, active: true, direction: .bidirectional, midi1Bandwidth: .restrict31_25kbps, uiHints: 0x5A, profiles: ["/org.midi/piano"])
         ])
         let session = StreamNegotiationSession(responderCaps: .init(), functionBlocks: gtb)
         let req = FunctionBlockDiscovery(filterBitmap: 0)
@@ -67,5 +67,6 @@ final class StreamNegotiationTests: XCTestCase {
         XCTAssertEqual((word1 >> 16) & 0x03, 3)
         XCTAssertEqual((word1 >> 8) & 0x03, 2)
         XCTAssertEqual(word1 & 0xFF, 0x5A)
+        XCTAssertEqual(session.profileAssociations(for: 0), ["/org.midi/piano"])
     }
 }

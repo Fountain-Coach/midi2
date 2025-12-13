@@ -7,8 +7,9 @@ public struct GroupTerminalBlock: Equatable {
     public var direction: FunctionBlockDirection
     public var midi1Bandwidth: Midi1Bandwidth
     public var uiHints: UInt8
+    public var profiles: [String]
 
-    public init(index: UInt8, firstGroup: UInt8, groupCount: UInt8, active: Bool = false, direction: FunctionBlockDirection = .reserved, midi1Bandwidth: Midi1Bandwidth = .notMidi1, uiHints: UInt8 = 0) {
+    public init(index: UInt8, firstGroup: UInt8, groupCount: UInt8, active: Bool = false, direction: FunctionBlockDirection = .reserved, midi1Bandwidth: Midi1Bandwidth = .notMidi1, uiHints: UInt8 = 0, profiles: [String] = []) {
         self.index = index
         self.firstGroup = firstGroup & 0x0F
         self.groupCount = groupCount & 0x0F
@@ -16,6 +17,7 @@ public struct GroupTerminalBlock: Equatable {
         self.direction = direction
         self.midi1Bandwidth = midi1Bandwidth
         self.uiHints = uiHints
+        self.profiles = profiles
     }
 }
 
@@ -54,7 +56,8 @@ public struct GroupTerminalBlocks: Equatable {
                                          active: info.active,
                                          direction: info.direction,
                                          midi1Bandwidth: info.midi1Bandwidth,
-                                         uiHints: info.uiHints)
+                                         uiHints: info.uiHints,
+                                         profiles: [])
             result.append(blk)
         }
         self.blocks = result

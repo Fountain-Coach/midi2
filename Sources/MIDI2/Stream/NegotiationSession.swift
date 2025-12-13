@@ -53,4 +53,9 @@ public final class StreamNegotiationSession {
     public func onFunctionBlockDiscovery(_ req: FunctionBlockDiscovery, group: Uint4) throws -> [UmpPacket64] {
         try onFunctionBlockDiscovery(req).umps(group: group)
     }
+
+    /// Return profile associations for a function block index (if provided in the session's blocks).
+    public func profileAssociations(for index: UInt8) -> [String] {
+        functionBlocks.blocks.first(where: { $0.index == index })?.profiles ?? []
+    }
 }

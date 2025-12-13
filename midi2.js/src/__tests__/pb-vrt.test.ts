@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { decodeToPacketAndEvent } from "../decoder";
 import { clearGtbContext } from "../gtb-context";
 import { loadGtbDescriptorFromJson } from "../gtb-descriptor-loader";
+import { guardUmpWordsWithGtb } from "../gtb-guards";
 import { eventToSchemaPacket, reassemblePeChunks } from "../schema-bridge";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
@@ -94,7 +95,8 @@ describe("PB-VRT golden vectors", () => {
     clearGtbContext();
     loadGtbDescriptorFromJson(gtb.descriptor);
     const blockedWords = new Uint32Array([hexToWord(gtb.blockedWord)]);
-    expect(() => decodeToPacketAndEvent(blockedWords)).toThrow(RangeError);
+    // use raw-word guard to simulate ingress enforcement
+    expect(() => guardUmpWordsWithGtb(blockedWords)).toThrow(RangeError);
   });
 
   it("decodes JR clock/timestamp sequence", () => {

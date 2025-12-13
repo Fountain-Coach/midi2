@@ -3,6 +3,7 @@ import { decodeUmp } from "./ump";
 import { Midi2Event } from "./types";
 import { eventToSchemaPacket, decodeStreamWord } from "./schema-bridge";
 import { enforceAllowedMessageType } from "./gtb-validator";
+import { getGtbAllowedMessageTypesForGroup } from "./gtb-context";
 
 export interface DecodedUmp {
   packet: UmpPacket | null;
@@ -40,6 +41,21 @@ export function decodeToPacketAndEventWithGuards(
   if (opts?.allowedMessageTypes) {
     const mt = (word0 >>> 28) & 0xf;
     enforceAllowedMessageType(mt, opts.allowedMessageTypes);
+  }
+  return decodeToPacketAndEvent(words);
+}
+
+/**
+ * Decode with GTB context-aware MT enforcement (per-group).
+ * Falls back to plain decode if no GTB context is registered for the group.
+ */
+export function decodeWithGtbContext(words: ArrayLike<number>): DecodedUmp | null {
+  const word0 = words[0] ?? 0;
+  const group = (word0 >>> 24) & 0xf;
+  const mt = (word0 >>> 28) & 0xf;
+  const allowed = getGtbAllowedMessageTypesForGroup(group);
+  if (allowed) {
+    enforceAllowedMessageType(mt, allowed);
   }
   return decodeToPacketAndEvent(words);
 }

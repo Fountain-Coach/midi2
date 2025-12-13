@@ -15,10 +15,15 @@ export interface DecodedUmp {
  * Stream MT=0xF packets are translated into `StreamEvent` when possible.
  */
 export function decodeToPacketAndEvent(words: ArrayLike<number>): DecodedUmp | null {
+  const word0 = words[0] ?? 0;
+  const group = (word0 >>> 24) & 0xf;
+  const mt = (word0 >>> 28) & 0xf;
+  const allowed = getGtbAllowedMessageTypesForGroup(group);
+  if (allowed) {
+    enforceAllowedMessageType(mt, allowed);
+  }
   let event = decodeUmp(words);
   if (!event) return null;
-  const word0 = words[0] ?? 0;
-  const mt = (word0 >>> 28) & 0xf;
   if (event.kind === "rawUMP" && mt === 0xf) {
     const stream = decodeStreamWord(word0);
     if (stream) {
@@ -50,12 +55,5 @@ export function decodeToPacketAndEventWithGuards(
  * Falls back to plain decode if no GTB context is registered for the group.
  */
 export function decodeWithGtbContext(words: ArrayLike<number>): DecodedUmp | null {
-  const word0 = words[0] ?? 0;
-  const group = (word0 >>> 24) & 0xf;
-  const mt = (word0 >>> 28) & 0xf;
-  const allowed = getGtbAllowedMessageTypesForGroup(group);
-  if (allowed) {
-    enforceAllowedMessageType(mt, allowed);
-  }
   return decodeToPacketAndEvent(words);
 }

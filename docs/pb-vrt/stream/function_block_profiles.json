@@ -1,0 +1,6 @@
+{
+  "profiles": {
+    "0": ["/org.midi/piano", "/org.midi/organ"],
+    "1": ["/org.midi/drums"]
+  }
+}

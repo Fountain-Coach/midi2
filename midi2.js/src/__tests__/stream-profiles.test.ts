@@ -1,10 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { getProfileAssociations, setProfileAssociations } from "../stream-profiles";
+import { getProfileAssociations, getProfileAssociationsWithTimestamp, setProfileAssociations } from "../stream-profiles";
 
 describe("stream profile associations", () => {
   it("stores and returns profile ids per function block", () => {
     setProfileAssociations(2, ["/org.midi/piano", "/org.midi/organ"]);
     expect(getProfileAssociations(2)).toEqual(["/org.midi/piano", "/org.midi/organ"]);
+    const { profiles, lastUpdated } = getProfileAssociationsWithTimestamp(2);
+    expect(profiles).toEqual(["/org.midi/piano", "/org.midi/organ"]);
+    expect(typeof lastUpdated === "number" || lastUpdated === null).toBe(true);
   });
 
   it("masks index to byte", () => {

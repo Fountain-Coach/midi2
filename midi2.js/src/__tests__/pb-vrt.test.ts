@@ -65,6 +65,12 @@ describe("PB-VRT golden vectors", () => {
     expect(decodedDisc?.event?.kind).toBe("stream");
   });
 
+  it("loads function block profile associations fixture", () => {
+    const profiles = loadJSON("stream/function_block_profiles.json").profiles;
+    expect(profiles["0"]).toEqual(["/org.midi/piano", "/org.midi/organ"]);
+    expect(profiles["1"]).toEqual(["/org.midi/drums"]);
+  });
+
   it("decodes JR clock/timestamp sequence", () => {
     const jr = loadJSON("jr/clock_timestamp.json").sequence;
     const events = jr.map((e: any) =>

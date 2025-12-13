@@ -1,7 +1,7 @@
 # Stream Configuration Negotiation Scheme
 
 **Spec References**: M2-104-UM v1.1.2 §5.2, Figures 18/19; §7.2.2.3 (JR fallback guidance)  
-**Applies To**: `StreamNegotiationSession` (Swift) and demo CLI `stream handshake`
+**Applies To**: `StreamNegotiationSession` (Swift), `StreamNegotiationSession` (TS via `midi2.js/src/stream-negotiation.ts`), and demo CLI `stream handshake`
 
 ## State Machine
 - **Input**: Stream Configuration *Request* (mt=0xF, opcode=0x05) carries protocol + JR Tx/Rx flags.
@@ -32,5 +32,5 @@
 
 ## Where Configuration Lives
 - **Spec-driven**: The request payload is defined by M2-104-UM Figures 18/19; no extra local config file is required.
-- **Responder caps**: Set via `StreamNegotiationSession.Capabilities` (protocol + JR support).
+- **Responder caps**: Set via `StreamNegotiationSession.Capabilities` (Swift) or `StreamCapabilities` (TS) for protocol + JR support.
 - **USB/descriptor tie-in**: When available, map descriptor-advertised capabilities into `Capabilities` and Function Blocks; fallbacks are handled by the negotiation state machine above to avoid blocking when descriptors are incomplete.

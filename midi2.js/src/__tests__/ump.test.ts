@@ -453,6 +453,23 @@ describe("Stream messages", () => {
     expect(decoded).toMatchObject({ opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { active: true, direction: 3, midi1Bandwidth: 2, uiHints: 0xaa } });
   });
 
+  it("accepts all function block directions and bandwidths", () => {
+    const directions = [0, 1, 2, 3] as const;
+    const bandwidths = [0, 1, 2] as const;
+    for (const dir of directions) {
+      for (const bw of bandwidths) {
+        const evt: StreamEvent = {
+          kind: "stream",
+          group: 0,
+          opcode: "functionBlockInfoNotification",
+          functionBlockInfoNotification: { index: 0, firstGroup: 0, groupCount: 1, active: dir % 2 === 0, direction: dir, midi1Bandwidth: bw, uiHints: 0x01 },
+        };
+        const decoded = decodeUmp(encodeUmp(evt));
+        expect(decoded).toMatchObject({ functionBlockInfoNotification: { direction: dir, midi1Bandwidth: bw } });
+      }
+    }
+  });
+
   it("rejects function block info with reserved bits", () => {
     const words = new Uint32Array([
       0xf0112303, // word0 (index=0x11, firstGroup=2, groupCount=3)

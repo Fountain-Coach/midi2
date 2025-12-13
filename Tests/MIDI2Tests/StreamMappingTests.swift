@@ -78,7 +78,8 @@ final class StreamMappingTests: XCTestCase {
             groupCount: 0x4,
             active: true,
             direction: .bidirectional,
-            midi1Bandwidth: .restrict31_25kbps
+            midi1Bandwidth: .restrict31_25kbps,
+            uiHints: 0x55
         )
         let packet = msg.ump(group: Uint4(0x0)!)
         let parsed = try FunctionBlockInfoNotification(parsingUMP64: packet)
@@ -102,5 +103,20 @@ final class StreamMappingTests: XCTestCase {
             word1: 0x00000300 // midi1Bandwidth = 3
         )
         XCTAssertThrowsError(try FunctionBlockInfoNotification(parsingUMP64: pkt))
+    }
+
+    func testFunctionBlockInfoDirectionCoverage() throws {
+        for dirRaw in 0...3 {
+            let msg = try FunctionBlockInfoNotification(index: 0x00,
+                                                        firstGroup: 0x0,
+                                                        groupCount: 0x1,
+                                                        active: dirRaw % 2 == 0,
+                                                        direction: FunctionBlockDirection(rawValue: UInt8(dirRaw)) ?? .reserved,
+                                                        midi1Bandwidth: .unrestricted,
+                                                        uiHints: 0x01)
+            let pkt = msg.ump(group: Uint4(0)!)
+            let parsed = try FunctionBlockInfoNotification(parsingUMP64: pkt)
+            XCTAssertEqual(parsed.direction.rawValue, UInt8(dirRaw))
+        }
     }
 }

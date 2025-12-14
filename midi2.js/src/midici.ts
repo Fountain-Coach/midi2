@@ -49,6 +49,11 @@ export function decodeMidiCiFromSysEx(event: SysEx7Event | SysEx8Event): MidiCiE
   const version = format === "sysex7" ? data[3] & 0x7f : data[3];
   const payload = data.slice(4);
   if (payload.length === 0) return null;
+  // Guard profile details channel count overflow (byte 4 when subId2 == 0x09)
+  if (subId2 === 0x09 && payload.length >= 2) {
+    const chanCount = payload[1];
+    if (chanCount > 0x10) return null;
+  }
   return {
     kind: "midiCi",
     group: event.group,

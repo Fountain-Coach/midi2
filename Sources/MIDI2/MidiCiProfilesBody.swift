@@ -109,7 +109,7 @@ public struct MidiCiProfilesBody: Equatable {
         let profileId = String(bytes: idBytes, encoding: .utf8) ?? ""
         let targetRaw = bytes[safe: index] ?? 0x7F
         index += 1
-        let target = Target(rawValue: targetRaw)
+        let target = (targetRaw <= 0x02) ? Target(rawValue: targetRaw) : nil
         let chanCount = Int(bytes[safe: index] ?? 0)
         index += 1
         if chanCount > 0x10 {
@@ -155,7 +155,7 @@ public struct MidiCiProfilesBody: Equatable {
         let profileId = String(bytes: idBytes, encoding: .utf8) ?? ""
         let targetRaw = bytes[safe: index] ?? 0xFF
         index += 1
-        let target = Target(rawValue: targetRaw)
+        let target = (targetRaw <= 0x02) ? Target(rawValue: targetRaw) : nil
         let chanCount = Int(bytes[safe: index] ?? 0)
         index += 1
         if chanCount > 0x10 {

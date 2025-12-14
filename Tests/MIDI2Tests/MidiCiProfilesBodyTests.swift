@@ -35,4 +35,10 @@ final class MidiCiProfilesBodyTests: XCTestCase {
         let parsed = MidiCiProfilesBody(sysEx7Bytes: bytes)
         XCTAssertEqual(parsed.profileId, "")
     }
+
+    func testInvalidTargetDefaultsNil() {
+        let bytes: [UInt8] = [0x00, 0x00, 0x00, 0x03, 0x00] // targetRaw=3 (invalid)
+        let parsed = MidiCiProfilesBody(sysEx7Bytes: bytes)
+        XCTAssertNil(parsed.target)
+    }
 }

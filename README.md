@@ -103,6 +103,16 @@ swift build -c release
 swift test --enable-code-coverage
 ```
 
+### CLI demos
+
+Common `midi2demo` scenarios (see `midi2demo --help` for full list):
+- `midi2demo pe-demo`
+- `midi2demo profiles-demo`
+- `midi2demo profiles-psd`
+- `midi2demo stream-config endpoint`
+- `midi2demo stream-config fb-discover`
+- `midi2demo stream-config gtb`
+
 ### JavaScript/TypeScript
 
 ```bash

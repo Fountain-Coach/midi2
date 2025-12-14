@@ -20,7 +20,7 @@ func runStreamChecks(_ out: inout [CheckResult]) -> Bool {
     // Endpoint Discovery mapping: data1 [major:4][minor:4]; data2 [reserved:4][max:4]
     do {
         let epReq = EndpointDiscoveryMessage(data1: 0x12, data2: 0x08)
-        var ok = (epReq.majorVersion == 0x1 && epReq.minorVersion == 0x2 && epReq.maxGroups == 0x8)
+        let ok = (epReq.majorVersion == 0x1 && epReq.minorVersion == 0x2 && epReq.maxGroups == 0x8)
         out.append(CheckResult(name: "Stream.EndpointDiscoveryMapping", passed: ok, details: [
             "major": String(epReq.majorVersion),
             "minor": String(epReq.minorVersion),
@@ -58,7 +58,6 @@ func runStreamChecks(_ out: inout [CheckResult]) -> Bool {
 func runProfileChecks(_ out: inout [CheckResult]) -> Bool {
     var allOK = true
     let sess = ProfileSession(supportedProfiles: ["/org.midi/piano"])
-    let group = Uint4(0)!
     let target = MidiCiProfilesBody.Target.channel
     let ch0 = [Uint4(0)!]
     // Inquiry for supported profile

@@ -1,0 +1,59 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ${{ matrix.os }}
+    if: ${{ github.event_name == 'schedule' || github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main' }}
+    continue-on-error: true
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: javascript
+            os: ubuntu-latest
+            workdir: midi2.js
+            setup-node: "20"
+            build: npm ci && npm run check && npm run build
+          - language: swift
+            os: macos-latest
+            workdir: .
+            setup-node: ""
+            build: swift build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        if: ${{ matrix.setup-node != '' }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.setup-node }}
+          cache: npm
+          cache-dependency-path: midi2.js/package-lock.json
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: manual
+
+      - name: Build
+        run: ${{ matrix.build }}
+        working-directory: ${{ matrix.workdir }}
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3

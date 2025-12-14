@@ -6,51 +6,41 @@
 #
 # See: https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
 
-# Default owners for everything in the repo
-# These users will be requested for review on all PRs unless overridden below
-* @Fountain-Coach/maintainers
+# Default owner for everything in the repo
+# This user will be requested for review on all PRs unless overridden below
+* @Contexter
 
 # Core Swift packages
-/Sources/MIDI2/ @Fountain-Coach/maintainers
-/Sources/MIDI2CI/ @Fountain-Coach/maintainers
-/Sources/UMPALSA/ @Fountain-Coach/maintainers
+/Sources/MIDI2/ @Contexter
+/Sources/MIDI2CI/ @Contexter
+/Sources/UMPALSA/ @Contexter
 
 # Swift Package configuration
-/Package.swift @Fountain-Coach/maintainers
-/Package.resolved @Fountain-Coach/maintainers
+/Package.swift @Contexter
+/Package.resolved @Contexter
 
 # JavaScript/TypeScript library
-/midi2.js/ @Fountain-Coach/maintainers
+/midi2.js/ @Contexter
 
 # CI/CD workflows and automation
-/.github/workflows/ @Fountain-Coach/maintainers
-/.github/dependabot.yml @Fountain-Coach/maintainers
+/.github/workflows/ @Contexter
+/.github/dependabot.yml @Contexter
 
 # Documentation and policies
-/AGENTS.md @Fountain-Coach/maintainers
-/RELEASE.md @Fountain-Coach/maintainers
-/SECURITY.md @Fountain-Coach/maintainers
-/CONTRIBUTING.md @Fountain-Coach/maintainers
-/CODEOWNERS @Fountain-Coach/maintainers
+/AGENTS.md @Contexter
+/RELEASE.md @Contexter
+/SECURITY.md @Contexter
+/CONTRIBUTING.md @Contexter
+/CODEOWNERS @Contexter
 
 # Release and versioning
-/CHANGELOG.md @Fountain-Coach/maintainers
+/CHANGELOG.md @Contexter
 
 # Examples (require at least one maintainer review)
-/Examples/ @Fountain-Coach/maintainers
+/Examples/ @Contexter
 
 # Tests (require review from code area owners)
-/Tests/ @Fountain-Coach/maintainers
+/Tests/ @Contexter
 
 # Specification documents (reference materials, low priority)
 /*.pdf
-
-# TODO: Replace @Fountain-Coach/maintainers with actual GitHub usernames or team handles
-# Examples:
-#   * @username1 @username2
-#   * @org/team-name
-#
-# To add yourself as a maintainer:
-# 1. Request write access to the repository
-# 2. Add your GitHub username or create a team
-# 3. Update this file with your handle

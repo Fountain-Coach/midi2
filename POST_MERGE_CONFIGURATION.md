@@ -8,27 +8,27 @@ This document lists configuration items that need to be completed by repository 
 **Priority:** 🔴 **Critical**
 
 Update the following files with the actual security contact email:
-- [ ] `SECURITY.md` - Line 23 (email address)
-- [ ] `SECURITY.md` - Line 160 (email address in Contact section)
-- [ ] `.github/ISSUE_TEMPLATE/security_report.yml` - Line 20 (email in notice)
+- [x] `SECURITY.md` - Line 23 (email address)
+- [x] `SECURITY.md` - Line 160 (email address in Contact section)
+- [x] `.github/ISSUE_TEMPLATE/security_report.yml` - Line 20 (email in notice)
 
-**Current placeholder:** `security@fountain-coach.dev`
+**Current security contact:** `mail@benedikt-eickhoff.de`
 
 **Action:**
 ```bash
-# Replace placeholder email with actual contact
-sed -i 's/security@fountain-coach.dev/YOUR_ACTUAL_EMAIL/g' SECURITY.md
-sed -i 's/security@fountain-coach.dev/YOUR_ACTUAL_EMAIL/g' .github/ISSUE_TEMPLATE/security_report.yml
+# Replace the contact email if it changes
+sed -i 's/mail@benedikt-eickhoff.de/YOUR_ACTUAL_EMAIL/g' SECURITY.md
+sed -i 's/mail@benedikt-eickhoff.de/YOUR_ACTUAL_EMAIL/g' .github/ISSUE_TEMPLATE/security_report.yml
 ```
 
 ### 2. Update CODEOWNERS with Actual Maintainer Handles
 **Priority:** 🔴 **Critical**
 
 Update `CODEOWNERS` to replace placeholder team with actual GitHub usernames:
-- [ ] Replace `@Fountain-Coach/maintainers` with real GitHub handles
-- [ ] Create GitHub team or use individual usernames
+- [x] Replace `@Fountain-Coach/maintainers` with real GitHub handles
+- [x] Create GitHub team or use individual usernames
 
-**Current placeholder:** `@Fountain-Coach/maintainers`
+**Current owner:** `@Contexter`
 
 **Example:**
 ```
@@ -46,7 +46,7 @@ Update `CODEOWNERS` to replace placeholder team with actual GitHub usernames:
 ```bash
 # Edit CODEOWNERS file
 nano CODEOWNERS
-# Replace all instances of @Fountain-Coach/maintainers
+# Replace @Contexter if the maintainer roster changes
 ```
 
 ### 3. Enable Branch Protection Rules
@@ -76,7 +76,7 @@ Enable security scanning and alerts:
 - [ ] ☑ Dependency graph (should already be enabled)
 - [ ] ☑ Dependabot alerts
 - [ ] ☑ Dependabot security updates
-- [ ] ☑ Code scanning (CodeQL) - Click "Set up" and use default configuration
+- [x] ☑ Code scanning (CodeQL) - Workflow added in `.github/workflows/codeql.yml`
 - [ ] ☑ Secret scanning
 
 **Instructions:**
@@ -88,16 +88,14 @@ Enable security scanning and alerts:
 **Priority:** 🟡 **High**
 
 Remove redundant workflow file:
-- [ ] Decision: Keep `midi2-js.yml` or `midi2js.yml`?
-- [ ] Recommended: Keep `.github/workflows/midi2-js.yml` (more descriptive name)
-- [ ] Delete: `.github/workflows/midi2js.yml`
+- [x] Decision: Keep `midi2-js.yml` or `midi2js.yml`?
+- [x] Recommended: Keep `.github/workflows/midi2-js.yml` (more descriptive name)
+- [x] Delete: `.github/workflows/midi2js.yml`
 
 **Action:**
 ```bash
 # Remove duplicate workflow
 git rm .github/workflows/midi2js.yml
-git commit -m "chore(ci): Remove duplicate midi2.js workflow"
-git push origin main
 ```
 
 ## Optional: Enhanced Configuration
@@ -183,18 +181,13 @@ After completing the required items above, verify:
 ## Commands Summary
 
 ```bash
-# 1. Update security contact email
-sed -i 's/security@fountain-coach.dev/YOUR_EMAIL/g' SECURITY.md .github/ISSUE_TEMPLATE/security_report.yml
+# 1. Update security contact email (only if it changes)
+sed -i 's/mail@benedikt-eickhoff.de/YOUR_EMAIL/g' SECURITY.md .github/ISSUE_TEMPLATE/security_report.yml
 
-# 2. Update CODEOWNERS (manual edit required)
+# 2. Update CODEOWNERS (manual edit required if maintainer roster changes)
 nano CODEOWNERS
 
 # 3-4. Enable via GitHub UI (Settings → Branches, Settings → Security)
-
-# 5. Remove duplicate workflow
-git rm .github/workflows/midi2js.yml
-git commit -m "chore(ci): Remove duplicate workflow"
-git push origin main
 
 # Verify all changes
 git status

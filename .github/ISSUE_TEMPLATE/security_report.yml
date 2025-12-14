@@ -17,7 +17,7 @@ body:
            - Fill out the private security advisory form
         
         2. **Email:**
-           - Send to: security@fountain-coach.dev *(TODO: Update with actual contact)*
+           - Send to: mail@benedikt-eickhoff.de
            - Subject: `[SECURITY] midi2 vulnerability: [brief description]`
         
         See [SECURITY.md](https://github.com/Fountain-Coach/midi2/blob/main/SECURITY.md) for full details.

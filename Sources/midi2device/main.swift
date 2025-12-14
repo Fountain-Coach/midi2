@@ -32,7 +32,7 @@ final class UMPDevice {
     }
 
     private func createClient() throws {
-        var status = MIDIClientCreate("MIDI2 Swift Device" as CFString, nil, nil, &client)
+        let status = MIDIClientCreate("MIDI2 Swift Device" as CFString, nil, nil, &client)
         guard status == noErr else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(status)) }
     }
 

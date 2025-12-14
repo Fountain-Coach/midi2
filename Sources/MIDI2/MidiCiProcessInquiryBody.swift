@@ -22,6 +22,16 @@ public struct MidiCiProcessInquiryBody: Equatable {
 
     private static func validateFilters(_ filters: [String: UInt8]?) throws {
         guard let filters = filters else { return }
+        let multiValueKeys: Set<String> = [
+            "clock",
+            "sysex",
+            "noteOn",
+            "systemMessages",
+            "channelMessages",
+            "noteDataMessages",
+            "perNoteControllers",
+            "controllers"
+        ]
         for (k, v) in filters {
             guard !k.isEmpty else { throw MIDIError.malformedPacket("empty filter key") }
             if k == "messageDataControl" {
@@ -29,7 +39,10 @@ public struct MidiCiProcessInquiryBody: Equatable {
                     throw MIDIError.valueOutOfRange(name: "messageDataControl", value: UInt64(v), range: 0...0x7F)
                 }
             } else {
-                guard v <= 0x01 else { throw MIDIError.valueOutOfRange(name: "filterValue", value: UInt64(v), range: 0...1) }
+                guard v <= 0x7F else { throw MIDIError.valueOutOfRange(name: "filterValue", value: UInt64(v), range: 0...0x7F) }
+                if !multiValueKeys.contains(k) && v > 1 {
+                    throw MIDIError.valueOutOfRange(name: "filterValue", value: UInt64(v), range: 0...1)
+                }
             }
         }
     }

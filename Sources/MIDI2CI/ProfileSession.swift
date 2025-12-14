@@ -4,6 +4,8 @@ import MIDI2
 public final class ProfileSession {
     /// Profiles that the device supports (by profileId).
     public var supportedProfiles: Set<String>
+    /// Profiles that support Profile-Specific Data (PSD); defaults to the supported set.
+    public var psdCapableProfiles: Set<String>
     /// Enabled profiles keyed by target and optional channel list string key.
     /// Key format: "T:<target>|C:<comma-separated channels or *>".
     private var enabled: [String: Set<String>] = [:]
@@ -12,6 +14,7 @@ public final class ProfileSession {
 
     public init(supportedProfiles: Set<String> = []) {
         self.supportedProfiles = supportedProfiles
+        self.psdCapableProfiles = supportedProfiles
     }
 
     private func channelMaskBytes(_ channels: [Uint4]?) -> (UInt8, UInt8) {
@@ -46,6 +49,47 @@ public final class ProfileSession {
             c = "*"
         }
         return "T:\(t)|C:\(c)"
+    }
+
+    /// Update the supported profile set and emit added/removed reports for changes at the given scope.
+    @discardableResult
+    public func updateSupportedProfiles(_ newSupported: Set<String>,
+                                        target: MidiCiProfilesBody.Target,
+                                        channels: [Uint4]? = nil) -> [MidiCiProfilesBody] {
+        let added = newSupported.subtracting(supportedProfiles).sorted()
+        let removed = supportedProfiles.subtracting(newSupported).sorted()
+        supportedProfiles = newSupported
+        psdCapableProfiles.subtract(removed)
+        psdCapableProfiles.formUnion(added)
+
+        if !removed.isEmpty {
+            enabled = enabled.mapValues { $0.subtracting(removed) }.filter { !$0.value.isEmpty }
+        }
+
+        var reports: [MidiCiProfilesBody] = []
+        for id in added {
+            reports.append(reportAdded(profileId: id, target: target, channels: channels))
+        }
+        for id in removed {
+            reports.append(reportRemoved(profileId: id, target: target, channels: channels))
+        }
+        return reports
+    }
+
+    private func detailsReply(for body: MidiCiProfilesBody, target: MidiCiProfilesBody.Target) -> MidiCiProfilesBody {
+        let k = key(for: target, channels: body.channels)
+        let isSupported = supportedProfiles.contains(body.profileId)
+        let isEnabled = enabled[k]?.contains(body.profileId) ?? false
+        let (cmL, cmH) = channelMaskBytes(body.channels)
+        let details: [String: UInt8] = [
+            "ver": 1,
+            "supported": isSupported ? 1 : 0,
+            "enabled": isEnabled ? 1 : 0,
+            "psd": psdCapableProfiles.contains(body.profileId) ? 1 : 0,
+            "cmL": cmL,
+            "cmH": cmH
+        ]
+        return MidiCiProfilesBody(command: .detailsReply, profileId: body.profileId, target: target, channels: body.channels, details: details)
     }
 
     /// Handle a single Profiles message and return any reports/replies.
@@ -95,9 +139,8 @@ public final class ProfileSession {
 
         case .detailsInquiry:
             guard !body.profileId.isEmpty else { return [] }
-            // Provide details: version and channel mask for the addressed scope
-            let (cmL, cmH) = channelMaskBytes(body.channels)
-            return [MidiCiProfilesBody(command: .detailsReply, profileId: body.profileId, target: body.target, channels: body.channels, details: ["ver": 1, "cmL": cmL, "cmH": cmH])]
+            guard let target = body.target else { return [] }
+            return [detailsReply(for: body, target: target)]
 
         default:
             return []

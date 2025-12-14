@@ -20,6 +20,14 @@ public struct MidiCiProcessInquiryBody: Equatable {
         self.filters = filters
     }
 
+    private static func validateFilters(_ filters: [String: UInt8]?) throws {
+        guard let filters = filters else { return }
+        for (k, v) in filters {
+            guard !k.isEmpty else { throw MIDIError.malformedPacket("empty filter key") }
+            guard v <= 0x01 else { throw MIDIError.valueOutOfRange(name: "filterValue", value: UInt64(v), range: 0...1) }
+        }
+    }
+
     public func sysEx7Bytes() -> [UInt8] {
         var bytes: [UInt8] = [command.rawValue & 0x7F]
         if let filters = filters,
@@ -78,6 +86,7 @@ public struct MidiCiProcessInquiryBody: Equatable {
             let data = Data(payload)
             self.filters = (try? JSONSerialization.jsonObject(with: data)) as? [String: UInt8]
         }
+        try Self.validateFilters(self.filters)
         self.command = cmd
     }
 }

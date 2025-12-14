@@ -596,6 +596,7 @@
 
 | Date | Gap ID | Status Change | Notes |
 |------|--------|---------------|-------|
+| 2025-12-14 | 2.2.x / 4.x | 🟢 Progress | Schema bridge parity for MDS/stream (JS) + flex reserved/address guards; Swift Process Inquiry filter validation and PSD-aware profile details replies; tests green (npm check/test, swift test). |
 | 2025-12-13 | 8.2.3 | 🟡 Started | Added reserved-value matrix + initial stream negative tests (Swift/TS) |
 | 2025-12-14 | 2.2.3 | 🟢 Complete | Process Inquiry filter/messageDataControl validation; deviceId scope guard; TS+Swift negatives |
 | 2025-12-13 | 4.2.3 | 🟢 Complete | Stream config mismatch policy + notification rules; negotiation state machine + tests; doc |

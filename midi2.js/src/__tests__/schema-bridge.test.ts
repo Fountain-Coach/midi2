@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isUmpPacket } from "../generated/openapi-types";
+import { isUmpPacket, isUmpPacket64, isUmpPacket128 } from "../generated/openapi-types";
 import {
   decodeWordsToSchemaPacket,
   eventToSchemaPacket,
@@ -17,6 +17,7 @@ import {
   Midi1ChannelVoiceEvent,
   Midi2NoteOnEvent,
   Midi2ProgramChangeEvent,
+  MdsEvent,
   StreamEvent,
   SysEx7Event,
   SysEx8Event,
@@ -24,17 +25,29 @@ import {
   PropertyExchangeEvent,
 } from "../types";
 
+const flattenWords = (packets: Uint32Array[]): Uint32Array => {
+  if (packets.length === 1) return packets[0];
+  const total = packets.reduce((sum, p) => sum + p.length, 0);
+  const out = new Uint32Array(total);
+  let offset = 0;
+  for (const p of packets) {
+    out.set(p, offset);
+    offset += p.length;
+  }
+  return out;
+};
+
 describe("schema bridge", () => {
   it("converts midi2 note on events to schema packets and back", () => {
     const evt: Midi2NoteOnEvent = { kind: "noteOn", group: 0, channel: 1, note: 64, velocity: 0x1234 };
     const packet = eventToSchemaPacket(evt);
-    expect(packet && isUmpPacket(packet)).toBe(true);
+    expect(packet && isUmpPacket64(packet)).toBe(true);
     const words = schemaPacketToWords(packet!);
     expect(words).toEqual([encodeUmp(evt)]);
     const backToEvent = schemaPacketToEvent(packet!);
     expect(backToEvent).toMatchObject(evt);
     const fromWords = decodeWordsToSchemaPacket(words![0]);
-    expect(fromWords && isUmpPacket(fromWords)).toBe(true);
+    expect(fromWords && isUmpPacket64(fromWords)).toBe(true);
   });
 
   it("supports program change with bank select flags", () => {
@@ -71,7 +84,7 @@ describe("schema bridge", () => {
   it("maps flex tempo to schema envelope", () => {
     const evt: FlexTempoEvent = { kind: "flexTempo", group: 0, bpm: 128.5 };
     const packet = eventToSchemaPacket(evt);
-    expect(packet && isUmpPacket(packet)).toBe(true);
+    expect(packet && isUmpPacket128(packet)).toBe(true);
     const words = schemaPacketToWords(packet!);
     const decoded = decodeUmp(words![0]);
     expect(decoded).toMatchObject(evt);
@@ -100,11 +113,31 @@ describe("schema bridge", () => {
       payload: Uint8Array.from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
     };
     const packet = eventToSchemaPacket(evt);
-    expect(packet && isUmpPacket(packet)).toBe(true);
+    expect(packet && isUmpPacket128(packet)).toBe(true);
     const words = schemaPacketToWords(packet!);
     expect(words && words.length).toBe(1);
     const decoded = schemaPacketToEvent(packet!);
     expect(decoded).toMatchObject({ kind: "sysex8", manufacturerId: [0x00, 0x20, 0x33] });
+  });
+
+  it("encodes/decodes MDS chunk via schema", () => {
+    const mds: MdsEvent = {
+      kind: "mds",
+      group: 2,
+      messageId: 7,
+      totalChunks: 1,
+      chunks: [{ messageId: 7, totalChunks: 1, index: 0, validByteCount: 5, payload: Uint8Array.from([1, 2, 3, 4, 5]) }],
+    };
+    const packet = eventToSchemaPacket(mds);
+    expect(packet && isUmpPacket128(packet)).toBe(true);
+    const evt = schemaPacketToEvent(packet!);
+    expect(evt).toMatchObject({ kind: "mds", messageId: 7, totalChunks: 1 });
+    const words = schemaPacketToWords(packet!);
+    const flat = flattenWords(words ?? []);
+    const decoded = decodeUmp(flat) as MdsEvent;
+    expect(decoded.kind).toBe("mds");
+    expect(decoded.chunks[0].validByteCount).toBe(5);
+    expect(Array.from(decoded.chunks[0].payload)).toEqual([1, 2, 3, 4, 5]);
   });
 
   it("supports MIDI-CI envelope mapping (sysex8)", () => {
@@ -348,5 +381,27 @@ describe("schema bridge", () => {
     expect(packet).toBeTruthy();
     const evt = schemaPacketToEvent(packet!);
     expect(evt).toMatchObject({ kind: "stream", opcode: "endpointDiscovery" });
+  });
+
+  it("roundtrips stream device identity and endpoint name via schema", () => {
+    const identity: StreamEvent = {
+      kind: "stream",
+      group: 1,
+      opcode: "deviceIdentityNotification",
+      deviceIdentityNotification: { manufacturerId: [0x7d], deviceFamily: 0x1234, deviceModel: 0x4567, softwareRevision: 0x01020304 },
+    };
+    const words = eventToSchemaPacketWords(identity)!;
+    const flat = flattenWords(words);
+    expect(flat[1]).toBe(0x7d000012);
+    expect(flat[2]).toBe(0x34456701);
+    expect(flat[3]).toBe(0x02030400);
+    const decoded = decodeUmp(flattenWords(words));
+    expect(decoded?.kind).toBe("stream");
+
+    const nameEvt: StreamEvent = { kind: "stream", group: 1, opcode: "endpointNameNotification", endpointNameNotification: { name: "SchemaBridge" } };
+    const namePkt = eventToSchemaPacket(nameEvt);
+    const nameWords = schemaPacketToWords(namePkt!)!;
+    const decodedName = decodeUmp(flattenWords(nameWords));
+    expect(decodedName).toMatchObject(nameEvt);
   });
 });

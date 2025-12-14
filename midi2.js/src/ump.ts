@@ -810,6 +810,41 @@ export function encodePitchBend(event: Midi2PitchBendEvent): Uint32Array {
   return new Uint32Array([word0 >>> 0, event.value >>> 0]);
 }
 
+function encodeMds(event: MdsEvent): Uint32Array[] {
+  const packets: Uint32Array[] = [];
+  const chunks = event.chunks.length ? event.chunks : [{ messageId: event.messageId, totalChunks: event.totalChunks, index: 0, validByteCount: 0, payload: new Uint8Array() }];
+  for (const chunk of chunks) {
+    const messageId = chunk.messageId ?? event.messageId;
+    const totalChunks = chunk.totalChunks ?? event.totalChunks;
+    const validByteCount = chunk.validByteCount ?? (chunk.payload?.length ?? 0);
+    const word0 =
+      (0x5 << 28) |
+      ((event.group & 0x0f) << 24) |
+      (DATA_STATUS_MDS_HEADER << 20) |
+      ((messageId & 0xff) << 8) |
+      (validByteCount & 0xff);
+    const word1 = ((totalChunks & 0xffff) << 16) | (chunk.index & 0xffff);
+    const word2 = ((chunk.manufacturerId ?? 0) << 16) | ((chunk.deviceId ?? 0) & 0xffff);
+    const word3 = ((chunk.subId1 ?? 0) << 16) | ((chunk.subId2 ?? 0) & 0xffff);
+    packets.push(new Uint32Array([word0 >>> 0, word1 >>> 0, word2 >>> 0, word3 >>> 0]));
+
+    const payload = chunk.payload ?? new Uint8Array();
+    for (let offset = 0; offset < payload.length; offset += 12) {
+      const slice = payload.slice(offset, offset + 12);
+      const byteCount = slice.length === 12 ? 0 : slice.length;
+      const header = (0x5 << 28) | ((event.group & 0x0f) << 24) | (DATA_STATUS_MDS_PAYLOAD << 20) | ((byteCount & 0x0f) << 16) | ((messageId & 0xff) << 8);
+      const padded = new Uint8Array(12);
+      padded.set(slice);
+      const dv = new DataView(padded.buffer);
+      const w1 = dv.getUint32(0, false);
+      const w2 = dv.getUint32(4, false);
+      const w3 = dv.getUint32(8, false);
+      packets.push(new Uint32Array([header >>> 0, w1 >>> 0, w2 >>> 0, w3 >>> 0]));
+    }
+  }
+  return packets;
+}
+
 export function encodeUmp(event: Midi2Event): Uint32Array {
   switch (event.kind) {
     case "utility":
@@ -883,6 +918,13 @@ export function encodeEventPackets(event: Midi2Event): Uint32Array[] {
     }
     case "midiCi":
       return encodeMidiCiEvent(event);
+    case "mds":
+      return encodeMds(event);
+    case "rawUMP": {
+      // Validate the raw packet using the decoder to enforce reserved-bit guards.
+      decodeUmp(event.words);
+      return [toUint32Array(event.words)];
+    }
     default:
       return [encodeUmp(event)];
   }
@@ -895,9 +937,6 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   const packet = toUint32Array(words);
   const word0 = packet[0];
   const mt = (word0 >>> 28) & 0xf;
-  if (mt === FLEX_STATUS_CLASS && ((word0 >>> 16) & 0xff) !== FLEX_STATUS_CLASS) {
-    throw new RangeError("Invalid flex status class");
-  }
   if (mt === STREAM_MT) {
     return decodeStream(packet, timestamp);
   }
@@ -1002,9 +1041,15 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   if (mt === 0xd) {
     if (packet.length < 4) return null;
     const statusClass = (word0 >>> 16) & 0xff;
+    if (statusClass !== 0x10 && statusClass !== 0x11) {
+      throw new RangeError("Invalid flex status class");
+    }
     const status = (word0 >>> 8) & 0xff;
     const group = (word0 >>> 24) & 0xf;
     const addrByte = word0 & 0xff;
+    if ((addrByte & 0xe0) !== 0) {
+      throw new RangeError("Invalid flex address byte");
+    }
     const channel = (addrByte & 0x10) !== 0 ? addrByte & 0x0f : undefined;
     const textBytes = [
       (packet[1] >>> 24) & 0xff,

@@ -13,6 +13,8 @@ import {
   UmpPacket128,
   isMidiCiPropertyExchangeBody,
   isUmpPacket,
+  isUmpPacket64,
+  isUmpPacket128,
   StreamBody,
   isStreamBody,
 } from "./generated/openapi-types";
@@ -38,6 +40,7 @@ import {
   Midi2RpnRelativeEvent,
   Midi2SystemEvent,
   UtilityEvent,
+  MdsEvent,
   FlexTempoEvent,
   FlexTimeSignatureEvent,
   FlexKeySignatureEvent,
@@ -53,6 +56,7 @@ import {
 } from "./types";
 import {
   encodeUmp,
+  encodeEventPackets,
   decodeUmp,
   STREAM_OPCODE_DEVICE_IDENTITY,
   STREAM_OPCODE_ENDPOINT_DISCOVERY,
@@ -459,6 +463,22 @@ function asUmpPacket128(event: Midi2Event): UmpPacket128 | null {
       };
       return { messageType: 13, group: flex.group, body };
     }
+    case "mds": {
+      const mds: MdsEvent = event;
+      const body: UmpPacket128["body"] = {
+        kind: "mds",
+        mds: {
+          messageId: mds.messageId,
+          totalChunks: mds.totalChunks,
+          chunks: mds.chunks.map((chunk: MdsEvent["chunks"][number]) => ({
+            index: chunk.index,
+            validByteCount: chunk.validByteCount,
+            payload: Array.from(chunk.payload ?? []),
+          })),
+        },
+      };
+      return { messageType: 5, group: mds.group, body };
+    }
     default:
       return null;
   }
@@ -482,21 +502,6 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
       const header = [scope, 0x0d, event.subId2 & 0x7f, event.version & 0x7f];
       const body = sysEx7BodyFromPayload([scope], Uint8Array.from([...header, ...event.payload]));
       return { messageType: 3, group: event.group, body } as unknown as UmpPacket32;
-    }
-    case "mds": {
-      const mds: MdsEvent = event;
-      return {
-        messageType: 5,
-        group: mds.group,
-        body: {
-          kind: "mds",
-          mds: {
-            messageId: mds.messageId,
-            totalChunks: mds.totalChunks,
-            chunks: mds.chunks.map(c => ({ index: c.index, validByteCount: c.validByteCount, payload: Array.from(c.payload) })),
-          },
-        } as any,
-      } as unknown as UmpPacket32;
     }
     case "profile": {
       const p: ProfileEvent = event;
@@ -571,7 +576,7 @@ function asUmpPacket32(event: Midi2Event): UmpPacket32 | null {
   }
 }
 
-export function eventToSchemaPacket(event: Midi2Event): UmpPacket | null {
+export function eventToSchemaPacket(event: Midi2Event): UmpPacket | UmpPacket64 | UmpPacket128 | null {
   if (event.kind === "rawUMP" && event.words?.length) {
     const mt = (event.words[0] >>> 28) & 0xf;
     if (mt === STREAM_MT) {
@@ -582,20 +587,251 @@ export function eventToSchemaPacket(event: Midi2Event): UmpPacket | null {
       }
     }
   }
-  return (asUmpPacket64(event) as UmpPacket | null) ?? (asUmpPacket128(event) as UmpPacket | null) ?? (asUmpPacket32(event) as UmpPacket | null);
+  const pkt64 = asUmpPacket64(event);
+  if (pkt64) return pkt64;
+  const pkt128 = asUmpPacket128(event);
+  if (pkt128) return pkt128;
+  return asUmpPacket32(event) as UmpPacket | null;
 }
 
 function schemaPacketToEventInternal(packet: unknown): Midi2Event | null {
+  if (isUmpPacket64(packet)) {
+    const body = packet.body;
+    const status = body?.statusNibble;
+    const channel = body?.channel;
+    const cv = (body as any)?.body ?? {};
+    switch (status) {
+      case 8:
+        return {
+          kind: "noteOff",
+          group: packet.group ?? 0,
+          channel: channel ?? 0,
+          note: cv.noteNumber ?? 0,
+          velocity: cv.velocity16 ?? 0,
+          attributeType: cv.attributeType,
+          attributeData: cv.attributeData16,
+        };
+      case 9:
+        return {
+          kind: "noteOn",
+          group: packet.group ?? 0,
+          channel: channel ?? 0,
+          note: cv.noteNumber ?? 0,
+          velocity: cv.velocity16 ?? 0,
+          attributeType: cv.attributeType,
+          attributeData: cv.attributeData16,
+        };
+      case 10:
+        return {
+          kind: "polyPressure",
+          group: packet.group ?? 0,
+          channel: channel ?? 0,
+          note: cv.noteNumber ?? 0,
+          pressure: cv.polyPressure32 ?? 0,
+        };
+      case 11:
+        return {
+          kind: "controlChange",
+          group: packet.group ?? 0,
+          channel: channel ?? 0,
+          controller: cv.control ?? 0,
+          value: cv.controlValue32 ?? 0,
+        };
+      case 12:
+        return {
+          kind: "programChange",
+          group: packet.group ?? 0,
+          channel: channel ?? 0,
+          program: cv.program ?? 0,
+          bankMsb: cv.bankMsb,
+          bankLsb: cv.bankLsb,
+        };
+      case 13:
+        return {
+          kind: "channelPressure",
+          group: packet.group ?? 0,
+          channel: channel ?? 0,
+          pressure: cv.channelPressure32 ?? 0,
+        };
+      case 14:
+        return {
+          kind: "pitchBend",
+          group: packet.group ?? 0,
+          channel: channel ?? 0,
+          value: cv.pitchBend32 ?? 0,
+        };
+      case 15: {
+        if (cv.rpnIndexMsb !== undefined && cv.rpnIndexLsb !== undefined && cv.rpnData32 !== undefined) {
+          return {
+            kind: "rpn",
+            group: packet.group ?? 0,
+            channel: channel ?? 0,
+            bank: cv.rpnIndexMsb,
+            index: cv.rpnIndexLsb,
+            value: cv.rpnData32,
+          };
+        }
+        if (cv.nrpnIndexMsb !== undefined && cv.nrpnIndexLsb !== undefined && cv.nrpnData32 !== undefined) {
+          return {
+            kind: "nrpn",
+            group: packet.group ?? 0,
+            channel: channel ?? 0,
+            bank: cv.nrpnIndexMsb,
+            index: cv.nrpnIndexLsb,
+            value: cv.nrpnData32,
+          };
+        }
+        if (cv.rpnIndexMsb !== undefined && cv.rpnIndexLsb !== undefined && cv.rpnDelta32 !== undefined) {
+          return {
+            kind: "rpnRelative",
+            group: packet.group ?? 0,
+            channel: channel ?? 0,
+            bank: cv.rpnIndexMsb,
+            index: cv.rpnIndexLsb,
+            delta: cv.rpnDelta32,
+          };
+        }
+        if (cv.nrpnIndexMsb !== undefined && cv.nrpnIndexLsb !== undefined && cv.nrpnDelta32 !== undefined) {
+          return {
+            kind: "nrpnRelative",
+            group: packet.group ?? 0,
+            channel: channel ?? 0,
+            bank: cv.nrpnIndexMsb,
+            index: cv.nrpnIndexLsb,
+            delta: cv.nrpnDelta32,
+          };
+        }
+        if (cv.noteNumber !== undefined && (cv.detach !== undefined || cv.reset !== undefined)) {
+          return {
+            kind: "perNoteManagement",
+            group: packet.group ?? 0,
+            channel: channel ?? 0,
+            note: cv.noteNumber ?? 0,
+            detach: Boolean(cv.detach),
+            reset: Boolean(cv.reset),
+          };
+        }
+        if (cv.regPerNoteCtrlIndex !== undefined && cv.regPerNoteCtrlValue32 !== undefined) {
+          return {
+            kind: "perNoteRegisteredController",
+            group: packet.group ?? 0,
+            channel: channel ?? 0,
+            note: cv.noteNumber ?? 0,
+            controller: cv.regPerNoteCtrlIndex,
+            value: cv.regPerNoteCtrlValue32,
+          };
+        }
+        if (cv.assignPerNoteCtrlIndex !== undefined && cv.assignPerNoteCtrlValue32 !== undefined) {
+          return {
+            kind: "perNoteAssignableController",
+            group: packet.group ?? 0,
+            channel: channel ?? 0,
+            note: cv.noteNumber ?? 0,
+            controller: cv.assignPerNoteCtrlIndex,
+            value: cv.assignPerNoteCtrlValue32,
+          };
+        }
+        return null;
+      }
+      default:
+        return null;
+    }
+  }
+
+  if (isUmpPacket128(packet)) {
+    if (packet.messageType === 5) {
+      const body: any = packet.body;
+      if (body.kind === "mds" && body.mds) {
+        return {
+          kind: "mds",
+          group: packet.group ?? 0,
+          messageId: body.mds.messageId ?? 0,
+          totalChunks: body.mds.totalChunks ?? 0,
+          chunks: (body.mds.chunks ?? []).map((c: any, idx: number) => ({
+            messageId: body.mds.messageId ?? 0,
+            totalChunks: body.mds.totalChunks ?? 0,
+            index: c.index ?? idx,
+            validByteCount: c.validByteCount ?? (c.payload?.length ?? 0),
+            payload: Uint8Array.from(c.payload ?? []),
+          })),
+        } as MdsEvent;
+      }
+      if (body.kind === "sysex8" && body.sysex8) {
+        const syx: SysEx8Event = {
+          kind: "sysex8",
+          group: packet.group ?? 0,
+          manufacturerId: body.sysex8.manufacturerId ?? [],
+          payload: Uint8Array.from(body.sysex8.data ?? []),
+        };
+        const maybeCi = decodeMidiCiFromSysEx(syx);
+        if (maybeCi) return midiCiToEvent(maybeCi);
+        return syx;
+      }
+      return null;
+    }
+
+    if (packet.messageType === 13) {
+      const body: any = packet.body;
+      const channel = body.address?.scope === "channel" ? body.address.channel : undefined;
+      switch (`${body.statusClass}-${body.status}`) {
+        case "16-1":
+          return { kind: "flexTempo", group: packet.group ?? 0, channel, bpm: body.data?.bpm ?? 0 };
+        case "16-2":
+          return {
+            kind: "flexTimeSignature",
+            group: packet.group ?? 0,
+            channel,
+            numerator: body.data?.numerator ?? 0,
+            denominatorPow2: body.data?.denominatorPow2 ?? 0,
+          };
+        case "16-3":
+          return {
+            kind: "flexMetronome",
+            group: packet.group ?? 0,
+            channel,
+            clicksPerBeat: body.data?.clicksPerBeat ?? 0,
+            accentPattern: body.data?.accentPattern ?? "",
+          };
+        case "16-4":
+          return { kind: "flexKeySignature", group: packet.group ?? 0, channel, key: body.data?.key ?? "" };
+        case "16-5":
+          return { kind: "flexChordName", group: packet.group ?? 0, channel, chord: body.data?.chord ?? "" };
+        case "17-1":
+          return { kind: "flexText", group: packet.group ?? 0, channel, text: body.data?.text ?? "" };
+        case "17-2":
+          return { kind: "flexLyric", group: packet.group ?? 0, channel, text: body.data?.lyric ?? "" };
+        case "17-3":
+          return { kind: "flexRuby", group: packet.group ?? 0, channel, ruby: body.data?.ruby ?? "" };
+        default:
+          return null;
+      }
+    }
+  }
+
+  if (typeof packet === "object" && packet && (packet as any).messageType === STREAM_MT) {
+    const p = packet as UmpPacket32;
+    const body: any = p.body;
+    if (isStreamBody(body)) {
+      const evt = streamBodyToEvent(p.group ?? 0, body);
+      if (evt) return evt;
+    }
+    const words = packGeneric32(p);
+    const stream = decodeStreamWord(words[0]);
+    if (stream) return stream;
+    return { kind: "rawUMP", words, timestamp: undefined };
+  }
+
   if (!isUmpPacket(packet)) {
     if (typeof packet === "object" && packet && ("messageType" in packet)) {
       const mt = (packet as any).messageType;
-      if (mt === 3) {
+      if (mt === 3 || mt === STREAM_MT) {
         const body: any = (packet as any).body;
         if (isStreamBody(body)) {
-          return streamBodyToEvent((packet as any).group ?? 0, body);
+          const evt = streamBodyToEvent((packet as any).group ?? 0, body);
+          if (evt) return evt;
         }
         if (body && typeof body === "object" && "opcode" in body) {
-          return streamBodyToEvent((packet as any).group ?? 0, {
+          const evt = streamBodyToEvent((packet as any).group ?? 0, {
             opcode: body.opcode ?? 0,
             endpointDiscovery: body.endpointDiscovery,
             streamConfigRequest: body.streamConfigRequest,
@@ -603,13 +839,8 @@ function schemaPacketToEventInternal(packet: unknown): Midi2Event | null {
             functionBlockDiscovery: body.functionBlockDiscovery,
             functionBlockInfo: body.functionBlockInfo,
           } as StreamBody);
+          if (evt) return evt;
         }
-        const words = packGeneric32(packet as any);
-        const stream = decodeStreamWord(words[0]);
-        if (stream) return stream;
-        return { kind: "rawUMP", words, timestamp: undefined };
-      }
-      if (mt === STREAM_MT) {
         const words = packGeneric32(packet as any);
         const stream = decodeStreamWord(words[0]);
         if (stream) return stream;
@@ -618,6 +849,7 @@ function schemaPacketToEventInternal(packet: unknown): Midi2Event | null {
     }
     return null;
   }
+
   if (packet.messageType === 3) {
     const p = packet as UmpPacket32;
     const body: any = p.body;
@@ -634,217 +866,13 @@ function schemaPacketToEventInternal(packet: unknown): Midi2Event | null {
       return syx;
     }
     if (isStreamBody(body)) {
-      return streamBodyToEvent(p.group ?? 0, body);
+      const evt = streamBodyToEvent(p.group ?? 0, body);
+      if (evt) return evt;
     }
     const words = packGeneric32(p);
     return { kind: "rawUMP", words, timestamp: undefined };
   }
-  if (packet.messageType === STREAM_MT) {
-    const word = packGeneric32(packet as UmpPacket32);
-    return decodeStreamWord(word[0]);
-  }
-  if (packet.messageType === 4) {
-    const body = (packet as UmpPacket64).body;
-    const status = body?.statusNibble;
-    const channel = body?.channel;
-    const cv = (body as any)?.body ?? {};
-    switch (status) {
-      case 8:
-        return {
-          kind: "noteOff",
-          group: (packet as UmpPacket64).group ?? 0,
-          channel: channel ?? 0,
-          note: cv.noteNumber ?? 0,
-          velocity: cv.velocity16 ?? 0,
-          attributeType: cv.attributeType,
-          attributeData: cv.attributeData16,
-        };
-      case 9:
-        return {
-          kind: "noteOn",
-          group: (packet as UmpPacket64).group ?? 0,
-          channel: channel ?? 0,
-          note: cv.noteNumber ?? 0,
-          velocity: cv.velocity16 ?? 0,
-          attributeType: cv.attributeType,
-          attributeData: cv.attributeData16,
-        };
-      case 10:
-        return {
-          kind: "polyPressure",
-          group: (packet as UmpPacket64).group ?? 0,
-          channel: channel ?? 0,
-          note: cv.noteNumber ?? 0,
-          pressure: cv.polyPressure32 ?? 0,
-        };
-      case 11:
-        return {
-          kind: "controlChange",
-          group: (packet as UmpPacket64).group ?? 0,
-          channel: channel ?? 0,
-          controller: cv.control ?? 0,
-          value: cv.controlValue32 ?? 0,
-        };
-      case 12:
-        return {
-          kind: "programChange",
-          group: (packet as UmpPacket64).group ?? 0,
-          channel: channel ?? 0,
-          program: cv.program ?? 0,
-          bankMsb: cv.bankMsb,
-          bankLsb: cv.bankLsb,
-        };
-      case 13:
-        return {
-          kind: "channelPressure",
-          group: (packet as UmpPacket64).group ?? 0,
-          channel: channel ?? 0,
-          pressure: cv.channelPressure32 ?? 0,
-        };
-      case 14:
-        return {
-          kind: "pitchBend",
-          group: (packet as UmpPacket64).group ?? 0,
-          channel: channel ?? 0,
-          value: cv.pitchBend32 ?? 0,
-        };
-      case 15: {
-        if (cv.rpnIndexMsb !== undefined && cv.rpnIndexLsb !== undefined && cv.rpnData32 !== undefined) {
-          return {
-            kind: "rpn",
-            group: (packet as UmpPacket64).group ?? 0,
-            channel: channel ?? 0,
-            bank: cv.rpnIndexMsb,
-            index: cv.rpnIndexLsb,
-            value: cv.rpnData32,
-          };
-        }
-        if (cv.nrpnIndexMsb !== undefined && cv.nrpnIndexLsb !== undefined && cv.nrpnData32 !== undefined) {
-          return {
-            kind: "nrpn",
-            group: (packet as UmpPacket64).group ?? 0,
-            channel: channel ?? 0,
-            bank: cv.nrpnIndexMsb,
-            index: cv.nrpnIndexLsb,
-            value: cv.nrpnData32,
-          };
-        }
-        if (cv.rpnIndexMsb !== undefined && cv.rpnIndexLsb !== undefined && cv.rpnDelta32 !== undefined) {
-          return {
-            kind: "rpnRelative",
-            group: (packet as UmpPacket64).group ?? 0,
-            channel: channel ?? 0,
-            bank: cv.rpnIndexMsb,
-            index: cv.rpnIndexLsb,
-            delta: cv.rpnDelta32,
-          };
-        }
-        if (cv.nrpnIndexMsb !== undefined && cv.nrpnIndexLsb !== undefined && cv.nrpnDelta32 !== undefined) {
-          return {
-            kind: "nrpnRelative",
-            group: (packet as UmpPacket64).group ?? 0,
-            channel: channel ?? 0,
-            bank: cv.nrpnIndexMsb,
-            index: cv.nrpnIndexLsb,
-            delta: cv.nrpnDelta32,
-          };
-        }
-        if (cv.noteNumber !== undefined && (cv.detach !== undefined || cv.reset !== undefined)) {
-          return {
-            kind: "perNoteManagement",
-            group: (packet as UmpPacket64).group ?? 0,
-            channel: channel ?? 0,
-            note: cv.noteNumber ?? 0,
-            detach: Boolean(cv.detach),
-            reset: Boolean(cv.reset),
-          };
-        }
-        if (cv.regPerNoteCtrlIndex !== undefined && cv.regPerNoteCtrlValue32 !== undefined) {
-          return {
-            kind: "perNoteRegisteredController",
-            group: (packet as UmpPacket64).group ?? 0,
-            channel: channel ?? 0,
-            note: cv.noteNumber ?? 0,
-            controller: cv.regPerNoteCtrlIndex,
-            value: cv.regPerNoteCtrlValue32,
-          };
-        }
-        if (cv.assignPerNoteCtrlIndex !== undefined && cv.assignPerNoteCtrlValue32 !== undefined) {
-          return {
-            kind: "perNoteAssignableController",
-            group: (packet as UmpPacket64).group ?? 0,
-            channel: channel ?? 0,
-            note: cv.noteNumber ?? 0,
-            controller: cv.assignPerNoteCtrlIndex,
-            value: cv.assignPerNoteCtrlValue32,
-          };
-        }
-        return null;
-      }
-      default:
-        return null;
-    }
-  }
-  if (packet.messageType === 13) {
-    const p = packet as UmpPacket128;
-    const body: any = p.body;
-    const channel = body.address?.scope === "channel" ? body.address.channel : undefined;
-    switch (`${body.statusClass}-${body.status}`) {
-      case "16-1":
-        return { kind: "flexTempo", group: p.group ?? 0, channel, bpm: body.data?.bpm ?? 0 };
-      case "16-2":
-        return { kind: "flexTimeSignature", group: p.group ?? 0, channel, numerator: body.data?.numerator ?? 0, denominatorPow2: body.data?.denominatorPow2 ?? 0 };
-      case "16-3":
-        return { kind: "flexMetronome", group: p.group ?? 0, channel, clicksPerBeat: body.data?.clicksPerBeat ?? 0, accentPattern: body.data?.accentPattern ?? "" };
-      case "16-4":
-        return { kind: "flexKeySignature", group: p.group ?? 0, channel, key: body.data?.key ?? "" };
-      case "16-5":
-        return { kind: "flexChordName", group: p.group ?? 0, channel, chord: body.data?.chord ?? "" };
-      case "17-1":
-        return { kind: "flexText", group: p.group ?? 0, channel, text: body.data?.text ?? "" };
-      case "17-2":
-        return { kind: "flexLyric", group: p.group ?? 0, channel, text: body.data?.lyric ?? "" };
-      case "17-3":
-        return { kind: "flexRuby", group: p.group ?? 0, channel, ruby: body.data?.ruby ?? "" };
-      default:
-        return null;
-    }
-  }
-  if (packet.messageType === 5) {
-    const p = packet as UmpPacket128;
-    const body: any = p.body;
-    if (body.kind === "mds" && body.mds) {
-      return {
-        kind: "mds",
-        group: p.group ?? 0,
-        messageId: body.mds.messageId ?? 0,
-        totalChunks: body.mds.totalChunks ?? 0,
-        chunks: (body.mds.chunks ?? []).map((c: any) => ({
-          messageId: body.mds.messageId ?? 0,
-          totalChunks: body.mds.totalChunks ?? 0,
-          index: c.index ?? 0,
-          validByteCount: c.validByteCount ?? (c.payload?.length ?? 0),
-          payload: Uint8Array.from(c.payload ?? []),
-          manufacturerId: c.manufacturerId,
-          deviceId: c.deviceId,
-          subId1: c.subId1,
-          subId2: c.subId2,
-        })),
-      } as MdsEvent;
-    }
-    if (body.kind === "sysex8" && body.sysex8) {
-      const syx: SysEx8Event = {
-        kind: "sysex8",
-        group: p.group ?? 0,
-        manufacturerId: body.sysex8.manufacturerId ?? [],
-        payload: Uint8Array.from(body.sysex8.data ?? []),
-      };
-      const maybeCi = decodeMidiCiFromSysEx(syx);
-      if (maybeCi) return midiCiToEvent(maybeCi);
-      return syx;
-    }
-    return null;
-  }
+
   if (packet.messageType === 1) {
     const sys = (packet as UmpPacket32).body as any;
     return {
@@ -915,12 +943,6 @@ export function schemaPacketToEventWithResponses(packet: unknown, opts?: SchemaE
 export function schemaPacketToWords(packet: unknown): Uint32Array[] | null {
   const event = schemaPacketToEvent(packet);
   if (!event) return null;
-  if (event.kind === "sysex7") {
-    return fragmentSysEx7(event.manufacturerId, event.payload, event.group);
-  }
-  if (event.kind === "sysex8") {
-    return fragmentSysEx8(event.manufacturerId, event.payload, event.group);
-  }
   if (event.kind === "stream") {
     return [packStream(event)];
   }
@@ -933,7 +955,13 @@ export function schemaPacketToWords(packet: unknown): Uint32Array[] | null {
     const payload = Uint8Array.from([scope, 0x0d, 0x21, 0x01, ...body]);
     return fragmentSysEx7([scope], payload, event.group);
   }
-  return [encodeUmp(event)];
+  if (event.kind === "sysex7") {
+    return fragmentSysEx7(event.manufacturerId, event.payload, event.group);
+  }
+  if (event.kind === "sysex8") {
+    return fragmentSysEx8(event.manufacturerId, event.payload, event.group);
+  }
+  return encodeEventPackets(event);
 }
 
 export function eventToSchemaPacketWords(event: Midi2Event): Uint32Array[] | null {
@@ -948,11 +976,11 @@ export function eventToSchemaPacketWords(event: Midi2Event): Uint32Array[] | nul
   return schemaPacketToWords(packet);
 }
 
-export function validateSchemaPacket(packet: unknown): packet is UmpPacket {
-  return isUmpPacket(packet);
+export function validateSchemaPacket(packet: unknown): packet is UmpPacket | UmpPacket64 | UmpPacket128 {
+  return isUmpPacket(packet) || isUmpPacket64(packet) || isUmpPacket128(packet);
 }
 
-export function decodeWordsToSchemaPacket(words: ArrayLike<number>): UmpPacket | null {
+export function decodeWordsToSchemaPacket(words: ArrayLike<number>): UmpPacket | UmpPacket64 | UmpPacket128 | null {
   const event = decodeUmp(words);
   if (!event) return null;
   return eventToSchemaPacket(event);
@@ -1038,7 +1066,7 @@ function opcodeNumber(opcode: StreamEvent["opcode"]): StreamBody["opcode"] {
   }
 }
 
-function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
+function streamBodyToEvent(group: number, body: StreamBody): StreamEvent | null {
   const opcode = body.opcode;
   if (opcode === 0) {
     return {
@@ -1055,10 +1083,10 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
     return { kind: "stream", group, opcode: "deviceIdentityNotification", deviceIdentityNotification: body.deviceIdentityNotification };
   }
   if (opcode === 3) {
-    return { kind: "stream", group, opcode: "endpointNameNotification", endpointNameNotification: body.endpointNameNotification };
+    return { kind: "stream", group, opcode: "endpointNameNotification", endpointNameNotification: body.endpointNameNotification ?? { name: "" } };
   }
   if (opcode === 4) {
-    return { kind: "stream", group, opcode: "productInstanceIdNotification", productInstanceIdNotification: body.productInstanceIdNotification };
+    return { kind: "stream", group, opcode: "productInstanceIdNotification", productInstanceIdNotification: body.productInstanceIdNotification ?? { productInstanceId: "" } };
   }
   if (opcode === 5) {
     return {
@@ -1080,10 +1108,12 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
     return { kind: "stream", group, opcode: "functionBlockDiscovery", functionBlockDiscovery: body.functionBlockDiscovery };
   }
   if (opcode === 0x11) {
-    return { kind: "stream", group, opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { ...body.functionBlockInfo, uiHints: body.functionBlockInfo?.uiHints } };
+    const info: any = body.functionBlockInfo ?? {};
+    return { kind: "stream", group, opcode: "functionBlockInfoNotification", functionBlockInfoNotification: { ...body.functionBlockInfo, uiHints: info.uiHints } };
   }
   if (opcode === 0x12) {
-    return { kind: "stream", group, opcode: "functionBlockNameNotification", functionBlockNameNotification: { functionBlock: 0, name: "" } };
+    const fbName = (body as any).functionBlockNameNotification;
+    return { kind: "stream", group, opcode: "functionBlockNameNotification", functionBlockNameNotification: fbName ?? { functionBlock: 0, name: "" } };
   }
   if (opcode === 0x20) {
     return { kind: "stream", group, opcode: "startOfClip" };
@@ -1111,20 +1141,30 @@ function streamBodyToEvent(group: number, body: StreamBody): StreamEvent {
 }
 
 function streamBodyFromEvent(stream: StreamEvent): StreamBody {
-  return {
-    opcode: opcodeNumber(stream.opcode),
-    endpointDiscovery: stream.endpointDiscovery,
-    endpointInfoNotification: stream.endpointInfoNotification,
-    deviceIdentityNotification: stream.deviceIdentityNotification,
-    endpointNameNotification: stream.endpointNameNotification,
-    productInstanceIdNotification: stream.productInstanceIdNotification,
-    streamConfigRequest: stream.streamConfigRequest,
-    streamConfigNotification: stream.streamConfigNotification,
-    functionBlockDiscovery: stream.functionBlockDiscovery,
-    functionBlockInfo: stream.functionBlockInfoNotification,
-    processInquiry: stream.processInquiry,
-    processInquiryReply: stream.processInquiryReply,
-  };
+  const fb = stream.functionBlockInfoNotification;
+  const functionBlockInfo = fb
+    ? {
+        index: fb.index,
+        firstGroup: fb.firstGroup,
+        groupCount: fb.groupCount,
+        active: fb.active,
+        direction: fb.direction,
+        midi1Bandwidth: fb.midi1Bandwidth,
+      }
+    : undefined;
+  const body: any = { opcode: opcodeNumber(stream.opcode) };
+  if (stream.endpointDiscovery) body.endpointDiscovery = stream.endpointDiscovery;
+  if (stream.endpointInfoNotification) body.endpointInfoNotification = stream.endpointInfoNotification;
+  if (stream.deviceIdentityNotification) body.deviceIdentityNotification = stream.deviceIdentityNotification;
+  if (stream.endpointNameNotification) body.endpointNameNotification = stream.endpointNameNotification;
+  if (stream.productInstanceIdNotification) body.productInstanceIdNotification = stream.productInstanceIdNotification;
+  if (stream.streamConfigRequest) body.streamConfigRequest = stream.streamConfigRequest;
+  if (stream.streamConfigNotification) body.streamConfigNotification = stream.streamConfigNotification;
+  if (stream.functionBlockDiscovery) body.functionBlockDiscovery = stream.functionBlockDiscovery;
+  if (functionBlockInfo) body.functionBlockInfo = functionBlockInfo;
+  if (stream.processInquiry) body.processInquiry = stream.processInquiry;
+  if (stream.processInquiryReply) body.processInquiryReply = stream.processInquiryReply;
+  return body;
 }
 
 function profileToBody(evt: ProfileEvent): Uint8Array {
@@ -1169,8 +1209,14 @@ function propertyExchangeToBody(evt: PropertyExchangeEvent): Uint8Array {
   };
   if (evt.subscriptionId) base.subscriptionId = evt.subscriptionId;
   if (evt.subscriptionCommand) base.subscriptionCommand = evt.subscriptionCommand;
-  if (evt.flowControlAck) base.flowControlAck = { status: 17, ...evt.flowControlAck };
-  if (evt.flowControlNak) base.flowControlNak = { status: 18, ...evt.flowControlNak };
+  if (evt.flowControlAck) {
+    const { requestId, chunkNumber, messageLength } = evt.flowControlAck;
+    base.flowControlAck = { status: 17, requestId, chunkNumber, messageLength };
+  }
+  if (evt.flowControlNak) {
+    const { chunkNumber } = evt.flowControlNak;
+    base.flowControlNak = { status: 18, chunkNumber };
+  }
   if (evt.data instanceof Uint8Array) {
     base.data = Array.from(evt.data);
   } else if (evt.data) {
@@ -1596,7 +1642,6 @@ export function decodeStreamWord(word: number): StreamEvent | null {
       group,
       opcode: "endpointInfoNotification",
       endpointInfoNotification: { staticFunctionBlocks, numberOfFunctionBlocks, midi1Supported, midi2Supported, jrTimestampsRx, jrTimestampsTx },
-      timestamp,
     };
   }
   if (opcodeByte === STREAM_OPCODE_DEVICE_IDENTITY) {

@@ -80,10 +80,16 @@ export class PeSubscriptionManager {
           },
         };
       }
+      const resource = (event.header as any)?.resource ?? (event.header as any)?.res;
       const state: SubscriptionState = {
         subscriptionId: event.subscriptionId,
         requestId: event.requestId,
         flowControl: wantsFlowControl,
+        stage: "start",
+        lastChunkNumber: -1,
+        resource,
+        lastActivityMs: Date.now(),
+        nakCount: 0,
       };
       this.subs.set(event.subscriptionId, state);
       return {

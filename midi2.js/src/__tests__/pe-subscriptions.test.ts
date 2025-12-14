@@ -32,7 +32,7 @@ describe("PeSubscriptionManager", () => {
   it("rejects missing subscriptionId", () => {
     const mgr = new PeSubscriptionManager();
     const out = mgr.process(pe({ command: "notify", subscriptionCommand: "start" }));
-    expect(out[0]?.header?.status ?? out[0]?.status).toBe(400);
+    expect(out[0]?.header?.status).toBe(400);
   });
 
   it("errors on notify before full/active", () => {

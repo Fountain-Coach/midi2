@@ -1,22 +1,128 @@
 # midi2
 
-Lightweight Swift library and reference implementations for the Universal MIDI Packet (UMP) model and bridging between MIDI 2.0 and legacy CoreMIDI hosts.
+[![CI](https://github.com/Fountain-Coach/midi2/workflows/CI/badge.svg)](https://github.com/Fountain-Coach/midi2/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/@fountain-coach%2Fmidi2.svg)](https://www.npmjs.com/package/@fountain-coach/midi2)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+<!-- TODO: Add coverage badge when coverage reporting is configured -->
 
-This repository contains reusable packages and examples used to build MIDI 2.0-aware components and adapters for Apple platforms and Linux.
+Lightweight Swift library and reference implementations for the Universal MIDI Packet (UMP) model and bridging between MIDI 2.0 and legacy CoreMIDI hosts. Also includes **midi2.js**, a cross-browser, CoreMIDI-free TypeScript/JavaScript MIDI 2.0 protocol library.
+
+This repository contains reusable packages and examples used to build MIDI 2.0-aware components and adapters for Apple platforms, Linux, and web browsers.
 
 ## Overview
 
-- Implements the midi2 UMP model, utilities for sequencing and clocking, and adapter layers to interoperate with Apple's Core MIDI and Audio Unit APIs.
+**Swift Packages:**
+- Implements the MIDI 2.0 UMP model, MIDI-CI protocol support, utilities for sequencing and clocking, and adapter layers to interoperate with Apple's Core MIDI and Audio Unit APIs.
 - Includes AUv3 helper classes for bridging host MIDI to CoreMIDI destinations with automatic UMP ↔ 1.0 conversion.
+- Supports macOS 13+, iOS 16+, and Linux.
+
+**JavaScript/TypeScript Library:**
+- **[midi2.js](midi2.js/)** — Cross-browser MIDI 2.0 library with UMP encoding/decoding, SysEx7/8 fragmentation, MIDI-CI envelopes, jitter-aware scheduler, and adapters for WebAudio/Three.js/Cannon.js.
+- Available on npm: `@fountain-coach/midi2`
 
 ## Packages
 
+**Swift Packages:**
 - **[Packages/MIDI2BridgeAUCore](Packages/MIDI2BridgeAUCore/README.md)** — Core classes to build an AUv3 MIDI Processor that forwards host MIDI to external CoreMIDI destinations. See the README for integration instructions.
 - **[Packages/TeatroAppleBridge](Packages/TeatroAppleBridge/README.md)** — Adapter package that maps the midi2 UMP model to Core MIDI and Apple sequencing APIs. See the README for examples.
+
+**JavaScript/TypeScript:**
+- **[midi2.js](midi2.js/)** — Cross-browser MIDI 2.0 protocol library. See [midi2.js/README.md](midi2.js/README.md) for API documentation.
 
 ## Examples
 
 - **[Examples/AUBridgeSample](Examples/AUBridgeSample/README.md)** — Minimal iOS host app + AUv3 MIDI Processor extension demonstrating MIDI2BridgeAUCore.
+
+## Installation
+
+### Swift Package Manager
+
+Add to your `Package.swift`:
+```swift
+dependencies: [
+    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.7.0")
+]
+```
+
+Or add via Xcode: **File → Add Packages** and enter the repository URL.
+
+### npm (JavaScript/TypeScript)
+
+```bash
+npm install @fountain-coach/midi2
+```
+
+Then import in your project:
+```typescript
+import { encodeNoteOn, decodeMIDI2Message } from '@fountain-coach/midi2';
+```
+
+## Quickstart
+
+### Swift
+
+```swift
+import MIDI2
+
+// Create a MIDI 2.0 Note On message
+let noteOn = MIDI2.noteOn(channel: 0, note: 60, velocity: 0.8)
+
+// Encode/decode UMP packets
+let packet = UMPPacket(/* ... */)
+```
+
+See [Package documentation](https://fountain-coach.github.io/midi2/) for full API reference.
+
+### JavaScript/TypeScript
+
+```typescript
+import { encodeNoteOn, scheduleMIDI } from '@fountain-coach/midi2';
+
+// Create and schedule a Note On message
+const msg = encodeNoteOn({ channel: 0, note: 60, velocity: 32768 });
+scheduleMIDI(msg, performance.now() + 100);
+```
+
+See [midi2.js/README.md](midi2.js/README.md) for complete documentation.
+
+## Building and Testing
+
+### Swift
+
+```bash
+# Build the project
+swift build
+
+# Run tests
+swift test
+
+# Build in release mode
+swift build -c release
+
+# Run with coverage
+swift test --enable-code-coverage
+```
+
+### JavaScript/TypeScript
+
+```bash
+cd midi2.js
+
+# Install dependencies
+npm install
+
+# Type check
+npm run check
+
+# Run tests
+npm test
+
+# Build
+npm run build
+
+# Run tests with coverage
+npm run coverage
+```
 
 ## Documentation
 
@@ -29,7 +135,27 @@ The primary, canonical documentation for this repository lives in the **[docs/](
 
 ## Contributing
 
-See the **[docs/](docs/)** directory for contribution guidelines and the conformance checklist.
+We welcome contributions! Please see:
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** — Development workflow, coding standards, and PR process
+- **[AGENTS.md](AGENTS.md)** — Repository maintenance policy and roles
+- **[docs/](docs/)** directory for conformance checklists and design documentation
+
+### Quick Contribution Guide
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-feature`
+3. Make your changes and add tests
+4. Ensure CI passes: `swift test` and/or `cd midi2.js && npm test`
+5. Update `CHANGELOG.md` in the "Unreleased" section
+6. Submit a pull request
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
+
+## Maintenance and Security
+
+- **Maintenance Policy:** See [AGENTS.md](AGENTS.md) for roles, rotation schedule, and SLAs
+- **Security Policy:** See [SECURITY.md](SECURITY.md) for vulnerability reporting
+- **Release Process:** See [RELEASE.md](RELEASE.md) for release checklist and procedures
 
 ## License
 

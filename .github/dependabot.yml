@@ -1,0 +1,111 @@
+version: 2
+
+updates:
+  # GitHub Actions dependencies
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "github-actions"
+    reviewers:
+      - "Fountain-Coach/maintainers"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # JavaScript/TypeScript dependencies (midi2.js)
+  - package-ecosystem: "npm"
+    directory: "/midi2.js"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "javascript"
+    reviewers:
+      - "Fountain-Coach/maintainers"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    # Auto-merge patch and minor updates if CI passes (configure via GitHub UI)
+    # Groups reduce PR noise
+    groups:
+      development-dependencies:
+        dependency-type: "development"
+        update-types:
+          - "minor"
+          - "patch"
+      production-dependencies:
+        dependency-type: "production"
+        update-types:
+          - "patch"
+
+  # Root package.json (compliance runner)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    versioning-strategy: increase
+    labels:
+      - "dependencies"
+      - "javascript"
+    reviewers:
+      - "Fountain-Coach/maintainers"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # Swift Package Manager dependencies
+  # Note: Dependabot support for Swift Package Manager is limited
+  # Manual updates may be required via `swift package update`
+  # This configuration will attempt to track Package.swift changes
+  - package-ecosystem: "swift"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "swift"
+    reviewers:
+      - "Fountain-Coach/maintainers"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+# Security update policy:
+# - Critical/High severity: Merge immediately after CI passes
+# - Medium severity: Review and merge within 72 hours
+# - Low severity: Include in weekly dependency review
+#
+# To enable auto-merge for Dependabot PRs:
+# 1. Go to repository Settings → General → Pull Requests
+# 2. Enable "Allow auto-merge"
+# 3. Configure branch protection rules:
+#    - Require status checks (CI must pass)
+#    - Require approvals for major updates
+# 4. Use GitHub CLI or Actions to auto-approve patch updates:
+#    gh pr review --approve <pr-number>
+#    gh pr merge --auto --squash <pr-number>
+#
+# Recommended auto-merge workflow:
+# - Patch updates (0.0.x): Auto-approve + auto-merge if CI green
+# - Minor updates (0.x.0): Auto-approve if CI green, manual merge
+# - Major updates (x.0.0): Manual review required

@@ -1,0 +1,90 @@
+name: Feature Request
+description: Suggest a new feature or enhancement
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting a new feature! Please provide details to help us understand your use case.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Statement
+      description: What problem does this feature solve? What is the use case?
+      placeholder: |
+        I'm trying to [accomplish X] but currently [limitation Y] prevents me from doing so.
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: How should this feature work? Describe the desired API or behavior.
+      placeholder: |
+        I propose adding a new function/class/option that...
+        
+        Example usage:
+        ```swift
+        let result = newFeature(param: value)
+        ```
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: What other approaches have you considered? Why is this solution preferred?
+      placeholder: |
+        I considered [alternative A] but it has drawbacks [X].
+        I also looked at [alternative B] but it doesn't handle [Y].
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which part of the repository should this feature be added to?
+      options:
+        - Swift Package (MIDI2, MIDI2CI)
+        - JavaScript/TypeScript (midi2.js)
+        - Examples
+        - Documentation
+        - CI/Build System
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Critical (blocks my work)
+        - High (important for my use case)
+        - Medium (nice to have)
+        - Low (minor enhancement)
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: |
+        Any other context, examples from other libraries, MIDI spec references, or links to related discussions.
+      placeholder: |
+        Related spec: MIDI 2.0 UMP Spec section X.Y
+        Similar feature in library Z: [link]
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Checklist
+      options:
+        - label: I have searched existing issues and discussions to ensure this is not a duplicate
+          required: true
+        - label: I am willing to contribute a pull request for this feature
+          required: false

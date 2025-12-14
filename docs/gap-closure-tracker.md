@@ -239,7 +239,7 @@
 ---
 
 ### Gap 8.2.1: Visual Baseline (PB-VRT) Frames
-**Status**: 🔴 Not Started  
+**Status**: 🟡 In Progress  
 **Priority**: Medium | **Effort**: 3-4 days | **Target Sprint**: 3
 
 **Spec Reference**: Internal testing methodology
@@ -248,6 +248,7 @@
 - ✅ Some PB-VRT baselines (JR, SysEx8 invalid cases)
 - ❌ CI message baselines incomplete
 - ❌ No automated diff tooling
+- 🟡 Added PB-VRT README + generator script; stream/profiles/process-inquiry/property-exchange baselines exist
 
 **Acceptance Criteria**:
 - [ ] PB-VRT baseline JSON files for:

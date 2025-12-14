@@ -55,7 +55,12 @@ export function decodeMidiCiFromSysEx(event: SysEx7Event | SysEx8Event): MidiCiE
       const obj = JSON.parse(new TextDecoder().decode(payload));
       if (obj && typeof obj === "object") {
         const vals = Object.values(obj) as number[];
-        if (vals.some(v => typeof v !== "number" || v < 0 || v > 1)) return null;
+        const invalid = vals.some(v => typeof v !== "number" || v < 0 || v > 1);
+        if (invalid) return null;
+        if ("messageDataControl" in obj) {
+          const mdc = (obj as Record<string, number>)["messageDataControl"];
+          if (mdc !== 0 && mdc !== 1 && mdc !== 0x7f) return null;
+        }
       }
     } catch {
       return null;

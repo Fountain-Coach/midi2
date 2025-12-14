@@ -14,4 +14,15 @@ final class MidiCiProcessInquiryValidationTests: XCTestCase {
         let reply = session.handle(MidiCiProcessInquiryBody(command: .capInquiry))
         XCTAssertNil(reply)
     }
+
+    func testRejectsInvalidMessageDataControlValue() {
+        // messageDataControl=0x02 not allowed (only 0x00/0x01/0x7F)
+        let json = newFilterJson(key: "messageDataControl", value: 0x02)
+        let bytes: [UInt8] = [0x02, UInt8(json.count)] + json
+        XCTAssertThrowsError(try MidiCiProcessInquiryBody(validatingSysEx7Bytes: bytes))
+    }
+}
+
+private func newFilterJson(key: String, value: UInt8) -> [UInt8] {
+    Array("{\"\(key)\":\(value)}".utf8)
 }

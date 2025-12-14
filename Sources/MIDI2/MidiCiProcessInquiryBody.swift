@@ -24,7 +24,13 @@ public struct MidiCiProcessInquiryBody: Equatable {
         guard let filters = filters else { return }
         for (k, v) in filters {
             guard !k.isEmpty else { throw MIDIError.malformedPacket("empty filter key") }
-            guard v <= 0x01 else { throw MIDIError.valueOutOfRange(name: "filterValue", value: UInt64(v), range: 0...1) }
+            if k == "messageDataControl" {
+                guard v == 0x00 || v == 0x01 || v == 0x7F else {
+                    throw MIDIError.valueOutOfRange(name: "messageDataControl", value: UInt64(v), range: 0...0x7F)
+                }
+            } else {
+                guard v <= 0x01 else { throw MIDIError.valueOutOfRange(name: "filterValue", value: UInt64(v), range: 0...1) }
+            }
         }
     }
 

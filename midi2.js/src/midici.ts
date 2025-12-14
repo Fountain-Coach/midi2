@@ -65,6 +65,7 @@ export function decodeMidiCiFromSysEx(event: SysEx7Event | SysEx8Event): MidiCiE
   if (subId2 === 0x09 && payload.length >= 2) {
     const chanCount = payload[1];
     if (chanCount > 0x10) return null;
+    if (payload.length < 2 + chanCount) return null;
   }
   return {
     kind: "midiCi",

@@ -17,4 +17,11 @@ describe("profile details malformed payloads", () => {
     const decoded = decodeMidiCiFromSysEx(evt);
     expect(decoded).toBeNull();
   });
+
+  it("ignores profile details when channel bytes are truncated", () => {
+    const payload = Uint8Array.from([0x7e, 0x0d, 0x09, 0x01, 0x02, 0x01]); // declares 2 channels, only 1 present
+    const evt: SysEx7Event = { kind: "sysex7", group: 0, manufacturerId: [0x7e], payload };
+    const decoded = decodeMidiCiFromSysEx(evt);
+    expect(decoded).toBeNull();
+  });
 });

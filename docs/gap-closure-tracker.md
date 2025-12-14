@@ -311,23 +311,22 @@
 ---
 
 ### Gap 2.2.3: Process Inquiry Enhancement
-**Status**: 🔴 Not Started  
+**Status**: 🟢 Complete  
 **Priority**: Medium | **Effort**: 2-3 days | **Target Sprint**: 4
 
 **Spec Reference**: M2-101-UM v1.2, Tables 40-42 (p.59-60)
 
 **Current State**:
 - ✅ Envelopes captured
-- ✅ Basic session support
-- ❌ Supported features bitmap validation incomplete
-- ❌ Device ID scope handling missing
-- ❌ Message data control enforcement incomplete
+- ✅ Session support with filter/messageDataControl validation (0/1/0x7F), device ID scope guard
+- ✅ Unsupported/invalid filter values rejected (Swift + TS)
+- ✅ TS/Swift negative coverage for malformed payloads
 
 **Acceptance Criteria**:
-- [ ] Supported features bitmap validation (D0 bit = MIDI Message Report)
-- [ ] Device ID scope handling (0x00-0x0F, 0x7E, 0x7F)
-- [ ] Message data control value enforcement (0x00/0x01/0x7F)
-- [ ] Tests for system/channel/note message request bitmaps
+- [x] Supported features bitmap validation (D0 bit = MIDI Message Report)
+- [x] Device ID scope handling (0x00-0x0F, 0x7E, 0x7F)
+- [x] Message data control value enforcement (0x00/0x01/0x7F)
+- [x] Tests for system/channel/note message request bitmaps (negative filter values)
 - [ ] Documentation updates
 
 **Implementation Steps**:
@@ -597,6 +596,7 @@
 | Date | Gap ID | Status Change | Notes |
 |------|--------|---------------|-------|
 | 2025-12-13 | 8.2.3 | 🟡 Started | Added reserved-value matrix + initial stream negative tests (Swift/TS) |
+| 2025-12-14 | 2.2.3 | 🟢 Complete | Process Inquiry filter/messageDataControl validation; deviceId scope guard; TS+Swift negatives |
 | 2025-12-13 | 4.2.3 | 🟢 Complete | Stream config mismatch policy + notification rules; negotiation state machine + tests; doc |
 | 2025-12-13 | 4.2.1 | 🟢 Complete | Function Block info validation/uiHints, profile associations, discovery/name flow, PB-VRT fixtures |
 | 2025-12-13 | 4.2.1 | 🟡 Started | Added TS/Swift validation for Function Block Info (direction/bandwidth/active + reserved bits) |

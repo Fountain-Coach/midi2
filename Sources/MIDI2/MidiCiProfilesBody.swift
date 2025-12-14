@@ -112,6 +112,10 @@ public struct MidiCiProfilesBody: Equatable {
         let target = Target(rawValue: targetRaw)
         let chanCount = Int(bytes[safe: index] ?? 0)
         index += 1
+        if chanCount > 0x10 {
+            self = MidiCiProfilesBody(command: cmd, profileId: "")
+            return
+        }
         var channels: [Uint4] = []
         for _ in 0..<chanCount {
             guard let chVal = bytes[safe: index], let ch = Uint4(chVal) else { break }
@@ -154,6 +158,10 @@ public struct MidiCiProfilesBody: Equatable {
         let target = Target(rawValue: targetRaw)
         let chanCount = Int(bytes[safe: index] ?? 0)
         index += 1
+        if chanCount > 0x10 {
+            self = MidiCiProfilesBody(command: cmd, profileId: "")
+            return
+        }
         var channels: [Uint4] = []
         for _ in 0..<chanCount {
             guard let chVal = bytes[safe: index], let ch = Uint4(chVal) else { break }

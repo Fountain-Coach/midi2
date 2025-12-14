@@ -28,4 +28,11 @@ final class MidiCiProfilesBodyTests: XCTestCase {
         let parsed = MidiCiProfilesBody(sysEx7Bytes: bytes)
         XCTAssertEqual(parsed.profileId, "")
     }
+
+    func testChannelCountOverflowReturnsEmptyProfile() {
+        // chanCount=0x20 > 0x10
+        let bytes: [UInt8] = [0x00, 0x00, 0x00, 0x00, 0x20]
+        let parsed = MidiCiProfilesBody(sysEx7Bytes: bytes)
+        XCTAssertEqual(parsed.profileId, "")
+    }
 }

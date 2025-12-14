@@ -50,6 +50,7 @@ public final class ProfileSession {
 
     /// Handle a single Profiles message and return any reports/replies.
     public func handle(_ body: MidiCiProfilesBody) -> [MidiCiProfilesBody] {
+        guard !body.profileId.isEmpty else { return [] }
         switch body.command {
         case .inquiry:
             let k = key(for: body.target, channels: body.channels)

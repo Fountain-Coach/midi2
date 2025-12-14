@@ -16,4 +16,14 @@ final class ProfileDetailsNegativeTests: XCTestCase {
         let replies = ProfileSession(supportedProfiles: []).handle(req)
         XCTAssertTrue(replies.isEmpty)
     }
+
+    func testDetailsInquiryInvalidChannelCountIgnored() {
+        // channels count > 0x10 will be truncated to empty by decoder
+        let body = MidiCiProfilesBody(command: .detailsInquiry, profileId: "/org.midi/piano", target: .channel, channels: nil, details: nil)
+        var bytes = body.sysEx7Bytes()
+        bytes[4] = 0x20 // chanCount
+        let parsed = MidiCiProfilesBody(sysEx7Bytes: bytes)
+        let replies = ProfileSession(supportedProfiles: ["/org.midi/piano"]).handle(parsed)
+        XCTAssertEqual(replies.count, parsed.profileId.isEmpty ? 0 : 1)
+    }
 }

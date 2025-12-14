@@ -6,10 +6,15 @@ on:
     - cron: '0 9 * * 1'
   workflow_dispatch: # Allow manual trigger
 
+permissions:
+  contents: read  # Read-only access to repository contents
+
 jobs:
   audit-swift:
     name: Swift Dependency Audit
     runs-on: macos-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,6 +46,8 @@ jobs:
   audit-javascript:
     name: JavaScript Dependency Audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     strategy:
       matrix:
         directory: [".", "midi2.js"]
@@ -99,6 +106,8 @@ jobs:
   audit-github-actions:
     name: GitHub Actions Version Audit
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4

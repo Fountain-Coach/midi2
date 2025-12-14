@@ -20,7 +20,7 @@ This creates a private security advisory that only the maintainers can see.
 
 #### Alternative: Email
 If you prefer email or cannot use GitHub's private reporting:
-- **Email:** security@fountain-coach.dev *(TODO: Update with actual security contact email)*
+- **Email:** mail@benedikt-eickhoff.de
 - **Subject line:** `[SECURITY] midi2 vulnerability: [brief description]`
 
 **Include in your report:**
@@ -31,10 +31,7 @@ If you prefer email or cannot use GitHub's private reporting:
 - Any suggested fixes or mitigations
 
 #### PGP/GPG Encryption (Optional)
-For highly sensitive reports, you may encrypt your message using our PGP key:
-```
-TODO: Add PGP public key fingerprint and link to key file
-```
+If you prefer encrypted communication, request the current PGP public key via the security contact email and we will share the fingerprint and key location.
 
 ## Response Timeline
 
@@ -157,7 +154,7 @@ For non-security issues, please use:
 - **Questions:** https://github.com/Fountain-Coach/midi2/discussions
 
 For security-related inquiries only:
-- **Email:** security@fountain-coach.dev *(TODO: Update with actual contact)*
+- **Email:** mail@benedikt-eickhoff.de
 - **GitHub Security Advisories:** https://github.com/Fountain-Coach/midi2/security/advisories
 
 ## Attribution

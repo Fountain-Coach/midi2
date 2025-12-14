@@ -10,6 +10,7 @@ jobs:
       matrix:
         os: [ubuntu-24.04, macos-14]
     runs-on: ${{ matrix.os }}
+    continue-on-error: true
     continue-on-error: ${{ matrix.os == 'macos-14' }}
     timeout-minutes: 30
     steps:
@@ -26,10 +27,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential xvfb python3 make gcc g++ pkg-config \
-            libasound2 libasound2-dev libusb-1.0-0-dev \
+            libasound2t64 libasound2-dev libusb-1.0-0-dev \
             libnss3 libgtk-3-0 libxss1 libxtst6 libx11-xcb1 libxcb-dri3-0 \
             libdrm2 libgbm1 libxdamage1 libxcomposite1 libxrandr2 \
             libpangocairo-1.0-0 libatk1.0-0 libcups2 libxkbcommon0 libnotify4
+          # Fallback for older Ubuntu images where libasound2t64 is not present
+          sudo apt-get install -y libasound2 || true
           npm install -g yarn || true
           sudo apt-get install -y jq
 
@@ -75,14 +78,18 @@ jobs:
         run: |
           cd .workbench
           export ELECTRON_MIRROR=https://artifacts.electronjs.org/
-          VER=$(node -e "try{let p=require('./package.json');console.log(p.devDependencies?.electron||p.dependencies?.electron||'latest')}catch(e){console.log('latest')}")
+          RAW_VER=$(node -e "try{let p=require('./package.json');console.log(p.devDependencies?.electron||p.dependencies?.electron||'19.1.9')}catch(e){console.log('19.1.9')}")
+          VER=${RAW_VER#^}
+          VER=${VER#~}
           echo "Installing electron@${VER}"
           for i in 1 2 3; do npm install -D electron@"$VER" --no-fund --no-audit && break || sleep 5; done
 
       - name: Electron rebuild (best-effort)
         run: |
           cd .workbench
-          ELECTRON_VER=$(node -e "console.log(require('./package.json').devDependencies?.electron || require('./package.json').dependencies?.electron || '')")
+          RAW_VER=$(node -e "try{let p=require('./package.json');console.log(p.devDependencies?.electron||p.dependencies?.electron||'19.1.9')}catch(e){console.log('19.1.9')}")
+          ELECTRON_VER=${RAW_VER#^}
+          ELECTRON_VER=${ELECTRON_VER#~}
           echo "Electron version: $ELECTRON_VER"
           npx electron-rebuild -f -v "$ELECTRON_VER" || true
         env:

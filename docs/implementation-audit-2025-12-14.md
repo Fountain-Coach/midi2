@@ -191,7 +191,11 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 - ✅ **Documentation Up-to-Date:** Now comprehensive with this PR
 
 ### Version Synchronization Note
-⚠️ **Observation:** Swift package version (0.4.0 in Package.swift) differs from JavaScript package version (0.7.0). This is intentional as they are released independently, but should be clearly documented in RELEASE.md (already addressed).
+ℹ️ **Intentional Design:** Swift package version (0.4.0 in Package.swift) differs from JavaScript package version (0.7.0) because they are released independently on different schedules:
+- **Swift package:** Platform-specific MIDI 2.0 implementation for Apple platforms and Linux
+- **JavaScript package:** Cross-browser MIDI 2.0 library for web applications
+
+Each package follows its own semantic versioning timeline based on feature completeness and breaking changes specific to that ecosystem. This is documented in RELEASE.md as the standard practice.
 
 ---
 

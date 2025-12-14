@@ -20,7 +20,12 @@ jobs:
       - name: List Dependencies
         run: |
           echo "## Swift Dependencies" >> $GITHUB_STEP_SUMMARY
-          swift package show-dependencies --format json | jq '.dependencies[] | "\(.identity) \(.requirement)"' >> $GITHUB_STEP_SUMMARY || echo "Failed to list dependencies" >> $GITHUB_STEP_SUMMARY
+          swift package show-dependencies --format json > deps.json 2>&1 || echo "{}" > deps.json
+          if [ -s deps.json ] && jq -e '.dependencies' deps.json > /dev/null 2>&1; then
+            jq -r '.dependencies[] | "\(.identity) \(.requirement)"' deps.json >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No dependencies or unable to parse" >> $GITHUB_STEP_SUMMARY
+          fi
 
       - name: Check for Updates
         run: |

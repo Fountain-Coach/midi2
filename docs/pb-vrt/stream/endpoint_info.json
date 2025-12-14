@@ -1,0 +1,12 @@
+{
+  "word": "0xF001810A",
+  "fields": {
+    "opcode": "endpointInfoNotification",
+    "staticFunctionBlocks": true,
+    "numberOfFunctionBlocks": 0x01,
+    "midi1Supported": true,
+    "midi2Supported": true,
+    "jrTimestampsRx": false,
+    "jrTimestampsTx": true
+  }
+}

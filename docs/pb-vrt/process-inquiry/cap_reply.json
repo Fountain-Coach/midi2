@@ -1,0 +1,7 @@
+{
+  "payload": [0x7E, 0x0D, 0x01, 0x01, 0x7B, 0x7D],
+  "fields": {
+    "command": "capReply",
+    "filters": {}
+  }
+}

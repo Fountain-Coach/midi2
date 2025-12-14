@@ -1,0 +1,52 @@
+name: Security Vulnerability
+description: Report a security vulnerability (please use private reporting if possible)
+labels: ["security"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## ⚠️ Security Notice
+        
+        **Please do not report security vulnerabilities publicly in GitHub issues.**
+        
+        For responsible disclosure, please use one of these methods:
+        
+        1. **GitHub Security Advisories (Preferred):**
+           - Go to https://github.com/Fountain-Coach/midi2/security/advisories
+           - Click "Report a vulnerability"
+           - Fill out the private security advisory form
+        
+        2. **Email:**
+           - Send to: security@fountain-coach.dev *(TODO: Update with actual contact)*
+           - Subject: `[SECURITY] midi2 vulnerability: [brief description]`
+        
+        See [SECURITY.md](https://github.com/Fountain-Coach/midi2/blob/main/SECURITY.md) for full details.
+        
+        ---
+        
+        **This template is for tracking public security discussions only** (e.g., after a vulnerability has been patched and disclosed).
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Public Security Discussion
+      description: |
+        This field should only be used for already-disclosed vulnerabilities or public security discussions.
+        For new vulnerabilities, please use private reporting methods above.
+      placeholder: |
+        CVE ID: CVE-2025-XXXXX
+        GitHub Security Advisory: GHSA-xxxx-yyyy-zzzz
+        
+        Discussion about...
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: acknowledgment
+    attributes:
+      label: Acknowledgment
+      options:
+        - label: I understand that new security vulnerabilities should be reported privately via GitHub Security Advisories or email
+          required: true
+        - label: This issue is for public discussion of an already-disclosed vulnerability
+          required: false

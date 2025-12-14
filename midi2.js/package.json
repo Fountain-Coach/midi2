@@ -4,10 +4,29 @@
   "private": false,
   "description": "Cross-browser, CoreMIDI-free MIDI 2.0 protocol and scheduler core.",
   "license": "MIT",
+  "author": "Fountain Coach",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fountain-coach/midi2.git"
+    "url": "https://github.com/fountain-coach/midi2.git",
+    "directory": "midi2.js"
   },
+  "bugs": {
+    "url": "https://github.com/fountain-coach/midi2/issues"
+  },
+  "homepage": "https://github.com/Fountain-Coach/midi2#readme",
+  "keywords": [
+    "midi",
+    "midi2",
+    "midi-2.0",
+    "ump",
+    "universal-midi-packet",
+    "midi-ci",
+    "sysex",
+    "music",
+    "audio",
+    "web-midi",
+    "scheduler"
+  ],
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",

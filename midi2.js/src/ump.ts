@@ -164,6 +164,9 @@ function encodeUtility(event: UtilityEvent): Uint32Array {
   let data = 0;
   switch (event.status) {
     case "noop":
+      if ((event.value ?? 0) !== 0) {
+        throw new RangeError("Utility noop must have zero value.");
+      }
       statusByte = 0x00;
       data = 0;
       break;
@@ -1186,6 +1189,9 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     else if (statusByte === 0x01) status = "jrClock";
     else if (statusByte === 0x02) status = "jrTimestamp";
     else throw new RangeError("Unsupported utility status");
+    if (status === "noop" && value !== 0) {
+      throw new RangeError("Utility noop must have zero payload.");
+    }
     const event: UtilityEvent = {
       kind: "utility",
       status,

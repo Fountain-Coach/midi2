@@ -102,4 +102,9 @@ describe("negative decode coverage (reserved/invalid values)", () => {
     const emptyPayload = [umpBytesToWords(Uint8Array.from([0x50, 0x00, ...Array(14).fill(0)]))];
     expect(() => reassembleSysEx8(emptyPayload)).toThrow(RangeError);
   });
+
+  it("rejects utility noop with non-zero payload", () => {
+    const word0 = (0x0 << 28) | (0x00 << 16) | 0x1234;
+    expect(decode([word0])).toThrow(RangeError);
+  });
 });

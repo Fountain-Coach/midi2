@@ -39,6 +39,7 @@ public enum Utility: Equatable {
         let data = UInt16(ump.word & 0xFFFF)
         switch status {
         case 0x00:
+            guard data == 0 else { return nil } // reserved payload must be zero
             self = .noop
         case 0x01:
             self = .jrClock(data)
@@ -62,6 +63,9 @@ public enum Utility: Equatable {
         let data = UInt16(ump.word & 0xFFFF)
         switch status {
         case 0x00:
+            guard data == 0 else {
+                throw MIDIError.malformedPacket("utility noop must carry zero data")
+            }
             self = .noop
         case 0x01:
             self = .jrClock(data)

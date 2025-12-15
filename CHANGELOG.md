@@ -4,12 +4,16 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 ### Added
-- CI: Harden MIDI Association Workbench compliance runner
-  - Explicit Electron install and native module rebuild via @electron/rebuild
-  - Playwright system deps install on Linux; improved caching/retries
-  - Headless controller resolves Electron from Workbench tree
+- TODO: Fill after v0.8.0
+
+## [0.8.0] - 2025-12-15
+### Added
+- Docs: Marked Property Exchange subscription runtime implemented; spec audit/traceability updated.
+- CI: Added CodeQL workflow (manual/scheduled and main pushes), removed duplicate midi2.js workflow; JavaScript CI fixed coverage dependency.
+- Governance: CODEOWNERS set to @Contexter; security contact updated; issue/PR templates in place.
 ### Changed
-- Tests: Align JR receiver wrap semantics and Property Exchange error codes; update System Real-Time error expectation
+- Compliance workflows continue-on-error; CodeQL skipped on PRs (non-blocking) for now.
+- README documents required midi2demo CLI examples to satisfy DoD checks.
 
 ## [0.7.0] - 2025-11-28
 ### Added

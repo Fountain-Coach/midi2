@@ -115,6 +115,12 @@ console.log(r.manufacturerId, r.payload);
 
 ---
 
+## 6. Tests
+
+Run the TypeScript suite with `npm test` inside `midi2.js/` (vitest); CI jobs `build-test` and `test` mirror this.
+
+---
+
 ## 5. WebAudio Adapter
 
 ```ts

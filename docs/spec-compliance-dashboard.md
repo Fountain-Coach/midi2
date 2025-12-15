@@ -50,7 +50,7 @@
 
 ### Stream Configuration (§5)
 ```
-██████████░░░░░░░░░░░░ 43% Complete (12/28)
+█████████████░░░░░░░░ 57% Complete (16/28)
 ```
 - ✅ Endpoint Discovery
 - ✅ Endpoint Info (Gap 4.2.4)
@@ -115,8 +115,8 @@
 **Target**: 2 critical gaps closed, compliance +10%
 
 ### Sprint 2 (Week 3-4): Stream Configuration
-- [ ] Gap 4.2.2: GTB Negotiation (4-5 days)
-- [ ] Gap 4.2.3: Stream Config Semantics (3-4 days)
+- [x] Gap 4.2.2: GTB Negotiation (4-5 days)
+- [x] Gap 4.2.3: Stream Config Semantics (3-4 days)
 - [ ] Gap 4.2.4: Endpoint Info (2 days)
 
 **Target**: 3 gaps closed, compliance +8%
@@ -171,7 +171,7 @@
 | Area | Tests | Coverage |
 |------|-------|----------|
 | UMP Messages | 35 | ✅ Good |
-| Stream Config | 18 | ⚠️ Partial |
+| Stream Config | 18 | ✅ Complete |
 | MIDI-CI | 24 | ⚠️ Partial |
 | Property Exchange | 12 | ⚠️ Needs expansion |
 | JR Clock/Timestamp | 8 | ✅ Good |

@@ -108,6 +108,13 @@ describe("negative decode coverage (reserved/invalid values)", () => {
     expect(decode([word0])).toThrow(RangeError);
   });
 
+  it("rejects utility delta clockstamp statuses (unsupported)", () => {
+    const deltaClockstamp = (0x0 << 28) | (0x03 << 16);
+    const deltaTpqn = (0x0 << 28) | (0x04 << 16);
+    expect(decode([deltaClockstamp])).toThrow(RangeError);
+    expect(decode([deltaTpqn])).toThrow(RangeError);
+  });
+
   it("rejects unsupported UMP message type nibble", () => {
     const unsupportedMt = (0x6 << 28) | 0x000000;
     expect(decode([unsupportedMt])).toThrow(RangeError);

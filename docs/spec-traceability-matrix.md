@@ -82,12 +82,12 @@
 
 | Requirement | Spec Page | Schema | Swift | TypeScript | Tests | Status | Notes |
 |-------------|-----------|--------|-------|------------|-------|--------|-------|
-| Stream Config Request (0x05) | 37-38, Fig 18 | ✅ | ✅ | ⚠️ | ✅ | ⚠️ | 📄 Row 16, Gap 4.2.3 |
-| - Protocol field (0x01/0x02) | 37-38 | ✅ | ✅ | ⚠️ | ✅ | ✅ | MIDI1=0x01, MIDI2=0x02 |
-| - JR Rx/Tx flags | 37-38 | ✅ | ✅ | ⚠️ | ✅ | ⚠️ | 📄 Row 16 |
-| - Reserved bits | 37-38 | ✅ | ✅ | ⚠️ | ✅ | ✅ | |
-| Stream Config Notification (0x06) | 37-38, Fig 19 | ✅ | ✅ | ⚠️ | ✅ | ⚠️ | 📄 Row 16 |
-| - Protocol switching | 24 | ✅ | ⚠️ | ⚠️ | ❌ | ⚠️ | 📄 Row 20, Gap 4.2.3 |
+| Stream Config Request (0x05) | 37-38, Fig 18 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 16 |
+| - Protocol field (0x01/0x02) | 37-38 | ✅ | ✅ | ✅ | ✅ | ✅ | MIDI1=0x01, MIDI2=0x02 |
+| - JR Rx/Tx flags | 37-38 | ✅ | ✅ | ✅ | ✅ | ✅ | |
+| - Reserved bits | 37-38 | ✅ | ✅ | ✅ | ✅ | ✅ | |
+| Stream Config Notification (0x06) | 37-38, Fig 19 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 16 |
+| - Protocol switching | 24 | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | JR fallback semantics documented; runtime accepts both |
 | - JR fallback behavior | 45 | 📋 | ❌ | ❌ | ❌ | ❌ | 📄 Row 17, Gap 4.2.3 |
 
 **Evidence**:

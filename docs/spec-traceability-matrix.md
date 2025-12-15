@@ -129,11 +129,11 @@
 
 | Requirement | Spec Page | Schema | Swift | TypeScript | Tests | Status | Notes |
 |-------------|-----------|--------|-------|------------|-------|--------|-------|
-| GTB structure | 122 | ✅ | ✅ | ⚠️ | ✅ | ✅ | 📄 Row 29 (pending) |
-| GTB-FB overlap rules | 122 | 📋 | ❌ | ❌ | ❌ | ❌ | Gap 4.2.2 |
-| MT=0xF reception restrictions | 122 | 📋 | ❌ | ❌ | ❌ | ❌ | Gap 4.2.2 |
-| MT=0x0 reception restrictions | 122 | 📋 | ❌ | ❌ | ❌ | ❌ | Gap 4.2.2 |
-| Protocol negotiation for GTB | 122 | 📋 | ❌ | ❌ | ❌ | ❌ | Gap 4.2.2 |
+| GTB structure | 122 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 29 |
+| GTB-FB overlap rules | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | GTBValidator overlap/coverage checks; PB-VRT fixtures |
+| MT=0xF reception restrictions | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | GTB guards block disallowed MT per group |
+| MT=0x0 reception restrictions | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | Utility blocked when GTB disallows |
+| Protocol negotiation for GTB | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | Descriptor ingestion + allowed-MT enforcement (Swift/TS) |
 
 **Evidence**:
 - Schema: Implicit in StreamBody

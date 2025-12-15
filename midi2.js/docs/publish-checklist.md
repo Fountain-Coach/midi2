@@ -11,6 +11,7 @@ Use this checklist before tagging and publishing a release.
 
 ## Protocol coverage
 - [ ] Stream: endpoint/config/function-blocks implemented and validated; group/terminal/process inquiry opcodes addressed or documented.
+- [ ] GTB: descriptor ingested, allowed MT map enforced (ingress/egress), overlap vs. FB validated.
 - [ ] Per-note: management + reg/assignable controllers implemented; pitch bend implemented; any remaining per-note expressives either implemented or documented as out of scope.
 - [ ] Down-conversion: MIDI 2.0 → 1.0 paths cover channel voice + SysEx7/8 + MIDI-CI; validation/reserved bits checked.
 - [ ] JR: synchronizer wired; scheduler/worker coverage documented.

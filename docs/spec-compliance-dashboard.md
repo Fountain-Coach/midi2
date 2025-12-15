@@ -96,21 +96,13 @@
 ---
 
 ### 3. GTB Negotiation Semantics
-**Gap ID**: 4.2.2 | **Priority**: 🔴 High | **Effort**: 4-5 days
-
-**Impact**: Blocks USB-MIDI 2.0 interop  
-**Status**: 🔴 Not Started  
-**Sprint**: 2 (Week 3-4)
-
-**Missing**:
-- GTB-Function Block overlap logic
-- MT=0xF/0x0 reception restrictions
-- Protocol negotiation
-
+**Gap ID**: 4.2.2 | **Priority**: 🟢 Closed  
+**Impact**: USB-MIDI 2.0 interop  
+**Status**: 🟢 Complete (GTB descriptor ingestion, overlap validation, MT guards)  
 **Acceptance**:
-- [ ] GTB-FB overlap documented
-- [ ] Message type restrictions enforced
-- [ ] Protocol negotiation state machine
+- [x] GTB-FB overlap documented and enforced
+- [x] Message type restrictions enforced (MT=0x0/0xF per group)
+- [x] Protocol negotiation/state hooks in Swift + TS
 
 ---
 

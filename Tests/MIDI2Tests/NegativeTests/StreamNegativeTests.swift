@@ -37,4 +37,23 @@ final class StreamNegativeValidationTests: XCTestCase {
         XCTAssertThrowsError(try SysEx7.fragment(manufacturerID: [0x7D], payload: oversized))
         XCTAssertThrowsError(try SysEx8.fragment(manufacturerID: [0x7D], payload: oversized))
     }
+
+    func testSysEx7RejectsInvalidStatusAndChunkCount() {
+        let invalidStatus = Array([UInt8(0x30), 0x40] + Array(repeating: UInt8(0), count: 6))
+        XCTAssertThrowsError(try SysEx7.reassemble([invalidStatus]))
+
+        let badCount = Array([UInt8(0x30), 0x17] + Array(repeating: UInt8(0), count: 6)) // count nibble 7 > maxChunk
+        XCTAssertThrowsError(try SysEx7.reassemble([badCount]))
+
+        let emptyPayload = Array([UInt8(0x30), 0x00] + Array(repeating: UInt8(0), count: 6)) // no data bytes present
+        XCTAssertThrowsError(try SysEx7.reassemble([emptyPayload]))
+    }
+
+    func testSysEx8RejectsInvalidStatusAndEmptyPayload() {
+        let invalidStatus = Array([UInt8(0x50), 0x40] + Array(repeating: UInt8(0), count: 14))
+        XCTAssertThrowsError(try SysEx8.reassemble([invalidStatus]))
+
+        let emptyPayload = Array([UInt8(0x50), 0x00] + Array(repeating: UInt8(0), count: 14))
+        XCTAssertThrowsError(try SysEx8.reassemble([emptyPayload]))
+    }
 }

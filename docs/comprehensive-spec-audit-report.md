@@ -169,35 +169,12 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 ### 2.2 Identified Gaps
 
 #### Gap 2.2.1: Property Exchange Subscription Lifecycle
-**Severity**: High  
+**Status**: ✅ Implemented  
 **Spec Reference**: M2-103-UM v1.2, Tables 43-47 (p.42-43)
 
-**Current State**: Schema fields captured, but runtime state machine not implemented.
+**Current State**: Runtime state machine implemented in Swift (`PropertyExchangeSession` / `PropertyExchangeSubscriptionManager`) and TypeScript (`PeSubscriptionManager`). Handles start/partial/full/notify/end, resource matching, flow-control ACK/NAK, timeout backoff, and capped retries. Tests cover lifecycle, out-of-order chunks, timeouts, and resource mismatches (`Tests/MIDI2Tests/PropertyExchangeSubscriptionTests.swift`, `midi2.js/src/__tests__/pe-subscriptions.test.ts`).  
 
-**Evidence**:
-- `docs/spec-audit.md`: Row 40 - "PE subscription lifecycle example | Pending (runtime)"
-- `docs/spec-audit.md`: Row 39 - "runtime state machine still TODO"
-- `legacy/midi2-js-gap-plan.md`: "MUID management coverage is thin. Compression/error/NAK paths remain untested."
-
-**Recommended Action**:
-1. Implement state machine for subscription lifecycle (start → partial → full → notify → end)
-2. Add flow-control ACK/NAK runtime handlers (currently only schema-level)
-3. Implement subscription tracking with proper resource state management
-4. Add comprehensive test vectors for:
-   - Subscription start/end sequences
-   - Partial vs. full update patterns
-   - Error handling and timeouts
-   - Flow-control ACK/NAK paths
-5. Cross-validate against M2-103-UM Tables 43-47
-
-**Priority**: High  
-**Effort**: High (5-7 days)
-
-**Specific Missing Features**:
-- Subscription state tracking (active subscriptions map)
-- Chunk number validation and retransmit logic
-- Flow-control ACK timeout handling
-- Resource-level flow-control capability negotiation
+**Residual Risks**: No real-device interop exercised; flow-control retry limits are policy defaults (configurable). Consider field trials with external devices.
 - Proper NAK retransmit behavior
 
 #### Gap 2.2.2: Profile Configuration Details and Reports

@@ -119,6 +119,8 @@ console.log(r.manufacturerId, r.payload);
 
 Run the TypeScript suite with `npm test` inside `midi2.js/` (vitest); CI jobs `build-test` and `test` mirror this.
 
+Property Exchange runtime parity: the JS `PeSubscriptionManager` implements the full subscribe→partial→full→notify→end lifecycle with flow-control ACK/NAK, matching the Swift runtime and covered by `src/__tests__/pe-subscriptions.test.ts`.
+
 ---
 
 ## 5. WebAudio Adapter

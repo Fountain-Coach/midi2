@@ -304,16 +304,16 @@
 
 | Requirement | Spec Page | Schema | Swift | TypeScript | Tests | Status | Notes |
 |-------------|-----------|--------|-------|------------|-------|--------|-------|
-| Process Inquiry Request (0x40) | 59, Table 40 | ✅ | ✅ | ⚠️ | ⚠️ | ⚠️ | 📄 Row 31 |
-| Process Inquiry Reply (0x41) | 59, Table 41 | ✅ | ✅ | ⚠️ | ⚠️ | ⚠️ | 📄 Row 31 |
-| Supported Features bitmap | 60, Table 42 | ✅ | ⚠️ | ⚠️ | ❌ | ⚠️ | 📄 Row 32, Gap 2.2.3 |
-| - MIDI Message Report (D0 bit) | 60 | ✅ | ⚠️ | ⚠️ | ❌ | ⚠️ | Gap 2.2.3 |
-| MIDI Message Report Request | 61, Table 43 | ✅ | ⚠️ | ⚠️ | ❌ | ⚠️ | 📄 Row 33, Gap 2.2.3 |
-| Device ID scope | 61 | ✅ | ❌ | ❌ | ❌ | ❌ | Gap 2.2.3 - 0x00-0x0F/0x7E/0x7F |
-| Message Data Control | 61 | ✅ | ❌ | ❌ | ❌ | ❌ | Gap 2.2.3 - 0x00/0x01/0x7F |
-| System Messages bitmap | 62 | ✅ | ⚠️ | ⚠️ | ❌ | ⚠️ | Gap 2.2.3 |
-| Channel Controller Messages bitmap | 62 | ✅ | ⚠️ | ⚠️ | ❌ | ⚠️ | Gap 2.2.3 |
-| Note Data Messages bitmap | 63, Table 45 | ✅ | ⚠️ | ⚠️ | ❌ | ⚠️ | Gap 2.2.3 |
+| Process Inquiry Request (0x40) | 59, Table 40 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 31 |
+| Process Inquiry Reply (0x41) | 59, Table 41 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 31 |
+| Supported Features bitmap | 60, Table 42 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 32 |
+| - MIDI Message Report (D0 bit) | 60 | ✅ | ✅ | ✅ | ✅ | ✅ | |
+| MIDI Message Report Request | 61, Table 43 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 33 |
+| Device ID scope | 61 | ✅ | ✅ | ✅ | ✅ | ✅ | 0x00-0x0F/0x7E/0x7F enforced |
+| Message Data Control | 61 | ✅ | ✅ | ✅ | ✅ | ✅ | 0x00/0x01/0x7F validated |
+| System Messages bitmap | 62 | ✅ | ✅ | ✅ | ✅ | ✅ | |
+| Channel Controller Messages bitmap | 62 | ✅ | ✅ | ✅ | ✅ | ✅ | |
+| Note Data Messages bitmap | 63, Table 45 | ✅ | ✅ | ✅ | ✅ | ✅ | |
 
 **Evidence**:
 - Schema: `$defs.MidiCiProcessInquiryBody`

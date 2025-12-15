@@ -3,7 +3,7 @@
 **Initial Audit Date**: 2025-12-13  
 **Last Updated**: 2025-12-14  
 **Repository**: Fountain-Coach/midi2  
-**Version**: 0.7.0 (TypeScript), 0.4.0 (Swift)  
+**Version**: 0.8.0 (TypeScript), 0.8.0 (Swift)  
 **Audited Against**: MIDI Association Normative Specifications (M2-100 through M2-116)
 
 **Note**: This is the initial comprehensive audit. Subsequent updates should maintain version history and update the "Last Updated" date above.

@@ -9,12 +9,14 @@ public final class ProfileSession {
     /// Enabled profiles keyed by target and optional channel list string key.
     /// Key format: "T:<target>|C:<comma-separated channels or *>".
     private var enabled: [String: Set<String>] = [:]
+    /// Last details replies we have observed/emitted, keyed like `enabled`.
+    private(set) var lastDetailsReplies: [String: MidiCiProfilesBody] = [:]
     /// Optional hook invoked when a profile is enabled/disabled; set by host to update FB associations.
     public var onProfileAssociationChange: ((String, MidiCiProfilesBody.Target?, [Uint4]?, Bool) -> Void)?
 
-    public init(supportedProfiles: Set<String> = []) {
+    public init(supportedProfiles: Set<String> = [], psdCapableProfiles: Set<String>? = nil) {
         self.supportedProfiles = supportedProfiles
-        self.psdCapableProfiles = supportedProfiles
+        self.psdCapableProfiles = psdCapableProfiles ?? supportedProfiles
     }
 
     private func channelMaskBytes(_ channels: [Uint4]?) -> (UInt8, UInt8) {
@@ -49,6 +51,11 @@ public final class ProfileSession {
             c = "*"
         }
         return "T:\(t)|C:\(c)"
+    }
+
+    /// Returns the most recent details reply observed for the given target/channels.
+    public func lastDetails(for target: MidiCiProfilesBody.Target?, channels: [Uint4]?) -> MidiCiProfilesBody? {
+        lastDetailsReplies[key(for: target, channels: channels)]
     }
 
     /// Update the supported profile set and emit added/removed reports for changes at the given scope.
@@ -108,31 +115,35 @@ public final class ProfileSession {
                 "cmL": cmL,
                 "cmH": cmH
             ]
-            return [MidiCiProfilesBody(command: .reply, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
+            let reply = MidiCiProfilesBody(command: .reply, profileId: body.profileId, target: body.target, channels: body.channels, details: details)
+            lastDetailsReplies[key(for: body.target, channels: body.channels)] = reply
+            return [reply]
 
         case .setOn:
+            guard let target = body.target else { return [] }
             guard supportedProfiles.contains(body.profileId) else {
                 // Unsupported -> disabled report with ok=0
                 let (cmL, cmH) = channelMaskBytes(body.channels)
                 let details: [String: UInt8] = ["ok": 0, "cmL": cmL, "cmH": cmH]
                 return [MidiCiProfilesBody(command: .disabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
             }
-            let k = key(for: body.target, channels: body.channels)
+            let k = key(for: target, channels: body.channels)
             var set = enabled[k] ?? []
             set.insert(body.profileId)
             enabled[k] = set
-            onProfileAssociationChange?(body.profileId, body.target, body.channels, true)
+            onProfileAssociationChange?(body.profileId, target, body.channels, true)
             let (cmL, cmH) = channelMaskBytes(body.channels)
             let details: [String: UInt8] = ["ok": 1, "cmL": cmL, "cmH": cmH]
             return [MidiCiProfilesBody(command: .enabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
 
         case .setOff:
-            let k = key(for: body.target, channels: body.channels)
+            guard let target = body.target else { return [] }
+            let k = key(for: target, channels: body.channels)
             if var set = enabled[k] {
                 set.remove(body.profileId)
                 enabled[k] = set
             }
-            onProfileAssociationChange?(body.profileId, body.target, body.channels, false)
+            onProfileAssociationChange?(body.profileId, target, body.channels, false)
             let (cmL, cmH) = channelMaskBytes(body.channels)
             let details: [String: UInt8] = ["ok": 1, "cmL": cmL, "cmH": cmH]
             return [MidiCiProfilesBody(command: .disabledReport, profileId: body.profileId, target: body.target, channels: body.channels, details: details)]
@@ -140,7 +151,13 @@ public final class ProfileSession {
         case .detailsInquiry:
             guard !body.profileId.isEmpty else { return [] }
             guard let target = body.target else { return [] }
-            return [detailsReply(for: body, target: target)]
+            let reply = detailsReply(for: body, target: target)
+            lastDetailsReplies[key(for: target, channels: body.channels)] = reply
+            return [reply]
+
+        case .detailsReply:
+            lastDetailsReplies[key(for: body.target, channels: body.channels)] = body
+            return []
 
         default:
             return []

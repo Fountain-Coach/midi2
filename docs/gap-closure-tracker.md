@@ -292,7 +292,7 @@
 ---
 
 ### Gap 2.2.2: Profile Configuration Details
-**Status**: 🔴 Not Started  
+**Status**: 🟢 Complete  
 **Priority**: Medium | **Effort**: 2-3 days | **Target Sprint**: 4
 
 **Spec Reference**: M2-102-U v1.1, Table 6 (p.15, 17)
@@ -301,15 +301,15 @@
 - ✅ Basic details replies (version, channel mask)
 - ✅ PSD supported
 - ✅ Added/removed helpers
-- ❌ Negative tests for detail reports missing
-- ❌ Profile detail report handling incomplete
+- ✅ Negative tests expanded for details inquiries and target-less setOn handling
+- ✅ Profile detail report handling includes PSD flag, unsupported profile handling, and last-details tracking
 
 **Acceptance Criteria**:
-- [ ] Expanded profile detail report handling
-- [ ] Comprehensive tests for added/removed notifications
-- [ ] Profile configuration change tracking
-- [ ] Negative test cases for malformed messages
-- [ ] Documentation updates
+- [x] Expanded profile detail report handling
+- [x] Comprehensive tests for added/removed notifications
+- [x] Profile configuration change tracking
+- [x] Negative test cases for malformed messages
+- [x] Documentation updates
 
 **Implementation Steps**:
 1. Review M2-102-U Table 6 requirements

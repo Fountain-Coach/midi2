@@ -41,6 +41,7 @@ midi2.js implements this perspective completely.
 - System / Utility / Stream / Function Blocks (incl. Process Inquiry 0x03)  
 - Per‑Note Management, RPN/NRPN, Per‑Note Pitch Bend  
 - Flex Data (tempo, signature, metadata)
+- CI Profiles detail handling aligned with Swift session (supported/enabled/PSD flags)
 
 ### ✓ **Schema Bridge (OpenAPI‑backed)**
 - Converts runtime events ↔ structured schema packets  

@@ -19,4 +19,13 @@ final class UtilityErrorTests: XCTestCase {
             XCTAssertTrue(error.localizedDescription.contains("group nibble"))
         }
     }
+
+    func testNoopMustHaveZeroPayload() {
+        let byte0 = UInt32(0x0 << 4)
+        let word = (byte0 << 24) | (UInt32(0x00) << 16) | 0x1234
+        let ump = UmpPacket32(word: word)
+        XCTAssertThrowsError(try Utility(parsingUMP: ump)) { error in
+            XCTAssertTrue(error.localizedDescription.contains("zero data"))
+        }
+    }
 }

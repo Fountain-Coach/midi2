@@ -4,7 +4,7 @@ import XCTest
 final class FlexKeySignatureTests: XCTestCase {
     func testRoundTrip() {
         let addr = FlexKeySignature.Address.channel(group: Uint4(1)!, channel: Uint4(2)!)
-        let msg = FlexKeySignature(address: addr, key: "Gm")
+        let msg = try! FlexKeySignature(address: addr, key: "Gm")
         let packet = msg.encode()
         XCTAssertEqual(FlexKeySignature.decode(packet), msg)
     }

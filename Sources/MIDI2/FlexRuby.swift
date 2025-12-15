@@ -13,7 +13,11 @@ public struct FlexRuby: Equatable {
     public var ruby: String
 
     /// Creates a ruby message.
-    public init(address: Address, ruby: String) {
+    public init(address: Address, ruby: String) throws {
+        let length = ruby.utf8.count
+        guard length <= 12 else {
+            throw MIDIError.valueOutOfRange(name: "ruby", value: UInt64(length), range: 0...12)
+        }
         self.address = address
         self.ruby = ruby
     }
@@ -91,7 +95,6 @@ public struct FlexRuby: Equatable {
 
         let strBytes = bytes.prefix { $0 != 0 }
         let ruby = String(bytes: strBytes, encoding: .utf8) ?? ""
-        return FlexRuby(address: address, ruby: ruby)
+        return try? FlexRuby(address: address, ruby: ruby)
     }
 }
-

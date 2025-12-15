@@ -13,7 +13,11 @@ public struct FlexKeySignature: Equatable {
     public var key: String
 
     /// Creates a key signature message.
-    public init(address: Address, key: String) {
+    public init(address: Address, key: String) throws {
+        let length = key.utf8.count
+        guard length <= 12 else {
+            throw MIDIError.valueOutOfRange(name: "key", value: UInt64(length), range: 0...12)
+        }
         self.address = address
         self.key = key
     }
@@ -91,7 +95,6 @@ public struct FlexKeySignature: Equatable {
 
         let strBytes = bytes.prefix { $0 != 0 }
         let key = String(bytes: strBytes, encoding: .utf8) ?? ""
-        return FlexKeySignature(address: address, key: key)
+        return try? FlexKeySignature(address: address, key: key)
     }
 }
-

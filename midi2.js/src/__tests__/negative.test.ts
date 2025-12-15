@@ -47,4 +47,19 @@ describe("negative decode coverage (reserved/invalid values)", () => {
     const word0 = (0x2 << 28) | (0x0 << 24) | (0x90 << 16) | (0xff << 8); // data1=0xFF
     expect(decode([word0])).toThrow(RangeError);
   });
+
+  it("rejects MIDI 2 channel voice with note outside 7-bit range", () => {
+    const word0 = (0x4 << 28) | (0x0 << 24) | (0x9 << 20) | (0x0 << 16) | (0xff << 8);
+    expect(decode([word0, 0])).toThrow(RangeError);
+  });
+
+  it("rejects MIDI 2 channel voice with unsupported status nibble", () => {
+    const word0 = (0x4 << 28) | (0x0 << 24) | (0x7 << 20);
+    expect(decode([word0, 0])).toThrow(RangeError);
+  });
+
+  it("rejects MIDI 2 system with unsupported status", () => {
+    const word0 = (0x1 << 28) | (0x0 << 24) | (0xf4 << 16);
+    expect(decode([word0])).toThrow(RangeError);
+  });
 });

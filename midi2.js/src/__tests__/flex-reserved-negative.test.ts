@@ -13,4 +13,9 @@ describe("flex reserved class/status negatives", () => {
     const word0 = (0xd << 28) | (0x0 << 24) | (0x10 << 16) | 0x3f;
     expect(() => encodeEventPackets({ kind: "rawUMP", words: new Uint32Array([word0, 0, 0, 0]) } as any)).toThrow();
   });
+
+  it("rejects flex packets with unknown status in valid class", () => {
+    const word0 = (0xd << 28) | (0x0 << 24) | (0x10 << 16) | (0x7f << 8);
+    expect(() => encodeEventPackets({ kind: "rawUMP", words: new Uint32Array([word0, 0, 0, 0]) } as any)).toThrow(RangeError);
+  });
 });

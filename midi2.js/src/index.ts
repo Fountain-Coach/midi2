@@ -14,3 +14,4 @@ export * from "./adapters/three";
 export * from "./adapters/cannon";
 export * from "./gtb-negotiation";
 export * from "./stream-negotiation";
+export * from "./muid-manager";

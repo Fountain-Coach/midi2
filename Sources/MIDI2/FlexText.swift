@@ -13,7 +13,11 @@ public struct FlexText: Equatable {
     public var text: String
 
     /// Creates a text message.
-    public init(address: Address, text: String) {
+    public init(address: Address, text: String) throws {
+        let length = text.utf8.count
+        guard length <= 12 else {
+            throw MIDIError.valueOutOfRange(name: "text", value: UInt64(length), range: 0...12)
+        }
         self.address = address
         self.text = text
     }
@@ -91,7 +95,6 @@ public struct FlexText: Equatable {
 
         let strBytes = bytes.prefix { $0 != 0 }
         let text = String(bytes: strBytes, encoding: .utf8) ?? ""
-        return FlexText(address: address, text: text)
+        return try? FlexText(address: address, text: text)
     }
 }
-

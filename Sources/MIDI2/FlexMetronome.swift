@@ -20,6 +20,10 @@ public struct FlexMetronome: Equatable {
         guard clicksPerBeat >= 1 else {
             throw MIDIError.valueOutOfRange(name: "clicksPerBeat", value: UInt64(clicksPerBeat), range: 1...UInt64.max)
         }
+        let patternLength = accentPattern.utf8.count
+        guard patternLength <= 10 else {
+            throw MIDIError.valueOutOfRange(name: "accentPattern", value: UInt64(patternLength), range: 0...10)
+        }
         self.address = address
         self.clicksPerBeat = clicksPerBeat
         self.accentPattern = accentPattern

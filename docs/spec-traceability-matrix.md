@@ -266,8 +266,8 @@
 | Text (0x01) | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Lyric (0x02) | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Ruby (0x08) | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Flex Data validation | Various | 📋 | ⚠️ | ⚠️ | ⚠️ | ⚠️ | Gap 3.2.1 |
-| Reserved flex opcodes | Various | 📋 | ⚠️ | ⚠️ | ❌ | ⚠️ | Gap 3.2.1 |
+| Flex Data validation | Various | 📋 | ✅ | ✅ | ✅ | ✅ | Gap 3.2.1 closed |
+| Reserved flex opcodes | Various | 📋 | ✅ | ✅ | ✅ | ✅ | Gap 3.2.1 closed |
 
 **Evidence**:
 - Schema: `$defs.FlexDataBody`, `$defs.Flex.*`
@@ -288,7 +288,7 @@
 | Endpoint Inquiry | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Invalidity | Various | ✅ | ✅ | ✅ | 🧪 | 🧪 | Needs validation |
 | NAK | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| MUID management | Various | 📋 | ⚠️ | ⚠️ | ⚠️ | ⚠️ | Gap 2.2.4 |
+| MUID management | Various | 📋 | ✅ | ✅ | ✅ | ✅ | Gap 2.2.4 closed |
 | Max SysEx size | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
 
 **Evidence**:

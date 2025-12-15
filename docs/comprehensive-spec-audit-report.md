@@ -832,10 +832,8 @@ The repository maintains dual canonical artifacts:
 
 ### 11.3 Low Priority Items (Ongoing)
 
-11. **Reserved/Unsupported Status Handling** (Gap 1.2.1)
-    - Effort: 2-3 days
-    - Impact: Future-proofing
-    - Deliverables: Consistent error handling, documentation
+11. **Reserved/Unsupported Status Handling** (Gap 1.2.1) – Complete
+    - Swift/TS decoders now reject reserved/unknown statuses for Flex/System/Channel Voice with aligned negative vectors.
 
 12. **Adapter Enhancements** (Gap 5.2.2)
     - Effort: 2-3 days
@@ -847,10 +845,8 @@ The repository maintains dual canonical artifacts:
     - Impact: Worker context reliability
     - Deliverables: Comprehensive worker JR tests
 
-14. **Flex Data Edge Cases** (Gap 3.2.1)
-    - Effort: 1-2 days
-    - Impact: Robustness
-    - Deliverables: Validation tests, edge case coverage
+14. **Flex Data Edge Cases** (Gap 3.2.1) – Complete
+    - Tempo range, text-length, and metronome accent validations enforced (Swift + TS) with new negative tests.
 
 15. **Schema Documentation** (Gap 9.2.1)
     - Effort: Ongoing

@@ -133,7 +133,7 @@ extension Flex {
             } else {
                 address = .group(g)
             }
-            let msg = FlexKeySignature(address: address, key: key)
+            let msg = try FlexKeySignature(address: address, key: key)
             let packet = msg.encode()
             print(String(format: "UMP: 0x%08X 0x%08X 0x%08X 0x%08X",
                          packet.word0, packet.word1, packet.word2, packet.word3))
@@ -179,7 +179,7 @@ extension Flex {
             } else {
                 address = .group(g)
             }
-            let msg = FlexLyric(address: address, lyric: text)
+            let msg = try FlexLyric(address: address, lyric: text)
             let packet = msg.encode()
             print(String(format: "UMP: 0x%08X 0x%08X 0x%08X 0x%08X",
                          packet.word0, packet.word1, packet.word2, packet.word3))

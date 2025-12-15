@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { decodeUmp } from "../ump";
+import { reassembleSysEx7, reassembleSysEx8, umpBytesToWords } from "../sysex";
 
 function decode(words: number[]) {
   return () => decodeUmp(new Uint32Array(words.map(w => w >>> 0)));
@@ -81,5 +82,24 @@ describe("negative decode coverage (reserved/invalid values)", () => {
   it("rejects MIDI 2 system with unsupported status", () => {
     const word0 = (0x1 << 28) | (0x0 << 24) | (0xf4 << 16);
     expect(decode([word0])).toThrow(RangeError);
+  });
+
+  it("rejects SysEx7 packets with invalid status, oversize chunk, or empty payload", () => {
+    const invalidStatus = [umpBytesToWords(Uint8Array.from([0x30, 0x40, 0, 0, 0, 0, 0, 0]))];
+    expect(() => reassembleSysEx7(invalidStatus)).toThrow(RangeError);
+
+    const oversizeCount = [umpBytesToWords(Uint8Array.from([0x30, 0x17, 0, 0, 0, 0, 0, 0]))]; // count nibble 7 > 6
+    expect(() => reassembleSysEx7(oversizeCount)).toThrow(RangeError);
+
+    const emptyPayload = [umpBytesToWords(Uint8Array.from([0x30, 0x00, 0, 0, 0, 0, 0, 0]))];
+    expect(() => reassembleSysEx7(emptyPayload)).toThrow(RangeError);
+  });
+
+  it("rejects SysEx8 packets with invalid status or empty payload", () => {
+    const invalidStatus = [umpBytesToWords(Uint8Array.from([0x50, 0x40, ...Array(14).fill(0)]))];
+    expect(() => reassembleSysEx8(invalidStatus)).toThrow(RangeError);
+
+    const emptyPayload = [umpBytesToWords(Uint8Array.from([0x50, 0x00, ...Array(14).fill(0)]))];
+    expect(() => reassembleSysEx8(emptyPayload)).toThrow(RangeError);
   });
 });

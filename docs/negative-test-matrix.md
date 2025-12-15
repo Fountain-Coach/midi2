@@ -11,6 +11,7 @@
 | Stream – Reserved bit in mt=0xF word | M2-104-UM §5.1 | Low reserved bit set | Rejected (TS) |
 | Utility – Groupless + status | M2-104-UM §5.1 | Group nibble non-zero; unsupported status | Rejected (Swift + TS) |
 | SysEx7/SysEx8 – Oversize payload | M2-104-UM §4.2 | Payload > 0xFFFF | Rejected (Swift + TS) |
+| SysEx7/SysEx8 – Invalid status/count/empty | M2-104-UM §4.2 | Status nibble outside 0–3; count nibble > max; empty payload | Rejected (Swift + TS) |
 | Flex – Tempo / Time Signature | Flex spec | BPM < 1; denominatorPow2 > 0x1F | Rejected (TS; Swift validated via throwing inits) |
 | Flex – Payload bounds | Flex spec | Tempo > 16.16 max; text/ruby/lyric/chord/key >12 bytes; metronome accent >10 bytes | Rejected (Swift + TS) |
 | Flex – Unknown status within class | Flex spec | Unrecognised status values in class 0x10/0x11 | Rejected (Swift + TS) |
@@ -26,8 +27,7 @@
 | Process Inquiry – messageDataControl | M2-101-UM v1.2 | messageDataControl not in {0x00,0x01,0x7F} | Rejected (Swift + TS) |
 
 ## Next Targets
-- SysEx8/SysEx7 reserved/oversize edge cases (already partially covered; add matrix entries).
-- Utility reserved opcodes and out-of-range fields.
+- Utility reserved opcodes and out-of-range fields (beyond group/status already covered).
 - MIDI-CI Process Inquiry/profile/detail negative cases.
 
 ## Usage Notes

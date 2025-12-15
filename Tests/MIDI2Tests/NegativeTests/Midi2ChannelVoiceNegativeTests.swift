@@ -23,4 +23,10 @@ final class Midi2ChannelVoiceNegativeTests: XCTestCase {
         let pkt = UmpPacket64(word0: word0, word1: 0)
         XCTAssertNil(Midi2PerNoteManagement(ump: pkt))
     }
+
+    func testPerNoteAssignableControllerRejectsInvalidNote() {
+        let word0: UInt32 = (0x4 << 28) | (0x0 << 24) | (0xF << 20) | (0x0 << 16) | (0xFF << 8) | UInt32(0x80)
+        let pkt = UmpPacket64(word0: word0, word1: 0)
+        XCTAssertNil(Midi2AssignPerNoteController(ump: pkt))
+    }
 }

@@ -13,6 +13,7 @@
 | Utility – No-op payload | M2-104-UM §5.1 | No-op carrying non-zero data | Rejected (Swift + TS) |
 | SysEx7/SysEx8 – Oversize payload | M2-104-UM §4.2 | Payload > 0xFFFF | Rejected (Swift + TS) |
 | SysEx7/SysEx8 – Invalid status/count/empty | M2-104-UM §4.2 | Status nibble outside 0–3; count nibble > max; empty payload | Rejected (Swift + TS) |
+| UMP Message Type – Reserved nibble | M2-104-UM §5 | MT outside {0,1,2,3,4,5,13,15} | Rejected (TS) |
 | Flex – Tempo / Time Signature | Flex spec | BPM < 1; denominatorPow2 > 0x1F | Rejected (TS; Swift validated via throwing inits) |
 | Flex – Payload bounds | Flex spec | Tempo > 16.16 max; text/ruby/lyric/chord/key >12 bytes; metronome accent >10 bytes | Rejected (Swift + TS) |
 | Flex – Unknown status within class | Flex spec | Unrecognised status values in class 0x10/0x11 | Rejected (Swift + TS) |

@@ -959,6 +959,10 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
   const packet = toUint32Array(words);
   const word0 = packet[0];
   const mt = (word0 >>> 28) & 0xf;
+  const supportedMt = new Set([UTILITY_MT, MIDI2_SYSTEM_MT, MIDI1_CHANNEL_VOICE_MT, 0x3, MIDI2_CHANNEL_VOICE_MT, 0x5, 0xd, STREAM_MT]);
+  if (!supportedMt.has(mt)) {
+    throw new RangeError(`Unsupported UMP message type 0x${mt.toString(16)}`);
+  }
   if (mt === STREAM_MT) {
     return decodeStream(packet, timestamp);
   }

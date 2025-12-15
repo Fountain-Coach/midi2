@@ -107,4 +107,9 @@ describe("negative decode coverage (reserved/invalid values)", () => {
     const word0 = (0x0 << 28) | (0x00 << 16) | 0x1234;
     expect(decode([word0])).toThrow(RangeError);
   });
+
+  it("rejects unsupported UMP message type nibble", () => {
+    const unsupportedMt = (0x6 << 28) | 0x000000;
+    expect(decode([unsupportedMt])).toThrow(RangeError);
+  });
 });

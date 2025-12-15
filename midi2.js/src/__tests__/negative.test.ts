@@ -6,6 +6,16 @@ function decode(words: number[]) {
 }
 
 describe("negative decode coverage (reserved/invalid values)", () => {
+  it("rejects MIDI 2 channel voice per-note mgmt with note above 0x7F", () => {
+    const word0 = (0x4 << 28) | (0x0 << 24) | (0xf << 20) | (0x0 << 16) | (0xff << 8);
+    expect(decode([word0, 0])).toThrow(RangeError);
+  });
+
+  it("rejects MIDI 2 channel voice per-note reg controller with note above 0x7F", () => {
+    const word0 = (0x4 << 28) | (0x0 << 24) | (0xf << 20) | (0x0 << 16) | (0xff << 8) | 0x01;
+    expect(decode([word0, 0])).toThrow(RangeError);
+  });
+
   it("rejects stream packets with reserved bit set", () => {
     const word0 = (0xf << 28) | 0x8; // reserved low bit set
     expect(decode([word0])).toThrow(RangeError);

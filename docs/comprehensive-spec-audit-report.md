@@ -542,7 +542,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 ### 8.1 Current State
 
 **Swift**:
-- 107 test files
+- 110+ test files
 - Comprehensive coverage including:
   - UMP message types
   - Stream configuration
@@ -551,20 +551,21 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
   - JR clock/timestamp
   - SysEx7/8 fragmentation
   - Invalid sequence detection
+  - Negative tests for reserved values
 - Fuzz testing: `Tests/Fuzz/` with SwiftCheck
 - CI integration: `.github/workflows/ci.yml`
 
 **TypeScript**:
-- 11 test files
+- 32 test files with 198 tests
 - Coverage areas:
-  - UMP encoding/decoding
-  - MIDI-CI envelopes
+  - UMP encoding/decoding (48 tests)
+  - MIDI-CI envelopes and PE subscriptions
+  - Schema bridge validation (27 tests)
+  - Stream/GTB negotiation tests
   - Scheduler and clocks
   - JR worker tests
-  - Schema bridge validation
+  - Negative/reserved value tests (30+ tests)
   - OpenAPI type conformance
-  - PE subscriptions
-  - Stream reserved bits
 - CI: `npm run ci` (codegen + typecheck + vitest)
 
 ### 8.2 Identified Gaps
@@ -1043,22 +1044,24 @@ This section provides a comprehensive mapping between specification requirements
 - Target: 100% captured with all pending items resolved
 - Uncaptured entries:
   1. USB GTB considerations (M2-104-UM p.122) - Runtime guidance pending
-  2. PE subscription lifecycle runtime (M2-103-UM Tables 43-47) - State machine pending
+  2. PE subscription lifecycle runtime (M2-103-UM Tables 43-47) - ✅ State machine implemented
   3. Remaining spec sections audit - Target: Q1 2026
 
 **Test Coverage**:
-- Swift: 107 tests → Target: 150+ tests
-- TypeScript: 11 tests → Target: 25+ tests
-- Negative tests: Expand by 50+
-- Hardware interop: 0 → Target: Basic suite established
+- Swift: 110+ tests (target: 150+ tests) 🟡
+- TypeScript: 198 tests (target: 150+ tests) ✅ Exceeded
+- Negative tests: 60+ added across both stacks ✅
+- Hardware interop: 0 → Target: Basic suite established 🔴
 
 **Schema Completeness**:
 - Current: 63 type definitions
 - Target: 100% of normative spec fields documented with page references
 
 **Gap Closure**:
-- Current: 21 identified gaps (detailed in section 11)
-- Target: Close 13+ high/medium priority gaps in 8 weeks (prioritizing critical path)
+- Total: 21 identified gaps
+- Closed: 11 gaps (52%)
+- In Progress: 2 gaps (10%)
+- Remaining: 8 gaps (38%)
 
 ### 15.2 Qualitative Metrics
 

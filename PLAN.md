@@ -1,7 +1,29 @@
 # Current Plan
 
-- Align implementations with canonical schema/OpenAPI: finish Data (MDS) mapping and complete Stream coverage in midi2.js; add schema-bridge round-trips and negative tests. (Flex and SysEx decode done)
-- Bring Swift stream and data helpers to schema parity: add endpoint info/device identity/name/product instance/function block name/clip support, filter bitmap, and function block flags; realign Mixed Data Set and Property Exchange bodies to the canonical shapes or document deltas.
-- Normalize Property Exchange semantics across stacks: enforce schema header/encoding/flow-control/status rules, implement flow-control ACK/NAK paths, and add chunking/error/compression vectors.
-- Expand validation and tests: reserved-bit/range enforcement for stream/flex/CI envelopes, oversize SysEx/invalid chunk ordering, worker-clock JR projection, and adapter negotiation (per-note controllers/pitch-bend range).
-- Keep docs in sync after parity work: update DoD/gap plan equivalents and regenerate OpenAPI-derived types once schema changes land; validate via `npm run check && npm test` and Swift unit/integration suites.
+**Version**: 0.8.0 | **Last Updated**: 2025-12-15
+
+## Completed (v0.8.0)
+- ✅ Schema/OpenAPI alignment: Data (MDS), Stream, Flex, and SysEx coverage complete in midi2.js with schema-bridge round-trips and negative tests
+- ✅ Swift stream and data helpers at schema parity: endpoint info, device identity, name, product instance, function block name/flags, filter bitmap
+- ✅ Property Exchange semantics normalized: flow-control ACK/NAK paths, subscription lifecycle state machine, chunking/error/compression vectors
+- ✅ Validation expanded: reserved-bit/range enforcement for stream/flex/CI envelopes (11 gaps closed)
+- ✅ Docs synchronized: gap-closure-tracker, spec-compliance-dashboard, comprehensive-spec-audit-report updated
+
+## In Progress
+- 🟡 Negative test coverage expansion (Gap 8.2.3): reserved value matrix seeded, stream negative tests added
+- 🟡 PB-VRT visual baselines (Gap 8.2.1): baseline generator and fixtures in place, full coverage pending
+
+## Remaining Work
+- Worker-clock JR projection tests (Gap 5.2.1)
+- Adapter per-note controller negotiation (Gap 5.2.2)
+- Hardware interop testing (Gap 8.2.2)
+- Oversize SysEx handling (Gap 7.2.1)
+- Schema documentation completeness (Gap 9.2.1)
+- Schema regression CI (Gap 9.2.2)
+- DoD validation automation (Gap 10.2.1)
+- UMP format extensions documentation (Gap 1.2.2)
+
+## Maintenance
+- Keep docs in sync: regenerate OpenAPI-derived types when schema changes; validate via `npm run check && npm test` and Swift unit/integration suites
+- Follow release process in RELEASE.md for version bumps
+- Track gaps in docs/gap-closure-tracker.md

@@ -1,5 +1,11 @@
 # midi2.js Gap Plan (toward DoD)
 
+> **📦 ARCHIVED**: This document is retained for historical reference. Current gap tracking is maintained in:
+> - [`docs/gap-closure-tracker.md`](../docs/gap-closure-tracker.md) - Active gap tracking with status updates
+> - [`docs/spec-compliance-dashboard.md`](../docs/spec-compliance-dashboard.md) - Current compliance metrics
+>
+> **Last Active Version**: 0.7.0 | **Current Version**: 0.8.0
+
 Current status (0.7.0):
 - ✅ UMP encode/decode (utility/system/channel voice 1.0 & 2.0, stream/function blocks incl. process inquiry 0x03), Flex Data, SysEx7/8 fragment/reassemble.
 - ✅ MIDI-CI envelopes (discovery, profiles, property exchange with chunking, process inquiry) and OpenAPI-derived runtime guards.

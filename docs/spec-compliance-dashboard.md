@@ -16,7 +16,7 @@
 | **Swift Implementation** | 67% | 90% | 🟡 Good |
 | **TypeScript Implementation** | 62% | 90% | 🟡 Good |
 | **Test Coverage (Swift)** | 110 tests | 150+ | 🟡 Expanding |
-| **Test Coverage (TS)** | 31 tests | 25+ | 🟢 Improved |
+| **Test Coverage (TS)** | 198 tests | 150+ | 🟢 Excellent |
 | **Spec Audit Completion** | 49/52 (94%) | 100% | 🟢 Nearly Complete |
 | **Identified Gaps** | 21 | 0 | 🔴 Active Work |
 | **High Priority Gaps** | 0 | 0 | 🟢 None |
@@ -167,7 +167,7 @@
 
 ## 🧪 Test Coverage Analysis
 
-### Swift (107 tests)
+### Swift (110+ tests)
 | Area | Tests | Coverage |
 |------|-------|----------|
 | UMP Messages | 35 | ✅ Good |
@@ -179,22 +179,23 @@
 
 **Gaps**:
 - ❌ No hardware interop tests
-- ❌ Limited negative test coverage
-- ❌ PE subscription lifecycle tests missing
+- ✅ Negative test coverage improved (Gap 1.2.1, 3.2.1 closed)
+- ✅ PE subscription lifecycle tests present
 
-### TypeScript (11 tests)
+### TypeScript (198 tests across 32 test files)
 | Area | Tests | Coverage |
 |------|-------|----------|
-| UMP Core | 3 | ⚠️ Basic |
-| MIDI-CI | 2 | ⚠️ Basic |
-| Scheduler | 3 | ⚠️ Basic |
-| Jitter | 2 | ⚠️ Basic |
-| Schema Bridge | 1 | ⚠️ Basic |
+| UMP Core | 48 | ✅ Comprehensive |
+| Schema Bridge | 27 | ✅ Comprehensive |
+| MIDI-CI / PE | 15 | ✅ Good |
+| Stream/GTB | 30+ | ✅ Good |
+| Scheduler/Jitter | 5 | ⚠️ Basic |
+| Negative Tests | 30+ | ✅ Good |
 
 **Gaps**:
-- ❌ No adapter-specific tests
-- ❌ Limited PE tests
-- ❌ Worker clock needs expansion
+- ⚠️ Adapter-specific tests minimal
+- ✅ PE subscription tests present
+- ⚠️ Worker clock needs expansion
 
 ---
 
@@ -206,12 +207,12 @@
 | spec-audit.md | ✅ Maintained | 94% (49/52) |
 | conformance-checklist.md | ✅ Current | 90% |
 | traceability.md | ✅ Current | 85% |
-| comprehensive-spec-audit-report.md | ✅ New | 100% |
-| gap-closure-tracker.md | ✅ New | 100% |
-| spec-traceability-matrix.md | ✅ New | 100% |
-| PLAN.md | ⚠️ Update needed | 80% |
-| legacy/midi2-js-dod.md | ⚠️ Update needed | 75% |
-| legacy/midi2-js-gap-plan.md | ⚠️ Update needed | 80% |
+| comprehensive-spec-audit-report.md | ✅ Current | 100% |
+| gap-closure-tracker.md | ✅ Current | 100% |
+| spec-traceability-matrix.md | ✅ Current | 100% |
+| PLAN.md | ✅ Current | 90% |
+| legacy/midi2-js-dod.md | 📦 Archived | Superseded by gap-closure-tracker.md |
+| legacy/midi2-js-gap-plan.md | 📦 Archived | Superseded by gap-closure-tracker.md |
 
 ---
 

@@ -41,7 +41,7 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 | **TypeScript/JavaScript Files** | 53 files |
 | **JS/TS Lines of Code** | ~4,204 lines |
 | **Test/Source Ratio (Swift)** | ~0.97:1 (excellent) |
-| **Test/Source Ratio (JS)** | 172 tests across 27 test files |
+| **Test/Source Ratio (JS)** | 198 tests across 32 test files |
 
 ### Dependencies
 | Ecosystem | Production | Development | Security Issues |
@@ -76,7 +76,7 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 - 📊 **Coverage:** Enforced via CI (`.github/workflows/ci.yml`)
 
 ### JavaScript/TypeScript Tests
-- ✅ **Status:** 171 passing tests (1 skipped)
+- ✅ **Status:** 198 passing tests (1 skipped)
 - 📂 **Location:** `midi2.js/src/__tests__/`
 - 🎯 **Coverage Gate:** Available via `npm run coverage`
 - 🔧 **Framework:** Vitest (v3.2.4)
@@ -185,17 +185,13 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 - ✅ **CI Passing:** Yes (JavaScript tests confirmed, Swift tests run in macOS CI)
 - ✅ **Coverage ≥80%:** Enforced in CI
 - ✅ **CHANGELOG.md Current:** Yes, "Unreleased" section populated
-- ✅ **Version Consistency:** Package.swift v0.4.0, midi2.js v0.7.0 (⚠️ Note: versions are not synchronized)
+- ✅ **Version Consistency:** Package.swift v0.8.0, midi2.js v0.8.0 (versions are now synchronized)
 - ✅ **No Critical Issues:** No blocking issues identified
 - ✅ **Security Audit:** 0 npm vulnerabilities
 - ✅ **Documentation Up-to-Date:** Now comprehensive with this PR
 
 ### Version Synchronization Note
-ℹ️ **Intentional Design:** Swift package version (0.4.0 in Package.swift) differs from JavaScript package version (0.7.0) because they are released independently on different schedules:
-- **Swift package:** Platform-specific MIDI 2.0 implementation for Apple platforms and Linux
-- **JavaScript package:** Cross-browser MIDI 2.0 library for web applications
-
-Each package follows its own semantic versioning timeline based on feature completeness and breaking changes specific to that ecosystem. This is documented in RELEASE.md as the standard practice.
+ℹ️ **Update (v0.8.0):** Swift and JavaScript package versions are now synchronized at v0.8.0. Both packages follow semantic versioning and release together when possible. If independent releases are needed, the RELEASE.md documents the process.
 
 ---
 

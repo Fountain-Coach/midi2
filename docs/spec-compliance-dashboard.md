@@ -45,7 +45,7 @@
 - ✅ Basic Property Exchange
 - ✅ PE Subscription Lifecycle (Gap 2.2.1)
 - ✅ Profile Details (Gap 2.2.2 closed)
-- ⚠️ Process Inquiry (Gap 2.2.3)
+- ✅ Process Inquiry (Gap 2.2.3 closed)
 - ✅ MUID Management (Gap 2.2.4 closed)
 
 ### Stream Configuration (§5)
@@ -130,8 +130,8 @@
 
 ### Sprint 4 (Week 7-8): MIDI-CI Refinement
 - [x] Gap 2.2.2: Profile Details (2-3 days)
-- [ ] Gap 2.2.3: Process Inquiry (2-3 days)
-- [ ] Gap 2.2.4: MUID Management (2-3 days)
+- [x] Gap 2.2.3: Process Inquiry (2-3 days)
+- [x] Gap 2.2.4: MUID Management (2-3 days)
 
 **Target**: MIDI-CI feature complete
 

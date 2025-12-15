@@ -19,7 +19,7 @@
 | MIDI-CI Profiles Details (targets) | M2-102-U v1.1 Table 6 | Target missing on setOn/Off; channel count overflow | Rejected (Swift drops request) |
 | Flex – Reserved status class | Flex spec | Status class ≠ 0x10 | Rejected (Swift + TS) |
 | MIDI 1 Ch Voice – Data bounds | MIDI 1.0 | Data bytes >0x7F, invalid statuses | Rejected (Swift + TS) |
-| MIDI 2 Ch Voice – Unsupported status/data | M2-104-UM §7 | Status nibble undefined; note/controller > 0x7F | Rejected (Swift decode nil; TS RangeError) |
+| MIDI 2 Ch Voice – Unsupported status/data | M2-104-UM §7 | Status nibble undefined; note/controller > 0x7F; per-note assignable invalid note | Rejected (Swift decode nil; TS RangeError) |
 | MIDI 2 System – Unsupported status/data | M2-104-UM §5.2 | Status outside allowed set; data1/data2 > 0x7F | Rejected (Swift decode nil; TS RangeError) |
 | MIDI 2 Per-note Management – Invalid note | M2-104-UM §7.4 | Note > 0x7F | Rejected (Swift decode nil) |
 | MIDI-CI Profiles – Channel/target bounds | M2-102-U v1.1 | Channel count overflow; invalid target nibble | Rejected (Swift decode nil/empty; TS envelope drops) |

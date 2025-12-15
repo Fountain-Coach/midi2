@@ -11,8 +11,18 @@ describe("negative decode coverage (reserved/invalid values)", () => {
     expect(decode([word0, 0])).toThrow(RangeError);
   });
 
+  it("rejects MIDI 2 channel voice per-note assignable controller with note above 0x7F", () => {
+    const word0 = (0x4 << 28) | (0x0 << 24) | (0xf << 20) | (0x0 << 16) | (0xff << 8) | 0x80;
+    expect(decode([word0, 0])).toThrow(RangeError);
+  });
+
   it("rejects MIDI 2 channel voice per-note reg controller with note above 0x7F", () => {
     const word0 = (0x4 << 28) | (0x0 << 24) | (0xf << 20) | (0x0 << 16) | (0xff << 8) | 0x01;
+    expect(decode([word0, 0])).toThrow(RangeError);
+  });
+
+  it("rejects MIDI 2 channel voice per-note pitch bend with note above 0x7F", () => {
+    const word0 = (0x4 << 28) | (0x0 << 24) | (0x0 << 20) | (0x0 << 16) | (0xff << 8);
     expect(decode([word0, 0])).toThrow(RangeError);
   });
 

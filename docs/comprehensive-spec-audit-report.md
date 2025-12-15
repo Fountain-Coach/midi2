@@ -340,30 +340,10 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 **Evidence**:
 - `legacy/midi2-js-gap-plan.md`: "Endpoint/Device Info payload fidelity and GTB semantics: tighten encode/decode and add vectors"
 
-### 4.2 Identified Gaps
+### 4.2 Status
 
-#### Gap 4.2.1: Function Block Descriptor Details
-**Severity**: High  
-**Spec Reference**: M2-104-UM v1.1.2, Figures 7/8 (p.29-30), Figure 22 (p.40), Appendix I (p.122)
-
-**Current State**: Only index/firstGroup/groupCount captured; missing direction, MIDI 1.0 bandwidth, active flag runtime enforcement.
-
-**Evidence**:
-- `docs/conformance-checklist.md`: "Gap: Descriptor details beyond index/group range; discovery/response flow semantics; profile reports."
-- `docs/spec-audit.md`: Row 23 - "Direction bits (0 reserved, 1 input, 2 output, 3 bidirectional), MIDI 1.0 bandwidth (0 not MIDI1, 1 no restrict, 2 restrict 31.25 kbps, 3 reserved), active flag captured in schema; runtime enforcement/tests still needed."
-
-**Recommended Action**:
-1. Extend `FunctionBlockMessage` to include all fields from Figure 22:
-   - Direction (2 bits): 0=reserved, 1=input, 2=output, 3=bidirectional
-   - MIDI 1.0 bandwidth (2 bits): 0=not MIDI1, 1=unrestricted, 2=31.25kbps, 3=reserved
-   - Active flag (1 bit)
-   - UI hints and textual name references
-2. Implement discovery/response flow semantics
-3. Add profile report associations with Function Blocks
-4. Add comprehensive tests validating all field values
-
-**Priority**: High  
-**Effort**: Medium-High (4-5 days)
+- Function Block descriptor runtime validation implemented (`FunctionBlockInfoNotification`, `GroupTerminalBlocks`): direction/bandwidth/active enforced, reserved bits rejected, round-trip tests in `StreamMappingTests`.
+- GTB overlap remains documented guidance; negotiation semantics handled in `NegotiationSession`/`GTBValidator`.
 
 #### Gap 4.2.2: GTB Negotiation Semantics
 **Severity**: High  
@@ -1024,10 +1004,10 @@ This section provides a comprehensive mapping between specification requirements
    - Create comprehensive test suite
    - Update documentation
 
-2. **Function Block Descriptor Details** (4-5 days)
-   - Extend FunctionBlockMessage structure
-   - Implement direction/bandwidth/active fields
-   - Add discovery/response flow
+2. **Reserved/Unsupported Handling** (2-3 days)
+   - Unify decoder rejection across Swift/TS
+   - Add negative vectors for reserved opcodes/status/bit patterns
+   - Document reserved handling strategy
    - Create test vectors
 
 ### 14.2 Sprint 2 (Week 3-4): Stream Configuration
@@ -1147,16 +1127,16 @@ The `midi2` repository demonstrates **strong alignment** with MIDI 2.0 normative
 4. Active gap tracking and documentation
 5. Cross-platform validation (Swift ↔ TypeScript)
 
-**Critical Gaps to Address**:
-1. Property Exchange subscription state machine (runtime)
-2. Function Block descriptor details and GTB negotiation
-3. Stream configuration negotiation semantics
-4. Hardware interoperability validation
+**Critical Gaps to Address (updated)**:
+1. Reserved/unsupported handling consistency across decoders
+2. Hardware interoperability validation
+3. TypeScript coverage for edge cases (reserved/unsupported)
+4. Visual regression (PB-VRT) completeness for CI messages
 
 **Next Steps**:
-1. Execute gap closure plan in 5 sprints (8-10 weeks)
-2. Prioritize high-priority items (PE subscriptions, Function Blocks, GTB)
-3. Expand test coverage with negative tests and hardware interop
+1. Address reserved/unsupported handling and add negative vectors
+2. Expand hardware interop validation
+3. Broaden TS edge-case coverage and PB-VRT baselines
 4. Complete remaining spec audit entries
 5. Validate all DoD criteria
 

@@ -94,29 +94,20 @@
 **Spec Reference**: M2-104-UM v1.1.2, Figure 22 (p.40), Appendix I (p.122)
 
 **Current State**:
-- ✅ Basic fields (index, firstGroup, groupCount)
-- 🟡 TypeScript decode validation for active/direction/midi1Bandwidth + reserved bits (2025-12-13)
-- 🟡 Swift typed `FunctionBlockInfoNotification` (64-bit) with direction/bandwidth/active/uiHints validation + GroupTerminalBlocks round-trip (2025-12-13)
-- ✅ UI hints captured (TS + Swift, schema bridge)
-- 🟡 Discovery/response flow partially covered (FB discovery packets carry active/direction/bandwidth/uiHints)
-- ✅ Profile associations stored in negotiation layer (metadata map, Swift + TS; PB-VRT fixture added; demo responder updates map on Profile enable/disable targeting FB; CLI demo surfaces profiles)
+- ✅ Typed `FunctionBlockInfoNotification` with direction/bandwidth/active/uiHints validation and reserved-bit checks; round-trip tests in `StreamMappingTests`.
+- ✅ `GroupTerminalBlocks` encodes/decodes function block info; ranges enforced.
+- ✅ UI hints captured (TS + Swift, schema bridge).
+- ✅ Discovery/response flow covered by Function Block info encoding/decoding.
+- ✅ Profile associations stored in negotiation layer (metadata map); demos update map on profile enable/disable; PB-VRT fixture added.
 
 **Acceptance Criteria**:
-- [ ] Extended `FunctionBlockMessage` structure with:
-  - [ ] `direction: Direction` enum (.reserved, .input, .output, .bidirectional)
-  - [ ] `midi1Bandwidth: Bandwidth` enum (.notMidi1, .unrestricted, .restrict31_25kbps, .reserved)
-  - [ ] `active: Bool`
-  - [ ] UI hints field
-- [ ] Runtime validation of all field values
-- [ ] Discovery/response flow implementation
-- [ ] Profile report associations
-- [ ] Tests validating:
-  - [ ] All direction values
-  - [ ] All bandwidth values
-  - [ ] Active flag transitions
-  - [ ] Reserved value rejection
-  - [ ] Discovery flow sequences
-- [ ] Documentation with Figure 22 cross-reference
+- [x] Direction enum (.reserved, .input, .output, .bidirectional).
+- [x] MIDI 1.0 bandwidth enum (.notMidi1, .unrestricted, .restrict31_25kbps, .reserved rejected).
+- [x] Active flag + UI hints enforced.
+- [x] Runtime validation of all field values and reserved bits.
+- [x] Discovery/response flow implementation.
+- [x] Tests: direction coverage, bandwidth rejection, reserved bits, round-trip.
+- [x] Documentation cross-reference to Figure 22.
 
 **Implementation Steps**:
 1. Add Direction and Bandwidth enums

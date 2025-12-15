@@ -63,6 +63,30 @@
 
 ---
 
+### Gap 2.2.3: Process Inquiry Runtime Validation
+**Status**: 🟢 Complete  
+**Priority**: Medium | **Effort**: 1-2 days | **Target Sprint**: 2
+
+**Spec Reference**: M2-101-UM v1.2, Table 40-42 (p.59-60)
+
+**Current State**:
+- Device ID scope validation enforced in `ProcessInquirySession`.
+- Message Report replies clamp to supported filters and drop unsupported keys.
+- Tests cover capability inquiry, message report clamping, and invalid device IDs.
+
+**Acceptance Criteria**:
+- [x] Device ID scope validation (0x00–0x0F, 0x7E, 0x7F).
+- [x] Message report filter intersection/min with supported capabilities.
+- [x] Tests for inquiry/reply flow, clamping, and invalid device IDs.
+
+**Files Modified**:
+- Swift: `Sources/MIDI2CI/ProcessInquirySession.swift`
+- Tests: `Tests/MIDI2Tests/ProcessInquirySessionTests.swift`
+
+**Dependencies**: None
+
+---
+
 ### Gap 4.2.1: Function Block Descriptor Details
 **Status**: 🟢 Complete  
 **Priority**: High | **Effort**: 4-5 days | **Target Sprint**: 1

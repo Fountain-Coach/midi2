@@ -220,23 +220,16 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 **Effort**: Medium (2-3 days)
 
 #### Gap 2.2.3: Process Inquiry Implementation
-**Severity**: Medium  
+**Status**: ✅ Addressed (runtime validation added)  
 **Spec Reference**: M2-101-UM v1.2, Table 40-42 (p.59-60)
 
-**Current State**: Envelopes captured, but limited runtime validation.
+**Current State**:
+- Device ID scope validation enforced in `ProcessInquirySession` (0x00–0x0F, 0x7E, 0x7F).
+- Message Report replies now clamp to supported filters and drop unsupported keys (intersection + min).
+- Tests cover capability inquiry, message report clamping, and invalid device IDs.
 
-**Evidence**:
-- `docs/spec-audit.md`: Rows 31-32 show Process Inquiry fields captured
-- Basic session support exists but needs expansion
-
-**Recommended Action**:
-1. Validate supported features bitmap (D0 bit = MIDI Message Report)
-2. Implement device ID scope handling (0x00-0x0F channel, 0x7E group, 0x7F FB)
-3. Add message data control value enforcement (0x00/0x01/0x7F)
-4. Add tests for system/channel/note message request bitmaps
-
-**Priority**: Medium  
-**Effort**: Medium (2-3 days)
+**Remaining Watchpoints**:
+- Expand coverage to full bitmap permutations if needed (system/channel/note message bitmaps).
 
 #### Gap 2.2.4: MUID Management
 **Severity**: Medium  

@@ -1,7 +1,7 @@
 # Comprehensive MIDI 2.0 Specification Audit Report
 
 **Initial Audit Date**: 2025-12-13  
-**Last Updated**: 2025-12-13  
+**Last Updated**: 2025-12-14  
 **Repository**: Fountain-Coach/midi2  
 **Version**: 0.7.0 (TypeScript), 0.4.0 (Swift)  
 **Audited Against**: MIDI Association Normative Specifications (M2-100 through M2-116)
@@ -25,12 +25,11 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 - Well-documented gaps and ongoing conformance tracking
 
 **Key Gaps Identified**:
-1. **Runtime State Machines**: Property Exchange subscription lifecycle and flow-control ACK/NAK paths lack runtime implementation
-2. **Function Block Semantics**: Descriptor details beyond index/group range; GTB negotiation incomplete
-3. **Reserved/Unsupported Handling**: Inconsistent placeholder handling across decoders
-4. **Hardware Interop**: No tests against external MIDI-CI devices
-5. **TypeScript Coverage**: Several areas marked as partial in gap-plan.md
-6. **Visual Regression**: PB-VRT baseline frames incomplete for CI messages
+1. **Function Block Semantics**: Descriptor details beyond index/group range; GTB negotiation incomplete
+2. **Reserved/Unsupported Handling**: Inconsistent placeholder handling across decoders
+3. **Hardware Interop**: No tests against external MIDI-CI devices
+4. **TypeScript Coverage**: Several areas marked as partial in gap-plan.md
+5. **Visual Regression**: PB-VRT baseline frames incomplete for CI messages
 
 ---
 

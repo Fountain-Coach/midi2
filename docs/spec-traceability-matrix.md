@@ -529,8 +529,8 @@
 | Row 36 | PE headers | MidiCiPropertyExchangeBody.header | ✅ Captured |
 | Row 37 | PE status codes | MidiCiPropertyExchangeBody.statusCodes | ✅ Captured |
 | Row 38 | PE mediaType | MidiCiPropertyExchangeBody.header.mediaType | ✅ Captured |
-| Row 39 | PE subscription commands | MidiCiPropertyExchangeBody.subscriptionCommand | ✅ Captured, runtime TODO |
-| Row 40 | PE subscription lifecycle | (runtime) | ⏸️ Pending runtime |
+| Row 39 | PE subscription commands | MidiCiPropertyExchangeBody.subscriptionCommand | ✅ Captured & implemented (Swift `PropertyExchangeSession`, TS `PeSubscriptionManager`) |
+| Row 40 | PE subscription lifecycle | (runtime) | ✅ Implemented (state machine + flow-control ACK/NAK, timeout backoff, tests in Swift/TS) |
 | Row 41 | PE deprecated timeout statuses | MidiCiPropertyExchangeBody.timeoutStatus | ✅ Captured |
 | Row 42 | PE Flow Control ACK | MidiCiPropertyExchangeBody.flowControlAck | ✅ Captured |
 | Row 43 | PE Flow Control NAK | MidiCiPropertyExchangeBody.flowControlNak | ✅ Captured |

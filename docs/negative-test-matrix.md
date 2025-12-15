@@ -11,6 +11,7 @@
 | Stream – Reserved bit in mt=0xF word | M2-104-UM §5.1 | Low reserved bit set | Rejected (TS) |
 | Utility – Groupless + status | M2-104-UM §5.1 | Group nibble non-zero; unsupported status | Rejected (Swift + TS) |
 | Utility – No-op payload | M2-104-UM §5.1 | No-op carrying non-zero data | Rejected (Swift + TS) |
+| Utility – Delta clockstamp (unsupported) | M2-104-UM §5.1 | Status 0x03/0x04 treated as unsupported | Rejected (TS) |
 | SysEx7/SysEx8 – Oversize payload | M2-104-UM §4.2 | Payload > 0xFFFF | Rejected (Swift + TS) |
 | SysEx7/SysEx8 – Invalid status/count/empty | M2-104-UM §4.2 | Status nibble outside 0–3; count nibble > max; empty payload | Rejected (Swift + TS) |
 | UMP Message Type – Reserved nibble | M2-104-UM §5 | MT outside {0,1,2,3,4,5,13,15} | Rejected (TS) |

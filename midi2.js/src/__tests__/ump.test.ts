@@ -216,13 +216,9 @@ describe("UMP channel voice encode/decode", () => {
     expect(decoded).toMatchObject(evt);
   });
 
-  it("passes through unknown message types as raw UMP", () => {
+  it("rejects unknown message types", () => {
     const words = new Uint32Array([0xe0000000, 0x01020304]);
-    const decoded = decodeUmp(words);
-    expect(decoded).toMatchObject({
-      kind: "rawUMP",
-      words,
-    });
+    expect(() => decodeUmp(words)).toThrow(RangeError);
   });
 
   it("encodes and decodes system common/realtime", () => {

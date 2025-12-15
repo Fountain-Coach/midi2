@@ -21,6 +21,7 @@
 | MIDI 1 Ch Voice – Data bounds | MIDI 1.0 | Data bytes >0x7F, invalid statuses | Rejected (Swift + TS) |
 | MIDI 2 Ch Voice – Unsupported status/data | M2-104-UM §7 | Status nibble undefined; note/controller > 0x7F | Rejected (Swift decode nil; TS RangeError) |
 | MIDI 2 System – Unsupported status/data | M2-104-UM §5.2 | Status outside allowed set; data1/data2 > 0x7F | Rejected (Swift decode nil; TS RangeError) |
+| MIDI 2 Per-note Management – Invalid note | M2-104-UM §7.4 | Note > 0x7F | Rejected (Swift decode nil) |
 | MIDI-CI Profiles – Channel/target bounds | M2-102-U v1.1 | Channel count overflow; invalid target nibble | Rejected (Swift decode nil/empty; TS envelope drops) |
 | Process Inquiry – messageDataControl | M2-101-UM v1.2 | messageDataControl not in {0x00,0x01,0x7F} | Rejected (Swift + TS) |
 

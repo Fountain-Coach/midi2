@@ -1,5 +1,12 @@
 # AGENTS
 
+> **📦 ARCHIVED**: This document is retained for historical reference. The current maintenance policy is in:
+> - [`AGENTS.md`](../AGENTS.md) - Comprehensive repository maintenance policy
+> - [`MAINTENANCE.md`](../MAINTENANCE.md) - Practical maintenance procedures
+> - [`CONTRIBUTING.md`](../CONTRIBUTING.md) - Development workflow and guidelines
+>
+> **Superseded**: December 2025
+
 ## Scope and standards
 - Repository spans the Swift MIDI 2.0 reference stack and the CoreMIDI-free `midi2.js` TypeScript port. Treat `midi2.js` as the browser/runtime-facing library; keep it decoupled from platform APIs.
 - Definition of Done for `midi2.js` lives in `docs/midi2-js-dod.md`; design intent is outlined in `docs/midi2-stack-essay.md` and the normative schema/OpenAPI at the repo root.

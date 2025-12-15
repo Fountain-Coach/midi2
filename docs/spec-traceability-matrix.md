@@ -2,7 +2,7 @@
 
 **Purpose**: This document provides a complete mapping between MIDI 2.0 normative specification requirements and their implementation in the midi2 repository, enabling verification of spec compliance and gap identification.
 
-**Last Updated**: 2025-12-13  
+**Last Updated**: 2025-12-15  
 **Spec Versions**:
 - M2-100-U v1.1 (MIDI 2.0 Overview)
 - M2-101-UM v1.2 (MIDI-CI)

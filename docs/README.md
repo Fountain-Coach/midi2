@@ -1,5 +1,7 @@
 # Documentation
 
+**Last Updated**: 2025-12-15 | **Version**: 0.8.0
+
 ## Quick Start
 
 **New to this project?** Start here:
@@ -7,17 +9,17 @@
 2. 📖 [**Comprehensive Audit Report**](comprehensive-spec-audit-report.md) - Detailed analysis and recommendations
 3. 📋 [**Gap Closure Tracker**](gap-closure-tracker.md) - Action items with acceptance criteria
 
-## Specification Audit & Compliance (NEW - Dec 2025)
+## Specification Audit & Compliance (Updated Dec 2025)
 
 ### Overview Documents
 - **[Spec Compliance Dashboard](spec-compliance-dashboard.md)** - Quick reference with visual progress bars, metrics, and roadmap
-- **[Comprehensive Spec Audit Report](comprehensive-spec-audit-report.md)** - Full 45k+ character analysis covering:
+- **[Comprehensive Spec Audit Report](comprehensive-spec-audit-report.md)** - Full analysis covering:
   - UMP encode/decode implementation (84% complete)
   - MIDI-CI implementation (63% complete)
-  - Stream configuration (43% complete)
+  - Stream configuration (57% complete)
   - Property Exchange (53% complete)
-  - 21 identified gaps with priority levels
-  - 5-sprint gap closure plan (8-10 weeks)
+  - 21 identified gaps (11 closed, 52%)
+  - Gap closure progress and remaining work
   - Success metrics and recommendations
 
 ### Detailed Tracking
@@ -98,6 +100,14 @@ For normative MIDI Association specification PDFs, see the repository root:
 - **spec-traceability-matrix.md**: Update when specs change or gaps close
 - **spec-audit.md**: Update when adding new spec references
 - **conformance-checklist.md**: Update when implementation status changes
+
+## Legacy Documents
+
+The following documents in `legacy/` are archived for historical reference:
+- `legacy/midi2-js-dod.md` - Original DoD criteria (superseded by gap-closure-tracker.md)
+- `legacy/midi2-js-gap-plan.md` - Original gap plan (superseded by gap-closure-tracker.md)
+- `legacy/AGENTS.md` - Original maintenance policy (superseded by root AGENTS.md)
+- `legacy/midi2-js-AGENTS.md` - Original midi2.js AGENTS (superseded by midi2.js/README.md)
 
 ## Contributing
 

@@ -1,5 +1,12 @@
 # midi2.js / AGENTS
 
+> **📦 ARCHIVED**: This document is retained for historical reference. Current documentation is maintained in:
+> - [`AGENTS.md`](../AGENTS.md) - Comprehensive repository maintenance policy
+> - [`docs/gap-closure-tracker.md`](../docs/gap-closure-tracker.md) - Active gap tracking
+> - [`midi2.js/README.md`](../midi2.js/README.md) - Library documentation
+>
+> **Last Active Version**: 0.7.0 | **Current Version**: 0.8.0
+
 ## Mission and current coverage
 - Cross-browser TypeScript core for MIDI 2.0 UMP + MIDI-CI with no CoreMIDI/DOM dependencies in the core exports.
 - Implemented (0.7.0): UMP encode/decode for utility/system/channel voice 1.0 & 2.0 (incl. per-note management/registered/assignable controllers and per-note pitch bend); Flex Data; SysEx7/8 fragmentation + reassembly; MIDI-CI envelopes (discovery, profiles, property exchange with chunking, process inquiry); scheduler with JR-aware clocks + record/replay; streaming decoder that reassembles SysEx and surfaces MIDI-CI; adapters for WebAudio/Three.js/Cannon.js; OpenAPI-derived runtime guards from `midi2.full.openapi.json`.

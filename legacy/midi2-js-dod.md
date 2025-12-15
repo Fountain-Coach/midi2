@@ -1,5 +1,12 @@
 # Definition of Done: midi2.js (full spec parity)
 
+> **📦 ARCHIVED**: This document is retained for historical reference. Current gap tracking and DoD criteria are maintained in:
+> - [`docs/gap-closure-tracker.md`](../docs/gap-closure-tracker.md) - Active gap tracking with status updates
+> - [`docs/spec-compliance-dashboard.md`](../docs/spec-compliance-dashboard.md) - Current compliance metrics
+> - [`docs/comprehensive-spec-audit-report.md`](../docs/comprehensive-spec-audit-report.md) - Full audit analysis
+>
+> **Last Active Version**: 0.7.0 | **Current Version**: 0.8.0
+
 The `midi2.js` stack is "done" when all criteria below are satisfied and demonstrated by automated checks.
 
 ## Protocol coverage

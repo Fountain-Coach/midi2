@@ -15,5 +15,20 @@ final class ProfileDetailsTests: XCTestCase {
         XCTAssertEqual(details?["cmL"], 5)
         XCTAssertEqual(details?["cmH"], 128)
     }
-}
 
+    func testDetailsInquiryUnsupportedProfileShowsSupportedZero() {
+        let session = ProfileSession(supportedProfiles: [])
+        let req = MidiCiProfilesBody(command: .detailsInquiry, profileId: "/org.midi/piano", target: .channel, channels: [Uint4(1)!])
+        let rep = session.handle(req)
+        XCTAssertEqual(rep.first?.details?["supported"], 0)
+        XCTAssertEqual(rep.first?.details?["enabled"], 0)
+    }
+
+    func testDetailsReplyStoresLastDetails() {
+        let session = ProfileSession(supportedProfiles: ["/org.midi/piano"], psdCapableProfiles: [])
+        let inquiry = MidiCiProfilesBody(command: .detailsInquiry, profileId: "/org.midi/piano", target: .channel, channels: [Uint4(0)!])
+        let replies = session.handle(inquiry)
+        XCTAssertEqual(replies.first?.details?["psd"], 0)
+        XCTAssertNotNil(session.lastDetails(for: .channel, channels: [Uint4(0)!]))
+    }
+}

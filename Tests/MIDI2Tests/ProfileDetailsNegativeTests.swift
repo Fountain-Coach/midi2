@@ -17,6 +17,16 @@ final class ProfileDetailsNegativeTests: XCTestCase {
         XCTAssertTrue(replies.isEmpty)
     }
 
+    func testSetOnWithoutTargetIgnored() {
+        let session = ProfileSession(supportedProfiles: ["/org.midi/piano"])
+        let req = MidiCiProfilesBody(command: .setOn, profileId: "/org.midi/piano", target: nil, channels: [Uint4(0)!], details: [:])
+        let replies = session.handle(req)
+        XCTAssertTrue(replies.isEmpty)
+        let inquiry = MidiCiProfilesBody(command: .inquiry, profileId: "/org.midi/piano", target: .channel, channels: [Uint4(0)!])
+        let rep = session.handle(inquiry)
+        XCTAssertEqual(rep.first?.details?["enabled"], 0)
+    }
+
     func testDetailsInquiryInvalidChannelCountIgnored() {
         // channels count > 0x10 will be truncated to empty by decoder
         let body = MidiCiProfilesBody(command: .detailsInquiry, profileId: "/org.midi/piano", target: .channel, channels: nil, details: nil)

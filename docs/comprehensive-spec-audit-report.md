@@ -947,7 +947,7 @@ This section provides a comprehensive mapping between specification requirements
 |--------------|----------|--------|------------|---------|-------|--------|
 | Profile Inquiry | §4.1 | ✅ `MidiCiProfilesBody` | ✅ `ProfileSession.swift` | ✅ | ✅ | Complete |
 | Profile Enable/Disable | §4.2-4.3 | ✅ | ✅ | ✅ | ✅ | Complete |
-| Profile Details | §4.5 | ✅ | ⚠️ | ⚠️ | ⚠️ | Partial (Gap 2.2.2) |
+| Profile Details | §4.5 | ✅ | ✅ | ⚠️ | ✅ | TS parsing minimal; Swift session handles details/PSD/channel masks |
 | Profile Specific Data | §5 | ✅ | ✅ `ProfileSpecificData.swift` | ⚠️ | ✅ | Partial |
 
 ### 13.4 Property Exchange (M2-103-UM v1.2)

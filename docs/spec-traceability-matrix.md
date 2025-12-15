@@ -341,7 +341,7 @@
 | Profile Details Reply (0x29) | 17 | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | Gap 2.2.2 |
 | - Version field | 17 | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | - Channel mask | 17 | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| - Profile details expansion | 17 | 📋 | ⚠️ | ⚠️ | ❌ | ⚠️ | Gap 2.2.2 |
+| - Profile details expansion | 17 | 📋 | ✅ | ⚠️ | ✅ | ⚠️ | Gap 2.2.2 (TS parsing minimal) |
 
 **Evidence**:
 - Schema: `$defs.MidiCiProfilesBody`

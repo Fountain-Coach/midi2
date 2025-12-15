@@ -16,6 +16,7 @@
 | Flex – Unknown status within class | Flex spec | Unrecognised status values in class 0x10/0x11 | Rejected (Swift + TS) |
 | MIDI-CI Process Inquiry | M2-101-UM v1.2 | Invalid command byte; length overrun | Rejected (Swift throwing validator) |
 | MIDI-CI Profiles Details | M2-102-U v1.1 Table 6 | Missing profileId in details inquiry; unsupported setOn | Rejected (Swift replies disabled/empty) |
+| MIDI-CI Profiles Details (targets) | M2-102-U v1.1 Table 6 | Target missing on setOn/Off; channel count overflow | Rejected (Swift drops request) |
 | Flex – Reserved status class | Flex spec | Status class ≠ 0x10 | Rejected (Swift + TS) |
 | MIDI 1 Ch Voice – Data bounds | MIDI 1.0 | Data bytes >0x7F, invalid statuses | Rejected (Swift + TS) |
 | MIDI 2 Ch Voice – Unsupported status/data | M2-104-UM §7 | Status nibble undefined; note/controller > 0x7F | Rejected (Swift decode nil; TS RangeError) |

@@ -1,6 +1,6 @@
 # MIDI 2.0 Spec Compliance Dashboard
 
-**Last Updated**: 2025-12-13  
+**Last Updated**: 2025-12-15  
 **Quick Links**: [Full Report](comprehensive-spec-audit-report.md) | [Gap Tracker](gap-closure-tracker.md) | [Traceability Matrix](spec-traceability-matrix.md)
 
 ---
@@ -15,8 +15,8 @@
 | **Schema Coverage** | 98% | 100% | 🟢 Excellent |
 | **Swift Implementation** | 67% | 90% | 🟡 Good |
 | **TypeScript Implementation** | 62% | 90% | 🟡 Good |
-| **Test Coverage (Swift)** | 107 tests | 150+ | 🟡 Expanding |
-| **Test Coverage (TS)** | 11 tests | 25+ | 🔴 Needs Work |
+| **Test Coverage (Swift)** | 110 tests | 150+ | 🟡 Expanding |
+| **Test Coverage (TS)** | 29 tests | 25+ | 🟢 Improved |
 | **Spec Audit Completion** | 49/52 (94%) | 100% | 🟢 Nearly Complete |
 | **Identified Gaps** | 21 | 0 | 🔴 Active Work |
 | **High Priority Gaps** | 3 | 0 | 🔴 Critical |
@@ -34,7 +34,7 @@
 - ✅ Utility (JR Clock/Timestamp)
 - ✅ SysEx7/8 Fragmentation
 - ✅ Flex Data
-- ⚠️ Reserved Status Handling (Gap 1.2.1)
+- ✅ Reserved Status Handling (Gap 1.2.1 closed)
 
 ### MIDI-CI Implementation
 ```
@@ -46,7 +46,7 @@
 - ✅ PE Subscription Lifecycle (Gap 2.2.1)
 - ⚠️ Profile Details (Gap 2.2.2)
 - ⚠️ Process Inquiry (Gap 2.2.3)
-- ⚠️ MUID Management (Gap 2.2.4)
+- ✅ MUID Management (Gap 2.2.4 closed)
 
 ### Stream Configuration (§5)
 ```

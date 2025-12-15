@@ -4,7 +4,7 @@ import XCTest
 final class FlexRubyTests: XCTestCase {
     func testRoundTrip() {
         let addr = FlexRuby.Address.channel(group: Uint4(0)!, channel: Uint4(1)!)
-        let msg = FlexRuby(address: addr, ruby: "kana")
+        let msg = try! FlexRuby(address: addr, ruby: "kana")
         let packet = msg.encode()
         XCTAssertEqual(FlexRuby.decode(packet), msg)
     }

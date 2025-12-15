@@ -4,7 +4,7 @@ import XCTest
 final class FlexChordNameTests: XCTestCase {
     func testRoundTrip() {
         let addr = FlexChordName.Address.channel(group: Uint4(1)!, channel: Uint4(2)!)
-        let msg = FlexChordName(address: addr, chord: "Cmaj7")
+        let msg = try! FlexChordName(address: addr, chord: "Cmaj7")
         let packet = msg.encode()
         XCTAssertEqual(FlexChordName.decode(packet), msg)
     }

@@ -4,7 +4,7 @@ import XCTest
 final class FlexLyricTests: XCTestCase {
     func testRoundTrip() {
         let addr = FlexLyric.Address.group(Uint4(0)!)
-        let msg = FlexLyric(address: addr, lyric: "la")
+        let msg = try! FlexLyric(address: addr, lyric: "la")
         let packet = msg.encode()
         XCTAssertEqual(FlexLyric.decode(packet), msg)
     }

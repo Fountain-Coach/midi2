@@ -362,23 +362,22 @@
 ---
 
 ### Gap 2.2.4: MUID Management
-**Status**: 🔴 Not Started  
+**Status**: 🟢 Complete  
 **Priority**: Medium | **Effort**: 2-3 days | **Target Sprint**: 4
 
 **Spec Reference**: M2-101-UM v1.2 (MUID allocation/discovery)
 
 **Current State**:
-- ✅ Basic MUID handling
-- ❌ Comprehensive lifecycle management missing
-- ❌ Conflict detection missing
-- ❌ Timeout/cleanup missing
+- ✅ `MuidManager` added in Swift (`Sources/MIDI2CI/MuidManager.swift`) and TypeScript (`midi2.js/src/muid-manager.ts`) with collision-avoidant allocation and reserved-value guarding.
+- ✅ Conflict detection rotates local MUID on peer collision; peer map includes TTL-based expiry/cleanup and manual release.
+- ✅ Tests cover allocation hints, conflict rotation, expiry/refresh flows (Swift `MuidManagerTests`, TS `muid-manager.test.ts`).
 
 **Acceptance Criteria**:
-- [ ] MUID allocation/deallocation logic
-- [ ] MUID conflict detection and resolution
-- [ ] MUID timeout and cleanup
-- [ ] Tests for MUID lifecycle scenarios
-- [ ] Documentation of MUID management
+- [x] MUID allocation/deallocation logic
+- [x] MUID conflict detection and resolution
+- [x] MUID timeout and cleanup
+- [x] Tests for MUID lifecycle scenarios
+- [x] Documentation of MUID management
 
 **Implementation Steps**:
 1. Implement MUID allocator
@@ -463,14 +462,19 @@
 ## Low Priority Gaps (Sprint 5+)
 
 ### Gap 1.2.1: Reserved/Unsupported Status Handling
-**Status**: 🔴 Not Started  
+**Status**: 🟢 Complete  
 **Priority**: Medium | **Effort**: 2-3 days | **Target Sprint**: 5
 
+**Current State**:
+- ✅ Swift + TS decoders now reject reserved/unknown statuses for Flex, System, and Channel Voice instead of yielding raw events.
+- ✅ Negative vectors added for flex unknown statuses, out-of-range channel voice values, and unsupported system statuses (Swift + TS).
+- ✅ Reserved/value matrix updated (`docs/negative-test-matrix.md`) to capture enforcement strategy.
+
 **Acceptance Criteria**:
-- [ ] Comprehensive reserved opcode table
-- [ ] Consistent error handling across decoders
-- [ ] Negative test vectors
-- [ ] Schema documentation of reserved values
+- [x] Comprehensive reserved opcode table
+- [x] Consistent error handling across decoders
+- [x] Negative test vectors
+- [x] Schema documentation of reserved values
 
 ---
 
@@ -499,13 +503,18 @@
 ---
 
 ### Gap 3.2.1: Flex Data Edge Cases
-**Status**: 🔴 Not Started  
+**Status**: 🟢 Complete  
 **Priority**: Low | **Effort**: 1-2 days | **Target Sprint**: 5
 
+**Current State**:
+- ✅ Runtime validation for tempo 16.16 range, time signature bounds, 12-byte text/ruby/lyric/chord/key payloads, and 10-byte metronome accent patterns (Swift + TS).
+- ✅ Flex decoders reject reserved/unknown statuses and bad address bytes consistently across Swift/TS.
+- ✅ Negative tests added in Swift (`FlexValidationNegativeTests`) and TS (`flex-negative.test.ts`, `flex-reserved-negative.test.ts`).
+
 **Acceptance Criteria**:
-- [ ] Comprehensive Flex Data validation
-- [ ] Edge case tests (max lengths, invalid values)
-- [ ] Reserved opcode handling
+- [x] Comprehensive Flex Data validation
+- [x] Edge case tests (max lengths, invalid values)
+- [x] Reserved opcode handling
 
 ---
 

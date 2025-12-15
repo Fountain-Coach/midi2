@@ -85,6 +85,7 @@ const FLEX_STATUS_TEXT = 0x01;
 const FLEX_CLASS_RUBY = 0x11;
 const FLEX_STATUS_RUBY = 0x03;
 const FLEX_TEMPO_SCALE = 65536;
+const FLEX_TEMPO_MAX_BPM = 0xffffffff / FLEX_TEMPO_SCALE;
 
 function assertRange(name: string, value: number, min: number, max: number): void {
   if (!Number.isInteger(value) || value < min || value > max) {
@@ -108,6 +109,14 @@ function assertDecodeRange(name: string, value: number, min: number, max: number
   if (value < min || value > max) {
     throw new RangeError(`Invalid ${name}: ${value} (expected [${min}, ${max}])`);
   }
+}
+
+function assertTextFits(field: string, text: string, maxBytes: number): Uint8Array {
+  const encoded = new TextEncoder().encode(text);
+  if (encoded.length > maxBytes) {
+    throw new RangeError(`${field} must be <= ${maxBytes} UTF-8 bytes, got ${encoded.length}`);
+  }
+  return encoded;
 }
 
 function toUint32Array(words: ArrayLike<number>): Uint32Array {
@@ -492,10 +501,13 @@ function decodeStream(words: Uint32Array, timestamp?: number): StreamEvent {
 
 function encodeFlexTempo(event: FlexTempoEvent): Uint32Array {
   assertRange("group", event.group, 0, 0xf);
-  if (event.bpm < 1) {
-    throw new RangeError("bpm must be at least 1");
+  if (!Number.isFinite(event.bpm) || event.bpm < 1 || event.bpm > FLEX_TEMPO_MAX_BPM) {
+    throw new RangeError(`bpm must be in [1, ${FLEX_TEMPO_MAX_BPM.toFixed(3)}]`);
   }
   const fixed = Math.round(event.bpm * FLEX_TEMPO_SCALE);
+  if (fixed > 0xffffffff) {
+    throw new RangeError("bpm exceeds 16.16 fixed-point capacity");
+  }
   const word0 =
     (0xd << 28) |
     (event.group << 24) |
@@ -523,8 +535,8 @@ function encodeFlexTimeSignature(event: FlexTimeSignatureEvent): Uint32Array {
   return new Uint32Array([word0 >>> 0, word1 >>> 0, 0, 0]);
 }
 
-function packText12(text: string): [number, number, number] {
-  const bytes = Array.from(new TextEncoder().encode(text)).slice(0, 12);
+function packText12(text: string, field = "text"): [number, number, number] {
+  const bytes = Array.from(assertTextFits(field, text, 12));
   while (bytes.length < 12) bytes.push(0);
   const word1 = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
   const word2 = (bytes[4] << 24) | (bytes[5] << 16) | (bytes[6] << 8) | bytes[7];
@@ -532,8 +544,11 @@ function packText12(text: string): [number, number, number] {
   return [word1 >>> 0, word2 >>> 0, word3 >>> 0];
 }
 
-function packBytes12(bytes: number[]): [number, number, number] {
-  const arr = bytes.slice(0, 12);
+function packBytes12(bytes: number[], field = "payload"): [number, number, number] {
+  if (bytes.length > 12) {
+    throw new RangeError(`${field} must be <= 12 bytes, got ${bytes.length}`);
+  }
+  const arr = bytes.slice();
   while (arr.length < 12) arr.push(0);
   const word1 = (arr[0] << 24) | (arr[1] << 16) | (arr[2] << 8) | arr[3];
   const word2 = (arr[4] << 24) | (arr[5] << 16) | (arr[6] << 8) | arr[7];
@@ -554,7 +569,7 @@ function encodeFlexKeySignature(event: FlexKeySignatureEvent): Uint32Array {
     (FLEX_STATUS_CLASS << 16) |
     (FLEX_STATUS_KEY << 8) |
     addrByte;
-  const [w1, w2, w3] = packText12(event.key);
+  const [w1, w2, w3] = packText12(event.key, "keySignature");
   return new Uint32Array([word0 >>> 0, w1, w2, w3]);
 }
 
@@ -571,7 +586,7 @@ function encodeFlexLyric(event: FlexLyricEvent): Uint32Array {
     (FLEX_CLASS_LYRIC << 16) |
     (FLEX_STATUS_LYRIC << 8) |
     addrByte;
-  const [w1, w2, w3] = packText12(event.text);
+  const [w1, w2, w3] = packText12(event.text, "lyric");
   return new Uint32Array([word0 >>> 0, w1, w2, w3]);
 }
 
@@ -583,7 +598,7 @@ function encodeFlexText(event: FlexTextEvent): Uint32Array {
     addrByte = 0x10 | (event.channel & 0x0f);
   }
   const word0 = (0xd << 28) | (event.group << 24) | (FLEX_CLASS_TEXT << 16) | (FLEX_STATUS_TEXT << 8) | addrByte;
-  const [w1, w2, w3] = packText12(event.text);
+  const [w1, w2, w3] = packText12(event.text, "text");
   return new Uint32Array([word0 >>> 0, w1, w2, w3]);
 }
 
@@ -595,7 +610,7 @@ function encodeFlexRuby(event: FlexRubyEvent): Uint32Array {
     addrByte = 0x10 | (event.channel & 0x0f);
   }
   const word0 = (0xd << 28) | (event.group << 24) | (FLEX_CLASS_RUBY << 16) | (FLEX_STATUS_RUBY << 8) | addrByte;
-  const [w1, w2, w3] = packText12(event.ruby);
+  const [w1, w2, w3] = packText12(event.ruby, "ruby");
   return new Uint32Array([word0 >>> 0, w1, w2, w3]);
 }
 
@@ -607,7 +622,7 @@ function encodeFlexChordName(event: FlexChordNameEvent): Uint32Array {
     addrByte = 0x10 | (event.channel & 0x0f);
   }
   const word0 = (0xd << 28) | (event.group << 24) | (FLEX_STATUS_CLASS << 16) | (FLEX_STATUS_CHORD << 8) | addrByte;
-  const [w1, w2, w3] = packText12(event.chord);
+  const [w1, w2, w3] = packText12(event.chord, "chord");
   return new Uint32Array([word0 >>> 0, w1, w2, w3]);
 }
 
@@ -621,13 +636,17 @@ function encodeFlexMetronome(event: FlexMetronomeEvent): Uint32Array {
     assertRange("channel", event.channel, 0, 0xf);
     addrByte = 0x10 | (event.channel & 0x0f);
   }
-  const accentBytes = Array.from(new TextEncoder().encode(event.accentPattern)).slice(0, 10);
+  const accentBytesRaw = Array.from(new TextEncoder().encode(event.accentPattern));
+  if (accentBytesRaw.length > 10) {
+    throw new RangeError("accentPattern must be <= 10 UTF-8 bytes");
+  }
+  const accentBytes = accentBytesRaw.slice(0, 10);
   while (accentBytes.length < 10) accentBytes.push(0);
   const [w1, w2, w3] = packBytes12([
     (event.clicksPerBeat >> 8) & 0xff,
     event.clicksPerBeat & 0xff,
     ...accentBytes,
-  ]);
+  ], "accentPattern");
   const word0 = (0xd << 28) | (event.group << 24) | (FLEX_STATUS_CLASS << 16) | (FLEX_STATUS_METRONOME << 8) | addrByte;
   return new Uint32Array([word0 >>> 0, w1, w2, w3]);
 }
@@ -1067,29 +1086,31 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     ];
     const decodedText = new TextDecoder().decode(Uint8Array.from(textBytes.filter(b => b !== 0)));
 
-    if (statusClass === FLEX_CLASS_TEXT && status === FLEX_STATUS_TEXT) {
-      const event: FlexTextEvent = { kind: "flexText", group, channel, text: decodedText, timestamp };
-      return event;
-    }
-    if (statusClass === FLEX_CLASS_LYRIC && status === FLEX_STATUS_LYRIC) {
-      const event: FlexLyricEvent = { kind: "flexLyric", group, channel, text: decodedText, timestamp };
-      return event;
-    }
-    if (statusClass === FLEX_CLASS_RUBY && status === FLEX_STATUS_RUBY) {
-      const event: FlexRubyEvent = { kind: "flexRuby", group, channel, ruby: decodedText, timestamp };
-      return event;
+    if (statusClass === FLEX_CLASS_TEXT) {
+      if (status === FLEX_STATUS_TEXT) {
+        const event: FlexTextEvent = { kind: "flexText", group, channel, text: decodedText, timestamp };
+        return event;
+      }
+      if (status === FLEX_STATUS_LYRIC) {
+        const event: FlexLyricEvent = { kind: "flexLyric", group, channel, text: decodedText, timestamp };
+        return event;
+      }
+      if (status === FLEX_STATUS_RUBY) {
+        const event: FlexRubyEvent = { kind: "flexRuby", group, channel, ruby: decodedText, timestamp };
+        return event;
+      }
+      throw new RangeError("Unsupported flex text status");
     }
     if (statusClass !== FLEX_STATUS_CLASS) {
-      return {
-        kind: "rawUMP",
-        words: packet,
-        timestamp,
-      } as RawUMPEvent;
+      throw new RangeError("Unsupported flex data status class");
     }
     switch (status) {
       case FLEX_STATUS_TEMPO: {
         const fixed = packet[1] >>> 0;
         const bpm = fixed / FLEX_TEMPO_SCALE;
+        if (bpm < 1 || bpm > FLEX_TEMPO_MAX_BPM) {
+          throw new RangeError("Invalid flex tempo payload");
+        }
         const event: FlexTempoEvent = {
           kind: "flexTempo",
           group,
@@ -1101,8 +1122,8 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       case FLEX_STATUS_TIMESIG: {
         const numerator = (packet[1] >>> 24) & 0xff;
         const denominatorPow2 = (packet[1] >>> 16) & 0xff;
-        if (numerator < 1) {
-          return null;
+        if (numerator < 1 || denominatorPow2 > 0x1f) {
+          throw new RangeError("Invalid flex time signature payload");
         }
         const event: FlexTimeSignatureEvent = {
           kind: "flexTimeSignature",
@@ -1126,7 +1147,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       }
       case FLEX_STATUS_METRONOME: {
         const clicksPerBeat = ((packet[1] >>> 24) & 0xff) << 8 | ((packet[1] >>> 16) & 0xff);
-        if (clicksPerBeat < 1) return null;
+        if (clicksPerBeat < 1) throw new RangeError("Invalid flex metronome clicksPerBeat");
         const accentBytes = textBytes.slice(2); // remove clicksPerBeat bytes
         const accentPattern = new TextDecoder().decode(Uint8Array.from(accentBytes.filter(b => b !== 0)));
         const event: FlexMetronomeEvent = {
@@ -1150,11 +1171,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
         return event;
       }
       default:
-        return {
-          kind: "rawUMP",
-          words: packet,
-          timestamp,
-        } as RawUMPEvent;
+        throw new RangeError("Unsupported flex data status");
     }
   }
   if (mt === UTILITY_MT) {
@@ -1205,17 +1222,19 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     const statusByte = (word0 >>> 16) & 0xff;
     const allowedStatuses: Midi2SystemEvent["status"][] = [0xf1, 0xf2, 0xf3, 0xf6, 0xf8, 0xfa, 0xfb, 0xfc, 0xfe, 0xff];
     if (!allowedStatuses.includes(statusByte as Midi2SystemEvent["status"])) {
-      return {
-        kind: "rawUMP",
-        words: packet,
-        timestamp,
-      } as RawUMPEvent;
+      throw new RangeError("Unsupported MIDI 2.0 system status");
     }
     const status = statusByte as Midi2SystemEvent["status"];
     const data1 = (word0 >>> 8) & 0xff;
     const data2 = word0 & 0xff;
     const needsData2 = status === 0xf2;
     const needsData1 = needsData2 || status === 0xf1 || status === 0xf3;
+    if (needsData1 && data1 > 0x7f) {
+      throw new RangeError("System data1 out of range");
+    }
+    if (needsData2 && data2 > 0x7f) {
+      throw new RangeError("System data2 out of range");
+    }
     const event: Midi2SystemEvent = {
       kind: "system",
       group,
@@ -1247,9 +1266,8 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
 
   switch (status) {
     case STATUS_RPN: {
-      if (dataMsb >= 0x80 || dataLsb >= 0x80) {
-        return null;
-      }
+      assertDecodeRange("rpn bank", dataMsb, 0, 0x7f);
+      assertDecodeRange("rpn index", dataLsb, 0, 0x7f);
       const event: Midi2RpnEvent = {
         kind: "rpn",
         group,
@@ -1262,9 +1280,8 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     case STATUS_NRPN: {
-      if (dataMsb >= 0x80 || dataLsb >= 0x80) {
-        return null;
-      }
+      assertDecodeRange("nrpn bank", dataMsb, 0, 0x7f);
+      assertDecodeRange("nrpn index", dataLsb, 0, 0x7f);
       const event: Midi2NrpnEvent = {
         kind: "nrpn",
         group,
@@ -1277,9 +1294,8 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     case STATUS_RPN_RELATIVE: {
-      if (dataMsb >= 0x80 || dataLsb >= 0x80) {
-        return null;
-      }
+      assertDecodeRange("rpn bank", dataMsb, 0, 0x7f);
+      assertDecodeRange("rpn index", dataLsb, 0, 0x7f);
       const event: Midi2RpnRelativeEvent = {
         kind: "rpnRelative",
         group,
@@ -1292,9 +1308,8 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     case STATUS_NRPN_RELATIVE: {
-      if (dataMsb >= 0x80 || dataLsb >= 0x80) {
-        return null;
-      }
+      assertDecodeRange("nrpn bank", dataMsb, 0, 0x7f);
+      assertDecodeRange("nrpn index", dataLsb, 0, 0x7f);
       const event: Midi2NrpnRelativeEvent = {
         kind: "nrpnRelative",
         group,
@@ -1307,6 +1322,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     case STATUS_NOTE_ON: {
+      assertDecodeRange("note", dataMsb, 0, 0x7f);
       const velocity = (dataWord >>> 16) & 0xffff;
       const attributeData = dataWord & 0xffff;
       const event: Midi2NoteOnEvent = {
@@ -1322,6 +1338,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     case STATUS_NOTE_OFF: {
+      assertDecodeRange("note", dataMsb, 0, 0x7f);
       const velocity = (dataWord >>> 16) & 0xffff;
       const attributeData = dataWord & 0xffff;
       const event: Midi2NoteOffEvent = {
@@ -1337,6 +1354,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     case STATUS_POLY_PRESSURE: {
+      assertDecodeRange("note", dataMsb, 0, 0x7f);
       const event: Midi2PolyPressureEvent = {
         kind: "polyPressure",
         group,
@@ -1348,6 +1366,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     case STATUS_CONTROL_CHANGE: {
+      assertDecodeRange("controller", dataMsb, 0, 0x7f);
       const event: Midi2ControlChangeEvent = {
         kind: "controlChange",
         group,
@@ -1359,6 +1378,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     case STATUS_PROGRAM_CHANGE: {
+      assertDecodeRange("program", dataMsb, 0, 0x7f);
       const bankValid = (dataLsb & 0x80) !== 0;
       const bankMsb = bankValid ? (dataWord >>> 24) & 0xff : undefined;
       const bankLsb = bankValid ? (dataWord >>> 16) & 0xff : undefined;
@@ -1397,6 +1417,7 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       if (packet.length < 2) {
         return null;
       }
+      assertDecodeRange("note", dataMsb, 0, 0x7f);
       if (dataWord === 0) {
         const event: Midi2PerNoteManagementEvent = {
           kind: "perNoteManagement",
@@ -1445,10 +1466,6 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
       return event;
     }
     default:
-      return {
-        kind: "rawUMP",
-        words: packet,
-        timestamp,
-      } as RawUMPEvent;
+      throw new RangeError(`Unsupported MIDI 2.0 channel voice status 0x${status.toString(16)}`);
   }
 }

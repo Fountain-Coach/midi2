@@ -4,7 +4,7 @@ import XCTest
 final class FlexTextTests: XCTestCase {
     func testRoundTrip() {
         let addr = FlexText.Address.group(Uint4(3)!)
-        let msg = FlexText(address: addr, text: "Hello")
+        let msg = try! FlexText(address: addr, text: "Hello")
         let packet = msg.encode()
         XCTAssertEqual(FlexText.decode(packet), msg)
     }

@@ -12,17 +12,20 @@
 | Utility – Groupless + status | M2-104-UM §5.1 | Group nibble non-zero; unsupported status | Rejected (Swift + TS) |
 | SysEx7/SysEx8 – Oversize payload | M2-104-UM §4.2 | Payload > 0xFFFF | Rejected (Swift + TS) |
 | Flex – Tempo / Time Signature | Flex spec | BPM < 1; denominatorPow2 > 0x1F | Rejected (TS; Swift validated via throwing inits) |
+| Flex – Payload bounds | Flex spec | Tempo > 16.16 max; text/ruby/lyric/chord/key >12 bytes; metronome accent >10 bytes | Rejected (Swift + TS) |
+| Flex – Unknown status within class | Flex spec | Unrecognised status values in class 0x10/0x11 | Rejected (Swift + TS) |
 | MIDI-CI Process Inquiry | M2-101-UM v1.2 | Invalid command byte; length overrun | Rejected (Swift throwing validator) |
 | MIDI-CI Profiles Details | M2-102-U v1.1 Table 6 | Missing profileId in details inquiry; unsupported setOn | Rejected (Swift replies disabled/empty) |
 | Flex – Reserved status class | Flex spec | Status class ≠ 0x10 | Rejected (Swift + TS) |
 | MIDI 1 Ch Voice – Data bounds | MIDI 1.0 | Data bytes >0x7F, invalid statuses | Rejected (Swift + TS) |
+| MIDI 2 Ch Voice – Unsupported status/data | M2-104-UM §7 | Status nibble undefined; note/controller > 0x7F | Rejected (Swift decode nil; TS RangeError) |
+| MIDI 2 System – Unsupported status/data | M2-104-UM §5.2 | Status outside allowed set; data1/data2 > 0x7F | Rejected (Swift decode nil; TS RangeError) |
 | MIDI-CI Profiles – Channel/target bounds | M2-102-U v1.1 | Channel count overflow; invalid target nibble | Rejected (Swift decode nil/empty; TS envelope drops) |
 | Process Inquiry – messageDataControl | M2-101-UM v1.2 | messageDataControl not in {0x00,0x01,0x7F} | Rejected (Swift + TS) |
 
 ## Next Targets
 - SysEx8/SysEx7 reserved/oversize edge cases (already partially covered; add matrix entries).
-- Utility/Channel Voice reserved opcodes and out-of-range fields.
-- Flex Data reserved status classes and invalid channel addressing.
+- Utility reserved opcodes and out-of-range fields.
 - MIDI-CI Process Inquiry/profile/detail negative cases.
 
 ## Usage Notes

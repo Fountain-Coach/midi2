@@ -13,7 +13,11 @@ public struct FlexChordName: Equatable {
     public var chord: String
 
     /// Creates a chord name message.
-    public init(address: Address, chord: String) {
+    public init(address: Address, chord: String) throws {
+        let length = chord.utf8.count
+        guard length <= 12 else {
+            throw MIDIError.valueOutOfRange(name: "chord", value: UInt64(length), range: 0...12)
+        }
         self.address = address
         self.chord = chord
     }
@@ -91,7 +95,6 @@ public struct FlexChordName: Equatable {
 
         let strBytes = bytes.prefix { $0 != 0 }
         let chord = String(bytes: strBytes, encoding: .utf8) ?? ""
-        return FlexChordName(address: address, chord: chord)
+        return try? FlexChordName(address: address, chord: chord)
     }
 }
-

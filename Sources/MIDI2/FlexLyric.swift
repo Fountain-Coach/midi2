@@ -13,7 +13,11 @@ public struct FlexLyric: Equatable {
     public var lyric: String
 
     /// Creates a lyric message.
-    public init(address: Address, lyric: String) {
+    public init(address: Address, lyric: String) throws {
+        let length = lyric.utf8.count
+        guard length <= 12 else {
+            throw MIDIError.valueOutOfRange(name: "lyric", value: UInt64(length), range: 0...12)
+        }
         self.address = address
         self.lyric = lyric
     }
@@ -91,7 +95,6 @@ public struct FlexLyric: Equatable {
 
         let strBytes = bytes.prefix { $0 != 0 }
         let lyric = String(bytes: strBytes, encoding: .utf8) ?? ""
-        return FlexLyric(address: address, lyric: lyric)
+        return try? FlexLyric(address: address, lyric: lyric)
     }
 }
-

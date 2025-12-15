@@ -25,7 +25,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 - Well-documented gaps and ongoing conformance tracking
 
 **Key Gaps Identified**:
-1. **Function Block Semantics**: Descriptor details beyond index/group range; GTB negotiation incomplete
+1. **Function Block Semantics**: Descriptor details beyond index/group range; (GTB negotiation implemented)
 2. **Reserved/Unsupported Handling**: Inconsistent placeholder handling across decoders
 3. **Hardware Interop**: No tests against external MIDI-CI devices
 4. **TypeScript Coverage**: Several areas marked as partial in gap-plan.md
@@ -281,7 +281,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 ### 4.1 Coverage Status
 
 #### Swift Implementation
-**Status**: 🟡 Partial (with significant gaps)
+**Status**: ✅ Implemented (runtime + validation)
 
 **Evidence**:
 - Endpoint Discovery: `Sources/MIDI2/Stream/EndpointDiscoveryMessage.swift`
@@ -312,32 +312,28 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 - Stream opcodes 0x00-0x06, 0x10-0x12, 0x20-0x21 defined
 
 #### TypeScript Implementation
-**Status**: 🟡 Partial
+**Status**: 🟢 Good
 
 **Evidence**:
 - `legacy/midi2-js-gap-plan.md`: "Endpoint/Device Info payload fidelity and GTB semantics: tighten encode/decode and add vectors"
 
 ### 4.2 Status
 
-- Function Block descriptor runtime validation implemented (`FunctionBlockInfoNotification`, `GroupTerminalBlocks`): direction/bandwidth/active enforced, reserved bits rejected, round-trip tests in `StreamMappingTests`.
-- GTB overlap remains documented guidance; negotiation semantics handled in `NegotiationSession`/`GTBValidator`.
+-- Function Block descriptor runtime validation implemented (`FunctionBlockInfoNotification`, `GroupTerminalBlocks`): direction/bandwidth/active enforced, reserved bits rejected, round-trip tests in `StreamMappingTests`.
+- GTB negotiation implemented: overlap/coverage validation, per-group allowed MT maps, ingress/egress guards (Swift `NegotiationSession` + `GTBValidator`; TS `gtb-validator`, `gtb-guards`, decoder guards). PB-VRT fixtures for blocking MT=0x0/0xF and overlap cases.
 
 #### Gap 4.2.2: GTB Negotiation Semantics
-**Severity**: High  
+**Status**: ✅ Implemented  
 **Spec Reference**: M2-104-UM v1.1.2, Appendix I (p.122)
 
-**Current State**: GTB structure implemented, but negotiation semantics incomplete.
+**Current State**:
+- GTB-FB overlap/coverage validation enforced (`GTBValidator.validate`), allow-overlap escape hatch documented.
+- GTB descriptors ingested into negotiation sessions (`applyGTBDescriptor`, `negotiate(gtbDescriptor:)`) with per-group allowed MT maps.
+- Ingress/egress MT enforcement for GTB-restricted groups (Swift guards on UMP words; TS decoder/dispatch/gtb-guards).
+- Tests: `Tests/MIDI2Tests/GroupTerminalBlocksTests.swift`, `midi2.js/src/__tests__/gtb-*`, PB-VRT fixtures `docs/pb-vrt/stream/gtb_block_mt.json`, `gtb_block_utility.json`, `gtb_overlap.json`.
 
-**Evidence**:
-- `docs/spec-audit.md`: Row 29 - "USB Group Terminal Block considerations | Pending"
-- `docs/conformance-checklist.md`: "Gap: GTB negotiation and additional §5 semantics"
-
-**Recommended Action**:
-1. Document GTB overlap with Function Blocks per Appendix I
-2. Implement restrictions on MT=0xF stream/MT=0x0 utility reception
-3. Add protocol negotiation logic specific to GTB contexts
-4. Add test cases for GTB-Function Block interaction scenarios
-5. Update runtime documentation with GTB negotiation patterns
+**Residual Risks**:
+- Hardware interop unvalidated (USB GTB descriptors not yet captured from devices); policy defaults allow manual descriptor injection.
 
 **Priority**: High  
 **Effort**: Medium-High (4-5 days)

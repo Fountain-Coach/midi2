@@ -1,6 +1,6 @@
 # Documentation
 
-**Last Updated**: 2025-12-15 | **Version**: 0.8.0
+**Last Updated**: 2025-12-16 | **Version**: 0.9.0
 
 ## Quick Start
 

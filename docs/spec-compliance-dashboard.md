@@ -1,6 +1,6 @@
 # MIDI 2.0 Spec Compliance Dashboard
 
-**Last Updated**: 2025-12-15  
+**Last Updated**: 2025-12-16  
 **Quick Links**: [Full Report](comprehensive-spec-audit-report.md) | [Gap Tracker](gap-closure-tracker.md) | [Traceability Matrix](spec-traceability-matrix.md)
 
 ---
@@ -15,8 +15,8 @@
 | **Schema Coverage** | 98% | 100% | 🟢 Excellent |
 | **Swift Implementation** | 67% | 90% | 🟡 Good |
 | **TypeScript Implementation** | 62% | 90% | 🟡 Good |
-| **Test Coverage (Swift)** | 110 tests | 150+ | 🟡 Expanding |
-| **Test Coverage (TS)** | 198 tests | 200+ | 🟢 Target Nearly Met |
+| **Test Coverage (Swift)** | 354 tests | 150+ | 🟢 Strong |
+| **Test Coverage (TS)** | 199 tests | 200+ | 🟢 Target Nearly Met |
 | **Spec Audit Completion** | 49/52 (94%) | 100% | 🟢 Nearly Complete |
 | **Identified Gaps** | 21 | 0 | 🔴 Active Work |
 | **High Priority Gaps** | 0 | 0 | 🟢 None |
@@ -167,35 +167,35 @@
 
 ## 🧪 Test Coverage Analysis
 
-### Swift (110+ tests)
-| Area | Tests | Coverage |
-|------|-------|----------|
-| UMP Messages | 35 | ✅ Good |
-| Stream Config | 18 | ✅ Complete |
-| MIDI-CI | 24 | ⚠️ Partial |
-| Property Exchange | 12 | ⚠️ Needs expansion |
-| JR Clock/Timestamp | 8 | ✅ Good |
-| SysEx7/8 | 10 | ✅ Good |
+### Swift (~354 tests across 117 files)
+| Area | Status |
+|------|--------|
+| UMP Messages | ✅ Good |
+| Stream Config / GTB | ✅ Complete |
+| MIDI-CI & Process Inquiry | ✅ Good |
+| Property Exchange | ⚠️ Needs expansion |
+| JR Clock/Timestamp | ✅ Good |
+| SysEx7/8 | ✅ Good |
 
 **Gaps**:
 - ❌ No hardware interop tests
-- ✅ Negative test coverage improved (Gap 1.2.1, 3.2.1 closed)
+- ⚠️ Property Exchange runtime negatives could expand
 - ✅ PE subscription lifecycle tests present
 
-### TypeScript (198 tests across 32 test files)
-| Area | Tests | Coverage |
-|------|-------|----------|
-| UMP Core | 48 | ✅ Comprehensive |
-| Schema Bridge | 27 | ✅ Comprehensive |
-| MIDI-CI / PE | 15 | ✅ Good |
-| Stream/GTB | 30+ | ✅ Good |
-| Scheduler/Jitter | 5 | ⚠️ Basic |
-| Negative Tests | 30+ | ✅ Good |
+### TypeScript (~199 tests across 32 test files)
+| Area | Status |
+|------|--------|
+| UMP Core | ✅ Comprehensive |
+| Schema Bridge | ✅ Comprehensive |
+| MIDI-CI / PE (incl. subscriptions) | ✅ Good |
+| Stream/GTB | ✅ Good |
+| Scheduler/Jitter | ⚠️ Basic |
+| Negative/Reserved Tests | ✅ Good |
 
 **Gaps**:
 - ⚠️ Adapter-specific tests minimal
-- ✅ PE subscription tests present
 - ⚠️ Worker clock needs expansion
+- ❌ No hardware interop tests
 
 ---
 

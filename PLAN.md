@@ -1,13 +1,14 @@
 # Current Plan
 
-**Version**: 0.8.0 | **Last Updated**: 2025-12-15
+**Version**: 0.9.0 | **Last Updated**: 2025-12-16
 
-## Completed (v0.8.0)
+## Completed (v0.9.0)
 - ✅ Schema/OpenAPI alignment: Data (MDS), Stream, Flex, and SysEx coverage complete in midi2.js with schema-bridge round-trips and negative tests
 - ✅ Swift stream and data helpers at schema parity: endpoint info, device identity, name, product instance, function block name/flags, filter bitmap
 - ✅ Property Exchange semantics normalized: flow-control ACK/NAK paths, subscription lifecycle state machine, chunking/error/compression vectors
 - ✅ Validation expanded: reserved-bit/range enforcement for stream/flex/CI envelopes (11 gaps closed)
-- ✅ Docs synchronized: gap-closure-tracker, spec-compliance-dashboard, comprehensive-spec-audit-report updated
+- ✅ Stream/Function Block/Process Inquiry runtime gaps closed (GTB negotiation, TS stream config round-trips, Process Inquiry session runtime helper)
+- ✅ Docs synchronized for v0.9.0: gap-closure-tracker, spec-compliance-dashboard, comprehensive-spec-audit-report updated
 
 ## In Progress
 - 🟡 Negative test coverage expansion (Gap 8.2.3): reserved value matrix seeded, stream negative tests added

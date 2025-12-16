@@ -2,8 +2,10 @@
 
 **Repository:** Fountain-Coach/midi2  
 **Audit Date:** 2025-12-14  
-**Current Version:** 0.7.0  
+**Current Version:** 0.9.0  
 **Audit Scope:** Documentation, CI/CD, maintenance tooling, and release readiness
+
+> Snapshot note: Metrics below reflect the Dec 14 audit; for live counts and gap status, see `docs/spec-compliance-dashboard.md`.
 
 ---
 
@@ -14,7 +16,7 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 **Overall Health:** ✅ **Good** - Ready for next release with newly added maintenance infrastructure
 
 **Key Strengths:**
-- Comprehensive test coverage (171 passing JavaScript tests, 114 Swift test files)
+- Comprehensive test coverage (~199 JavaScript/TypeScript tests across 32 files; 117 Swift test files with ~354 test cases)
 - Active CI/CD with multiple workflow validations
 - Zero npm security vulnerabilities
 - Semantic versioning and changelog maintenance
@@ -36,12 +38,12 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 | Metric | Value |
 |--------|-------|
 | **Swift Source Files** | 117 files |
-| **Swift Test Files** | 114 files |
+| **Swift Test Files** | 117 files |
 | **Swift Lines of Code** | ~7,193 lines |
 | **TypeScript/JavaScript Files** | 53 files |
 | **JS/TS Lines of Code** | ~4,204 lines |
-| **Test/Source Ratio (Swift)** | ~0.97:1 (excellent) |
-| **Test/Source Ratio (JS)** | 198 tests across 32 test files |
+| **Test/Source Ratio (Swift)** | ~3:1 by test cases (excellent) |
+| **Test/Source Ratio (JS)** | ~199 tests across 32 test files |
 
 ### Dependencies
 | Ecosystem | Production | Development | Security Issues |
@@ -68,7 +70,7 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 
 ## Test Coverage
 
-### Swift Tests (114 test files)
+### Swift Tests (117 test files; ~354 test cases)
 - ✅ **Status:** Tests present and comprehensive
 - 📂 **Location:** `Tests/MIDI2Tests/`, `Tests/Fuzz/`
 - 🎯 **Coverage Gate:** ≥80% enforced in CI
@@ -76,11 +78,11 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 - 📊 **Coverage:** Enforced via CI (`.github/workflows/ci.yml`)
 
 ### JavaScript/TypeScript Tests
-- ✅ **Status:** 198 passing tests (1 skipped)
+- ✅ **Status:** ~199 passing tests (1 skipped)
 - 📂 **Location:** `midi2.js/src/__tests__/`
 - 🎯 **Coverage Gate:** Available via `npm run coverage`
 - 🔧 **Framework:** Vitest (v3.2.4)
-- 📊 **Test Suites:** 27 test files covering:
+- 📊 **Test Suites:** 32 test files covering:
   - UMP encoding/decoding
   - MIDI-CI protocol handling
   - SysEx7/8 fragmentation
@@ -185,13 +187,13 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 - ✅ **CI Passing:** Yes (JavaScript tests confirmed, Swift tests run in macOS CI)
 - ✅ **Coverage ≥80%:** Enforced in CI
 - ✅ **CHANGELOG.md Current:** Yes, "Unreleased" section populated
-- ✅ **Version Consistency:** Package.swift v0.8.0, midi2.js v0.8.0 (versions are now synchronized)
+- ✅ **Version Consistency:** Package.swift v0.9.0, midi2.js v0.9.0 (versions are now synchronized)
 - ✅ **No Critical Issues:** No blocking issues identified
 - ✅ **Security Audit:** 0 npm vulnerabilities
 - ✅ **Documentation Up-to-Date:** Now comprehensive with this PR
 
 ### Version Synchronization Note
-ℹ️ **Update (v0.8.0):** Swift and JavaScript package versions are now synchronized at v0.8.0. Both packages follow semantic versioning and release together when possible. If independent releases are needed, the RELEASE.md documents the process.
+ℹ️ **Update (v0.9.0):** Swift and JavaScript package versions are now synchronized at v0.9.0. Both packages follow semantic versioning and release together when possible. If independent releases are needed, the RELEASE.md documents the process.
 
 ---
 
@@ -315,7 +317,7 @@ The **midi2** repository is a well-structured, dual-ecosystem project providing 
 
 ## Actionable Next Steps for Next Release
 
-### Before Tagging Next Release (v0.8.0 or v0.7.1)
+### Before Tagging Next Release (v0.9.1 or v0.10.0)
 1. ✅ Merge this PR (documentation and tooling)
 2. Enable branch protection on `main`
 3. Remove duplicate CI workflow (midi2js.yml)
@@ -352,4 +354,4 @@ The **midi2** repository is in excellent shape for its next release. With the ad
 
 **Audit Performed By:** GitHub Copilot Agent  
 **Audit Type:** Comprehensive Documentation and Maintenance Implementation  
-**Next Review:** After v0.8.0 release or quarterly maintenance cycle
+**Next Review:** After v0.9.0 release or quarterly maintenance cycle

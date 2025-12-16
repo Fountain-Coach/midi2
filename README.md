@@ -40,7 +40,7 @@ This repository contains reusable packages and examples used to build MIDI 2.0-a
 Add to your `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.8.0")
+    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.9.0")
 ]
 ```
 

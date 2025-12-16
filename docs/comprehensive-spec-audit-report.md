@@ -1,12 +1,12 @@
 # Comprehensive MIDI 2.0 Specification Audit Report
 
 **Initial Audit Date**: 2025-12-13  
-**Last Updated**: 2025-12-14  
+**Last Updated**: 2025-12-16  
 **Repository**: Fountain-Coach/midi2  
-**Version**: 0.8.0 (TypeScript), 0.8.0 (Swift)  
+**Version**: 0.9.0 (TypeScript), 0.9.0 (Swift)  
 **Audited Against**: MIDI Association Normative Specifications (M2-100 through M2-116)
 
-**Note**: This is the initial comprehensive audit. Subsequent updates should maintain version history and update the "Last Updated" date above.
+**Note**: This is the initial comprehensive audit. Subsequent updates should maintain version history and update the "Last Updated" date above. Metrics below reflect the latest static counts (0.9.0 release); see `spec-compliance-dashboard.md` for live gap status.
 
 ---
 
@@ -21,7 +21,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 - Strong coverage of core UMP message types (Channel Voice 1.0/2.0, System, Utility, Stream)
 - Robust MIDI-CI implementation with Property Exchange chunking and compression
 - Active spec-audit log with page-level traceability to normative PDFs
-- Comprehensive test coverage (107 Swift tests, 11 TypeScript tests)
+- Broad automated tests (~354 Swift test cases across 117 files; ~199 TypeScript tests across 32 files)
 - Well-documented gaps and ongoing conformance tracking
 
 **Key Gaps Identified**:
@@ -542,11 +542,11 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 ### 8.1 Current State
 
 **Swift**:
-- 110+ test files
+- ~117 test files (~354 test cases)
 - Comprehensive coverage including:
   - UMP message types
   - Stream configuration
-  - MIDI-CI flows
+  - MIDI-CI flows and Process Inquiry
   - Property Exchange chunking and compression
   - JR clock/timestamp
   - SysEx7/8 fragmentation
@@ -556,15 +556,15 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 - CI integration: `.github/workflows/ci.yml`
 
 **TypeScript**:
-- 32 test files with 198 tests
+- 32 test files with ~199 tests
 - Coverage areas:
-  - UMP encoding/decoding (48 tests)
+  - UMP encoding/decoding
   - MIDI-CI envelopes and PE subscriptions
-  - Schema bridge validation (27 tests)
+  - Schema bridge validation
   - Stream/GTB negotiation tests
   - Scheduler and clocks
   - JR worker tests
-  - Negative/reserved value tests (30+ tests)
+  - Negative/reserved value tests
   - OpenAPI type conformance
 - CI: `npm run ci` (codegen + typecheck + vitest)
 
@@ -1048,8 +1048,8 @@ This section provides a comprehensive mapping between specification requirements
   3. Remaining spec sections audit - Target: Q1 2026
 
 **Test Coverage**:
-- Swift: 110+ tests (target: 150+ tests) 🟡
-- TypeScript: 198 tests (target: 150+ tests) ✅ Exceeded
+- Swift: ~354 tests (target: 150+ tests) 🟢
+- TypeScript: ~199 tests (target: 200 tests) 🟡 Target nearly met
 - Negative tests: 60+ added across both stacks ✅
 - Hardware interop: 0 → Target: Basic suite established 🔴
 

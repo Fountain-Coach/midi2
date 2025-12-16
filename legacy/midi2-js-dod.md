@@ -5,7 +5,7 @@
 > - [`docs/spec-compliance-dashboard.md`](../docs/spec-compliance-dashboard.md) - Current compliance metrics
 > - [`docs/comprehensive-spec-audit-report.md`](../docs/comprehensive-spec-audit-report.md) - Full audit analysis
 >
-> **Last Active Version**: 0.7.0 | **Current Version**: 0.8.0
+> **Last Active Version**: 0.7.0 | **Current Version**: 0.9.0
 
 The `midi2.js` stack is "done" when all criteria below are satisfied and demonstrated by automated checks.
 

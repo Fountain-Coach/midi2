@@ -71,9 +71,9 @@ We provide security updates for the following versions:
 
 | Version | Supported          | Notes                          |
 | ------- | ------------------ | ------------------------------ |
-| 0.8.x   | ✅ Yes             | Current stable release         |
-| 0.7.x   | ⚠️ Limited         | Critical fixes only (90 days)  |
-| < 0.7   | ❌ No              | Please upgrade to 0.8.x        |
+| 0.9.x   | ✅ Yes             | Current stable release         |
+| 0.8.x   | ⚠️ Limited         | Critical fixes only (90 days)  |
+| < 0.8   | ❌ No              | Please upgrade to 0.9.x        |
 
 **Policy:**
 - **Current MINOR version:** Full support (patches, security updates)

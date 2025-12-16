@@ -5,7 +5,7 @@
 > - [`docs/gap-closure-tracker.md`](../docs/gap-closure-tracker.md) - Active gap tracking
 > - [`midi2.js/README.md`](../midi2.js/README.md) - Library documentation
 >
-> **Last Active Version**: 0.7.0 | **Current Version**: 0.8.0
+> **Last Active Version**: 0.7.0 | **Current Version**: 0.9.0
 
 ## Mission and current coverage
 - Cross-browser TypeScript core for MIDI 2.0 UMP + MIDI-CI with no CoreMIDI/DOM dependencies in the core exports.

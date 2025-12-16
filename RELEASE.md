@@ -30,7 +30,7 @@ Before starting the release process, ensure:
 
 Review changes since the last release:
 ```bash
-git log v0.7.0..HEAD --oneline
+git log v0.9.0..HEAD --oneline
 ```
 
 Apply semantic versioning rules:
@@ -38,11 +38,11 @@ Apply semantic versioning rules:
   - Removed public functions/types
   - Changed function signatures
   - Changed behavior that breaks existing usage
-- **MINOR bump** (0.7.Y → 0.8.0): New features, backward-compatible
+- **MINOR bump** (0.9.Y → 0.10.0): New features, backward-compatible
   - Added new public APIs
   - Extended protocol support (new MIDI-CI capabilities)
   - New examples or packages
-- **PATCH bump** (0.7.0 → 0.7.1): Bug fixes only
+- **PATCH bump** (0.9.0 → 0.9.1): Bug fixes only
   - Fixed incorrect behavior
   - Performance improvements
   - Documentation updates
@@ -51,13 +51,13 @@ Apply semantic versioning rules:
 
 1. **Package.swift** (Swift package version):
    ```swift
-   let packageVersion = "0.8.0"  // Line 4
+   let packageVersion = "0.9.0"  // Line 4
    ```
 
 2. **midi2.js/package.json** (npm package version):
    ```json
    {
-     "version": "0.8.0"
+     "version": "0.9.0"
    }
    ```
 
@@ -77,7 +77,7 @@ git checkout main
 git pull origin main
 
 # Create a release preparation branch
-git checkout -b release/v0.8.0
+git checkout -b release/v0.9.0
 ```
 
 ### 2. Update CHANGELOG.md
@@ -87,7 +87,7 @@ git checkout -b release/v0.8.0
    ## [Unreleased]
    <!-- Empty for next development cycle -->
    
-   ## [0.8.0] - 2025-12-14
+   ## [0.9.0] - 2025-12-14
    ### Added
    - Feature X with API Y
    - New CLI command Z
@@ -101,8 +101,8 @@ git checkout -b release/v0.8.0
 
 2. Update the comparison links at the bottom:
    ```markdown
-   [Unreleased]: https://github.com/Fountain-Coach/midi2/compare/v0.8.0...HEAD
-   [0.8.0]: https://github.com/Fountain-Coach/midi2/compare/v0.7.0...v0.8.0
+   [Unreleased]: https://github.com/Fountain-Coach/midi2/compare/v0.9.0...HEAD
+   [0.9.0]: https://github.com/Fountain-Coach/midi2/compare/v0.8.0...v0.9.0
    ```
 
 3. Verify the changelog follows [Keep a Changelog](https://keepachangelog.com/) format.
@@ -112,13 +112,13 @@ git checkout -b release/v0.8.0
 Update version in **Package.swift**:
 ```bash
 # Edit line 4
-sed -i 's/let packageVersion = "0.7.0"/let packageVersion = "0.8.0"/' Package.swift
+sed -i 's/let packageVersion = "0.9.0"/let packageVersion = "0.9.1"/' Package.swift
 ```
 
 Update version in **midi2.js/package.json**:
 ```bash
 cd midi2.js
-npm version 0.8.0 --no-git-tag-version
+npm version 0.9.0 --no-git-tag-version
 cd ..
 ```
 
@@ -127,8 +127,8 @@ cd ..
 Commit changes and push to verify CI:
 ```bash
 git add CHANGELOG.md Package.swift midi2.js/package.json midi2.js/package-lock.json
-git commit -m "chore: Prepare release v0.8.0"
-git push origin release/v0.8.0
+git commit -m "chore: Prepare release v0.9.0"
+git push origin release/v0.9.0
 ```
 
 Create a PR and ensure all checks pass:
@@ -144,8 +144,8 @@ Once PR is approved and CI is green:
 # Merge via GitHub UI (squash-merge preferred)
 # Or via command line:
 git checkout main
-git merge --squash release/v0.8.0
-git commit -m "chore: Release v0.8.0"
+git merge --squash release/v0.9.0
+git commit -m "chore: Release v0.9.0"
 git push origin main
 ```
 
@@ -154,13 +154,13 @@ git push origin main
 Create a signed tag (recommended) or regular tag:
 ```bash
 # Signed tag (requires GPG key configured)
-git tag -s v0.8.0 -m "Release v0.8.0"
+git tag -s v0.9.0 -m "Release v0.9.0"
 
 # Or regular annotated tag
-git tag -a v0.8.0 -m "Release v0.8.0"
+git tag -a v0.9.0 -m "Release v0.9.0"
 
 # Push the tag
-git push origin v0.8.0
+git push origin v0.9.0
 ```
 
 ### 7. Build and Verify Artifacts
@@ -228,14 +228,14 @@ npm view @fountain-coach/midi2
 #### Swift Package Manager
 No action needed - package is distributed via git tags. Users will access via:
 ```swift
-.package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.8.0")
+.package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.9.0")
 ```
 
 ### 9. Draft and Publish GitHub Release
 
 1. Go to https://github.com/Fountain-Coach/midi2/releases/new
-2. Select tag: `v0.8.0`
-3. Release title: `v0.8.0`
+2. Select tag: `v0.9.0`
+3. Release title: `v0.9.0`
 4. Release notes (use template below):
 
 ```markdown
@@ -274,23 +274,23 @@ None in this release.
 **Swift Package Manager:**
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.8.0")
+    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.9.0")
 ]
 ```
 
 **npm:**
 ```bash
-npm install @fountain-coach/midi2@0.8.0
+npm install @fountain-coach/midi2@0.9.0
 ```
 
 ## Full Changelog
 
-**Full diff:** https://github.com/Fountain-Coach/midi2/compare/v0.7.0...v0.8.0
+**Full diff:** https://github.com/Fountain-Coach/midi2/compare/v0.8.0...v0.9.0
 
 ## Contributors
 
 Thank you to all contributors who made this release possible!
-<!-- List contributors via: git log v0.7.0..v0.8.0 --format="%aN" | sort -u -->
+<!-- List contributors via: git log v0.8.0..v0.9.0 --format="%aN" | sort -u -->
 ```
 
 5. Mark as pre-release if RC: ☑ "This is a pre-release"
@@ -303,38 +303,38 @@ If critical issues are discovered after release:
 #### Option A: Hotfix Release (Preferred)
 ```bash
 # Create hotfix branch from release tag
-git checkout -b hotfix/v0.8.1 v0.8.0
+git checkout -b hotfix/v0.9.1 v0.9.0
 
 # Fix the issue
 # ... make changes ...
 
 # Bump to patch version
-sed -i 's/0.8.0/0.8.1/' Package.swift
-cd midi2.js && npm version 0.8.1 --no-git-tag-version && cd ..
+sed -i 's/0.9.0/0.9.1/' Package.swift
+cd midi2.js && npm version 0.9.1 --no-git-tag-version && cd ..
 
 # Update CHANGELOG.md
-# ... add [0.8.1] section ...
+# ... add [0.9.1] section ...
 
 # Commit and tag
-git commit -am "fix: Critical issue in v0.8.0"
-git tag -s v0.8.1 -m "Hotfix release v0.8.1"
+git commit -am "fix: Critical issue in v0.9.0"
+git tag -s v0.9.1 -m "Hotfix release v0.9.1"
 
 # Publish
-git push origin hotfix/v0.8.1
-git push origin v0.8.1
+git push origin hotfix/v0.9.1
+git push origin v0.9.1
 cd midi2.js && npm publish && cd ..
 
-# Create GitHub release for v0.8.1
+# Create GitHub release for v0.9.1
 ```
 
 #### Option B: Deprecate and Rollback (Nuclear Option)
 ```bash
 # Deprecate npm package
 cd midi2.js
-npm deprecate @fountain-coach/midi2@0.8.0 "Critical bug, use 0.8.1 or 0.7.0"
+npm deprecate @fountain-coach/midi2@0.9.0 "Critical bug, use 0.9.1 or 0.8.0"
 
 # Mark GitHub release as "pre-release" or delete
-# Users on Swift Package Manager will need manual intervention to pin to 0.7.0
+# Users on Swift Package Manager will need manual intervention to pin to 0.8.0
 ```
 
 ### 11. Post-Release Tasks
@@ -394,14 +394,14 @@ For urgent patches to released versions:
 
 1. **Branch from release tag:**
    ```bash
-   git checkout -b hotfix/v0.8.1 v0.8.0
+   git checkout -b hotfix/v0.9.1 v0.9.0
    ```
 
 2. **Fix the issue** with minimal changes
 
 3. **Bump patch version:**
-   - Update `Package.swift` (0.8.0 → 0.8.1)
-   - Update `midi2.js/package.json` (0.8.0 → 0.8.1)
+   - Update `Package.swift` (0.9.0 → 0.9.1)
+   - Update `midi2.js/package.json` (0.9.0 → 0.9.1)
    - Add hotfix entry to `CHANGELOG.md`
 
 4. **Test thoroughly:**
@@ -413,9 +413,9 @@ For urgent patches to released versions:
 5. **Tag and release:**
    ```bash
    git commit -am "fix: Critical issue description"
-   git tag -s v0.8.1 -m "Hotfix release v0.8.1"
-   git push origin hotfix/v0.8.1
-   git push origin v0.8.1
+   git tag -s v0.9.1 -m "Hotfix release v0.9.1"
+   git push origin hotfix/v0.9.1
+   git push origin v0.9.1
    ```
 
 6. **Publish packages** (npm, GitHub Release)
@@ -423,7 +423,7 @@ For urgent patches to released versions:
 7. **Merge hotfix back to main:**
    ```bash
    git checkout main
-   git merge hotfix/v0.8.1
+   git merge hotfix/v0.9.1
    git push origin main
    ```
 
@@ -444,10 +444,10 @@ For urgent patches to released versions:
 ### Git Tag Issues
 - **Tag already exists:** Delete local and remote tag, then recreate:
   ```bash
-  git tag -d v0.8.0
-  git push origin :refs/tags/v0.8.0
-  git tag -s v0.8.0 -m "Release v0.8.0"
-  git push origin v0.8.0
+  git tag -d v0.9.0
+  git push origin :refs/tags/v0.9.0
+  git tag -s v0.9.0 -m "Release v0.9.0"
+  git push origin v0.9.0
   ```
 
 ### Swift Package Resolution Failures

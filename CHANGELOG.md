@@ -3,6 +3,9 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
+- _Nothing yet._
+
+## [0.9.0] - 2025-12-16
 ### Changed
 - Docs: Comprehensive documentation audit - updated test counts (198 TS tests), version references (0.8.0), gap-closure status (10/21 complete), and archived legacy docs with proper cross-references.
 - Docs: Updated SECURITY.md supported versions to reflect v0.8.x as current stable.

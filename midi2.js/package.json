@@ -1,6 +1,6 @@
 {
   "name": "@fountain-coach/midi2",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "private": false,
   "description": "Cross-browser, CoreMIDI-free MIDI 2.0 protocol and scheduler core.",
   "license": "MIT",

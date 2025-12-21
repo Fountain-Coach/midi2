@@ -130,8 +130,8 @@ func runJRChecks(_ out: inout [CheckResult]) -> Bool {
     let rx = JRReceiver()
     rx.ingestClock(0x0001)
     rx.ingestClock(0x0006) // +5
-    rx.ingestClock(0xFFFE) // backward wrap; ignored
-    let abs = rx.eventTime(for: 0xFFFE) ?? UInt64.max
+    rx.ingestClock(0x80006) // backward wrap (20-bit), ignored
+    let abs = rx.eventTime(for: 0x80006) ?? UInt64.max
     let ok = (abs == 5)
     out.append(CheckResult(name: "JR.WrapIgnored", passed: ok, details: ["abs": String(abs)]))
     allOK = allOK && ok

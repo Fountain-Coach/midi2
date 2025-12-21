@@ -3,26 +3,23 @@ import XCTest
 
 final class UtilityErrorTests: XCTestCase {
     func testUnsupportedStatus() {
-        let byte0 = UInt32(0x0 << 4)
-        let word = (byte0 << 24) | (UInt32(0x03) << 16)
+        let word = (UInt32(0x0) << 28) | (UInt32(0x5) << 20)
         let ump = UmpPacket32(word: word)
         XCTAssertThrowsError(try Utility(parsingUMP: ump)) { error in
-            XCTAssertTrue(error.localizedDescription.contains("unsupported utility status"))
+            XCTAssertTrue(error.localizedDescription.contains("unknown utility opcode"))
         }
     }
 
     func testNonZeroGroupNibble() {
-        let byte0 = UInt32(0x0 << 4 | 0x1)
-        let word = (byte0 << 24)
+        let word = (UInt32(0x0) << 28) | (UInt32(0x1) << 24)
         let ump = UmpPacket32(word: word)
         XCTAssertThrowsError(try Utility(parsingUMP: ump)) { error in
-            XCTAssertTrue(error.localizedDescription.contains("group nibble"))
+            XCTAssertTrue(error.localizedDescription.contains("group 0"))
         }
     }
 
     func testNoopMustHaveZeroPayload() {
-        let byte0 = UInt32(0x0 << 4)
-        let word = (byte0 << 24) | (UInt32(0x00) << 16) | 0x1234
+        let word = (UInt32(0x0) << 28) | (UInt32(0x0) << 20) | 0x1234
         let ump = UmpPacket32(word: word)
         XCTAssertThrowsError(try Utility(parsingUMP: ump)) { error in
             XCTAssertTrue(error.localizedDescription.contains("zero data"))

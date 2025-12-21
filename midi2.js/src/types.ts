@@ -174,7 +174,7 @@ export interface Midi1ChannelVoiceEvent {
 
 export interface UtilityEvent {
   kind: "utility";
-  status: "noop" | "jrClock" | "jrTimestamp";
+  status: "noop" | "jrClock" | "jrTimestamp" | "dctpq" | "deltaClockstamp";
   value?: number;
   group?: number;
   timestampGroup?: number;

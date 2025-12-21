@@ -4,15 +4,15 @@ import MIDI2
 /// Actor responsible for running the jitter demonstration.
 actor JitterApp {
     func run() async throws {
-        let period: UInt16 = 1000 // microseconds
-        var clock: UInt16 = 0
+        let period: UInt32 = 1000 // microseconds
+        var clock: UInt32 = 0
 
         for cycle in 0..<3 {
             let clockMsg = Utility.jrClock(clock)
             let clockWord = clockMsg.ump().word
             print("cycle \(cycle) clock 0x\(String(clock, radix: 16)) ->", String(format: "%08X", clockWord))
 
-            for offset in [UInt16(10), UInt16(50)] {
+            for offset in [UInt32(10), UInt32(50)] {
                 let delay = UInt64(UInt32.random(in: 0...5000)) * 1_000 // microseconds → nanoseconds
                 try await Task.sleep(nanoseconds: delay)
                 let tsMsg = Utility.jrTimestamp(offset)

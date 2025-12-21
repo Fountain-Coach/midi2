@@ -254,7 +254,7 @@ describe("UMP channel voice encode/decode", () => {
     expect(encodeUmp(noop)[0]).toBe(0x00000000);
     const jrClock: UtilityEvent = { kind: "utility", status: "jrClock", value: 0x1234 };
     const clockWords = encodeUmp(jrClock);
-    expect(clockWords[0]).toBe(0x00011234);
+    expect(clockWords[0]).toBe(0x00101234);
     const decoded = decodeUmp(clockWords);
     expect(decoded).toMatchObject(jrClock);
   });

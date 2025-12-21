@@ -106,8 +106,8 @@ describe("PB-VRT golden vectors", () => {
         new Uint32Array([
           (0x0 << 28) | // utility mt
             (0x0 << 24) |
-            (e.utility === "jrClock" ? 0x01 << 16 : 0x02 << 16) |
-            (e.value & 0xffff),
+            ((e.utility === "jrClock" ? 0x01 : 0x02) << 20) |
+            (e.value & 0xfffff),
         ]),
       ),
     );

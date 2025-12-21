@@ -31,8 +31,8 @@ final class JitterReductionTests: XCTestCase {
         let rx = JRReceiver()
         rx.ingestClock(0x0001)
         XCTAssertEqual(rx.eventTime(for: 0x0004), 3)
-        rx.ingestClock(0xFFFF)
-        rx.ingestClock(0x0002) // +3 across wrap
-        XCTAssertEqual(rx.eventTime(for: 0x0005), 6)
+        rx.ingestClock(0xFFFFA)
+        rx.ingestClock(0x0002) // +8 across wrap
+        XCTAssertEqual(rx.eventTime(for: 0x0005), 11)
     }
 }

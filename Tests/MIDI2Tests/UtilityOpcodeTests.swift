@@ -3,15 +3,19 @@ import XCTest
 
 final class UtilityOpcodeTests: XCTestCase {
     func testRawValues() {
-        XCTAssertEqual(UtilityOpcode.noop.rawValue, 0x00)
-        XCTAssertEqual(UtilityOpcode.jrClock.rawValue, 0x01)
-        XCTAssertEqual(UtilityOpcode.jrTimestamp.rawValue, 0x02)
+        XCTAssertEqual(UtilityOpcode.noop.rawValue, 0x0)
+        XCTAssertEqual(UtilityOpcode.jrClock.rawValue, 0x1)
+        XCTAssertEqual(UtilityOpcode.jrTimestamp.rawValue, 0x2)
+        XCTAssertEqual(UtilityOpcode.dctpq.rawValue, 0x3)
+        XCTAssertEqual(UtilityOpcode.deltaClockstamp.rawValue, 0x4)
     }
 
     func testInitFromRaw() {
-        XCTAssertEqual(UtilityOpcode(rawValue: 0x00), .noop)
-        XCTAssertEqual(UtilityOpcode(rawValue: 0x01), .jrClock)
-        XCTAssertEqual(UtilityOpcode(rawValue: 0x02), .jrTimestamp)
-        XCTAssertNil(UtilityOpcode(rawValue: 0x03))
+        XCTAssertEqual(UtilityOpcode(rawValue: 0x0), .noop)
+        XCTAssertEqual(UtilityOpcode(rawValue: 0x1), .jrClock)
+        XCTAssertEqual(UtilityOpcode(rawValue: 0x2), .jrTimestamp)
+        XCTAssertEqual(UtilityOpcode(rawValue: 0x3), .dctpq)
+        XCTAssertEqual(UtilityOpcode(rawValue: 0x4), .deltaClockstamp)
+        XCTAssertNil(UtilityOpcode(rawValue: 0x5))
     }
 }

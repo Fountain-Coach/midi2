@@ -160,29 +160,33 @@ function encodeMidi1ChannelVoice(event: Midi1ChannelVoiceEvent): Uint32Array {
 }
 
 function encodeUtility(event: UtilityEvent): Uint32Array {
-  let statusByte = 0x00;
-  let data = 0;
+  let opcode = 0x0;
+  let data = event.value ?? 0;
   switch (event.status) {
     case "noop":
-      if ((event.value ?? 0) !== 0) {
+      if (data !== 0) {
         throw new RangeError("Utility noop must have zero value.");
       }
-      statusByte = 0x00;
-      data = 0;
+      opcode = 0x0;
       break;
     case "jrClock":
-      statusByte = 0x01;
-      data = event.value ?? 0;
+      opcode = 0x1;
       break;
     case "jrTimestamp":
-      statusByte = 0x02;
-      data = event.value ?? 0;
+      opcode = 0x2;
+      break;
+    case "dctpq":
+      opcode = 0x3;
+      assertRange("value", data, 0, 0xffff);
+      break;
+    case "deltaClockstamp":
+      opcode = 0x4;
       break;
     default:
       throw new Error(`Unknown utility status ${(event as UtilityEvent).status}`);
   }
-  assertRange("value", data, 0, 0xffff);
-  const word = (UTILITY_MT << 28) | (statusByte << 16) | (data & 0xffff);
+  assertRange("value", data, 0, 0xfffff);
+  const word = (UTILITY_MT << 28) | (opcode << 20) | (data & 0xfffff);
   return new Uint32Array([word >>> 0]);
 }
 
@@ -1186,15 +1190,20 @@ export function decodeUmp(words: ArrayLike<number>, timestamp?: number): Midi2Ev
     if (groupNibble !== 0) {
       throw new RangeError("Utility packet must use groupless encoding (group=0).");
     }
-    const statusByte = (word0 >>> 16) & 0xff;
-    const value = word0 & 0xffff;
+    const opcode = (word0 >>> 20) & 0x0f;
+    const value = word0 & 0xfffff;
     let status: UtilityEvent["status"];
-    if (statusByte === 0x00) status = "noop";
-    else if (statusByte === 0x01) status = "jrClock";
-    else if (statusByte === 0x02) status = "jrTimestamp";
+    if (opcode === 0x0) status = "noop";
+    else if (opcode === 0x1) status = "jrClock";
+    else if (opcode === 0x2) status = "jrTimestamp";
+    else if (opcode === 0x3) status = "dctpq";
+    else if (opcode === 0x4) status = "deltaClockstamp";
     else throw new RangeError("Unsupported utility status");
     if (status === "noop" && value !== 0) {
       throw new RangeError("Utility noop must have zero payload.");
+    }
+    if (status === "dctpq" && value > 0xffff) {
+      throw new RangeError("Utility dctpq must be 16-bit.");
     }
     const event: UtilityEvent = {
       kind: "utility",

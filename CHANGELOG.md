@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - _Nothing yet._
 
+## [0.9.1] - 2025-12-21
+### Added
+- Swift: MIDI Clip File writer (`SMF2CLIP`) with DCTPQ/DCS timing support.
+### Changed
+- Swift/JS: Utility messages now use 4-bit opcodes with 20-bit payloads; added DCTPQ/DCS support and updated JR wrap handling.
+
 ## [0.9.0] - 2025-12-16
 ### Changed
 - Docs: Comprehensive documentation audit - updated test counts (~199 TS tests), version references (0.9.0), gap-closure status (10/21 complete), and archived legacy docs with proper cross-references.

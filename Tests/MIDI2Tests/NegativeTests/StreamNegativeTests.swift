@@ -25,10 +25,10 @@ final class StreamNegativeValidationTests: XCTestCase {
     }
 
     func testUtilityRejectsNonZeroGroupAndUnsupportedStatus() {
-        let nonZeroGroup = UmpPacket32(word: (UInt32(0x0) << 28) | (UInt32(0x1) << 24) | (UInt32(0x00) << 16))
+        let nonZeroGroup = UmpPacket32(word: (UInt32(0x0) << 28) | (UInt32(0x1) << 24))
         XCTAssertThrowsError(try Utility(parsingUMP: nonZeroGroup))
 
-        let unsupportedStatus = UmpPacket32(word: (UInt32(0x0) << 28) | (UInt32(0x00) << 24) | (UInt32(0x7F) << 16))
+        let unsupportedStatus = UmpPacket32(word: (UInt32(0x0) << 28) | (UInt32(0x00) << 24) | (UInt32(0xF) << 20))
         XCTAssertThrowsError(try Utility(parsingUMP: unsupportedStatus))
     }
 

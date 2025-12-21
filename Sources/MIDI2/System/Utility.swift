@@ -4,75 +4,65 @@ import Foundation
 public enum Utility: Equatable {
     /// No operation. Used for padding.
     case noop
-    /// Jitter reduction clock. 16-bit timestamp.
-    case jrClock(UInt16)
-    /// Jitter reduction timestamp. 16-bit timestamp.
-    case jrTimestamp(UInt16)
+    /// Jitter reduction clock. 20-bit timestamp.
+    case jrClock(UInt32)
+    /// Jitter reduction timestamp. 20-bit timestamp.
+    case jrTimestamp(UInt32)
+    /// Delta Clockstamp Ticks Per Quarter Note (DCTPQ).
+    case dctpq(UInt16)
+    /// Delta Clockstamp (ticks since last event).
+    case deltaClockstamp(UInt32)
 
     /// Encodes the message into a 32-bit UMP packet.
     public func ump() -> UmpPacket32 {
-        let status: UInt8
-        let data: UInt16
         switch self {
         case .noop:
-            status = 0x00
-            data = 0
+            return UtilityBody(opcode: .noop, value: 0).ump()
         case .jrClock(let value):
-            status = 0x01
-            data = value
+            return UtilityBody(opcode: .jrClock, value: value).ump()
         case .jrTimestamp(let value):
-            status = 0x02
-            data = value
+            return UtilityBody(opcode: .jrTimestamp, value: value).ump()
+        case .dctpq(let value):
+            return UtilityBody(opcode: .dctpq, value: UInt32(value)).ump()
+        case .deltaClockstamp(let value):
+            return UtilityBody(opcode: .deltaClockstamp, value: value).ump()
         }
-        let byte0 = UInt32(0x0 << 4) // message type 0x0, groupless
-        let word = (byte0 << 24) | (UInt32(status) << 16) | UInt32(data)
-        return UmpPacket32(word: word)
     }
 
     /// Decodes a 32-bit UMP packet.
     public init?(ump: UmpPacket32) {
-        let mt = UInt8((ump.word >> 28) & 0xF)
-        guard mt == 0x0 else { return nil }
-        let byte0 = UInt8((ump.word >> 24) & 0xFF)
-        guard (byte0 & 0x0F) == 0 else { return nil } // groupless
-        let status = UInt8((ump.word >> 16) & 0xFF)
-        let data = UInt16(ump.word & 0xFFFF)
-        switch status {
-        case 0x00:
-            guard data == 0 else { return nil } // reserved payload must be zero
+        guard let body = UtilityBody(ump: ump) else { return nil }
+        switch body.opcode {
+        case .noop:
             self = .noop
-        case 0x01:
-            self = .jrClock(data)
-        case 0x02:
-            self = .jrTimestamp(data)
-        default:
-            return nil
+        case .jrClock:
+            self = .jrClock(body.value)
+        case .jrTimestamp:
+            self = .jrTimestamp(body.value)
+        case .dctpq:
+            guard body.value <= 0xFFFF else { return nil }
+            self = .dctpq(UInt16(body.value))
+        case .deltaClockstamp:
+            self = .deltaClockstamp(body.value)
         }
     }
 
     public init(parsingUMP ump: UmpPacket32) throws {
-        let mt = UInt8((ump.word >> 28) & 0xF)
-        guard mt == 0x0 else {
-            throw MIDIError.malformedPacket("expected mt 0x0 but got \(mt)")
-        }
-        let byte0 = UInt8((ump.word >> 24) & 0xFF)
-        guard (byte0 & 0x0F) == 0 else {
-            throw MIDIError.malformedPacket("utility messages must have group nibble 0")
-        }
-        let status = UInt8((ump.word >> 16) & 0xFF)
-        let data = UInt16(ump.word & 0xFFFF)
-        switch status {
-        case 0x00:
-            guard data == 0 else {
-                throw MIDIError.malformedPacket("utility noop must carry zero data")
-            }
+        let body = try UtilityBody(parsingUMP: ump)
+        switch body.opcode {
+        case .noop:
             self = .noop
-        case 0x01:
-            self = .jrClock(data)
-        case 0x02:
-            self = .jrTimestamp(data)
-        default:
-            throw MIDIError.malformedPacket("unsupported utility status 0x\(String(status, radix: 16))")
+        case .jrClock:
+            self = .jrClock(body.value)
+        case .jrTimestamp:
+            self = .jrTimestamp(body.value)
+        case .dctpq:
+            guard body.value <= 0xFFFF else {
+                throw MIDIError.malformedPacket("utility dctpq must use a 16-bit payload")
+            }
+            self = .dctpq(UInt16(body.value))
+        case .deltaClockstamp:
+            self = .deltaClockstamp(body.value)
         }
     }
 }

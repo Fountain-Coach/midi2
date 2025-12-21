@@ -2,19 +2,20 @@
 public struct UtilityBody: Equatable {
     /// The opcode describing the utility message.
     public var opcode: UtilityOpcode
-    /// Raw 16‑bit value carried in bytes 2 and 3 of the packet.
-    public var value: UInt16
+    /// Raw 20-bit payload carried in the low bits of the packet.
+    public var value: UInt32
 
     /// Creates a new body with the supplied opcode and value.
-    public init(opcode: UtilityOpcode, value: UInt16 = 0) {
+    public init(opcode: UtilityOpcode, value: UInt32 = 0) {
         self.opcode = opcode
-        self.value = value
+        self.value = value & 0xFFFFF
     }
 
     /// Encodes the body into a 32‑bit UMP packet.
     public func ump() -> UmpPacket32 {
-        let byte0 = UInt32(0x0 << 4) // message type 0x0, groupless
-        let word = (byte0 << 24) | (UInt32(opcode.rawValue) << 16) | UInt32(value)
+        let word = (UInt32(0x0) << 28) |
+            (UInt32(opcode.rawValue) << 20) |
+            (UInt32(value) & 0xFFFFF)
         return UmpPacket32(word: word)
     }
 
@@ -22,13 +23,14 @@ public struct UtilityBody: Equatable {
     /// Returns `nil` if the packet is not a Utility message.
     public init?(ump: UmpPacket32) {
         let word = ump.word
-        let byte0 = UInt8((word >> 24) & 0xFF)
-        let mt = byte0 >> 4
+        let mt = UInt8((word >> 28) & 0xF)
         guard mt == 0x0 else { return nil }
-        guard byte0 & 0x0F == 0 else { return nil }
-        let status = UInt8((word >> 16) & 0xFF)
-        guard let op = UtilityOpcode(rawValue: status) else { return nil }
-        let value = UInt16(word & 0xFFFF)
+        guard ((word >> 24) & 0xF) == 0 else { return nil }
+        let opcodeRaw = UInt8((word >> 20) & 0xF)
+        guard let op = UtilityOpcode(rawValue: opcodeRaw) else { return nil }
+        let value = word & 0xFFFFF
+        if op == .noop, value != 0 { return nil }
+        if op == .dctpq, (value & 0xF0000) != 0 { return nil }
         self.init(opcode: op, value: value)
     }
 
@@ -36,20 +38,24 @@ public struct UtilityBody: Equatable {
     /// on malformed input.
     public init(parsingUMP ump: UmpPacket32) throws {
         let word = ump.word
-        let byte0 = UInt8((word >> 24) & 0xFF)
-        let mt = byte0 >> 4
+        let mt = UInt8((word >> 28) & 0xF)
         guard mt == 0x0 else {
             throw MIDIError.malformedPacket("expected mt 0x0 but got \(mt)")
         }
-        guard byte0 & 0x0F == 0 else {
+        guard ((word >> 24) & 0xF) == 0 else {
             throw MIDIError.malformedPacket("utility messages must have group 0")
         }
-        let status = UInt8((word >> 16) & 0xFF)
-        guard let op = UtilityOpcode(rawValue: status) else {
-            throw MIDIError.malformedPacket("unknown utility opcode 0x\(String(status, radix: 16))")
+        let opcodeRaw = UInt8((word >> 20) & 0xF)
+        guard let op = UtilityOpcode(rawValue: opcodeRaw) else {
+            throw MIDIError.malformedPacket("unknown utility opcode 0x\(String(opcodeRaw, radix: 16))")
         }
-        let value = UInt16(word & 0xFFFF)
+        let value = word & 0xFFFFF
+        if op == .noop, value != 0 {
+            throw MIDIError.malformedPacket("utility noop must carry zero data")
+        }
+        if op == .dctpq, (value & 0xF0000) != 0 {
+            throw MIDIError.malformedPacket("utility dctpq must use a 16-bit payload")
+        }
         self.init(opcode: op, value: value)
     }
 }
-

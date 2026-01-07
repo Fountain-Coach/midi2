@@ -2,6 +2,8 @@
 
 **Version**: 0.9.0 | **Last Updated**: 2025-12-16
 
+This file is a roadmap/status snapshot. Planning protocol is in `PLANS.md`, and procedures live in `.codex/skills/*/SKILL.md`.
+
 ## Completed (v0.9.0)
 - ✅ Schema/OpenAPI alignment: Data (MDS), Stream, Flex, and SysEx coverage complete in midi2.js with schema-bridge round-trips and negative tests
 - ✅ Swift stream and data helpers at schema parity: endpoint info, device identity, name, product instance, function block name/flags, filter bitmap
@@ -24,7 +26,7 @@
 - DoD validation automation (Gap 10.2.1)
 - UMP format extensions documentation (Gap 1.2.2)
 
-## Maintenance
-- Keep docs in sync: regenerate OpenAPI-derived types when schema changes; validate via `npm run check && npm test` and Swift unit/integration suites
-- Follow release process in RELEASE.md for version bumps
-- Track gaps in docs/gap-closure-tracker.md
+## Maintenance Notes
+- Keep docs in sync when schema changes (see relevant Skills).
+- Follow release process in `RELEASE.md` for version bumps.
+- Track gaps in `docs/gap-closure-tracker.md`.

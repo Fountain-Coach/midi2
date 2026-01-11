@@ -8,7 +8,7 @@ jobs:
   compliance_swift:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Build
         run: swift build -Xswiftc -warnings-as-errors
       - name: Run local compliance runner

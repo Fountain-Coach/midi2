@@ -1,6 +1,7 @@
 name: midi2.js CI
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - "midi2.js/**"

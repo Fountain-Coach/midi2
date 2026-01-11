@@ -1,4 +1,4 @@
-# PB-VRT Quiet Frame Gap Closure Prompt
+# VRT-Protocol Quiet Frame Gap Closure Prompt
 
 meta:
   repo: Fountain-Coach/midi2
@@ -142,15 +142,15 @@ areas:
         - Scripts/inject_schema_docs.py:1
     drift:
       - Limited CI negotiation and stream config tests at system level.
-      - No PB-VRT visual baselines for CI messages.
+      - No VRT-Protocol visual baselines for CI messages.
       - No hardware interop capture tests.
     quiet_frame_goal:
-      - Add end-to-end CI and stream config tests; PB-VRT baselines; optional hardware fixtures.
+      - Add end-to-end CI and stream config tests; VRT-Protocol baselines; optional hardware fixtures.
     acceptance_criteria:
-      - Coverage threshold set; CI passes; PB-VRT diffs stable.
+      - Coverage threshold set; CI passes; VRT-Protocol diffs stable.
     tasks:
       - test: Add E2E scenario tests.
-      - infra: Introduce PB-VRT baseline generation and review.
+      - infra: Introduce VRT-Protocol baseline generation and review.
       - interop: Add capture/replay harness for hardware traces.
 
 timeline:
@@ -162,4 +162,4 @@ timeline:
     - profiles_and_fb: enable/disable flows + details/added-removed reports
   q3:
     - ump_extensions: reserved ranges coverage
-    - testing_validation: PB-VRT baselines
+    - testing_validation: VRT-Protocol baselines

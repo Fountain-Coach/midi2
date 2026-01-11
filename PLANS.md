@@ -39,3 +39,24 @@ Plans may live in:
 
 ## Relationship to Skills
 Execution details belong in `.codex/skills/*/SKILL.md`. Plans should link to relevant skills rather than include procedures.
+
+---
+
+Goal:
+Align this repo with FCIS-VRT naming by migrating VRT-Protocol protocol baselines and references to VRT-Protocol, while preserving any legacy aliases needed for compatibility.
+Scope:
+Docs, tests, and scripts that reference VRT-Protocol protocol baselines.
+Non-goals:
+Renaming internal runtime identifiers or changing baseline content.
+Constraints:
+Keep existing baselines intact; update references and paths without altering data.
+Dependencies:
+Org-level FCIS-VRT standard and repo-wide rename agreement.
+Risks:
+Broken links or test failures if any path updates are missed.
+Steps:
+  - [x] Rename docs/pb-vrt to docs/vrt-protocol and update references.
+  - [x] Rename VRT-Protocol test names/paths to VRT-Protocol.
+  - [x] Update documentation to reflect FCIS-VRT Protocol terminology and legacy alias mapping.
+Validation:
+Search for VRT-Protocol references and ensure all paths resolve; run JS tests if needed.

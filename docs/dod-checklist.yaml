@@ -12,10 +12,10 @@ cli_completeness:
     - Stream §5 handshake, Profiles (enable/inquiry/details/PSD), Property Exchange (chunking/compression), SysEx7/8, Flex, JR
 
 tests_conformance:
-  description: Unit/integration tests + negative cases + PB-VRT baselines.
+  description: Unit/integration tests + negative cases + VRT-Protocol baselines.
   acceptance:
     - Negative tests for malformed/reserved bits/invalid ranges
-    - PB-VRT frames for Stream, Profiles, Property Exchange, SysEx8/MDS, JR
+    - VRT-Protocol frames for Stream, Profiles, Property Exchange, SysEx8/MDS, JR
     - All tests pass locally and in CI
 
 docs:
@@ -29,5 +29,5 @@ tooling_quality:
   acceptance:
     - CI workflow runs build + tests + coverage report
     - Coverage gate configured (target ≥ 80%)
-    - PB-VRT frames existence verified
+    - VRT-Protocol frames existence verified
     - README lists all CLI subcommands

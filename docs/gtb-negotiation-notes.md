@@ -17,16 +17,16 @@ This memo captures initial plan/design for implementing Group Terminal Block (GT
 3) **Runtime Enforcement**
    - When decoding/dispatching, apply GTB reception restrictions for MT=0xF and MT=0x0 in affected groups.
 4) **Fixtures/Tests**
-   - Add PB-VRT metadata fixture for GTB overlap/permission cases.
+   - Add VRT-Protocol metadata fixture for GTB overlap/permission cases.
    - Add negative tests for invalid GTB layouts and message-type restrictions.
 
 ## Next Steps
 - Implement Swift GTB validator + enforcement hooks. ✅ (overlap + MT guards; integrated into discovery)
 - Implement TS guards in decode path for GTB-restricted groups. ✅ (validator + GTB-aware decode helper + context map; wire context from negotiation/runtime)
-- Add PB-VRT GTB fixture and test coverage. ✅ (`docs/pb-vrt/stream/gtb_overlap.json`, loaded in PB-VRT tests)
+- Add VRT-Protocol GTB fixture and test coverage. ✅ (`docs/vrt-protocol/stream/gtb_overlap.json`, loaded in VRT-Protocol tests)
 - Add descriptor ↔ Function Block coverage validation (TS + Swift) and enforce MT=0x0/0xF via allowed-MT guard rails. ✅
 - Document protocol scheme and integration points. ✅ (`docs/gtb-protocol-negotiation-scheme.md`)
-- Add PB-VRT blocked MT scenario. ✅ (`docs/pb-vrt/stream/gtb_block_mt.json` + test)
+- Add VRT-Protocol blocked MT scenario. ✅ (`docs/vrt-protocol/stream/gtb_block_mt.json` + test)
 - Clarify overlap policy and escape hatch. ✅ (`docs/gtb-overlap-policy.md`)
 
 ## Context Sources

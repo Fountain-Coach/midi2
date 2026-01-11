@@ -47,7 +47,7 @@
 - **[Traceability](traceability.md)** - Definition of Done traceability to code/tests
 
 ### Other Resources
-- **[PB-VRT Quiet Frame Gap Closure Prompt](quiet-frame-gap-closure.yaml)** - Visual baseline testing
+- **[VRT-Protocol Quiet Frame Gap Closure Prompt](quiet-frame-gap-closure.yaml)** - Visual baseline testing
 
 ## Specification PDFs
 

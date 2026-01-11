@@ -130,7 +130,7 @@
 | Requirement | Spec Page | Schema | Swift | TypeScript | Tests | Status | Notes |
 |-------------|-----------|--------|-------|------------|-------|--------|-------|
 | GTB structure | 122 | ✅ | ✅ | ✅ | ✅ | ✅ | 📄 Row 29 |
-| GTB-FB overlap rules | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | GTBValidator overlap/coverage checks; PB-VRT fixtures |
+| GTB-FB overlap rules | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | GTBValidator overlap/coverage checks; VRT-Protocol fixtures |
 | MT=0xF reception restrictions | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | GTB guards block disallowed MT per group |
 | MT=0x0 reception restrictions | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | Utility blocked when GTB disallows |
 | Protocol negotiation for GTB | 122 | 📄 | ✅ | ✅ | ✅ | ✅ | Descriptor ingestion + allowed-MT enforcement (Swift/TS) |
@@ -193,7 +193,7 @@
 |-------------|-----------|--------|-------|------------|-------|--------|-------|
 | SysEx7 fragmentation | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | Complete/Start/Continue/End | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Invalid sequence detection | Various | 📋 | ✅ | ✅ | ✅ | ✅ | PB-VRT sysex8/invalid_cases.json |
+| Invalid sequence detection | Various | 📋 | ✅ | ✅ | ✅ | ✅ | VRT-Protocol sysex8/invalid_cases.json |
 
 **Evidence**:
 - Schema: `$defs.SysEx7Body`, `$defs.SysEx7Packet`
@@ -240,7 +240,7 @@
 |-------------|-----------|--------|-------|------------|-------|--------|-------|
 | SysEx8 fragmentation | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
 | SysEx8 Complete/Start/Continue/End | Various | ✅ | ✅ | ✅ | ✅ | ✅ | |
-| Invalid sequence detection | Various | 📋 | ✅ | ✅ | ✅ | ✅ | PB-VRT sysex8/invalid_cases.json |
+| Invalid sequence detection | Various | 📋 | ✅ | ✅ | ✅ | ✅ | VRT-Protocol sysex8/invalid_cases.json |
 | Mixed Data Set header | Various | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | |
 | Mixed Data Set payload | Various | ✅ | ✅ | ✅ | ⚠️ | ⚠️ | |
 | Oversize SysEx handling | Various | 📋 | ⚠️ | ⚠️ | ❌ | ⚠️ | Gap 7.2.1 |

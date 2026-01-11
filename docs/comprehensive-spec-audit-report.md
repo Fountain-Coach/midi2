@@ -29,7 +29,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 2. **Reserved/Unsupported Handling**: Inconsistent placeholder handling across decoders
 3. **Hardware Interop**: No tests against external MIDI-CI devices
 4. **TypeScript Coverage**: Several areas marked as partial in gap-plan.md
-5. **Visual Regression**: PB-VRT baseline frames incomplete for CI messages
+5. **Visual Regression**: VRT-Protocol baseline frames incomplete for CI messages
 
 ---
 
@@ -320,7 +320,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 ### 4.2 Status
 
 -- Function Block descriptor runtime validation implemented (`FunctionBlockInfoNotification`, `GroupTerminalBlocks`): direction/bandwidth/active enforced, reserved bits rejected, round-trip tests in `StreamMappingTests`.
-- GTB negotiation implemented: overlap/coverage validation, per-group allowed MT maps, ingress/egress guards (Swift `NegotiationSession` + `GTBValidator`; TS `gtb-validator`, `gtb-guards`, decoder guards). PB-VRT fixtures for blocking MT=0x0/0xF and overlap cases.
+- GTB negotiation implemented: overlap/coverage validation, per-group allowed MT maps, ingress/egress guards (Swift `NegotiationSession` + `GTBValidator`; TS `gtb-validator`, `gtb-guards`, decoder guards). VRT-Protocol fixtures for blocking MT=0x0/0xF and overlap cases.
 
 #### Gap 4.2.2: GTB Negotiation Semantics
 **Status**: ✅ Implemented  
@@ -330,7 +330,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 - GTB-FB overlap/coverage validation enforced (`GTBValidator.validate`), allow-overlap escape hatch documented.
 - GTB descriptors ingested into negotiation sessions (`applyGTBDescriptor`, `negotiate(gtbDescriptor:)`) with per-group allowed MT maps.
 - Ingress/egress MT enforcement for GTB-restricted groups (Swift guards on UMP words; TS decoder/dispatch/gtb-guards).
-- Tests: `Tests/MIDI2Tests/GroupTerminalBlocksTests.swift`, `midi2.js/src/__tests__/gtb-*`, PB-VRT fixtures `docs/pb-vrt/stream/gtb_block_mt.json`, `gtb_block_utility.json`, `gtb_overlap.json`.
+- Tests: `Tests/MIDI2Tests/GroupTerminalBlocksTests.swift`, `midi2.js/src/__tests__/gtb-*`, VRT-Protocol fixtures `docs/vrt-protocol/stream/gtb_block_mt.json`, `gtb_block_utility.json`, `gtb_overlap.json`.
 
 **Residual Risks**:
 - Hardware interop unvalidated (USB GTB descriptors not yet captured from devices); policy defaults allow manual descriptor injection.
@@ -462,7 +462,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 - JR Receiver: `Sources/MIDI2/System/JitterReductionReceiver.swift`
 - Demo: `Sources/jitterdemo/JitterApp.swift`
 - Tests: `Tests/MIDI2Tests/System/JitterReductionTests.swift`
-- PB-VRT baseline: `jr/clock_timestamp.json` (referenced in conformance checklist)
+- VRT-Protocol baseline: `jr/clock_timestamp.json` (referenced in conformance checklist)
 
 #### TypeScript Implementation
 **Status**: ✅ Implemented
@@ -504,7 +504,7 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
   - SysEx7: `Sources/MIDI2/SysEx7Packet.swift`
   - SysEx8: `Sources/MIDI2/Data/SysEx8.swift`
   - Tests: `Tests/MIDI2Tests/SysEx8Tests.swift`, `Tests/MIDI2Tests/SysEx8InvalidSequenceTests.swift`
-  - PB-VRT: `sysex8/invalid_cases.json`
+  - VRT-Protocol: `sysex8/invalid_cases.json`
   - Demos: `Sources/midi2demo/SysEx7.swift`, `Sources/midi2demo/SysEx8.swift`
 - TypeScript:
   - SysEx core: `midi2.js/src/sysex.ts`
@@ -570,18 +570,18 @@ This comprehensive audit evaluates the alignment between the `midi2` repository 
 
 ### 8.2 Identified Gaps
 
-#### Gap 8.2.1: Visual Baseline (PB-VRT) Frames
+#### Gap 8.2.1: Visual Baseline (VRT-Protocol) Frames
 **Severity**: Medium  
 **Spec Reference**: Internal testing methodology
 
-**Current State**: Some PB-VRT baselines exist (JR, SysEx8 invalid cases), but CI messages incomplete.
+**Current State**: Some VRT-Protocol baselines exist (JR, SysEx8 invalid cases), but CI messages incomplete.
 
 **Evidence**:
 - `docs/conformance-checklist.md`: "Gap: Visual baseline frames for CI messages, automated diffs"
-- `docs/traceability.md`: "PB-VRT pending for edge sequences" and "PB-VRT pending" for JR
+- `docs/traceability.md`: "VRT-Protocol pending for edge sequences" and "VRT-Protocol pending" for JR
 
 **Recommended Action**:
-1. Create PB-VRT baseline JSON files for all major MIDI-CI message types
+1. Create VRT-Protocol baseline JSON files for all major MIDI-CI message types
 2. Add automated schema regression checks in CI
 3. Implement visual diff tooling for baseline comparisons
 4. Expand to cover all Stream message variants
@@ -774,10 +774,10 @@ The repository maintains dual canonical artifacts:
    - Impact: Robustness and spec compliance validation
    - Deliverables: Comprehensive negative test matrix
 
-5. **Visual Baseline (PB-VRT) Frames** (Gap 8.2.1)
+5. **Visual Baseline (VRT-Protocol) Frames** (Gap 8.2.1)
    - Effort: 3-4 days
    - Impact: Regression prevention for schema changes
-   - Deliverables: PB-VRT baselines for all message types, automated diff tool
+   - Deliverables: VRT-Protocol baselines for all message types, automated diff tool
 
 6. **Profile Configuration Details** (Gap 2.2.2)
    - Effort: 2-3 days
@@ -1011,7 +1011,7 @@ This section provides a comprehensive mapping between specification requirements
    - Add fuzzing tests
 
 7. **Visual Baseline Frames** (3-4 days)
-   - PB-VRT baselines for all types
+   - VRT-Protocol baselines for all types
    - Automated diff tooling
    - CI integration
 
@@ -1103,12 +1103,12 @@ The `midi2` repository demonstrates **strong alignment** with MIDI 2.0 normative
 1. Reserved/unsupported handling consistency across decoders
 2. Hardware interoperability validation
 3. TypeScript coverage for edge cases (reserved/unsupported)
-4. Visual regression (PB-VRT) completeness for CI messages
+4. Visual regression (VRT-Protocol) completeness for CI messages
 
 **Next Steps**:
 1. Address reserved/unsupported handling and add negative vectors
 2. Expand hardware interop validation
-3. Broaden TS edge-case coverage and PB-VRT baselines
+3. Broaden TS edge-case coverage and VRT-Protocol baselines
 4. Complete remaining spec audit entries
 5. Validate all DoD criteria
 
@@ -1138,7 +1138,7 @@ With focused effort on the identified gaps, particularly in MIDI-CI runtime stat
 | 4.2.2 | GTB Negotiation | High | Med-High | Critical | 2 |
 | 4.2.3 | Stream Config Semantics | Medium | Medium | High | 2 |
 | 8.2.3 | Negative Test Coverage | Medium | Med-High | High | 3 |
-| 8.2.1 | Visual Baselines (PB-VRT) | Medium | Medium | Medium | 3 |
+| 8.2.1 | Visual Baselines (VRT-Protocol) | Medium | Medium | Medium | 3 |
 | 2.2.2 | Profile Config Details | Medium | Medium | Medium | 4 |
 | 2.2.3 | Process Inquiry Enhancement | Medium | Medium | Medium | 4 |
 | 2.2.4 | MUID Management | Medium | Low-Med | Medium | 4 |

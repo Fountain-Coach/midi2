@@ -269,7 +269,7 @@
 ### Medium Term (2-8 Weeks)
 1. Execute Sprints 2-4 per gap closure plan
 2. Implement hardware interop tests
-3. Create PB-VRT baselines for all message types
+3. Create VRT-Protocol baselines for all message types
 4. Complete remaining spec audit entries
 
 ### Long Term (2-3 Months)

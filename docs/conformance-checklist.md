@@ -29,13 +29,13 @@ This document summarizes current implementation state against the MIDI 2.0 speci
 - JR Clock (sender): Implemented
   - Evidence: Sources/MIDI2/System/Utility.swift:1, Tests/MIDI2Tests/System/JitterReductionTests.swift:1, Sources/jitterdemo/JitterApp.swift:1
 - JR Timestamp (receiver offset): Implemented
-  - Evidence: Sources/MIDI2/System/JitterReductionReceiver.swift:1, Tests/MIDI2Tests/System/JitterReductionTests.swift:1; PB-VRT jr/clock_timestamp.json
+  - Evidence: Sources/MIDI2/System/JitterReductionReceiver.swift:1, Tests/MIDI2Tests/System/JitterReductionTests.swift:1; VRT-Protocol jr/clock_timestamp.json
 
 ## SysEx8 Packetization
 - Basic fragmentation: Implemented
   - Evidence: Sources/MIDI2/Data/SysEx8.swift:1, Tests/MIDI2Tests/SysEx8Tests.swift:1
 - Continuation/termination flags: Implemented
-  - Evidence: Strict validation + edge/invalid sequence tests (Tests/MIDI2Tests/SysEx8InvalidSequenceTests.swift:1); PB-VRT sysex8/invalid_cases.json
+  - Evidence: Strict validation + edge/invalid sequence tests (Tests/MIDI2Tests/SysEx8InvalidSequenceTests.swift:1); VRT-Protocol sysex8/invalid_cases.json
 
 ## UMP Format Extensions and Reserved IDs
 - Utility messages beyond JR: Partial
@@ -46,7 +46,7 @@ This document summarizes current implementation state against the MIDI 2.0 speci
 ## Testing and Validation
 - Conformance test coverage: Improved
   - Evidence: New negative tests for Stream §5, SysEx8, MDS, profiles reports, PE compression; CI with coverage gate.
-- Schema regression (PB-VRT): Partial
+- Schema regression (VRT-Protocol): Partial
   - Evidence: Scripts/SchemaGen.swift:1, Scripts/inject_schema_docs.py:1
   - Gap: Visual baseline frames for CI messages, automated diffs.
 - Interop with hardware: Missing

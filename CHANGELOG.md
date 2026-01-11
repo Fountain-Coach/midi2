@@ -52,8 +52,8 @@ All notable changes to this project will be documented in this file.
 - Profiles: enable/disable/inquiry/details (version + channel mask); Profile Specific Data (PSD) SysEx7/8; CLI demos; tests.
 - CI Device Discovery encode/decode and validation; manufacturer ID validation and tests.
 - JR receiver for clock/timestamp reconstruction with wrap handling; tests.
-- PB‑VRT baselines for Stream, Profiles, and Property Exchange flows.
-- DoD checklist + traceability; CI workflow with warnings-as-errors, tests, coverage gate (≥80%), and PB‑VRT/doc verification.
+- VRT-Protocol baselines for Stream, Profiles, and Property Exchange flows.
+- DoD checklist + traceability; CI workflow with warnings-as-errors, tests, coverage gate (≥80%), and VRT-Protocol/doc verification.
 ### Changed
 - README and man page updated with new CLI subcommands and examples.
 

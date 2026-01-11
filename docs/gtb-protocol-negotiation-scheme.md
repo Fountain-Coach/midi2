@@ -36,5 +36,5 @@ Target: enforce Appendix I GTB semantics without changing UMP wire format.
 
 ## Open items
 - Wire GTB context into runtime negotiation/session state so ingress/egress automatically invoke enforcement helpers.
-- Add PB-VRT scenarios for MT=0x0/0xF blocking by GTB.
+- Add VRT-Protocol scenarios for MT=0x0/0xF blocking by GTB.
 - Document explicit GTB/Function Block overlap policy when allowOverlap=true (per Appendix I examples).

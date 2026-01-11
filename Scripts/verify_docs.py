@@ -29,26 +29,26 @@ def require_readme_subcommands():
             ok = False
     return ok
 
-def require_pbrvt_frames():
+def require_vrt_protocol_frames():
     required = [
-        'docs/pb-vrt/stream/endpoint_discovery.json',
-        'docs/pb-vrt/stream/stream_config_request.json',
-        'docs/pb-vrt/stream/stream_config_notification.json',
-        'docs/pb-vrt/stream/function_block_info.json',
-        'docs/pb-vrt/stream/function_block_discovery.json',
-        'docs/pb-vrt/stream/gtb.json',
-        'docs/pb-vrt/property-exchange/get_reply_chunked.json',
-        'docs/pb-vrt/property-exchange/set_chunked.json',
-        'docs/pb-vrt/property-exchange/notify_chunked.json',
-        'docs/pb-vrt/profiles/inquiry_reply.json',
-        'docs/pb-vrt/profiles/enabled_report.json',
-        'docs/pb-vrt/profiles/disabled_report.json',
-        'docs/pb-vrt/profiles/details_reply.json',
-        'docs/pb-vrt/profiles/profile_specific_data.json',
-        'docs/pb-vrt/jr/clock_timestamp.json',
-        'docs/pb-vrt/sysex8/invalid_cases.json',
-        'docs/pb-vrt/mds/invalid_cases.json',
-        'docs/pb-vrt/process-inquiry/flows.json'
+        'docs/vrt-protocol/stream/endpoint_discovery.json',
+        'docs/vrt-protocol/stream/stream_config_request.json',
+        'docs/vrt-protocol/stream/stream_config_notification.json',
+        'docs/vrt-protocol/stream/function_block_info.json',
+        'docs/vrt-protocol/stream/function_block_discovery.json',
+        'docs/vrt-protocol/stream/gtb.json',
+        'docs/vrt-protocol/property-exchange/get_reply_chunked.json',
+        'docs/vrt-protocol/property-exchange/set_chunked.json',
+        'docs/vrt-protocol/property-exchange/notify_chunked.json',
+        'docs/vrt-protocol/profiles/inquiry_reply.json',
+        'docs/vrt-protocol/profiles/enabled_report.json',
+        'docs/vrt-protocol/profiles/disabled_report.json',
+        'docs/vrt-protocol/profiles/details_reply.json',
+        'docs/vrt-protocol/profiles/profile_specific_data.json',
+        'docs/vrt-protocol/jr/clock_timestamp.json',
+        'docs/vrt-protocol/sysex8/invalid_cases.json',
+        'docs/vrt-protocol/mds/invalid_cases.json',
+        'docs/vrt-protocol/process-inquiry/flows.json'
     ]
     ok = True
     for rel in required:
@@ -60,7 +60,7 @@ def main():
     ok &= require_file('docs/dod-checklist.yaml')
     ok &= require_file('docs/traceability.md')
     ok &= require_readme_subcommands()
-    ok &= require_pbrvt_frames()
+    ok &= require_vrt_protocol_frames()
     sys.exit(0 if ok else 1)
 
 if __name__ == '__main__':

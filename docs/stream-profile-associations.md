@@ -10,7 +10,7 @@ This document describes how we associate MIDI-CI Profile IDs with Function Block
   - TypeScript: `stream-profiles.ts` provides `setProfileAssociations` / `getProfileAssociations` (with timestamp).
 - **Sources of truth:** Static config (optional fixture), plus runtime updates from Profile enable/disable/report flows. Host APIs can override for testing or diagnostics.
 - **Discovery responses:** When handling Function Block Discovery, the negotiation layer overlays any known profiles in the returned `GroupTerminalBlocks` structure (metadata only; UMP payload unchanged).
-- **Fixtures/diagnostics:** PB-VRT metadata fixture `docs/pb-vrt/stream/function_block_profiles.json` supplies example associations for tests and tooling.
+- **Fixtures/diagnostics:** VRT-Protocol metadata fixture `docs/vrt-protocol/stream/function_block_profiles.json` supplies example associations for tests and tooling.
 
 ## APIs
 
@@ -25,7 +25,7 @@ This document describes how we associate MIDI-CI Profile IDs with Function Block
 
 ## Testing
 
-- TS: `stream-profiles.test.ts` (map behavior) and PB-VRT test loads the fixture.
+- TS: `stream-profiles.test.ts` (map behavior) and VRT-Protocol test loads the fixture.
 - Swift: `StreamNegotiationTests` cover discovery flags and profile association updates.
 
 ## Next Steps

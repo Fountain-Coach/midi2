@@ -5,7 +5,7 @@ from pathlib import Path
 
 def main():
     if len(sys.argv) != 3:
-        print("Usage: generate_pb_vrt.py <input-jsonl> <output-dir>")
+        print("Usage: generate_vrt_protocol.py <input-jsonl> <output-dir>")
         sys.exit(1)
     src = Path(sys.argv[1])
     dest = Path(sys.argv[2])

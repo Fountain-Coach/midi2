@@ -27,11 +27,11 @@ function hexToBytes(hex: string): Uint8Array {
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 function loadJSON(relPath: string) {
-  const abs = resolve(__dirname, "../../../docs/pb-vrt", relPath);
+  const abs = resolve(__dirname, "../../../docs/vrt-protocol", relPath);
   return JSON.parse(readFileSync(abs, "utf8"));
 }
 
-describe("PB-VRT golden vectors", () => {
+describe("VRT-Protocol golden vectors", () => {
   it("decodes stream config request/notification", () => {
     const req = loadJSON("stream/stream_config_request.json");
     const words = new Uint32Array([hexToWord(req.word)]);
@@ -80,7 +80,7 @@ describe("PB-VRT golden vectors", () => {
     expect(gtb.functionBlocks[0]).toMatchObject({ index: 0, firstGroup: 0, groupCount: 4 });
   });
 
-  it("applies GTB descriptor PB-VRT fixture and blocks disallowed MT", () => {
+  it("applies GTB descriptor VRT-Protocol fixture and blocks disallowed MT", () => {
     const gtb = loadJSON("stream/gtb_block_mt.json");
     clearGtbContext();
     loadGtbDescriptorFromJson(gtb.descriptor);

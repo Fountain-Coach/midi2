@@ -98,7 +98,7 @@
 - ✅ `GroupTerminalBlocks` encodes/decodes function block info; ranges enforced.
 - ✅ UI hints captured (TS + Swift, schema bridge).
 - ✅ Discovery/response flow covered by Function Block info encoding/decoding.
-- ✅ Profile associations stored in negotiation layer (metadata map); demos update map on profile enable/disable; PB-VRT fixture added.
+- ✅ Profile associations stored in negotiation layer (metadata map); demos update map on profile enable/disable; VRT-Protocol fixture added.
 
 **Acceptance Criteria**:
 - [x] Direction enum (.reserved, .input, .output, .bidirectional).
@@ -141,7 +141,7 @@
 - ✅ MT=0xF/0x0 reception restrictions enforced via GTB allowed-MT guards (Swift UMP/word guards; TS decoder/dispatch/raw-word guards)
 - ✅ GTB-Function Block overlap policy documented (`docs/gtb-overlap-policy.md`); allow-overlap escape hatch supported in validators and negotiation sessions
 - ✅ GTB protocol/ingestion scheme documented (`docs/gtb-protocol-negotiation-scheme.md`) with helper APIs (`negotiateGtbContext`, `guardIngress/guardOutgoing`)
-- ✅ PB-VRT fixtures/tests for GTB overlap and MT blocking (`docs/pb-vrt/stream/gtb_overlap.json`, `gtb_block_mt.json`, `gtb_block_utility.json`)
+- ✅ VRT-Protocol fixtures/tests for GTB overlap and MT blocking (`docs/vrt-protocol/stream/gtb_overlap.json`, `gtb_block_mt.json`, `gtb_block_utility.json`)
 - ✅ Demo runtime (`midi2device`) loads GTB config when present and applies ingress/egress GTB guards
 
 **Acceptance Criteria**:
@@ -253,39 +253,39 @@
 
 ---
 
-### Gap 8.2.1: Visual Baseline (PB-VRT) Frames
+### Gap 8.2.1: Visual Baseline (VRT-Protocol) Frames
 **Status**: 🟡 In Progress  
 **Priority**: Medium | **Effort**: 3-4 days | **Target Sprint**: 3
 
 **Spec Reference**: Internal testing methodology
 
 **Current State**:
-- ✅ Some PB-VRT baselines (JR, SysEx8 invalid cases)
+- ✅ Some VRT-Protocol baselines (JR, SysEx8 invalid cases)
 - ❌ CI message baselines incomplete
 - ❌ No automated diff tooling
-- 🟡 Added PB-VRT README + generator script; stream/profiles/process-inquiry/property-exchange baselines exist
+- 🟡 Added VRT-Protocol README + generator script; stream/profiles/process-inquiry/property-exchange baselines exist
 
 **Acceptance Criteria**:
-- [ ] PB-VRT baseline JSON files for:
+- [ ] VRT-Protocol baseline JSON files for:
   - [ ] All MIDI-CI message types
   - [ ] All Stream message variants
   - [ ] Function Block messages
   - [ ] Flex Data types
 - [ ] Automated schema regression checks in CI
 - [ ] Visual diff tooling for baseline comparisons
-- [ ] Documentation of PB-VRT methodology
+- [ ] Documentation of VRT-Protocol methodology
 
 **Implementation Steps**:
-1. Create baseline JSON files in `docs/pb-vrt/`
+1. Create baseline JSON files in `docs/vrt-protocol/`
 2. Implement schema diff tool
 3. Add CI check for baseline regression
-4. Document PB-VRT process
+4. Document VRT-Protocol process
 
 **Files to Create**:
-- `docs/pb-vrt/midici/*.json`
-- `docs/pb-vrt/stream/*.json`
-- `docs/pb-vrt/flex/*.json`
-- `Scripts/verify_pb_vrt.py` (new)
+- `docs/vrt-protocol/midici/*.json`
+- `docs/vrt-protocol/stream/*.json`
+- `docs/vrt-protocol/flex/*.json`
+- `Scripts/verify_vrt_protocol.py` (new)
 
 **Dependencies**: None
 
@@ -637,7 +637,7 @@
 | 2025-12-13 | 8.2.3 | 🟡 Started | Added reserved-value matrix + initial stream negative tests (Swift/TS) |
 | 2025-12-14 | 2.2.3 | 🟢 Complete | Process Inquiry filter/messageDataControl validation; deviceId scope guard; TS+Swift negatives |
 | 2025-12-13 | 4.2.3 | 🟢 Complete | Stream config mismatch policy + notification rules; negotiation state machine + tests; doc |
-| 2025-12-13 | 4.2.1 | 🟢 Complete | Function Block info validation/uiHints, profile associations, discovery/name flow, PB-VRT fixtures |
+| 2025-12-13 | 4.2.1 | 🟢 Complete | Function Block info validation/uiHints, profile associations, discovery/name flow, VRT-Protocol fixtures |
 | 2025-12-13 | 4.2.1 | 🟡 Started | Added TS/Swift validation for Function Block Info (direction/bandwidth/active + reserved bits) |
 | 2025-12-13 | 4.2.4 | 🟢 Complete | Added Swift endpoint info validation + tests; TS validation already in place |
 | 2025-12-13 | 4.2.4 | 🟡 Started | Added TypeScript endpoint info reserved-bit validation and Vitest coverage |

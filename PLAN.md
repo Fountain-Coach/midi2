@@ -14,7 +14,7 @@ This file is a roadmap/status snapshot. Planning protocol is in `PLANS.md`, and 
 
 ## In Progress
 - 🟡 Negative test coverage expansion (Gap 8.2.3): reserved value matrix seeded, stream negative tests added
-- 🟡 PB-VRT visual baselines (Gap 8.2.1): baseline generator and fixtures in place, full coverage pending
+- 🟡 VRT-Protocol visual baselines (Gap 8.2.1): baseline generator and fixtures in place, full coverage pending
 
 ## Remaining Work
 - Worker-clock JR projection tests (Gap 5.2.1)

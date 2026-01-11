@@ -36,6 +36,6 @@ jobs:
           if [ -z "$PCT" ]; then echo "Coverage parse failed"; exit 1; fi
           PCT_INT=${PCT%.*}
           if [ "$PCT_INT" -lt 80 ]; then echo "Coverage below 80%"; exit 1; fi
-      - name: Verify DoD docs & PB-VRT
+      - name: Verify DoD docs & VRT-Protocol
         run: |
           python3 Scripts/verify_docs.py

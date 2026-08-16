@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - _Nothing yet._
 
+## [0.9.2] - 2026-08-16
+### Added
+- Documentation: README now links the evidence-backed runtime boundary, conformance checklist, and negative-test matrix.
+- Runtime governance: machine-checked core software completeness boundary with explicit hardware-interoperability exclusion.
+### Changed
+- TypeScript: Profile session behavior now matches the Swift runtime for group preservation and enabled-state inquiry replies.
+- Maintenance: consolidated compatible dependency and GitHub Action updates.
+
 ## [0.9.1] - 2025-12-21
 ### Added
 - Swift: MIDI Clip File writer (`SMF2CLIP`) with DCTPQ/DCS timing support.

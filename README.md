@@ -7,6 +7,8 @@
 
 Lightweight Swift library and reference implementations for the Universal MIDI Packet (UMP) model and bridging between MIDI 2.0 and legacy CoreMIDI hosts. Also includes **midi2.js**, a cross-browser, CoreMIDI-free TypeScript/JavaScript MIDI 2.0 protocol library.
 
+The repository's runtime claim is deliberately bounded: the named Swift and TypeScript core software surfaces are tested and runtime-complete within the declared boundary. This does not claim every optional MIDI 2.0 extension, host adapter, or physical-device interoperability.
+
 This repository contains reusable packages and examples used to build MIDI 2.0-aware components and adapters for Apple platforms, Linux, and web browsers.
 
 ## Overview
@@ -40,7 +42,7 @@ This repository contains reusable packages and examples used to build MIDI 2.0-a
 Add to your `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.9.0")
+    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.9.2")
 ]
 ```
 
@@ -141,6 +143,9 @@ The primary, canonical documentation for this repository lives in the **[docs/](
 - **[docs/README.md](docs/README.md)** — Documentation landing page
 - **[docs/spec-compliance-dashboard.md](docs/spec-compliance-dashboard.md)** — Spec compliance dashboard
 - **[docs/claim-register.md](docs/claim-register.md)** — Evidence-backed public claim boundary
+- **[docs/runtime-completeness.md](docs/runtime-completeness.md)** — Machine-checked owned core software runtime boundary
+- **[docs/conformance-checklist.md](docs/conformance-checklist.md)** — Feature-level implementation and validation evidence
+- **[docs/negative-test-matrix.md](docs/negative-test-matrix.md)** — Reserved, malformed, and unsupported-value coverage
 - **[docs/comprehensive-spec-audit-report.md](docs/comprehensive-spec-audit-report.md)** — Comprehensive spec audit report
 - **[docs/spec-traceability-matrix.md](docs/spec-traceability-matrix.md)** — Spec traceability matrix
 

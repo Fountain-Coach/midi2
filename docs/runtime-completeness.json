@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "boundary": "owned-core-software-runtime",
+  "policy": "Runtime completeness is claimed only for the named, executable Swift and TypeScript core surfaces below. Physical-device interoperability is never inferred from software tests.",
+  "entries": [
+    {
+      "id": "ump-core",
+      "status": "verified",
+      "surface": "UMP core encode/decode, MIDI 1 channel voice, MIDI 2 channel voice, system, utility, Flex, SysEx7/SysEx8, and MDS",
+      "evidence": ["Sources/MIDI2", "Tests/MIDI2Tests", "midi2.js/src", "midi2.js/src/__tests__"]
+    },
+    {
+      "id": "midi-ci-core",
+      "status": "verified",
+      "surface": "MIDI-CI discovery, Profile, Process Inquiry, MUID, Property Exchange, compression, chunking, and subscription lifecycle",
+      "evidence": ["Sources/MIDI2CI", "Tests/MIDI2Tests", "midi2.js/src", "midi2.js/src/__tests__"]
+    },
+    {
+      "id": "stream-core",
+      "status": "verified",
+      "surface": "Endpoint, Function Block, Group Terminal Block, Stream Configuration, negotiation, and profile associations",
+      "evidence": ["Sources/MIDI2/Stream", "Tests/MIDI2Tests", "midi2.js/src/stream-negotiation.ts", "midi2.js/src/__tests__"]
+    },
+    {
+      "id": "jitter-reduction",
+      "status": "verified",
+      "surface": "JR clock/timestamp encoding, receiver reconstruction, scheduler projection, and deterministic clock tests",
+      "evidence": ["Sources/MIDI2/System", "Tests/MIDI2Tests/System", "midi2.js/src/jitter.ts", "midi2.js/src/__tests__/jitter.test.ts"]
+    },
+    {
+      "id": "negative-validation",
+      "status": "verified",
+      "surface": "Reserved, unsupported, malformed, and bounded-value rejection for the covered core decoders",
+      "evidence": ["Tests/MIDI2Tests/NegativeTests", "midi2.js/src/__tests__/negative.test.ts", "docs/negative-test-matrix.md"]
+    },
+    {
+      "id": "optional-host-adapters",
+      "status": "out-of-scope",
+      "surface": "Host-specific adapter negotiation and worker-only timing environments",
+      "evidence": ["midi2.js/src/adapters", "midi2.js/src/__tests__/jitter.worker.test.ts"]
+    },
+    {
+      "id": "hardware-interoperability",
+      "status": "excluded",
+      "surface": "Physical MIDI 2.0 device interoperability, MIDI-CI exchange with external hardware, and hardware JR synchronization",
+      "evidence": ["docs/claims.json", "docs/conformance-checklist.md"]
+    }
+  ]
+}

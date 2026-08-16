@@ -48,3 +48,7 @@ jobs:
         run: |
           python3 Scripts/generate_claim_register.py --check
           python3 Scripts/verify_claims.py
+      - name: Verify runtime completeness boundary
+        run: |
+          python3 Scripts/generate_runtime_completeness.py --check
+          python3 Scripts/verify_runtime_completeness.py

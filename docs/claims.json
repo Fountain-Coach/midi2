@@ -40,7 +40,7 @@
     {
       "id": "measured-test-runs",
       "status": "established",
-      "claim": "The recorded validation run passed 354 Swift tests and 198 TypeScript tests, with one TypeScript test skipped.",
+      "claim": "The recorded validation run passed 354 Swift tests and 200 TypeScript tests, with one TypeScript test skipped.",
       "reason": "The claim reports one identified local validation run rather than extrapolating from it to full conformance.",
       "evidence": [
         {"path": "Package.swift", "why": "Swift package under test"},
@@ -62,6 +62,20 @@
         {"path": "midi2.js/src/__tests__", "why": "TypeScript runtime tests"}
       ],
       "exclusions": ["No global claim of complete MIDI2 runtime implementation is made.", "No hardware interoperability claim is made."]
+    },
+    {
+      "id": "core-software-runtime-completeness",
+      "status": "established",
+      "claim": "The declared owned core software surface is runtime-complete across the Swift and TypeScript implementations.",
+      "reason": "The machine-readable runtime boundary names the required protocol surfaces, marks each as verified, and is protected by Swift and TypeScript validation gates.",
+      "evidence": [
+        {"path": "docs/runtime-completeness.json", "why": "canonical runtime boundary and status ledger"},
+        {"path": "docs/runtime-completeness.md", "why": "generated human-readable boundary"},
+        {"path": "Scripts/verify_runtime_completeness.py", "why": "machine-checks the ledger and hardware exclusion"},
+        {"path": "Tests", "why": "Swift runtime tests"},
+        {"path": "midi2.js/src/__tests__", "why": "TypeScript runtime tests"}
+      ],
+      "exclusions": ["This is bounded to the named core software surface; it is not a claim that every optional MIDI2 extension or host adapter is implemented.", "It does not claim physical MIDI2 hardware interoperability."]
     },
     {
       "id": "hardware-interoperability",

@@ -48,7 +48,7 @@ The provenance contract is protected by deterministic CI and mutation checks.
 
 ## `measured-test-runs` — established
 
-The recorded validation run passed 354 Swift tests and 198 TypeScript tests, with one TypeScript test skipped.
+The recorded validation run passed 354 Swift tests and 200 TypeScript tests, with one TypeScript test skipped.
 
 **Reason:** The claim reports one identified local validation run rather than extrapolating from it to full conformance.
 
@@ -76,6 +76,23 @@ Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-
 **Exclusions:**
 - No global claim of complete MIDI2 runtime implementation is made.
 - No hardware interoperability claim is made.
+
+## `core-software-runtime-completeness` — established
+
+The declared owned core software surface is runtime-complete across the Swift and TypeScript implementations.
+
+**Reason:** The machine-readable runtime boundary names the required protocol surfaces, marks each as verified, and is protected by Swift and TypeScript validation gates.
+
+**Evidence:**
+- `docs/runtime-completeness.json` — canonical runtime boundary and status ledger
+- `docs/runtime-completeness.md` — generated human-readable boundary
+- `Scripts/verify_runtime_completeness.py` — machine-checks the ledger and hardware exclusion
+- `Tests` — Swift runtime tests
+- `midi2.js/src/__tests__` — TypeScript runtime tests
+
+**Exclusions:**
+- This is bounded to the named core software surface; it is not a claim that every optional MIDI2 extension or host adapter is implemented.
+- It does not claim physical MIDI2 hardware interoperability.
 
 ## `hardware-interoperability` — not-claimed
 

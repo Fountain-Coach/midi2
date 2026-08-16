@@ -89,6 +89,38 @@ Every normative schema definition has valid source provenance and verification m
 ---
 
 Goal:
+Close the owned software-runtime gaps without making a physical-hardware claim.
+Scope:
+Swift and TypeScript core runtime parity, Profile session behavior, negative validation, machine-readable runtime boundary, current conformance documentation, and CI verification.
+Non-goals:
+Physical MIDI2 device interoperability, hardware MIDI-CI/JR acceptance, optional host-adapter completeness, and VRT-only visual baselines.
+Constraints:
+The MIDI2 semantic contract remains unchanged. Runtime completeness is bounded to the named core surface in `docs/runtime-completeness.json`; hardware must remain excluded.
+Dependencies:
+The committed schema/provenance and claim registers, existing Swift/TypeScript tests, and protected-main pull-request workflow.
+Risks:
+Historical audit prose can overstate or understate current implementation; the machine-readable ledger and executable verification are authoritative for this bounded claim.
+Steps:
+  - [x] Read the repository operating guide and validation/claim requirements; record the boundary and exclusions.
+  - [x] Add TypeScript Profile session runtime parity and lifecycle tests.
+  - [x] Add the machine-readable runtime completeness ledger, generated report, and verifier.
+  - [x] Reconcile the current conformance checklist and claim register with executable evidence.
+  - [ ] Run the full Swift/TypeScript/docs validation and inspect the resulting diff.
+  - [ ] Commit and push through a pull request; do not claim hardware interoperability.
+Validation:
+`swift test`, `npm run ci --prefix midi2.js`, `python3 Scripts/verify_runtime_completeness.py`, `python3 Scripts/verify_claims.py`, and documentation/provenance checks.
+Acceptance Criteria:
+The owned core software boundary is explicit and verified by both runtime test suites; Profile behavior is parity-tested; CI rejects a stale or hardware-claiming runtime ledger; hardware interoperability remains explicitly excluded.
+
+Governance reading record:
+- Chapters read — repository `AGENTS.md` invariants and claim boundary; `.codex/skills/governance-read/SKILL.md` floor/resolution rules; `.codex/skills/repo-ops/SKILL.md` validation contract.
+- What they forbid here — claiming physical hardware behavior from software tests; changing the MIDI2 IDL; bypassing runtime validation; treating stale documentation as operational authority.
+- Conflicts — none found between the repository guide, the claim register policy, and this bounded runtime objective.
+- Excluded, and why — Reframe governance chapters and GUI/live-drive skills are outside this MIDI2 source-repository runtime task; hardware and optional host adapters are explicitly non-goals.
+
+---
+
+Goal:
 Publish only evidence-backed MIDI2 claims with explicit scope and exclusions.
 Scope:
 Machine-readable claim register, generated public claim documentation, README/dashboard links, and CI verification.

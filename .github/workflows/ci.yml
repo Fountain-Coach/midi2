@@ -39,3 +39,8 @@ jobs:
       - name: Verify DoD docs & VRT-Protocol
         run: |
           python3 Scripts/verify_docs.py
+      - name: Verify specification provenance and generated traceability
+        run: |
+          python3 Scripts/generate_spec_traceability.py --check
+          python3 Scripts/verify_spec_provenance.py
+          python3 -m unittest discover -s Tests -p 'test_spec_provenance.py' -v

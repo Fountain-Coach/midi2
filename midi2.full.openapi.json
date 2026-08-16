@@ -64,58 +64,223 @@
           {
             "$ref": "#/components/schemas/UmpPacket128"
           }
+        ],
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP message types and packet sizes",
+            "requirement": "ump-packet-structure-umppacket"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UmpPacketsTests.swift"
+          }
         ]
       },
       "Uint4": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 15
+        "maximum": 15,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-uint4"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "Uint7": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 127
+        "maximum": 127,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-uint7"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "Uint8": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 255
+        "maximum": 255,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-uint8"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "Uint14": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 16383
+        "maximum": 16383,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-uint14"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "Uint16": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 65535
+        "maximum": 65535,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-uint16"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "Uint21": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 2097151
+        "maximum": 2097151,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-uint21"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "Uint28": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 268435455
+        "maximum": 268435455,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-uint28"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "Uint32": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 4294967295
+        "maximum": 4294967295,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-uint32"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "Int32": {
         "type": "integer",
         "minimum": -2147483648,
-        "maximum": 2147483647
+        "maximum": 2147483647,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-int32"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "ByteArray": {
         "type": "array",
         "items": {
           "$ref": "#/$defs/Uint8"
-        }
+        },
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP field widths and numeric ranges",
+            "requirement": "ump-field-widths-bytearray"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "schema-verifier",
+            "id": "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+          }
+        ]
       },
       "UmpMessageType": {
         "type": "integer",
@@ -129,11 +294,41 @@
           13,
           15
         ],
-        "description": "UMP Message Type nibble: 0=Utility,1=System,2=MIDI1 Ch Voice,3=SysEx7,4=MIDI2 Ch Voice,5=SysEx8/MDS,13=Flex,15=Stream."
+        "description": "UMP Message Type nibble: 0=Utility,1=System,2=MIDI1 Ch Voice,3=SysEx7,4=MIDI2 Ch Voice,5=SysEx8/MDS,13=Flex,15=Stream.",
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP message types and packet sizes",
+            "requirement": "ump-packet-structure-umpmessagetype"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UmpPacketsTests.swift"
+          }
+        ]
       },
       "Group": {
         "$ref": "#/$defs/Uint4",
-        "description": "MIDI Group (0-15). Utility (0x0) and Stream (0xF) are groupless in v1.1+; set 0."
+        "description": "MIDI Group (0-15). Utility (0x0) and Stream (0xF) are groupless in v1.1+; set 0.",
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 37,
+            "section": "Figures 18-23 and stream messages",
+            "requirement": "ump-stream-structure-group"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/StreamMappingTests.swift"
+          }
+        ]
       },
       "UmpHeader32": {
         "type": "object",
@@ -155,7 +350,22 @@
           }
         },
         "description": "Common 32-bit UMP header (messageType + optional group).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 37,
+            "section": "Figures 18-23 and stream messages",
+            "requirement": "ump-stream-structure-umpheader32"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/StreamMappingTests.swift"
+          }
+        ]
       },
       "UmpHeader64": {
         "type": "object",
@@ -182,7 +392,22 @@
           }
         },
         "description": "64-bit UMP header for MIDI 2.0 Channel Voice.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 37,
+            "section": "Figures 18-23 and stream messages",
+            "requirement": "ump-stream-structure-umpheader64"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/StreamMappingTests.swift"
+          }
+        ]
       },
       "UmpHeader128": {
         "type": "object",
@@ -201,7 +426,22 @@
           }
         },
         "description": "128-bit UMP header for Data (SysEx8/MDS) and Flex Data.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 37,
+            "section": "Figures 18-23 and stream messages",
+            "requirement": "ump-stream-structure-umpheader128"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/StreamMappingTests.swift"
+          }
+        ]
       },
       "UtilityOpcode": {
         "type": "integer",
@@ -210,7 +450,22 @@
           1,
           2
         ],
-        "description": "0=NOOP,1=JR Clock,2=JR Timestamp"
+        "description": "0=NOOP,1=JR Clock,2=JR Timestamp",
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 44,
+            "section": "Utility and System messages",
+            "requirement": "utility-system-structure-utilityopcode"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UtilityBodyTests.swift"
+          }
+        ]
       },
       "UtilityBody": {
         "type": "object",
@@ -251,7 +506,22 @@
           }
         },
         "description": "UMP Type 0x0 Utility messages (groupless).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 44,
+            "section": "Utility and System messages",
+            "requirement": "utility-system-structure-utilitybody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UtilityBodyTests.swift"
+          }
+        ]
       },
       "SystemStatus": {
         "type": "integer",
@@ -267,7 +537,22 @@
           254,
           255
         ],
-        "description": "MIDI System Common/Real-Time per UMP."
+        "description": "MIDI System Common/Real-Time per UMP.",
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 44,
+            "section": "Utility and System messages",
+            "requirement": "utility-system-structure-systemstatus"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UtilityBodyTests.swift"
+          }
+        ]
       },
       "SystemCommonRealtimeBody": {
         "type": "object",
@@ -286,7 +571,22 @@
           }
         },
         "description": "UMP 0x1 System Common & Real-Time.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 44,
+            "section": "Utility and System messages",
+            "requirement": "utility-system-structure-systemcommonrealtimebody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UtilityBodyTests.swift"
+          }
+        ]
       },
       "Midi1StatusNibble": {
         "type": "integer",
@@ -299,7 +599,22 @@
           13,
           14
         ],
-        "description": "0x8..0xE"
+        "description": "0x8..0xE",
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 52,
+            "section": "MIDI 1.0 Channel Voice messages",
+            "requirement": "midi1-channel-voice-midi1statusnibble"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi1ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi1ChannelVoiceBody": {
         "type": "object",
@@ -337,7 +652,22 @@
           }
         },
         "description": "Messages share this body, with relevant fields set based on status.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 52,
+            "section": "MIDI 1.0 Channel Voice messages",
+            "requirement": "midi1-channel-voice-midi1channelvoicebody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi1ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "SysEx7Packet": {
         "type": "object",
@@ -364,7 +694,22 @@
             "minItems": 0
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 50,
+            "section": "SysEx and data messages",
+            "requirement": "data-message-structure-sysex7packet"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/DataMessageBodyTests.swift"
+          }
+        ]
       },
       "SysEx7Body": {
         "type": "object",
@@ -402,7 +747,22 @@
           }
         },
         "description": "7-bit clean stream framed in 32-bit UMP words (up to 6 bytes per word).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 50,
+            "section": "SysEx and data messages",
+            "requirement": "data-message-structure-sysex7body"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/DataMessageBodyTests.swift"
+          }
+        ]
       },
       "Midi2StatusNibble": {
         "type": "integer",
@@ -415,12 +775,42 @@
           13,
           14,
           15
+        ],
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2statusnibble"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
         ]
       },
       "NoteAttributeType": {
         "type": "integer",
         "minimum": 0,
-        "maximum": 255
+        "maximum": 255,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-noteattributetype"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2ChannelVoiceBody": {
         "type": "object",
@@ -529,13 +919,43 @@
           }
         },
         "description": "Only fields relevant to the specific status are present.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2channelvoicebody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "DataMessageKind": {
         "type": "string",
         "enum": [
           "sysex8",
           "mds"
+        ],
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 50,
+            "section": "SysEx and data messages",
+            "requirement": "data-message-structure-datamessagekind"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/DataMessageBodyTests.swift"
+          }
         ]
       },
       "DataMessageBody": {
@@ -631,7 +1051,22 @@
             "additionalProperties": false
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 50,
+            "section": "SysEx and data messages",
+            "requirement": "data-message-structure-datamessagebody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/DataMessageBodyTests.swift"
+          }
+        ]
       },
       "FlexDataBody": {
         "oneOf": [
@@ -659,28 +1094,58 @@
           {
             "$ref": "#/$defs/Flex.Ruby"
           }
+        ],
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flexdatabody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
         ]
-    },
-    "StreamOpcode": {
-      "type": "integer",
-      "enum": [
-        0,
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        16,
-        17,
-        18,
-        32,
-        33
-      ]
-    },
-    "StreamBody": {
-      "type": "object",
-      "required": [
+      },
+      "StreamOpcode": {
+        "type": "integer",
+        "enum": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          16,
+          17,
+          18,
+          32,
+          33
+        ],
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 37,
+            "section": "Figures 18-23 and stream messages",
+            "requirement": "ump-stream-structure-streamopcode"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/StreamMappingTests.swift"
+          }
+        ]
+      },
+      "StreamBody": {
+        "type": "object",
+        "required": [
           "opcode"
         ],
         "properties": {
@@ -726,119 +1191,119 @@
                 },
                 "additionalProperties": false
               }
+            },
+            "additionalProperties": false
           },
-          "additionalProperties": false
-        },
-        "endpointInfoNotification": {
-          "type": "object",
-          "properties": {
-            "staticFunctionBlocks": {
-              "type": "boolean",
-              "description": "S bit; when true Function Blocks are static and do not change after discovery (Figure 13, M2-104-UM v1.1.2 p.33)"
+          "endpointInfoNotification": {
+            "type": "object",
+            "properties": {
+              "staticFunctionBlocks": {
+                "type": "boolean",
+                "description": "S bit; when true Function Blocks are static and do not change after discovery (Figure 13, M2-104-UM v1.1.2 p.33)"
+              },
+              "numberOfFunctionBlocks": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 32,
+                "description": "Number of Function Blocks (0x00 = none, 0x01\u20130x20 = count, 0x21\u20130x7F reserved) (Figure 13, p.33)"
+              },
+              "umpVersionMajor": {
+                "$ref": "#/$defs/Uint8"
+              },
+              "umpVersionMinor": {
+                "$ref": "#/$defs/Uint8"
+              },
+              "midi2Supported": {
+                "type": "boolean",
+                "description": "M2 capability flag"
+              },
+              "midi1Supported": {
+                "type": "boolean",
+                "description": "M1 capability flag"
+              },
+              "jrTimestampsRx": {
+                "type": "boolean",
+                "description": "RXJR capability flag"
+              },
+              "jrTimestampsTx": {
+                "type": "boolean",
+                "description": "TXJR capability flag"
+              }
             },
-            "numberOfFunctionBlocks": {
-              "type": "integer",
-              "minimum": 0,
-              "maximum": 32,
-              "description": "Number of Function Blocks (0x00 = none, 0x01–0x20 = count, 0x21–0x7F reserved) (Figure 13, p.33)"
-            },
-            "umpVersionMajor": {
-              "$ref": "#/$defs/Uint8"
-            },
-            "umpVersionMinor": {
-              "$ref": "#/$defs/Uint8"
-            },
-            "midi2Supported": {
-              "type": "boolean",
-              "description": "M2 capability flag"
-            },
-            "midi1Supported": {
-              "type": "boolean",
-              "description": "M1 capability flag"
-            },
-            "jrTimestampsRx": {
-              "type": "boolean",
-              "description": "RXJR capability flag"
-            },
-            "jrTimestampsTx": {
-              "type": "boolean",
-              "description": "TXJR capability flag"
-            }
+            "additionalProperties": false
           },
-          "additionalProperties": false
-        },
-        "deviceIdentityNotification": {
-          "type": "object",
-          "properties": {
-            "manufacturerId": {
-              "oneOf": [
-                {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/$defs/Uint8"
+          "deviceIdentityNotification": {
+            "type": "object",
+            "properties": {
+              "manufacturerId": {
+                "oneOf": [
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/Uint8"
+                    },
+                    "minItems": 1,
+                    "maxItems": 1
                   },
-                  "minItems": 1,
-                  "maxItems": 1
-                },
-                {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/$defs/Uint8"
-                  },
-                  "minItems": 3,
-                  "maxItems": 3
-                }
-              ],
-              "description": "SysEx manufacturer ID (1-byte or 3-byte, pad with zeros when 1-byte) (Figure 14, M2-104-UM v1.1.2 p.34)"
+                  {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/$defs/Uint8"
+                    },
+                    "minItems": 3,
+                    "maxItems": 3
+                  }
+                ],
+                "description": "SysEx manufacturer ID (1-byte or 3-byte, pad with zeros when 1-byte) (Figure 14, M2-104-UM v1.1.2 p.34)"
+              },
+              "deviceFamily": {
+                "$ref": "#/$defs/Uint16",
+                "description": "Device family (SysEx Device Inquiry)"
+              },
+              "deviceModel": {
+                "$ref": "#/$defs/Uint16",
+                "description": "Device family model number"
+              },
+              "softwareRevision": {
+                "$ref": "#/$defs/Uint32",
+                "description": "Software revision level"
+              }
             },
-            "deviceFamily": {
-              "$ref": "#/$defs/Uint16",
-              "description": "Device family (SysEx Device Inquiry)"
+            "additionalProperties": false
+          },
+          "endpointNameNotification": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "maxLength": 98,
+                "description": "UTF-8 endpoint name; up to 98 bytes across Complete/Start/Continue/End forms (Figure 15, M2-104-UM v1.1.2 p.35)"
+              }
             },
-            "deviceModel": {
-              "$ref": "#/$defs/Uint16",
-              "description": "Device family model number"
+            "required": [
+              "name"
+            ],
+            "additionalProperties": false
+          },
+          "productInstanceIdNotification": {
+            "type": "object",
+            "properties": {
+              "productInstanceId": {
+                "type": "string",
+                "maxLength": 42,
+                "description": "ASCII 0x20\u20130x7E Product Instance Id, up to 42 bytes across Complete/Start/Continue/End forms (Figure 16, M2-104-UM v1.1.2 p.35)"
+              }
             },
-            "softwareRevision": {
-              "$ref": "#/$defs/Uint32",
-              "description": "Software revision level"
-            }
+            "required": [
+              "productInstanceId"
+            ],
+            "additionalProperties": false
           },
-          "additionalProperties": false
-        },
-        "endpointNameNotification": {
-          "type": "object",
-          "properties": {
-            "name": {
-              "type": "string",
-              "maxLength": 98,
-              "description": "UTF-8 endpoint name; up to 98 bytes across Complete/Start/Continue/End forms (Figure 15, M2-104-UM v1.1.2 p.35)"
-            }
-          },
-          "required": [
-            "name"
-          ],
-          "additionalProperties": false
-        },
-        "productInstanceIdNotification": {
-          "type": "object",
-          "properties": {
-            "productInstanceId": {
-              "type": "string",
-              "maxLength": 42,
-              "description": "ASCII 0x20–0x7E Product Instance Id, up to 42 bytes across Complete/Start/Continue/End forms (Figure 16, M2-104-UM v1.1.2 p.35)"
-            }
-          },
-          "required": [
-            "productInstanceId"
-          ],
-          "additionalProperties": false
-        },
-        "streamConfigRequest": {
-          "type": "object",
-          "properties": {
-            "protocol": {
-              "type": "string",
+          "streamConfigRequest": {
+            "type": "object",
+            "properties": {
+              "protocol": {
+                "type": "string",
                 "enum": [
                   "midi1",
                   "midi2"
@@ -947,7 +1412,22 @@
           }
         },
         "description": "Endpoint discovery, protocol selection, and FB info.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 37,
+            "section": "Figures 18-23 and stream messages",
+            "requirement": "ump-stream-structure-streambody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/StreamMappingTests.swift"
+          }
+        ]
       },
       "DeltaClockstampConfig": {
         "type": "object",
@@ -975,7 +1455,22 @@
           }
         },
         "description": "Clip configuration timing as used in MIDI Clip Files.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 44,
+            "section": "Utility and System messages",
+            "requirement": "utility-system-structure-deltaclockstampconfig"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UtilityBodyTests.swift"
+          }
+        ]
       },
       "ClipEnvelope": {
         "type": "object",
@@ -990,7 +1485,22 @@
             "type": "number"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-116-U",
+            "version": "1.0",
+            "page": 12,
+            "section": "MIDI Clip message envelope",
+            "requirement": "clip-envelope-clipenvelope"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/ClipEnvelopeTests.swift"
+          }
+        ]
       },
       "MidiCiEnvelope": {
         "type": "object",
@@ -1042,7 +1552,22 @@
           }
         },
         "description": "SysEx(7/8) payload for MIDI-CI transactions.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-101-UM",
+            "version": "1.2",
+            "page": 45,
+            "section": "MIDI-CI message envelopes",
+            "requirement": "midi-ci-envelope-midicienvelope"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/MidiCiEnvelopeTests.swift"
+          }
+        ]
       },
       "MidiCiDiscoveryBody": {
         "type": "object",
@@ -1098,7 +1623,22 @@
             "$ref": "#/$defs/Uint32"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-101-UM",
+            "version": "1.2",
+            "page": 45,
+            "section": "MIDI-CI message envelopes",
+            "requirement": "midi-ci-envelope-midicidiscoverybody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/MidiCiEnvelopeTests.swift"
+          }
+        ]
       },
       "MidiCiAckNakBody": {
         "type": "object",
@@ -1113,7 +1653,22 @@
             "type": "string"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-101-UM",
+            "version": "1.2",
+            "page": 45,
+            "section": "MIDI-CI message envelopes",
+            "requirement": "midi-ci-envelope-midiciacknakbody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/MidiCiEnvelopeTests.swift"
+          }
+        ]
       },
       "MidiCiProfilesBody": {
         "type": "object",
@@ -1158,7 +1713,22 @@
             "additionalProperties": false
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-102-U",
+            "version": "1.1",
+            "page": 15,
+            "section": "Table 6",
+            "requirement": "profiles-structure-midiciprofilesbody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/MidiCiProfilesBodyTests.swift"
+          }
+        ]
       },
       "MidiCiPropertyExchangeBody": {
         "type": "object",
@@ -1293,7 +1863,7 @@
           },
           "flowControlError": {
             "type": "integer",
-            "description": "Status to return when flowControl is requested but unsupported (406/407 per M2-103-UM v1.2 p.69–71)",
+            "description": "Status to return when flowControl is requested but unsupported (406/407 per M2-103-UM v1.2 p.69\u201371)",
             "enum": [
               406,
               407
@@ -1308,7 +1878,7 @@
           "cacheTime": {
             "type": "integer",
             "minimum": 0,
-            "description": "Seconds the Property Data may be cached (Section 7.4.3, M2-103-UM v1.2 p.30–31)"
+            "description": "Seconds the Property Data may be cached (Section 7.4.3, M2-103-UM v1.2 p.30\u201331)"
           },
           "flowControlAck": {
             "type": "object",
@@ -1360,7 +1930,22 @@
             "description": "Subscription command values per M2-103-UM v1.2 subscription flows"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-103-UM",
+            "version": "1.2",
+            "page": 28,
+            "section": "Tables 13-16",
+            "requirement": "property-exchange-structure-midicipropertyexchangebody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/PropertyExchangeChunkingTests.swift"
+          }
+        ]
       },
       "MidiCiProcessInquiryBody": {
         "type": "object",
@@ -1397,7 +1982,7 @@
               126,
               127
             ],
-            "description": "Device ID for message report scope: 0x00–0x0F channel 1–16, 0x7E group, 0x7F function block (Table 43/45, M2-101-UM v1.2 p.61–63)"
+            "description": "Device ID for message report scope: 0x00\u20130x0F channel 1\u201316, 0x7E group, 0x7F function block (Table 43/45, M2-101-UM v1.2 p.61\u201363)"
           },
           "messageDataControl": {
             "type": "integer",
@@ -1406,11 +1991,11 @@
               1,
               127
             ],
-            "description": "Message Data Control (Table 44, M2-101-UM v1.2 p.62): 0x00 begin/end only, 0x01 non-default/active only, 0x7F full report; 0x02–0x7E reserved."
+            "description": "Message Data Control (Table 44, M2-101-UM v1.2 p.62): 0x00 begin/end only, 0x01 non-default/active only, 0x7F full report; 0x02\u20130x7E reserved."
           },
           "systemMessages": {
             "type": "object",
-            "description": "Bitmap of requested System Messages (Table 43/45, M2-101-UM v1.2 p.61–63)",
+            "description": "Bitmap of requested System Messages (Table 43/45, M2-101-UM v1.2 p.61\u201363)",
             "properties": {
               "mtcQuarterFrame": {
                 "type": "boolean"
@@ -1426,7 +2011,7 @@
           },
           "channelControllerMessages": {
             "type": "object",
-            "description": "Bitmap of requested Channel Controller Messages (Table 43/45, M2-101-UM v1.2 p.61–63)",
+            "description": "Bitmap of requested Channel Controller Messages (Table 43/45, M2-101-UM v1.2 p.61\u201363)",
             "properties": {
               "pitchBend": {
                 "type": "boolean"
@@ -1451,7 +2036,7 @@
           },
           "noteDataMessages": {
             "type": "object",
-            "description": "Bitmap of requested Note Data Messages (Table 43/45, M2-101-UM v1.2 p.61–63)",
+            "description": "Bitmap of requested Note Data Messages (Table 43/45, M2-101-UM v1.2 p.61\u201363)",
             "properties": {
               "notes": {
                 "type": "boolean"
@@ -1482,7 +2067,22 @@
             "additionalProperties": false
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-101-UM",
+            "version": "1.2",
+            "page": 59,
+            "section": "Tables 40-45",
+            "requirement": "process-inquiry-structure-midiciprocessinquirybody"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/MidiCiProcessInquiryBodyTests.swift"
+          }
+        ]
       },
       "UmpPacket32": {
         "type": "object",
@@ -1523,7 +2123,22 @@
             ]
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP message types and packet sizes",
+            "requirement": "ump-packet-structure-umppacket32"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UmpPacketsTests.swift"
+          }
+        ]
       },
       "UmpPacket64": {
         "type": "object",
@@ -1551,7 +2166,22 @@
             "$ref": "#/$defs/Midi2ChannelVoiceVariants"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP message types and packet sizes",
+            "requirement": "ump-packet-structure-umppacket64"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UmpPacketsTests.swift"
+          }
+        ]
       },
       "UmpPacket128": {
         "type": "object",
@@ -1580,7 +2210,22 @@
             ]
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 20,
+            "section": "UMP message types and packet sizes",
+            "requirement": "ump-packet-structure-umppacket128"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/UmpPacketsTests.swift"
+          }
+        ]
       },
       "Midi2.NoteOff": {
         "type": "object",
@@ -1603,7 +2248,22 @@
           }
         },
         "description": "Status 0x8 (Note Off).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-noteoff"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.NoteOn": {
         "type": "object",
@@ -1626,7 +2286,22 @@
           }
         },
         "description": "Status 0x9 (Note On).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-noteon"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.PolyPressure": {
         "type": "object",
@@ -1643,7 +2318,22 @@
           }
         },
         "description": "Status 0xA (Polyphonic Key Pressure).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-polypressure"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.ControlChange": {
         "type": "object",
@@ -1660,7 +2350,22 @@
           }
         },
         "description": "Status 0xB (CC).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-controlchange"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.ProgramChange": {
         "type": "object",
@@ -1682,7 +2387,22 @@
           }
         },
         "description": "Status 0xC (Program Change).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-programchange"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.ChannelPressure": {
         "type": "object",
@@ -1695,7 +2415,22 @@
           }
         },
         "description": "Status 0xD (Channel Pressure).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-channelpressure"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.PitchBend": {
         "type": "object",
@@ -1708,7 +2443,22 @@
           }
         },
         "description": "Status 0xE (Pitch Bend).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-pitchbend"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.RPN": {
         "type": "object",
@@ -1729,7 +2479,22 @@
           }
         },
         "description": "Registered Controller (absolute).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-rpn"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.NRPN": {
         "type": "object",
@@ -1750,7 +2515,22 @@
           }
         },
         "description": "Assignable Controller (absolute).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-nrpn"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.RPNRelative": {
         "type": "object",
@@ -1771,7 +2551,22 @@
           }
         },
         "description": "Registered Controller (relative).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-rpnrelative"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.NRPNRelative": {
         "type": "object",
@@ -1792,7 +2587,22 @@
           }
         },
         "description": "Assignable Controller (relative).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-nrpnrelative"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.PerNoteManagement": {
         "type": "object",
@@ -1813,7 +2623,22 @@
           }
         },
         "description": "Per-Note Management (D/S flags).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-pernotemanagement"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.RegPerNoteController": {
         "type": "object",
@@ -1833,7 +2658,22 @@
             "$ref": "#/$defs/Uint32"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-regpernotecontroller"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2.AssignPerNoteController": {
         "type": "object",
@@ -1853,7 +2693,22 @@
             "$ref": "#/$defs/Uint32"
           }
         },
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2-assignpernotecontroller"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Midi2ChannelVoiceVariants": {
         "type": "object",
@@ -1973,7 +2828,22 @@
             }
           }
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 56,
+            "section": "MIDI 2.0 Channel Voice messages",
+            "requirement": "midi2-channel-voice-midi2channelvoicevariants"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+          }
+        ]
       },
       "Flex.Tempo": {
         "type": "object",
@@ -2022,7 +2892,22 @@
           }
         },
         "description": "Flex: Set Tempo (heuristic mapping to BPM).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flex-tempo"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
+        ]
       },
       "Flex.TimeSignature": {
         "type": "object",
@@ -2076,7 +2961,22 @@
           }
         },
         "description": "Flex: Set Time Signature (n / 2^d).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flex-timesignature"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
+        ]
       },
       "Flex.Metronome": {
         "type": "object",
@@ -2125,7 +3025,22 @@
           }
         },
         "description": "Flex: Set Metronome parameters.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flex-metronome"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
+        ]
       },
       "Flex.KeySignature": {
         "type": "object",
@@ -2173,7 +3088,22 @@
           }
         },
         "description": "Flex: Set Key Signature (e.g., 'C', 'Gm').",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flex-keysignature"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
+        ]
       },
       "Flex.ChordName": {
         "type": "object",
@@ -2221,7 +3151,22 @@
           }
         },
         "description": "Flex: Chord name at position.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flex-chordname"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
+        ]
       },
       "Flex.Text": {
         "type": "object",
@@ -2269,7 +3214,22 @@
           }
         },
         "description": "Flex Text.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flex-text"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
+        ]
       },
       "Flex.Lyric": {
         "type": "object",
@@ -2317,7 +3277,22 @@
           }
         },
         "description": "Flex Lyric.",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flex-lyric"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
+        ]
       },
       "Flex.Ruby": {
         "type": "object",
@@ -2365,7 +3340,22 @@
           }
         },
         "description": "Flex Ruby (furigana).",
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 89,
+            "section": "Flex Data messages",
+            "requirement": "flex-data-structure-flex-ruby"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+          }
+        ]
       },
       "FunctionBlockNameNotification": {
         "type": "object",
@@ -2383,8 +3373,28 @@
           "functionBlock",
           "name"
         ],
-        "additionalProperties": false
+        "additionalProperties": false,
+        "x-midi-spec": [
+          {
+            "document": "M2-104-UM",
+            "version": "1.1.2",
+            "page": 37,
+            "section": "Figures 18-23 and stream messages",
+            "requirement": "ump-stream-structure-functionblocknamenotification"
+          }
+        ],
+        "x-verification": [
+          {
+            "kind": "swift-test-file",
+            "id": "Tests/MIDI2Tests/StreamMappingTests.swift"
+          }
+        ]
       }
     }
+  },
+  "x-provenance": {
+    "catalog": "docs/spec-provenance.json",
+    "generator": "Scripts/generate_spec_traceability.py",
+    "claim": "Every normative schema definition is source-traceable and has declared verification."
   }
 }

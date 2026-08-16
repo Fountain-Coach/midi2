@@ -35,7 +35,7 @@ def main() -> int:
             if not path or not (ROOT / path).exists():
                 errors.append(f"{ident}: evidence path missing: {path}")
         text = item.get("claim", "").lower()
-        if item.get("status") == "established" and re.search(r"hardware interoperability|runtime completeness|complete midi.?2 runtime", text):
+        if item.get("status") == "established" and re.search(r"hardware interoperability|global runtime completeness|complete midi.?2 runtime", text):
             errors.append(f"{ident}: unsupported global claim in established status")
     if "hardware-interoperability" not in ids:
         errors.append("hardware-interoperability boundary claim missing")

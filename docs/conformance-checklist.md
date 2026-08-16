@@ -12,8 +12,8 @@ This document summarizes current implementation state against the MIDI 2.0 speci
 
 - Profile Inquiry and Enable/Disable: Implemented
   - Evidence: Sources/MIDI2/MidiCiProfilesBody.swift:1, Sources/MIDI2CI/ProfileSession.swift:1, Sources/MIDI2CI/CIHandshake.swift:1; tests in Tests/MIDI2Tests/ProfileSessionTests.swift:1
-- Profile Configuration Details: Partial
-  - Evidence: Details replies include version and channel mask; PSD supported; added/removed helpers; demos print details.
+- Profile Configuration Details: Implemented for the owned core runtimes
+  - Evidence: Swift `Sources/MIDI2CI/ProfileSession.swift` and TypeScript `midi2.js/src/profile-session.ts`; lifecycle and negative tests in `Tests/MIDI2Tests/ProfileDetailsTests.swift`, `Tests/MIDI2Tests/ProfileDetailsNegativeTests.swift`, and `midi2.js/src/__tests__/profile-session.test.ts`.
 - Function Block discovery: Implemented
   - Evidence: Sources/MIDI2/Stream/FunctionBlockMessage.swift:1 (direction/bandwidth/active/uiHints), Sources/MIDI2/Stream/FunctionBlockDiscovery.swift:1, Tests/MIDI2Tests/StreamFunctionBlockDiscoveryTests.swift:1 (roundtrip + errors), Tests/MIDI2Tests/StreamNegotiationTests.swift:1 (profile associations + validation)
 
@@ -38,17 +38,16 @@ This document summarizes current implementation state against the MIDI 2.0 speci
   - Evidence: Strict validation + edge/invalid sequence tests (Tests/MIDI2Tests/SysEx8InvalidSequenceTests.swift:1); VRT-Protocol sysex8/invalid_cases.json
 
 ## UMP Format Extensions and Reserved IDs
-- Utility messages beyond JR: Partial
-  - Evidence: System Common/Real-Time decoders + negative tests.
-- Future reserved message IDs: Partial
-  - Evidence: Negative tests for unsupported statuses; gap: broaden across all decoders.
+- Utility messages beyond JR: Implemented for the owned core runtimes
+  - Evidence: DCTPQ and Delta Clockstamp are encoded/decoded in `Sources/MIDI2/System/Utility.swift` and `midi2.js/src/ump.ts`, with boundary tests.
+- Future reserved message IDs: Covered for the declared core decoder surface
+  - Evidence: `Tests/MIDI2Tests/NegativeTests/`, `midi2.js/src/__tests__/negative.test.ts`, and `docs/negative-test-matrix.md`. This is not a claim that every optional or future specification extension is implemented.
 
 ## Testing and Validation
 - Conformance test coverage: Improved
   - Evidence: New negative tests for Stream §5, SysEx8, MDS, profiles reports, PE compression; CI with coverage gate.
-- Schema regression (VRT-Protocol): Partial
-  - Evidence: Scripts/SchemaGen.swift:1, Scripts/inject_schema_docs.py:1
-  - Gap: Visual baseline frames for CI messages, automated diffs.
-- Interop with hardware: Missing
-  - Evidence: No tests against external devices.
-  - Gap: Capture/verify against official MIDI-CI device responses and JR sync.
+- Schema regression (VRT-Protocol): Validation infrastructure, outside runtime completeness
+  - Evidence: `docs/vrt-protocol/`, `Scripts/generate_vrt_protocol.py`, and `midi2.js/src/__tests__/vrt-protocol.test.ts`.
+- Interop with hardware: Explicitly excluded from the software-runtime claim
+  - Evidence: `docs/runtime-completeness.json` and `docs/claims.json`.
+  - Boundary: No physical MIDI2 devices are available in this repository, so no hardware interoperability result is claimed.

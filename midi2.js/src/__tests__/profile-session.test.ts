@@ -4,9 +4,9 @@ import { ProfileSession } from "../profile-session";
 describe("ProfileSession", () => {
   it("handles inquiry, enable, details, and disable", () => {
     const session = new ProfileSession(["org.midi.piano"]);
-    const inquiry = session.handle({ kind: "profile", group: 0, command: "inquiry", profileId: "org.midi.piano", target: "channel", channels: [0, 1] });
+    const inquiry = session.handle({ kind: "profile", group: 2, command: "inquiry", profileId: "org.midi.piano", target: "channel", channels: [0, 1] });
     expect(inquiry[0]?.command).toBe("reply");
-    expect(inquiry[0]?.details).toMatchObject({ supported: 1, cmL: 3, cmH: 0 });
+    expect(inquiry[0]).toMatchObject({ group: 2, details: { supported: 1, enabled: 0, cmL: 3, cmH: 0 } });
 
     const enabled = session.handle({ kind: "profile", group: 0, command: "setOn", profileId: "org.midi.piano", target: "channel", channels: [0] });
     expect(enabled[0]?.command).toBe("enabledReport");

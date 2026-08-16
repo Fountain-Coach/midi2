@@ -28,7 +28,7 @@ export class ProfileSession {
     return { cmL: mask & 0xff, cmH: (mask >>> 8) & 0xff };
   }
 
-  private event(base: Omit<ProfileEvent, "kind" | "group">, group = 0): ProfileEvent {
+  private event(base: Omit<ProfileEvent, "kind" | "group">, group: number): ProfileEvent {
     return { kind: "profile", group, ...base };
   }
 
@@ -42,8 +42,8 @@ export class ProfileSession {
     for (const set of this.enabled.values()) for (const profile of removed) set.delete(profile);
     const scope = this.mask(channels);
     return [
-      ...added.map(profile => this.event({ command: "addedReport", profileId: profile, target, channels, details: { ok: 1, ...scope } })),
-      ...removed.map(profile => this.event({ command: "removedReport", profileId: profile, target, channels, details: { ok: 1, ...scope } })),
+      ...added.map(profile => this.event({ command: "addedReport", profileId: profile, target, channels, details: { ok: 1, ...scope } }, 0)),
+      ...removed.map(profile => this.event({ command: "removedReport", profileId: profile, target, channels, details: { ok: 1, ...scope } }, 0)),
     ];
   }
 
@@ -59,8 +59,14 @@ export class ProfileSession {
       case "inquiry": {
         const reply = this.event({
           command: "reply", profileId: request.profileId, target: request.target, channels: request.channels,
-          details: { ver: 1, supported: this.supported.has(request.profileId) ? 1 : 0, cmL: scope.cmL, cmH: scope.cmH },
-        });
+          details: {
+            ver: 1,
+            supported: this.supported.has(request.profileId) ? 1 : 0,
+            enabled: this.enabled.get(key)?.has(request.profileId) ? 1 : 0,
+            cmL: scope.cmL,
+            cmH: scope.cmH,
+          },
+        }, request.group);
         this.details.set(key, reply);
         return [reply];
       }
@@ -68,16 +74,16 @@ export class ProfileSession {
         if (!request.target) return [];
         const set = this.enabled.get(key) ?? new Set<string>();
         if (!this.supported.has(request.profileId)) {
-          return [this.event({ command: "disabledReport", profileId: request.profileId, target: request.target, channels: request.channels, details: { ok: 0, ...scope } })];
+          return [this.event({ command: "disabledReport", profileId: request.profileId, target: request.target, channels: request.channels, details: { ok: 0, ...scope } }, request.group)];
         }
         set.add(request.profileId);
         this.enabled.set(key, set);
-        return [this.event({ command: "enabledReport", profileId: request.profileId, target: request.target, channels: request.channels, details: { ok: 1, ...scope } })];
+        return [this.event({ command: "enabledReport", profileId: request.profileId, target: request.target, channels: request.channels, details: { ok: 1, ...scope } }, request.group)];
       }
       case "setOff": {
         if (!request.target) return [];
         this.enabled.get(key)?.delete(request.profileId);
-        return [this.event({ command: "disabledReport", profileId: request.profileId, target: request.target, channels: request.channels, details: { ok: 1, ...scope } })];
+        return [this.event({ command: "disabledReport", profileId: request.profileId, target: request.target, channels: request.channels, details: { ok: 1, ...scope } }, request.group)];
       }
       case "detailsInquiry": {
         if (!request.target) return [];
@@ -90,7 +96,7 @@ export class ProfileSession {
             psd: this.psdCapable.has(request.profileId) ? 1 : 0,
             ...scope,
           },
-        });
+        }, request.group);
         this.details.set(key, reply);
         return [reply];
       }

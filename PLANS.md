@@ -85,3 +85,27 @@ Validation:
 Run `python3 Scripts/verify_spec_provenance.py`, its mutation suite, `python3 Scripts/verify_docs.py`, Swift tests, and midi2.js check/test/build gates as applicable.
 Acceptance Criteria:
 Every normative schema definition has valid source provenance and verification metadata; generated documents are current; the closed schema and OpenAPI provenance are equivalent; CI fails on the specified mutations; no unresolved traceability status remains inside the published semantic claim.
+
+---
+
+Goal:
+Publish only evidence-backed MIDI2 claims with explicit scope and exclusions.
+Scope:
+Machine-readable claim register, generated public claim documentation, README/dashboard links, and CI verification.
+Non-goals:
+Claim global runtime completeness or physical MIDI2 hardware interoperability.
+Constraints:
+Semantic traceability, measured test results, feature-level runtime support, and hardware evidence remain separate claim classes.
+Dependencies:
+Issue #129 provenance gate and the feature-level conformance checklist.
+Risks:
+Historical audit documents contain broader or older status language; the claim register must be the public boundary for current claims.
+Steps:
+  - [ ] Define each allowed claim with a reason, evidence paths, status, and exclusions.
+  - [ ] Generate the human-readable claim register from the canonical JSON source.
+  - [ ] Reject missing evidence, unscoped statuses, stale generated output, and unsupported global claims in CI.
+  - [ ] Align README and compliance dashboard with the claim register.
+Validation:
+Run `python3 Scripts/generate_claim_register.py --check`, `python3 Scripts/verify_claims.py`, the provenance gates, documentation verification, Swift tests, and midi2.js checks/tests/build.
+Acceptance Criteria:
+The repository can claim semantic traceability, provenance parity, automated verification, measured test results, and explicitly partial feature-level runtime support; it explicitly does not claim global runtime completeness or hardware interoperability.

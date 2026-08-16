@@ -11,6 +11,6 @@
 
 ## Scope boundary
 
-This dashboard does not claim complete runtime implementation, test coverage, or hardware interoperability. Those are evaluated separately.
+This dashboard does not claim complete runtime implementation, test coverage, or hardware interoperability. The evidence-backed boundaries are maintained in the [claim register](claim-register.md).
 
 The detailed generated matrix is [`spec-traceability.md`](generated/spec-traceability.md).

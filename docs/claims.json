@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "policy": "Public claims must name their scope, reason, evidence, and exclusions.",
+  "claims": [
+    {
+      "id": "semantic-traceability",
+      "status": "established",
+      "claim": "The canonical MIDI2 semantic schema is source-traceable.",
+      "reason": "All 67 schema definitions carry embedded MIDI Association provenance and declared verification metadata.",
+      "evidence": [
+        {"path": "midi2.full.closed.schema.json", "why": "canonical semantic object"},
+        {"path": "Scripts/verify_spec_provenance.py", "why": "machine-checks provenance"},
+        {"path": "docs/generated/spec-traceability.md", "why": "generated definition-level report"}
+      ],
+      "exclusions": ["This does not claim runtime implementation completeness or hardware interoperability."]
+    },
+    {
+      "id": "schema-openapi-provenance-parity",
+      "status": "established",
+      "claim": "The closed schema and OpenAPI representation carry equivalent provenance metadata.",
+      "reason": "CI compares the embedded provenance entries for every shared schema definition.",
+      "evidence": [
+        {"path": "midi2.full.closed.schema.json", "why": "closed schema provenance"},
+        {"path": "midi2.full.openapi.json", "why": "OpenAPI provenance"},
+        {"path": "Scripts/verify_spec_provenance.py", "why": "parity verifier"}
+      ],
+      "exclusions": ["This is provenance parity, not a claim that both artifacts expose identical runtime behavior."]
+    },
+    {
+      "id": "automated-verification",
+      "status": "established",
+      "claim": "The provenance contract is protected by deterministic CI and mutation checks.",
+      "reason": "CI rejects missing or invalid provenance, missing verification references, OpenAPI drift, stale generated reports, and unannotated schema definitions.",
+      "evidence": [
+        {"path": "Tests/test_spec_provenance.py", "why": "six mutation cases"},
+        {"path": ".github/workflows/ci.yml", "why": "pull-request gate"}
+      ],
+      "exclusions": ["These checks verify the repository contract; they do not simulate physical MIDI2 devices."]
+    },
+    {
+      "id": "measured-test-runs",
+      "status": "established",
+      "claim": "The recorded validation run passed 354 Swift tests and 198 TypeScript tests, with one TypeScript test skipped.",
+      "reason": "The claim reports one identified local validation run rather than extrapolating from it to full conformance.",
+      "evidence": [
+        {"path": "Package.swift", "why": "Swift package under test"},
+        {"path": "midi2.js/package.json", "why": "TypeScript package test commands"},
+        {"path": "docs/claim-register.md", "why": "this claim's recorded scope"}
+      ],
+      "exclusions": ["Test counts are not a runtime-completeness percentage and are not hardware evidence."]
+    },
+    {
+      "id": "feature-level-runtime-support",
+      "status": "partial",
+      "claim": "Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, and jitter-reduction paths.",
+      "reason": "The conformance checklist provides feature-level code and test references while explicitly recording remaining partial areas.",
+      "evidence": [
+        {"path": "docs/conformance-checklist.md", "why": "feature-level implementation status"},
+        {"path": "Sources", "why": "Swift runtime implementation"},
+        {"path": "midi2.js/src", "why": "TypeScript runtime implementation"},
+        {"path": "Tests", "why": "Swift runtime tests"},
+        {"path": "midi2.js/src/__tests__", "why": "TypeScript runtime tests"}
+      ],
+      "exclusions": ["No global claim of complete MIDI2 runtime implementation is made.", "No hardware interoperability claim is made."]
+    },
+    {
+      "id": "hardware-interoperability",
+      "status": "not-claimed",
+      "claim": "Hardware interoperability is not claimed.",
+      "reason": "The repository has no physical MIDI2 devices or external-device acceptance evidence in scope.",
+      "evidence": [
+        {"path": "docs/conformance-checklist.md", "why": "records hardware interoperability as missing"}
+      ],
+      "exclusions": ["No claim about successful operation with physical MIDI2 hardware."]
+    }
+  ]
+}

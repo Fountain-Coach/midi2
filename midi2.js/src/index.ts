@@ -7,6 +7,7 @@ export * from "./midici";
 export * from "./midi1";
 export * from "./jitter";
 export { PeSubscriptionManager } from "./pe-subscriptions";
+export { ProfileSession } from "./profile-session";
 export { SchemaEventOptions, SchemaEventResult, schemaPacketToEventWithResponses } from "./schema-bridge";
 export { fragmentSysEx7, fragmentSysEx8, reassembleSysEx7, reassembleSysEx8 } from "./sysex";
 export * from "./adapters/webaudio";

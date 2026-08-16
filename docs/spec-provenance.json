@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": 1,
+  "purpose": "Canonical source and verification policy used to annotate midi2.full.closed.schema.json.",
+  "specifications": {
+    "M2-100-U": {"version": "1.1", "file": "M2-100-U_v1-1_MIDI_2-0_Specification_Overview.pdf"},
+    "M2-101-UM": {"version": "1.2", "file": "M2-101-UM_v1-2_MIDI-CI_Specification.pdf"},
+    "M2-102-U": {"version": "1.1", "file": "M2-102-U_v1-1_Common_Rules_for_MIDI-CI_Profiles.pdf"},
+    "M2-103-UM": {"version": "1.2", "file": "M2-103-UM_v1-2_Common Rules_for_MIDI-CI_Property_Exchange.pdf"},
+    "M2-104-UM": {"version": "1.1.2", "file": "M2-104-UM_v1-1-2_UMP_and_MIDI_2-0_Protocol_Specification.pdf"},
+    "M2-116-U": {"version": "1.0", "file": "M2-116-U_v1-0_MIDI_Clip_File_Specification.pdf"}
+  },
+  "rules": [
+    {"names": ["MidiCiPropertyExchangeBody"], "document": "M2-103-UM", "page": 28, "section": "Tables 13-16", "requirement": "property-exchange-structure", "test": "Tests/MIDI2Tests/PropertyExchangeChunkingTests.swift"},
+    {"names": ["MidiCiProcessInquiryBody"], "document": "M2-101-UM", "page": 59, "section": "Tables 40-45", "requirement": "process-inquiry-structure", "test": "Tests/MIDI2Tests/MidiCiProcessInquiryBodyTests.swift"},
+    {"names": ["MidiCiProfilesBody"], "document": "M2-102-U", "page": 15, "section": "Table 6", "requirement": "profiles-structure", "test": "Tests/MIDI2Tests/MidiCiProfilesBodyTests.swift"},
+    {"names": ["MidiCiEnvelope", "MidiCiDiscoveryBody", "MidiCiAckNakBody"], "document": "M2-101-UM", "page": 45, "section": "MIDI-CI message envelopes", "requirement": "midi-ci-envelope", "test": "Tests/MIDI2Tests/MidiCiEnvelopeTests.swift"},
+    {"names": ["FunctionBlockNameNotification", "StreamBody", "StreamOpcode", "Group", "UmpHeader32", "UmpHeader64", "UmpHeader128"], "document": "M2-104-UM", "page": 37, "section": "Figures 18-23 and stream messages", "requirement": "ump-stream-structure", "test": "Tests/MIDI2Tests/StreamMappingTests.swift"},
+    {"names": ["Flex.Tempo", "Flex.TimeSignature", "Flex.Metronome", "Flex.KeySignature", "Flex.ChordName", "Flex.Text", "Flex.Lyric", "Flex.Ruby", "FlexDataBody"], "document": "M2-104-UM", "page": 89, "section": "Flex Data messages", "requirement": "flex-data-structure", "test": "Tests/MIDI2Tests/FlexDataBodyTests.swift"},
+    {"names": ["ClipEnvelope"], "document": "M2-116-U", "page": 12, "section": "MIDI Clip message envelope", "requirement": "clip-envelope", "test": "Tests/MIDI2Tests/ClipEnvelopeTests.swift"},
+    {"names": ["SysEx7Packet", "SysEx7Body", "DataMessageKind", "DataMessageBody"], "document": "M2-104-UM", "page": 50, "section": "SysEx and data messages", "requirement": "data-message-structure", "test": "Tests/MIDI2Tests/DataMessageBodyTests.swift"},
+    {"names": ["Midi1StatusNibble", "Midi1ChannelVoiceBody"], "document": "M2-104-UM", "page": 52, "section": "MIDI 1.0 Channel Voice messages", "requirement": "midi1-channel-voice", "test": "Tests/MIDI2Tests/Midi1ChannelVoiceBodyTests.swift"},
+    {"names": ["Midi2StatusNibble", "Midi2ChannelVoiceBody", "Midi2ChannelVoiceVariants", "Midi2.NoteOff", "Midi2.NoteOn", "Midi2.PolyPressure", "Midi2.ControlChange", "Midi2.ProgramChange", "Midi2.ChannelPressure", "Midi2.PitchBend", "Midi2.RPN", "Midi2.NRPN", "Midi2.RPNRelative", "Midi2.NRPNRelative", "Midi2.PerNoteManagement", "Midi2.RegPerNoteController", "Midi2.AssignPerNoteController", "NoteAttributeType"], "document": "M2-104-UM", "page": 56, "section": "MIDI 2.0 Channel Voice messages", "requirement": "midi2-channel-voice", "test": "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"},
+    {"names": ["UtilityOpcode", "UtilityBody", "SystemStatus", "SystemCommonRealtimeBody", "DeltaClockstampConfig"], "document": "M2-104-UM", "page": 44, "section": "Utility and System messages", "requirement": "utility-system-structure", "test": "Tests/MIDI2Tests/UtilityBodyTests.swift"},
+    {"names": ["UmpMessageType", "UmpPacket", "UmpPacket32", "UmpPacket64", "UmpPacket128"], "document": "M2-104-UM", "page": 20, "section": "UMP message types and packet sizes", "requirement": "ump-packet-structure", "test": "Tests/MIDI2Tests/UmpPacketsTests.swift"},
+    {"names": ["Uint4", "Uint7", "Uint8", "Uint14", "Uint16", "Uint21", "Uint28", "Uint32", "Int32", "ByteArray", "Midi2ChannelVoiceVariants"], "document": "M2-104-UM", "page": 20, "section": "UMP field widths and numeric ranges", "requirement": "ump-field-widths", "test": "Scripts/verify_spec_provenance.py::schema-constraint-validation"}
+  ],
+  "fallback": {"document": "M2-100-U", "page": 12, "section": "MIDI 2.0 semantic model overview", "requirement": "midi2-semantic-definition", "test": "Scripts/verify_spec_provenance.py::schema-constraint-validation"}
+}

@@ -140,6 +140,7 @@ The primary, canonical documentation for this repository lives in the **[docs/](
 
 - **[docs/README.md](docs/README.md)** — Documentation landing page
 - **[docs/spec-compliance-dashboard.md](docs/spec-compliance-dashboard.md)** — Spec compliance dashboard
+- **[docs/claim-register.md](docs/claim-register.md)** — Evidence-backed public claim boundary
 - **[docs/comprehensive-spec-audit-report.md](docs/comprehensive-spec-audit-report.md)** — Comprehensive spec audit report
 - **[docs/spec-traceability-matrix.md](docs/spec-traceability-matrix.md)** — Spec traceability matrix
 

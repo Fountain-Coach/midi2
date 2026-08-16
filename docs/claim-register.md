@@ -1,0 +1,94 @@
+<!-- generated: Scripts/generate_claim_register.py -->
+# Evidence-backed Claim Register
+
+> Public claims must name their scope, reason, evidence, and exclusions.
+
+This register distinguishes semantic evidence, runtime evidence, measured tests, and hardware evidence.
+
+## `semantic-traceability` — established
+
+The canonical MIDI2 semantic schema is source-traceable.
+
+**Reason:** All 67 schema definitions carry embedded MIDI Association provenance and declared verification metadata.
+
+**Evidence:**
+- `midi2.full.closed.schema.json` — canonical semantic object
+- `Scripts/verify_spec_provenance.py` — machine-checks provenance
+- `docs/generated/spec-traceability.md` — generated definition-level report
+
+**Exclusions:**
+- This does not claim runtime implementation completeness or hardware interoperability.
+
+## `schema-openapi-provenance-parity` — established
+
+The closed schema and OpenAPI representation carry equivalent provenance metadata.
+
+**Reason:** CI compares the embedded provenance entries for every shared schema definition.
+
+**Evidence:**
+- `midi2.full.closed.schema.json` — closed schema provenance
+- `midi2.full.openapi.json` — OpenAPI provenance
+- `Scripts/verify_spec_provenance.py` — parity verifier
+
+**Exclusions:**
+- This is provenance parity, not a claim that both artifacts expose identical runtime behavior.
+
+## `automated-verification` — established
+
+The provenance contract is protected by deterministic CI and mutation checks.
+
+**Reason:** CI rejects missing or invalid provenance, missing verification references, OpenAPI drift, stale generated reports, and unannotated schema definitions.
+
+**Evidence:**
+- `Tests/test_spec_provenance.py` — six mutation cases
+- `.github/workflows/ci.yml` — pull-request gate
+
+**Exclusions:**
+- These checks verify the repository contract; they do not simulate physical MIDI2 devices.
+
+## `measured-test-runs` — established
+
+The recorded validation run passed 354 Swift tests and 198 TypeScript tests, with one TypeScript test skipped.
+
+**Reason:** The claim reports one identified local validation run rather than extrapolating from it to full conformance.
+
+**Evidence:**
+- `Package.swift` — Swift package under test
+- `midi2.js/package.json` — TypeScript package test commands
+- `docs/claim-register.md` — this claim's recorded scope
+
+**Exclusions:**
+- Test counts are not a runtime-completeness percentage and are not hardware evidence.
+
+## `feature-level-runtime-support` — partial
+
+Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, and jitter-reduction paths.
+
+**Reason:** The conformance checklist provides feature-level code and test references while explicitly recording remaining partial areas.
+
+**Evidence:**
+- `docs/conformance-checklist.md` — feature-level implementation status
+- `Sources` — Swift runtime implementation
+- `midi2.js/src` — TypeScript runtime implementation
+- `Tests` — Swift runtime tests
+- `midi2.js/src/__tests__` — TypeScript runtime tests
+
+**Exclusions:**
+- No global claim of complete MIDI2 runtime implementation is made.
+- No hardware interoperability claim is made.
+
+## `hardware-interoperability` — not-claimed
+
+Hardware interoperability is not claimed.
+
+**Reason:** The repository has no physical MIDI2 devices or external-device acceptance evidence in scope.
+
+**Evidence:**
+- `docs/conformance-checklist.md` — records hardware interoperability as missing
+
+**Exclusions:**
+- No claim about successful operation with physical MIDI2 hardware.
+
+## Claim boundary
+
+The repository may claim semantic traceability and the specifically measured validations listed here. It may not claim global runtime completeness or physical MIDI2 hardware interoperability.

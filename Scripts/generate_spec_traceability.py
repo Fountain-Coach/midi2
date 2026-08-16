@@ -87,7 +87,7 @@ def generate(schema: dict) -> None:
         f"- Definitions with declared verification: **{len(schema['$defs'])}/{len(schema['$defs'])} (100%)**\n"
         "- Schema/OpenAPI provenance parity: enforced by `Scripts/verify_spec_provenance.py`\n\n"
         "## Scope boundary\n\n"
-        "This dashboard does not claim complete runtime implementation, test coverage, or hardware interoperability. Those are evaluated separately.\n\n"
+        "This dashboard does not claim complete runtime implementation, test coverage, or hardware interoperability. The evidence-backed boundaries are maintained in the [claim register](claim-register.md).\n\n"
         "The detailed generated matrix is [`spec-traceability.md`](generated/spec-traceability.md).\n", encoding="utf-8")
 
 

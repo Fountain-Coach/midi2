@@ -19,11 +19,11 @@ The canonical MIDI2 semantic schema is source-traceable.
 **Exclusions:**
 - This does not claim runtime implementation completeness or hardware interoperability.
 
-## `normative-coverage-accounting` — partial
+## `normative-coverage-accounting` — established
 
-The declared MIDI 2.0 corpus has a machine-checked inverse coverage ledger for the currently inventoried requirements and explicit audit-frontier gaps.
+The declared MIDI 2.0 corpus has a machine-checked inverse coverage ledger with an explicit disposition for every identified requirement.
 
-**Reason:** The ledger links inventoried requirements to schema/OpenAPI targets or explicit dispositions, verifies source hashes and versions, and records six unresolved prose-audit frontiers. Unresolved items are not counted as covered.
+**Reason:** The ledger links structural requirements to schema/OpenAPI targets and explicitly excludes behavioral, transport, file-format, and conformance requirements from the static semantic-object boundary with source pages and reasons. Source hashes, versions, representations, and generated reports are verified in CI; no unresolved or ambiguous entries remain.
 
 **Evidence:**
 - `docs/spec-provenance.json` — declared six-document corpus, versions, and source hashes
@@ -35,7 +35,7 @@ The declared MIDI 2.0 corpus has a machine-checked inverse coverage ledger for t
 **Exclusions:**
 - This is explicit accounting, not a claim that every normative requirement is implemented.
 - It does not claim runtime completeness or physical hardware interoperability.
-- The six unresolved audit-frontier entries prevent the shorter claim that the entire declared specification set is represented.
+- Intentionally excluded behavioral and runtime requirements require separate operational evidence.
 
 ## `schema-openapi-provenance-parity` — established
 

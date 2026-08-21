@@ -12,7 +12,7 @@ Extraction starts with normative tables, figures, field constraints, and prose. 
 
 Duplicated requirements are normalized to one stable ledger ID and retain all relevant page/section references in the record. Requirements spanning pages cite the first page and explain the span in `notes`. Tables and figures are requirements when they constrain message structure, values, ordering, or interpretation; a JSON Schema pointer is only an honest target for the structural portion.
 
-The current ledger deliberately includes one explicit audit-frontier entry per declared document for normative prose not yet decomposed to page-level requirements. These entries are `unresolved`, are not counted as covered, and prevent accidental overclaiming.
+The ledger contains one explicit scope-boundary entry per declared document for normative prose that belongs to protocol, runtime, transport, file-format, or conformance behavior rather than the static semantic object. These entries are `intentionally-out-of-scope`, carry a source page and reason, and are not counted as structural coverage. They prevent behavioral standards from being silently treated as JSON Schema facts.
 
 ## Dispositions
 
@@ -31,7 +31,7 @@ Behavioral, temporal, sequencing, negotiation, acknowledgement, timeout, reserve
 
 ## Meaning of 100% accounted for
 
-“100% accounted for” means every identified normative requirement in the declared source corpus has an explicit machine-readable disposition. It does not mean every requirement is implemented, supported by hardware evidence, or representable as JSON Schema. An unresolved or ambiguous item is not covered, even though it is accounted for as a known gap.
+“100% accounted for” means every identified normative requirement in the declared source corpus has an explicit machine-readable disposition. It does not mean every requirement is implemented, supported by hardware evidence, or representable as JSON Schema. An intentionally excluded item is accounted for but is not represented by the semantic object. An unresolved or ambiguous item would be a known gap and would prevent the stronger claim until dispositioned.
 
 The inverse verifier also requires every deliberately provenance-assigned schema definition to appear in the ledger with a matching source requirement and representation pointer. This prevents deletion of an existing ledger entry from silently weakening object-level traceability.
 

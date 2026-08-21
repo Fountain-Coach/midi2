@@ -55,3 +55,13 @@ jobs:
         run: |
           python3 Scripts/generate_runtime_completeness.py --check
           python3 Scripts/verify_runtime_completeness.py
+
+  # Keep the repository's protected-branch `test` status contract explicit.
+  # The substantive suite runs in build-test; this dependent job exposes the
+  # required legacy status name without duplicating the full test workload.
+  test:
+    needs: build-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Protected-branch test gate
+        run: echo "build-test passed; protected-branch test gate satisfied"

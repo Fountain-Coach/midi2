@@ -6,13 +6,27 @@
       "id": "semantic-traceability",
       "status": "established",
       "claim": "The canonical MIDI2 semantic schema is source-traceable.",
-      "reason": "All 67 schema definitions carry embedded MIDI Association provenance and declared verification metadata.",
+      "reason": "All 67 schema definitions carry deliberate embedded MIDI Association provenance and declared verification metadata. This is object-to-source traceability; inverse corpus accounting is reported separately.",
       "evidence": [
         {"path": "midi2.full.closed.schema.json", "why": "canonical semantic object"},
         {"path": "Scripts/verify_spec_provenance.py", "why": "machine-checks provenance"},
         {"path": "docs/generated/spec-traceability.md", "why": "generated definition-level report"}
       ],
       "exclusions": ["This does not claim runtime implementation completeness or hardware interoperability."]
+    },
+    {
+      "id": "normative-coverage-accounting",
+      "status": "partial",
+      "claim": "The declared MIDI 2.0 corpus has a machine-checked inverse coverage ledger for the currently inventoried requirements and explicit audit-frontier gaps.",
+      "reason": "The ledger links inventoried requirements to schema/OpenAPI targets or explicit dispositions, verifies source hashes and versions, and records six unresolved prose-audit frontiers. Unresolved items are not counted as covered.",
+      "evidence": [
+        {"path": "docs/spec-provenance.json", "why": "declared six-document corpus, versions, and source hashes"},
+        {"path": "docs/normative-requirements.json", "why": "canonical inverse requirement ledger"},
+        {"path": "Scripts/verify_normative_coverage.py", "why": "reverse-traceability verifier"},
+        {"path": "docs/generated/normative-coverage.md", "why": "generated disposition report"},
+        {"path": "docs/normative-coverage-methodology.md", "why": "extraction and scope methodology"}
+      ],
+      "exclusions": ["This is explicit accounting, not a claim that every normative requirement is implemented.", "It does not claim runtime completeness or physical hardware interoperability.", "The six unresolved audit-frontier entries prevent the shorter claim that the entire declared specification set is represented."]
     },
     {
       "id": "schema-openapi-provenance-parity",

@@ -25,11 +25,11 @@ def load(path: Path):
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def rule_for(name: str, catalog: dict) -> dict:
+def rule_for(name: str, catalog: dict) -> dict | None:
     for rule in catalog["rules"]:
         if name in rule["names"]:
             return rule
-    return catalog["fallback"]
+    return None
 
 
 def is_constraint(value) -> bool:
@@ -49,6 +49,9 @@ def verify_schema(schema: dict, catalog: dict) -> list[str]:
     for name, node in defs.items():
         if not is_constraint(node):
             continue
+        deliberate_rule = rule_for(name, catalog)
+        if deliberate_rule is None:
+            errors.append(f"$defs.{name}: no deliberate provenance rule (fallback is forbidden)")
         source = node.get("x-midi-spec")
         verification = node.get("x-verification")
         if not isinstance(source, list) or not source:
@@ -63,6 +66,8 @@ def verify_schema(schema: dict, catalog: dict) -> list[str]:
             doc = ref.get("document")
             if doc not in specs:
                 errors.append(f"$defs.{name}: unknown specification {doc!r}")
+            elif ref.get("version") != specs[doc].get("version"):
+                errors.append(f"$defs.{name}: specification version drift for {doc}: {ref.get('version')!r} != {specs[doc].get('version')!r}")
             if not isinstance(ref.get("version"), str) or not ref["version"]:
                 errors.append(f"$defs.{name}: missing specification version")
             if not isinstance(ref.get("page"), int) or ref["page"] <= 0:
@@ -74,6 +79,10 @@ def verify_schema(schema: dict, catalog: dict) -> list[str]:
             pdf = ROOT / specs.get(doc, {}).get("file", "")
             if not pdf.is_file():
                 errors.append(f"$defs.{name}: source PDF missing: {pdf.name}")
+            elif specs.get(doc, {}).get("sha256"):
+                actual = hashlib.sha256(pdf.read_bytes()).hexdigest()
+                if actual != specs[doc]["sha256"]:
+                    errors.append(f"$defs.{name}: source hash drift for {doc}: {actual} != {specs[doc]['sha256']}")
         for check in verification or []:
             if not isinstance(check, dict) or not check.get("kind") or not check.get("id"):
                 errors.append(f"$defs.{name}: malformed verification entry")

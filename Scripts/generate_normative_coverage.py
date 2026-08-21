@@ -46,9 +46,10 @@ def generate() -> str:
         "|---|---:|",
     ]
     lines += [f"| `{status}` | {overall[status]} |" for status in order]
+    unresolved = overall["unresolved"]
     lines += [
         "",
-        f"**Ledger entries:** {len(entries)}. **Unresolved:** {overall['unresolved']}. An unresolved entry is not counted as covered.",
+        f"**Ledger entries:** {len(entries)}. **Unresolved:** {unresolved}. Intentionally excluded entries are accounted for but are not counted as semantic-object representation.",
         "",
         "## By declared specification",
         "",
@@ -72,7 +73,9 @@ def generate() -> str:
         "- **Hardware interoperability:** not implied and not claimed by this report.",
         "- **MIDI authority:** the MIDI Association remains normative. Fountain Coach / FCIS / backplane extensions are outside the MIDI requirement denominator.",
         "",
-        "The current ledger contains explicit audit-frontier entries for normative prose that has not yet been decomposed into page-level requirements. Therefore the shorter claim that the entire specification set is represented is not supported by this report.",
+        ("The ledger has no unresolved or ambiguous entries. It supports the claim that every identified normative requirement in the declared corpus has an explicit disposition; this does not imply runtime completeness or hardware interoperability."
+         if unresolved == 0 and overall["ambiguous-source"] == 0 else
+         "The ledger contains unresolved or ambiguous entries. Therefore the shorter claim that the entire specification set is represented is not supported by this report."),
         "",
     ]
     return "\n".join(lines)

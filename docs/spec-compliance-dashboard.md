@@ -11,6 +11,6 @@
 
 ## Scope boundary
 
-This dashboard does not claim complete runtime implementation, test coverage, or hardware interoperability. The evidence-backed boundaries are maintained in the [claim register](claim-register.md).
+This dashboard reports object-to-source traceability only. The inverse normative inventory is maintained in the [normative coverage report](generated/normative-coverage.md) and is currently partial because its unresolved audit-frontier entries are not covered. This dashboard does not claim complete runtime implementation, test coverage, or hardware interoperability. The evidence-backed boundaries are maintained in the [claim register](claim-register.md).
 
 The detailed generated matrix is [`spec-traceability.md`](generated/spec-traceability.md).

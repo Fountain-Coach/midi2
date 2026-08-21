@@ -141,3 +141,35 @@ Validation:
 Run `python3 Scripts/generate_claim_register.py --check`, `python3 Scripts/verify_claims.py`, the provenance gates, documentation verification, Swift tests, and midi2.js checks/tests/build.
 Acceptance Criteria:
 The repository can claim semantic traceability, provenance parity, automated verification, measured test results, and explicitly partial feature-level runtime support; it explicitly does not claim global runtime completeness or hardware interoperability.
+
+---
+
+Goal:
+Add a bidirectional, machine-verifiable normative coverage contract for the declared MIDI 2.0 source corpus.
+Scope:
+The six declared MIDI Association PDFs, source hashes and version records, normative requirement ledger, reverse verifier, generated coverage report, provenance fallback policy, mutation tests, CI, claim register, and MIDI-vs-Fountain Coach boundary documentation.
+Non-goals:
+Claiming complete runtime implementation, physical hardware interoperability, or completion of the unresolved source-prose audit before the ledger contains source-backed dispositions.
+Constraints:
+The existing object-to-source provenance verifier remains authoritative and is strengthened rather than replaced. The MIDI Association remains normative. Fountain Coach extensions cannot satisfy MIDI requirements without explicit justification.
+Dependencies:
+The checked-in PDF corpus, `midi2.full.closed.schema.json`, `midi2.full.openapi.json`, and the protected-main pull-request workflow.
+Risks:
+The current object mapping does not by itself inventory every normative prose rule. The ledger therefore records explicit unresolved audit frontiers and the public claim remains partial.
+Steps:
+  - [x] Add exact corpus hashes, scope metadata, source policy, and remove generic provenance fallback.
+  - [x] Add the canonical normative requirement ledger with structural dispositions and explicit unresolved source-audit frontiers.
+  - [x] Add reverse verification, generated coverage reporting, methodology, third-party source notice, and extension boundary.
+  - [x] Add mutation tests for ledger deletion, broken representation, version/hash drift, and missing schema provenance; wire gates into CI.
+  - [x] Update claim register and documentation indexes without claiming full specification coverage.
+  - [ ] Decompose every unresolved audit frontier into source-backed normative requirements or explicit exclusions.
+Validation:
+Run `python3 Scripts/generate_spec_traceability.py --check`, `python3 Scripts/verify_spec_provenance.py`, `python3 Scripts/generate_normative_coverage.py --check`, `python3 Scripts/verify_normative_coverage.py`, both Python mutation suites, `python3 Scripts/verify_docs.py`, `python3 Scripts/verify_claims.py`, Swift tests, and midi2.js checks/tests/build as applicable.
+Acceptance Criteria:
+An external reviewer can identify the exact corpus and hashes, inspect every current ledger disposition and representation target, detect missing schema-to-ledger links, detect source/version/hash drift, reproduce the generated report, and see the six unresolved limitations without a misleading percentage or global conformance claim.
+
+Governance reading record:
+- Chapters/readings applied — repository `AGENTS.md`; `.codex/skills/spec-pdf-to-schema/SKILL.md`; repository claim-register and publication-boundary guidance.
+- What they require here — preserve the canonical schema contract; cite PDF pages; validate generated artifacts; distinguish semantic, runtime, and hardware claims; never use stale prose as operational authority.
+- Conflicts — none found.
+- Excluded, and why — GUI/live-drive and Reframe runtime skills are outside this static MIDI2 corpus/accounting task; physical hardware remains explicitly out of scope.

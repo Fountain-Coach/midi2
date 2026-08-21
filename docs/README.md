@@ -11,6 +11,12 @@
 
 ## Specification Audit & Compliance (Updated Dec 2025)
 
+### Bidirectional standards contract
+- **[Normative Coverage Report](generated/normative-coverage.md)** - inverse ledger report with per-source dispositions and explicit unresolved items
+- **[Normative Coverage Methodology](normative-coverage-methodology.md)** - extraction, status, scope, and claim boundaries
+- **[Third-party Specification Sources](third-party-specification-sources.md)** - PDF hashes, attribution, and redistribution boundary
+- **[MIDI vs Fountain Coach Extensions](midi-vs-fountain-extensions.md)** - normative authority and extension separation
+
 ### Overview Documents
 - **[Spec Compliance Dashboard](spec-compliance-dashboard.md)** - Quick reference with visual progress bars, metrics, and roadmap
 - **[Comprehensive Spec Audit Report](comprehensive-spec-audit-report.md)** - Full analysis covering:
@@ -31,19 +37,13 @@
   - Sprint allocation
   - Status tracking (🔴🟡🟢⏸️)
 
-- **[Spec Traceability Matrix](spec-traceability-matrix.md)** - Line-by-line mapping of 132 spec requirements:
-  - M2-104-UM (UMP and Protocol) - 73 items
-  - M2-101-UM (MIDI-CI) - 17 items
-  - M2-102-U (Profiles) - 12 items
-  - M2-103-UM (Property Exchange) - 30 items
-  - Evidence paths (schema, Swift, TypeScript, tests)
-  - Cross-references to spec-audit.md
+- **[Spec Traceability Matrix](spec-traceability-matrix.md)** - generated object-to-source definition mapping. It is not the inverse normative inventory; use the [Normative Coverage Report](generated/normative-coverage.md) for that.
 
 ## Existing Documentation
 
 ### Status & Conformance
 - **[Conformance Checklist](conformance-checklist.md)** - Current implementation state against MIDI 2.0 specs
-- **[Spec Audit Log](spec-audit.md)** - Page-level citations and schema/OpenAPI mapping (49 captured, 3 pending)
+- **[Spec Audit Log](spec-audit.md)** - Generated page-level citations for the current schema mapping
 - **[Traceability](traceability.md)** - Definition of Done traceability to code/tests
 
 ### Other Resources

@@ -23,7 +23,7 @@ def rule_for(name: str, catalog: dict) -> dict:
     for rule in catalog["rules"]:
         if name in rule["names"]:
             return rule
-    return catalog["fallback"]
+    raise ValueError(f"$defs.{name}: no deliberate provenance rule; generic fallback is forbidden")
 
 
 def annotate(schema: dict, catalog: dict) -> None:
@@ -87,7 +87,7 @@ def generate(schema: dict) -> None:
         f"- Definitions with declared verification: **{len(schema['$defs'])}/{len(schema['$defs'])} (100%)**\n"
         "- Schema/OpenAPI provenance parity: enforced by `Scripts/verify_spec_provenance.py`\n\n"
         "## Scope boundary\n\n"
-        "This dashboard does not claim complete runtime implementation, test coverage, or hardware interoperability. The evidence-backed boundaries are maintained in the [claim register](claim-register.md).\n\n"
+        "This dashboard reports object-to-source traceability only. The inverse normative inventory is maintained in the [normative coverage report](generated/normative-coverage.md) and is currently partial because its unresolved audit-frontier entries are not covered. This dashboard does not claim complete runtime implementation, test coverage, or hardware interoperability. The evidence-backed boundaries are maintained in the [claim register](claim-register.md).\n\n"
         "The detailed generated matrix is [`spec-traceability.md`](generated/spec-traceability.md).\n", encoding="utf-8")
 
 

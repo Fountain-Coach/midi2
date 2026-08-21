@@ -1,14 +1,22 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "version": 1,
-  "purpose": "Canonical source and verification policy used to annotate midi2.full.closed.schema.json.",
+  "purpose": "Canonical source corpus and deliberate verification policy used to annotate midi2.full.closed.schema.json.",
+  "corpus_version": 1,
+  "source_policy": {
+    "normative_authority": "MIDI Association",
+    "hash_policy": "A source hash is part of the declared corpus. A changed source requires a versioned corpus update; it may not be silently replaced.",
+    "redistribution": "The PDFs are third-party normative source material. Redistribution status is recorded separately in docs/third-party-specification-sources.md; the repository MIT license applies only to Fountain Coach-owned material.",
+    "scope": "The declared corpus is the normative MIDI 2.0 source set used for the canonical machine-readable object. Runtime behavior, physical interoperability, and Fountain Coach extensions are separate boundaries."
+  },
+  "versioned_updates": [],
   "specifications": {
-    "M2-100-U": {"version": "1.1", "file": "M2-100-U_v1-1_MIDI_2-0_Specification_Overview.pdf"},
-    "M2-101-UM": {"version": "1.2", "file": "M2-101-UM_v1-2_MIDI-CI_Specification.pdf"},
-    "M2-102-U": {"version": "1.1", "file": "M2-102-U_v1-1_Common_Rules_for_MIDI-CI_Profiles.pdf"},
-    "M2-103-UM": {"version": "1.2", "file": "M2-103-UM_v1-2_Common Rules_for_MIDI-CI_Property_Exchange.pdf"},
-    "M2-104-UM": {"version": "1.1.2", "file": "M2-104-UM_v1-1-2_UMP_and_MIDI_2-0_Protocol_Specification.pdf"},
-    "M2-116-U": {"version": "1.0", "file": "M2-116-U_v1-0_MIDI_Clip_File_Specification.pdf"}
+    "M2-100-U": {"version": "1.1", "file": "M2-100-U_v1-1_MIDI_2-0_Specification_Overview.pdf", "sha256": "cf509bf317f1ad6b36306b248edec05b122eedbad459c197ec6b3dae0ce7722e", "normative_status": "normative", "scope_status": "declared-corpus", "official_source": "MIDI Association specification catalogue"},
+    "M2-101-UM": {"version": "1.2", "file": "M2-101-UM_v1-2_MIDI-CI_Specification.pdf", "sha256": "bba165c24d6fd6d4464b514da3f3cbcc4f7db4171057aa8a31f8910ea0037f3b", "normative_status": "normative", "scope_status": "declared-corpus", "official_source": "MIDI Association specification catalogue"},
+    "M2-102-U": {"version": "1.1", "file": "M2-102-U_v1-1_Common_Rules_for_MIDI-CI_Profiles.pdf", "sha256": "04479ab0801c2c3ef5e7a09bd4afc6d8dc92c1cb985e6c8e23adcfbd7331aacb", "normative_status": "normative", "scope_status": "declared-corpus", "official_source": "MIDI Association specification catalogue"},
+    "M2-103-UM": {"version": "1.2", "file": "M2-103-UM_v1-2_Common Rules_for_MIDI-CI_Property_Exchange.pdf", "sha256": "5deec28084ebc566116a07b5c206356db2ea23de6ecae3c075cbf31029708913", "normative_status": "normative", "scope_status": "declared-corpus", "official_source": "MIDI Association specification catalogue"},
+    "M2-104-UM": {"version": "1.1.2", "file": "M2-104-UM_v1-1-2_UMP_and_MIDI_2-0_Protocol_Specification.pdf", "sha256": "fc9b043e00600e031028f755c7075541e1e32057c3cbe9197a2a0755f1d69b05", "normative_status": "normative", "scope_status": "declared-corpus", "official_source": "MIDI Association specification catalogue"},
+    "M2-116-U": {"version": "1.0", "file": "M2-116-U_v1-0_MIDI_Clip_File_Specification.pdf", "sha256": "d182685b7d2f09667e112f6bb587ae7f0679c08dda39d163c61cbf181036da4b", "normative_status": "normative", "scope_status": "declared-corpus", "official_source": "MIDI Association specification catalogue"}
   },
   "rules": [
     {"names": ["MidiCiPropertyExchangeBody"], "document": "M2-103-UM", "page": 28, "section": "Tables 13-16", "requirement": "property-exchange-structure", "test": "Tests/MIDI2Tests/PropertyExchangeChunkingTests.swift"},
@@ -24,6 +32,5 @@
     {"names": ["UtilityOpcode", "UtilityBody", "SystemStatus", "SystemCommonRealtimeBody", "DeltaClockstampConfig"], "document": "M2-104-UM", "page": 44, "section": "Utility and System messages", "requirement": "utility-system-structure", "test": "Tests/MIDI2Tests/UtilityBodyTests.swift"},
     {"names": ["UmpMessageType", "UmpPacket", "UmpPacket32", "UmpPacket64", "UmpPacket128"], "document": "M2-104-UM", "page": 20, "section": "UMP message types and packet sizes", "requirement": "ump-packet-structure", "test": "Tests/MIDI2Tests/UmpPacketsTests.swift"},
     {"names": ["Uint4", "Uint7", "Uint8", "Uint14", "Uint16", "Uint21", "Uint28", "Uint32", "Int32", "ByteArray", "Midi2ChannelVoiceVariants"], "document": "M2-104-UM", "page": 20, "section": "UMP field widths and numeric ranges", "requirement": "ump-field-widths", "test": "Scripts/verify_spec_provenance.py::schema-constraint-validation"}
-  ],
-  "fallback": {"document": "M2-100-U", "page": 12, "section": "MIDI 2.0 semantic model overview", "requirement": "midi2-semantic-definition", "test": "Scripts/verify_spec_provenance.py::schema-constraint-validation"}
+  ]
 }

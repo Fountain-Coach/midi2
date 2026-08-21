@@ -9,7 +9,7 @@ This register distinguishes semantic evidence, runtime evidence, measured tests,
 
 The canonical MIDI2 semantic schema is source-traceable.
 
-**Reason:** All 67 schema definitions carry embedded MIDI Association provenance and declared verification metadata.
+**Reason:** All 67 schema definitions carry deliberate embedded MIDI Association provenance and declared verification metadata. This is object-to-source traceability; inverse corpus accounting is reported separately.
 
 **Evidence:**
 - `midi2.full.closed.schema.json` — canonical semantic object
@@ -18,6 +18,24 @@ The canonical MIDI2 semantic schema is source-traceable.
 
 **Exclusions:**
 - This does not claim runtime implementation completeness or hardware interoperability.
+
+## `normative-coverage-accounting` — partial
+
+The declared MIDI 2.0 corpus has a machine-checked inverse coverage ledger for the currently inventoried requirements and explicit audit-frontier gaps.
+
+**Reason:** The ledger links inventoried requirements to schema/OpenAPI targets or explicit dispositions, verifies source hashes and versions, and records six unresolved prose-audit frontiers. Unresolved items are not counted as covered.
+
+**Evidence:**
+- `docs/spec-provenance.json` — declared six-document corpus, versions, and source hashes
+- `docs/normative-requirements.json` — canonical inverse requirement ledger
+- `Scripts/verify_normative_coverage.py` — reverse-traceability verifier
+- `docs/generated/normative-coverage.md` — generated disposition report
+- `docs/normative-coverage-methodology.md` — extraction and scope methodology
+
+**Exclusions:**
+- This is explicit accounting, not a claim that every normative requirement is implemented.
+- It does not claim runtime completeness or physical hardware interoperability.
+- The six unresolved audit-frontier entries prevent the shorter claim that the entire declared specification set is represented.
 
 ## `schema-openapi-provenance-parity` — established
 

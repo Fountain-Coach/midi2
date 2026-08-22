@@ -55,11 +55,15 @@ class PageParser(HTMLParser):
 
 def fetch(url: str) -> tuple[int, str, str]:
     request = urllib.request.Request(url, headers={"User-Agent": "FountainCoachPublicationAudit/1.0"})
-    try:
-        with urllib.request.urlopen(request, timeout=1.5) as response:
-            return response.status, response.headers.get_content_type(), response.read().decode("utf-8", "replace")
-    except Exception as exc:  # noqa: BLE001 - retain bounded crawl failures in the report
-        return 0, type(exc).__name__, str(exc)
+    last_error: Exception | None = None
+    for _ in range(2):
+        try:
+            with urllib.request.urlopen(request, timeout=8) as response:
+                return response.status, response.headers.get_content_type(), response.read().decode("utf-8", "replace")
+        except Exception as exc:  # noqa: BLE001 - retain bounded crawl failures in the report
+            last_error = exc
+    assert last_error is not None
+    return 0, type(last_error).__name__, str(last_error)
 
 
 def normalise(base: str, href: str) -> str | None:
@@ -99,8 +103,12 @@ def crawl(root: str, limit: int) -> dict:
             responses = list(pool.map(fetch, batch))
         for url, (status, content_type, payload) in zip(batch, responses):
             page = {"url": url, "status": status, "content_type": content_type}
-            if status != 200 or "html" not in content_type:
+            if status != 200:
                 page["error"] = payload[:240]
+                pages.append(page)
+                continue
+            if "html" not in content_type:
+                page["machine_readable"] = True
                 pages.append(page)
                 continue
             parser = PageParser()
@@ -111,15 +119,20 @@ def crawl(root: str, limit: int) -> dict:
                 target = normalise(url, href)
                 if target and target not in seen:
                     queue.append(target)
-    counts = Counter("html" if p.get("status") == 200 and "html" in p.get("content_type", "") else "error" for p in pages)
-    return {"root": root, "crawled": len(pages), "html": counts["html"], "errors": counts["error"], "pages": pages}
+    counts = Counter(
+        "html" if p.get("status") == 200 and "html" in p.get("content_type", "")
+        else "machine" if p.get("status") == 200
+        else "error"
+        for p in pages
+    )
+    return {"root": root, "crawled": len(pages), "html": counts["html"], "machine": counts["machine"], "errors": counts["error"], "pages": pages}
 
 
 def render_report(result: dict, snapshots: list[dict]) -> str:
-    lines = ["# Fountain Coach publication estate crawl", "", f"Observed: {result['observed']}", "", "This report records public HTTPS observations. Source repositories and their validators remain authoritative for implementation status.", "", "## Surface summary", "", "| Surface | Pages crawled | HTML | Errors | Pages missing core metadata |", "|---|---:|---:|---:|---:|"]
+    lines = ["# Fountain Coach publication estate crawl", "", f"Observed: {result['observed']}", "", "This report records public HTTPS observations. Source repositories and their validators remain authoritative for implementation status.", "", "## Surface summary", "", "| Surface | Pages crawled | HTML | Machine-readable | Errors | Pages missing core metadata |", "|---|---:|---:|---:|---:|---:|"]
     for name, item in result["sites"].items():
         missing = sum(bool(page.get("missing_meta")) for page in item["pages"])
-        lines.append(f"| `{name}` | {item['crawled']} | {item['html']} | {item['errors']} | {missing} |")
+        lines.append(f"| `{name}` | {item['crawled']} | {item['html']} | {item.get('machine', 0)} | {item['errors']} | {missing} |")
     lines += ["", "## Source history used for the audit", "", "| Source | Revision | Latest subject |", "|---|---|---|"]
     for snapshot in snapshots:
         lines.append(f"| `{snapshot['path']}` | `{snapshot.get('revision', '—')}` | {snapshot.get('subject', snapshot.get('status', '—'))} |")
@@ -140,7 +153,7 @@ def main() -> int:
     args.markdown.parent.mkdir(parents=True, exist_ok=True)
     args.json.write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     args.markdown.write_text(render_report(result, snapshots), encoding="utf-8")
-    print(json.dumps({name: {key: item[key] for key in ("crawled", "html", "errors")} for name, item in sites.items()}, indent=2))
+    print(json.dumps({name: {key: item[key] for key in ("crawled", "html", "machine", "errors")} for name, item in sites.items()}, indent=2))
     return 0
 
 

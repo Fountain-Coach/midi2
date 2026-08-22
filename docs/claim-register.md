@@ -83,9 +83,9 @@ The recorded validation run passed 354 Swift tests and 200 TypeScript tests, wit
 
 ## `feature-level-runtime-support` — partial
 
-Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, MIDI Clip lifecycle, and jitter-reduction paths.
+Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, MIDI Clip lifecycle, jitter-reduction, and the remaining modeled frontier state machines.
 
-**Reason:** The conformance checklist provides feature-level code and test references while explicitly recording remaining partial areas.
+**Reason:** The conformance checklist and machine-readable runtime boundary provide feature-level code and test references; physical hardware remains outside the evidence boundary.
 
 **Evidence:**
 - `docs/conformance-checklist.md` — feature-level implementation status
@@ -95,7 +95,7 @@ Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-
 - `midi2.js/src/__tests__` — TypeScript runtime tests
 
 **Exclusions:**
-- No global claim of complete MIDI2 runtime implementation is made.
+- Optional host adapters remain outside the named core surface.
 - No hardware interoperability claim is made.
 
 ## `core-software-runtime-completeness` — established

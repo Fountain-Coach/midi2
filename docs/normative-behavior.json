@@ -216,7 +216,7 @@
       "version": "1.1",
       "page": 15,
       "section": "5 Minimum Compatibility Requirements of MIDI 2.0",
-      "status": "modeled-slice",
+      "status": "implemented-slice",
       "states": ["unknown", "discovered", "feature-selected", "compatible", "incompatible"],
       "initial": "unknown",
       "terminal": ["compatible", "incompatible"],
@@ -227,8 +227,8 @@
         {"from": "feature-selected", "event": "compatibility-check-fails", "to": "incompatible"}
       ],
       "invariants": ["selection is derived from discovered capabilities", "incompatible feature use is not admitted as compatible"],
-      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-100-midi2-compatibility-selection-v1.1"}],
-      "verification": ["Scripts/verify_normative_coverage.py"]
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-100-midi2-compatibility-selection-v1.1"}, {"kind": "swift-source", "path": "Sources/MIDI2CI/ModeledFrontiers.swift", "symbol": "CompatibilitySelection"}, {"kind": "typescript-source", "path": "midi2.js/src/modeled-frontiers.ts", "symbol": "selectCompatibleFeatures"}],
+      "verification": ["Scripts/verify_normative_coverage.py", "Tests/MIDI2Tests/ModeledFrontierTests.swift", "midi2.js/src/__tests__/modeled-frontiers.test.ts"]
     },
     {
       "id": "m2-101-midi-ci-transaction-failure-v1.2",
@@ -236,7 +236,7 @@
       "version": "1.2",
       "page": 18,
       "section": "MIDI-CI communication and transaction rules",
-      "status": "modeled-slice",
+      "status": "implemented-slice",
       "states": ["idle", "request-sent", "awaiting-response", "completed", "timed-out", "invalid"],
       "initial": "idle",
       "terminal": ["completed", "timed-out", "invalid"],
@@ -249,8 +249,8 @@
         {"from": "awaiting-response", "event": "invalid-response", "to": "invalid"}
       ],
       "invariants": ["a transaction completes only after a valid response", "timeout and invalid-message outcomes are terminal failures, not success"],
-      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-101-midi-ci-transaction-failure-v1.2"}],
-      "verification": ["Scripts/verify_normative_coverage.py"]
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-101-midi-ci-transaction-failure-v1.2"}, {"kind": "swift-source", "path": "Sources/MIDI2CI/ModeledFrontiers.swift", "symbol": "MidiCITransaction"}, {"kind": "typescript-source", "path": "midi2.js/src/modeled-frontiers.ts", "symbol": "MidiCiTransaction"}],
+      "verification": ["Scripts/verify_normative_coverage.py", "Tests/MIDI2Tests/ModeledFrontierTests.swift", "midi2.js/src/__tests__/modeled-frontiers.test.ts"]
     },
     {
       "id": "m2-102-profile-channel-allocation-v1.1",
@@ -258,7 +258,7 @@
       "version": "1.1",
       "page": 13,
       "section": "Devices, Function Blocks, Groups, Ports, and MIDI Channels",
-      "status": "modeled-slice",
+      "status": "implemented-slice",
       "states": ["unallocated", "inquired", "negotiating", "allocated", "rejected", "released"],
       "initial": "unallocated",
       "terminal": ["rejected", "released"],
@@ -270,8 +270,8 @@
         {"from": "allocated", "event": "profile-release", "to": "released"}
       ],
       "invariants": ["allocation is not established before negotiation acceptance", "released channels are not reported as allocated"],
-      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-102-profile-channel-allocation-v1.1"}],
-      "verification": ["Scripts/verify_normative_coverage.py"]
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-102-profile-channel-allocation-v1.1"}, {"kind": "swift-source", "path": "Sources/MIDI2CI/ModeledFrontiers.swift", "symbol": "ProfileChannelAllocation"}, {"kind": "typescript-source", "path": "midi2.js/src/modeled-frontiers.ts", "symbol": "ProfileChannelAllocation"}],
+      "verification": ["Scripts/verify_normative_coverage.py", "Tests/MIDI2Tests/ModeledFrontierTests.swift", "midi2.js/src/__tests__/modeled-frontiers.test.ts"]
     },
     {
       "id": "m2-103-property-exchange-resource-errors-v1.2",
@@ -279,7 +279,7 @@
       "version": "1.2",
       "page": 22,
       "section": "Property Exchange message and resource rules",
-      "status": "modeled-slice",
+      "status": "implemented-slice",
       "states": ["idle", "request", "accepted", "responding", "completed", "rejected", "invalid"],
       "initial": "idle",
       "terminal": ["completed", "rejected", "invalid"],
@@ -292,8 +292,8 @@
         {"from": "request", "event": "invalid-resource-or-flow-control", "to": "invalid"}
       ],
       "invariants": ["an invalid resource or flow-control use cannot complete successfully", "completion follows the declared response or notification sequence"],
-      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-103-property-exchange-resource-errors-v1.2"}],
-      "verification": ["Scripts/verify_normative_coverage.py"]
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-103-property-exchange-resource-errors-v1.2"}, {"kind": "swift-source", "path": "Sources/MIDI2CI/ModeledFrontiers.swift", "symbol": "PropertyExchangeResourceTransaction"}, {"kind": "typescript-source", "path": "midi2.js/src/modeled-frontiers.ts", "symbol": "PropertyExchangeResourceTransaction"}],
+      "verification": ["Scripts/verify_normative_coverage.py", "Tests/MIDI2Tests/ModeledFrontierTests.swift", "midi2.js/src/__tests__/modeled-frontiers.test.ts"]
     },
     {
       "id": "m2-104-ump-ordering-reserved-transport-v1.1.2",
@@ -301,7 +301,7 @@
       "version": "1.1.2",
       "page": 19,
       "section": "UMP basic packet and message format",
-      "status": "modeled-slice",
+      "status": "implemented-slice",
       "states": ["idle", "ordered", "transported", "reserved-value", "invalid"],
       "initial": "idle",
       "terminal": ["transported", "reserved-value", "invalid"],
@@ -312,8 +312,8 @@
         {"from": "idle", "event": "invalid-packet", "to": "invalid"}
       ],
       "invariants": ["reserved values are not interpreted as admitted message semantics", "transport success does not repair an invalid UMP packet"],
-      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-104-ump-ordering-reserved-transport-v1.1.2"}],
-      "verification": ["Scripts/verify_normative_coverage.py"]
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-104-ump-ordering-reserved-transport-v1.1.2"}, {"kind": "swift-source", "path": "Sources/MIDI2/UmpOrderingValidator.swift", "symbol": "UmpOrderingValidator"}, {"kind": "typescript-source", "path": "midi2.js/src/modeled-frontiers.ts", "symbol": "UmpOrderingValidator"}],
+      "verification": ["Scripts/verify_normative_coverage.py", "Tests/MIDI2Tests/ModeledFrontierTests.swift", "midi2.js/src/__tests__/modeled-frontiers.test.ts"]
     }
   ],
   "unmodeled_frontiers": []

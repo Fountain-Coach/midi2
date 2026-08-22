@@ -40,6 +40,12 @@
       "evidence": ["Tests/MIDI2Tests/NegativeTests", "midi2.js/src/__tests__/negative.test.ts", "docs/negative-test-matrix.md"]
     },
     {
+      "id": "modeled-frontier-runtime",
+      "status": "verified",
+      "surface": "Compatibility selection, MIDI-CI transaction failure, profile channel allocation, Property Exchange resource errors, and software UMP ordering/reserved-value validation",
+      "evidence": ["Sources/MIDI2CI/ModeledFrontiers.swift", "Sources/MIDI2/UmpOrderingValidator.swift", "Tests/MIDI2Tests/ModeledFrontierTests.swift", "midi2.js/src/modeled-frontiers.ts", "midi2.js/src/__tests__/modeled-frontiers.test.ts", "docs/normative-behavior.json"]
+    },
+    {
       "id": "optional-host-adapters",
       "status": "out-of-scope",
       "surface": "Host-specific adapter negotiation and worker-only timing environments",

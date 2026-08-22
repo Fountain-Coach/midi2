@@ -230,3 +230,28 @@ Governance reading record:
 - What they forbid here — treating prose or screenshots as protocol authority; forcing behavioral rules into JSON Schema; claiming runtime or hardware completeness from static/model tests; editing without a phase plan.
 - Conflicts — none found between the user’s request for the full object and the repository’s requirement to make incomplete coverage explicit.
 - Excluded, and why — GUI/live-drive, deployment, and physical-device acceptance are outside this static protocol-model phase; the remaining source-prose audit stays visible as unresolved or explicitly bounded work.
+
+---
+
+Goal:
+Implement the remaining modeled frontiers as owned Swift and TypeScript runtime behavior and release the bounded software claim.
+Scope:
+Compatibility selection, MIDI-CI transaction failure, Profile channel allocation, Property Exchange resource errors, UMP ordering/reserved-value validation, parity tests, runtime evidence, claims, and the v0.11.0 package release.
+Non-goals:
+Physical MIDI 2.0 hardware interoperability, external-device acceptance, and optional host adapters.
+Constraints:
+Every promoted behavior must have executable negative-path evidence in both languages; the MIDI Association remains normative and software validation must not be described as hardware proof.
+Dependencies:
+The merged v0.10.0 provenance/coverage/runtime gates and the protected-main pull-request workflow.
+Risks:
+Modeled state machines may be broader than a bounded helper API. The implementation ledger therefore names the exact software symbols and tests rather than claiming the full physical protocol environment.
+Steps:
+  - [x] Add cross-language stateful APIs for all five remaining modeled frontiers.
+  - [x] Add parity and negative-path tests; run Swift and TypeScript suites.
+  - [x] Promote the five behavior records and add runtime completeness evidence while retaining hardware exclusion.
+  - [x] Regenerate runtime and claim reports; run provenance, coverage, claims, docs, and diff checks.
+  - [ ] Bump package versions, publish through a pull request, merge, and create release artifacts.
+Validation:
+`swift test --parallel`, `npm run ci --prefix midi2.js`, runtime/provenance/normative/claim/docs verifiers, generated-artifact freshness, and `git diff --check`.
+Acceptance Criteria:
+All five remaining modeled frontiers have tested Swift and TypeScript software surfaces; the core software claim is evidence-backed; hardware interoperability remains excluded; v0.11.0 artifacts are prepared through the PR workflow.

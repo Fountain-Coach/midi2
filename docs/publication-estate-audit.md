@@ -19,7 +19,7 @@ This report records public HTTPS observations. Source repositories and their val
 
 | Source | Revision | Latest subject |
 |---|---|---|
-| `/Volumes/NINJA2/Github-Desktop/midi2` | `9435c35b01cb82615ca2b2558bef95fa29a9694a` | Fix MIDI2 publication smoke check (#153) |
+| `/Volumes/NINJA2/Github-Desktop/midi2` | `489156a112bbf2a3dab1d2e372e03f28146c8e0a` | Record clean publication estate crawl (#154) |
 | `/Volumes/NINJA2/Github-Desktop/book-of-reframe` | `f2025e0228a1530e573e7838f08eaf0584132d77` | Mark readings evidence as a live drive |
 | `/Volumes/NINJA2/Github-Desktop/Reframe-Refactoring` | `cdde7602babe595c628a612fad36908c6a802793` | Complete governance publication metadata (#23) |
 | `/Volumes/NINJA2/Github-Desktop/midi2-gpu-fabric` | `10f219f6fb09d074a143d6bcb2dc80d513fb323a` | Add Codex login instrument system icon |

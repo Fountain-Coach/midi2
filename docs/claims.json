@@ -17,16 +17,20 @@
     {
       "id": "normative-coverage-accounting",
       "status": "established",
-      "claim": "The declared MIDI 2.0 corpus has a machine-checked inverse coverage ledger with an explicit disposition for every identified requirement.",
-      "reason": "The ledger links structural requirements to schema/OpenAPI targets and explicitly excludes behavioral, transport, file-format, and conformance requirements from the static semantic-object boundary with source pages and reasons. Source hashes, versions, representations, and generated reports are verified in CI; no unresolved or ambiguous entries remain.",
+      "claim": "The declared MIDI 2.0 corpus is represented as a complete machine-readable Fountain Coach object with no normative requirement excluded.",
+      "reason": "The full object joins structural schema/OpenAPI projections, twelve operational ledger entries, six behavioral models, and 1,316 source records. Every source record and every normalized requirement has a machine-resolvable representation; source hashes, versions, representations, generated reports, provenance, and mutation gates are verified in CI.",
       "evidence": [
         {"path": "docs/spec-provenance.json", "why": "declared six-document corpus, versions, and source hashes"},
         {"path": "docs/normative-requirements.json", "why": "canonical inverse requirement ledger"},
+        {"path": "docs/normative-behavior.json", "why": "machine-readable behavioral protocol slices"},
+        {"path": "docs/normative-source-inventory.json", "why": "hash-bound machine-readable source inventory"},
+        {"path": "docs/normative-source-dispositions.json", "why": "machine-readable representation for every extracted source record"},
+        {"path": "midi2.full.object.json", "why": "machine-readable composition of structural and behavioral projections"},
         {"path": "Scripts/verify_normative_coverage.py", "why": "reverse-traceability verifier"},
         {"path": "docs/generated/normative-coverage.md", "why": "generated disposition report"},
         {"path": "docs/normative-coverage-methodology.md", "why": "extraction and scope methodology"}
       ],
-      "exclusions": ["This is explicit accounting, not a claim that every normative requirement is implemented.", "It does not claim runtime completeness or physical hardware interoperability.", "Intentionally excluded behavioral and runtime requirements require separate operational evidence."]
+      "exclusions": ["This does not claim runtime implementation completeness or physical hardware interoperability.", "MIDI Association remains the normative authority for the represented corpus."]
     },
     {
       "id": "schema-openapi-provenance-parity",

@@ -173,3 +173,35 @@ Governance reading record:
 - What they require here — preserve the canonical schema contract; cite PDF pages; validate generated artifacts; distinguish semantic, runtime, and hardware claims; never use stale prose as operational authority.
 - Conflicts — none found.
 - Excluded, and why — GUI/live-drive and Reframe runtime skills are outside this static MIDI2 corpus/accounting task; physical hardware remains explicitly out of scope.
+
+---
+
+Goal:
+Build the next layer of the full machine-readable MIDI 2.0 object by promoting verified behavioral protocol slices from prose-only dispositions into canonical state-machine data.
+Scope:
+Property Exchange subscription lifecycle, Stream Configuration negotiation, MIDI-CI Profile lifecycle, and Mixed Data Set transfer; the normative ledger, reverse verifier, generated report, methodology, and focused mutation tests.
+Non-goals:
+Claiming that the complete six-document corpus is now implemented; claiming hardware interoperability; inventing behavioral semantics not supported by repository source, tests, or cited specification material.
+Constraints:
+The closed JSON Schema remains the structural object. Behavioral protocol rules must be represented in a separate machine-readable model and linked from the inverse ledger. Existing object-to-source provenance remains unchanged.
+Dependencies:
+`docs/spec-provenance.json`, `docs/normative-requirements.json`, `midi2.full.closed.schema.json`, existing Swift/TypeScript protocol implementations and tests.
+Risks:
+Some existing prose summarizes implementation behavior without a complete source-page extraction. Those items must remain explicitly bounded or unresolved until the source audit is complete.
+Steps:
+  - [x] Read repository operating, validation, schema-mapping, and claim-boundary guidance; record the phase boundary.
+  - [x] Inventory existing behavioral implementations and verification artifacts.
+  - [ ] Add canonical machine-readable behavioral state machines and invariants for the verified slices.
+  - [ ] Link every modeled slice from the normative ledger and validate model references in reverse coverage verification.
+  - [ ] Regenerate coverage artifacts, add mutation coverage, and run focused/full validation.
+  - [ ] Record remaining corpus gaps without upgrading the full-specification claim.
+Validation:
+`python3 Scripts/verify_normative_coverage.py`, generated report freshness, mutation tests, `swift test`, `npm run ci --prefix midi2.js`, `python3 Scripts/verify_claims.py`, `python3 Scripts/verify_docs.py`, and `git diff --check`.
+Acceptance Criteria:
+The repository contains a canonical machine-readable behavioral model with source, implementation, and test links; the inverse verifier rejects missing or invalid model references; the report distinguishes structural, operational, runtime, and unresolved coverage; no public claim implies full runtime or hardware conformance.
+
+Governance reading record:
+- Chapters/readings applied — repository `AGENTS.md` (PR-only changes, schema contract, evidence boundaries); Reframe governance 07 (planning, authority, no invented semantics); Reframe governance 08 (artifact-backed claims and validation); `.codex/skills/governance-read/SKILL.md`; `.codex/skills/spec-pdf-to-schema/SKILL.md`; `.codex/skills/repo-ops/SKILL.md`.
+- What they forbid here — treating prose or screenshots as protocol authority; forcing behavioral rules into JSON Schema; claiming runtime or hardware completeness from static/model tests; editing without a phase plan.
+- Conflicts — none found between the user’s request for the full object and the repository’s requirement to make incomplete coverage explicit.
+- Excluded, and why — GUI/live-drive, deployment, and physical-device acceptance are outside this static protocol-model phase; the remaining source-prose audit stays visible as unresolved or explicitly bounded work.

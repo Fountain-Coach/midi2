@@ -1,0 +1,319 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "model": "fountain-coach-midi2-normative-behavior",
+  "version": 1,
+  "purpose": "Machine-readable behavioral and temporal companion to midi2.full.closed.schema.json.",
+  "authority": "MIDI Association specifications declared in docs/spec-provenance.json",
+  "boundary": "This file models verified protocol slices. It does not by itself establish complete runtime implementation or hardware interoperability.",
+  "state_machines": [
+    {
+      "id": "m2-101-midi-ci-protocol-negotiation-v1.2",
+      "document": "M2-101-UM",
+      "version": "1.2",
+      "page": 45,
+      "section": "MIDI-CI message exchange and protocol negotiation",
+      "status": "implemented-slice",
+      "states": ["idle", "request-received", "response-emitted"],
+      "initial": "idle",
+      "terminal": ["response-emitted"],
+      "transitions": [
+        {
+          "from": "idle",
+          "event": "protocol-negotiation-request",
+          "to": "request-received",
+          "preconditions": ["request carries one or more supported protocol values"]
+        },
+        {
+          "from": "request-received",
+          "event": "select-supported-protocol",
+          "to": "response-emitted",
+          "postconditions": ["response identifies the accepted protocol or no accepted protocol"]
+        }
+      ],
+      "invariants": ["response is derived from the request's supported protocol set"],
+      "implementation": [
+        {"kind": "swift-source", "path": "Sources/MIDI2CI/ProtocolNegotiation.swift", "symbol": "ProtocolNegotiationRequest"},
+        {"kind": "swift-source", "path": "Sources/MIDI2CI/ProtocolNegotiation.swift", "symbol": "ProtocolNegotiationResponse"}
+      ],
+      "verification": ["Tests/MIDI2Tests/MidiCiHandshakeIntegrationTests.swift"]
+    },
+    {
+      "id": "m2-102-profile-session-lifecycle-v1.1",
+      "document": "M2-102-U",
+      "version": "1.1",
+      "page": 15,
+      "section": "Profile inquiry, enable/disable, details, and added/removed reports",
+      "status": "implemented-slice",
+      "states": ["unknown", "supported", "enabled", "disabled", "removed"],
+      "initial": "unknown",
+      "terminal": [],
+      "transitions": [
+        {"from": "unknown", "event": "inquiry-supported", "to": "supported"},
+        {"from": "supported", "event": "set-on", "to": "enabled", "postconditions": ["enabled report carries ok=1"]},
+        {"from": "enabled", "event": "set-off", "to": "disabled", "postconditions": ["disabled report is emitted"]},
+        {"from": "supported", "event": "removed-report", "to": "removed", "postconditions": ["profile is no longer advertised"]},
+        {"from": "enabled", "event": "removed-report", "to": "removed", "postconditions": ["profile is removed from enabled associations"]}
+      ],
+      "invariants": ["set-on for an unsupported profile does not enter enabled", "details reports distinguish supported and enabled"],
+      "implementation": [
+        {"kind": "swift-source", "path": "Sources/MIDI2CI/ProfileSession.swift", "symbol": "ProfileSession.handle"}
+      ],
+      "verification": ["Tests/MIDI2Tests/ProfileSessionTests.swift", "Tests/MIDI2Tests/ProfileReportsTests.swift"]
+    },
+    {
+      "id": "m2-103-property-exchange-subscription-v1.2",
+      "document": "M2-103-UM",
+      "version": "1.2",
+      "page": 28,
+      "section": "Property Exchange subscription lifecycle and flow control",
+      "status": "implemented-slice",
+      "states": ["idle", "started", "partial", "full", "notifying", "ended", "failed"],
+      "initial": "idle",
+      "terminal": ["ended", "failed"],
+      "transitions": [
+        {"from": "idle", "event": "start", "to": "started", "preconditions": ["subscriptionId is present"]},
+        {"from": "started", "event": "partial", "to": "partial"},
+        {"from": "started", "event": "full", "to": "full"},
+        {"from": "partial", "event": "full", "to": "full"},
+        {"from": "full", "event": "notify", "to": "notifying", "preconditions": ["resource and subscriptionId match", "chunk order is next expected chunk when flow control is active"]},
+        {"from": "notifying", "event": "notify", "to": "notifying", "postconditions": ["ACK is emitted for an accepted flow-control chunk"]},
+        {"from": "notifying", "event": "timeout", "to": "notifying", "postconditions": ["NAK and retryAfterMs are emitted until retry cap"]},
+        {"from": "notifying", "event": "retry-cap-exhausted", "to": "failed", "postconditions": ["timeout status 408 is emitted"]},
+        {"from": "notifying", "event": "end", "to": "ended"}
+      ],
+      "invariants": ["unknown subscriptions return 404", "out-of-order chunks return 409 or NAK", "resource and encoding remain stable across a chunked transfer"],
+      "implementation": [
+        {"kind": "swift-source", "path": "Sources/MIDI2CI/PropertyExchange.swift", "symbol": "PropertyExchangeSession"},
+        {"kind": "typescript-source", "path": "midi2.js/src/pe-subscriptions.ts", "symbol": "PeSubscriptionManager"}
+      ],
+      "verification": ["Tests/MIDI2Tests/PropertyExchangeSubscriptionTests.swift", "Tests/MIDI2Tests/PropertyExchangeChunkedSetTests.swift", "midi2.js/src/__tests__/pe-subscriptions.test.ts"]
+    },
+    {
+      "id": "m2-104-stream-configuration-negotiation-v1.1.2",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 37,
+      "section": "5.2 Stream Configuration Request and Notification; Figures 18-19",
+      "status": "implemented-slice",
+      "states": ["unconfigured", "negotiated-midi1", "negotiated-midi2"],
+      "initial": "unconfigured",
+      "terminal": [],
+      "transitions": [
+        {"from": "unconfigured", "event": "stream-config-request", "to": "negotiated-midi1", "postconditions": ["a notification is emitted on first negotiation"]},
+        {"from": "unconfigured", "event": "stream-config-request-midi2-supported", "to": "negotiated-midi2", "postconditions": ["MIDI 2.0 is selected when requested and supported"]},
+        {"from": "negotiated-midi1", "event": "stream-config-request-midi2-supported", "to": "negotiated-midi2", "postconditions": ["protocol switch is reported"]},
+        {"from": "negotiated-midi2", "event": "stream-config-request", "to": "negotiated-midi2", "postconditions": ["unsupported JR directions are cleared"]}
+      ],
+      "invariants": ["protocol selection is the intersection of request and responder capabilities", "JR Tx/Rx flags are independently intersected", "a mismatch or protocol switch requires peer notification"],
+      "implementation": [
+        {"kind": "swift-source", "path": "Sources/MIDI2/Stream/NegotiationSession.swift", "symbol": "StreamNegotiationSession.negotiateStreamConfig"},
+        {"kind": "typescript-source", "path": "midi2.js/src/stream-negotiation.ts", "symbol": "StreamNegotiationSession"}
+      ],
+      "verification": ["Tests/MIDI2Tests/StreamNegotiationTests.swift", "midi2.js/src/__tests__/stream-negotiation.test.ts"]
+    },
+    {
+      "id": "m2-104-mixed-data-set-transfer-v1.1.2",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 50,
+      "section": "Mixed Data Set chunking and reassembly",
+      "status": "implemented-slice",
+      "states": ["idle", "fragmenting", "reassembling", "complete", "invalid"],
+      "initial": "idle",
+      "terminal": ["complete", "invalid"],
+      "transitions": [
+        {"from": "idle", "event": "fragment", "to": "fragmenting", "preconditions": ["chunk metadata is valid"]},
+        {"from": "fragmenting", "event": "emit-next-chunk", "to": "fragmenting"},
+        {"from": "fragmenting", "event": "last-chunk-emitted", "to": "complete"},
+        {"from": "idle", "event": "receive-first-chunk", "to": "reassembling"},
+        {"from": "reassembling", "event": "receive-next-chunk", "to": "reassembling", "preconditions": ["chunk identity and order remain consistent"]},
+        {"from": "reassembling", "event": "receive-final-chunk", "to": "complete"},
+        {"from": "reassembling", "event": "invalid-sequence", "to": "invalid"}
+      ],
+      "invariants": ["chunk number and total chunk count identify one transfer", "invalid sequences do not produce a completed object"],
+      "implementation": [
+        {"kind": "swift-source", "path": "Sources/MIDI2/Data/MixedDataSet.swift", "symbol": "MixedDataSet.fragment"},
+        {"kind": "swift-source", "path": "Sources/MIDI2/Data/MixedDataSet.swift", "symbol": "MixedDataSet.reassemble"}
+      ],
+      "verification": ["Tests/MIDI2Tests/DataMessageBodyTests.swift", "Tests/MIDI2Tests/DataMessageKindTests.swift"]
+    },
+    {
+      "id": "m2-116-midi-clip-file-lifecycle-v1.0",
+      "document": "M2-116-U",
+      "version": "1.0",
+      "page": 12,
+      "section": "Sections 3.2, 5, 6, and 7 — Clip ordering, timing, and termination",
+      "status": "modeled-slice",
+      "states": [
+        "file-header",
+        "configuration-header",
+        "sequence-start",
+        "sequence-events",
+        "sequence-end",
+        "invalid"
+      ],
+      "initial": "file-header",
+      "terminal": ["sequence-end", "invalid"],
+      "transitions": [
+        {
+          "from": "file-header",
+          "event": "read-eight-byte-smf2clip-header",
+          "to": "configuration-header",
+          "postconditions": ["all following data is UMP-format"]
+        },
+        {
+          "from": "configuration-header",
+          "event": "read-profile-dctpq-and-configuration-ump",
+          "to": "sequence-start",
+          "preconditions": [
+            "DCTPQ is the first message after the file header and any profile identifiers",
+            "configuration messages use the permitted preceding Delta Clockstamp ordering"
+          ]
+        },
+        {
+          "from": "sequence-start",
+          "event": "read-start-of-clip-with-delta-clockstamp",
+          "to": "sequence-events"
+        },
+        {
+          "from": "sequence-events",
+          "event": "read-ump-event-with-preceding-delta-clockstamp",
+          "to": "sequence-events"
+        },
+        {
+          "from": "sequence-events",
+          "event": "read-end-of-clip-with-delta-clockstamp",
+          "to": "sequence-end",
+          "postconditions": ["no data follows the End of Clip event"]
+        },
+        {
+          "from": "configuration-header",
+          "event": "ordering-or-configuration-violation",
+          "to": "invalid"
+        },
+        {
+          "from": "sequence-events",
+          "event": "missing-clockstamp-or-data-after-end",
+          "to": "invalid"
+        }
+      ],
+      "invariants": [
+        "the file header is exactly eight bytes spelling SMF2CLIP",
+        "the configuration header precedes sequence data",
+        "the first sequence event is Start of Clip and the final event is End of Clip",
+        "event timing is determined by the most recent preceding Delta Clockstamp",
+        "Property Exchange resources are not admitted to the MIDI Clip semantic object"
+      ],
+      "implementation": [
+        {"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-116-midi-clip-file-lifecycle-v1.0"}
+      ],
+      "verification": ["Scripts/verify_normative_coverage.py"]
+    },
+    {
+      "id": "m2-100-midi2-compatibility-selection-v1.1",
+      "document": "M2-100-U",
+      "version": "1.1",
+      "page": 15,
+      "section": "5 Minimum Compatibility Requirements of MIDI 2.0",
+      "status": "modeled-slice",
+      "states": ["unknown", "discovered", "feature-selected", "compatible", "incompatible"],
+      "initial": "unknown",
+      "terminal": ["compatible", "incompatible"],
+      "transitions": [
+        {"from": "unknown", "event": "discover-device-capabilities", "to": "discovered"},
+        {"from": "discovered", "event": "select-supported-feature-set", "to": "feature-selected"},
+        {"from": "feature-selected", "event": "compatibility-check-passes", "to": "compatible"},
+        {"from": "feature-selected", "event": "compatibility-check-fails", "to": "incompatible"}
+      ],
+      "invariants": ["selection is derived from discovered capabilities", "incompatible feature use is not admitted as compatible"],
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-100-midi2-compatibility-selection-v1.1"}],
+      "verification": ["Scripts/verify_normative_coverage.py"]
+    },
+    {
+      "id": "m2-101-midi-ci-transaction-failure-v1.2",
+      "document": "M2-101-UM",
+      "version": "1.2",
+      "page": 18,
+      "section": "MIDI-CI communication and transaction rules",
+      "status": "modeled-slice",
+      "states": ["idle", "request-sent", "awaiting-response", "completed", "timed-out", "invalid"],
+      "initial": "idle",
+      "terminal": ["completed", "timed-out", "invalid"],
+      "transitions": [
+        {"from": "idle", "event": "send-request", "to": "request-sent"},
+        {"from": "request-sent", "event": "request-accepted", "to": "awaiting-response"},
+        {"from": "awaiting-response", "event": "valid-response", "to": "completed"},
+        {"from": "awaiting-response", "event": "response-timeout", "to": "timed-out"},
+        {"from": "request-sent", "event": "invalid-message", "to": "invalid"},
+        {"from": "awaiting-response", "event": "invalid-response", "to": "invalid"}
+      ],
+      "invariants": ["a transaction completes only after a valid response", "timeout and invalid-message outcomes are terminal failures, not success"],
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-101-midi-ci-transaction-failure-v1.2"}],
+      "verification": ["Scripts/verify_normative_coverage.py"]
+    },
+    {
+      "id": "m2-102-profile-channel-allocation-v1.1",
+      "document": "M2-102-U",
+      "version": "1.1",
+      "page": 13,
+      "section": "Devices, Function Blocks, Groups, Ports, and MIDI Channels",
+      "status": "modeled-slice",
+      "states": ["unallocated", "inquired", "negotiating", "allocated", "rejected", "released"],
+      "initial": "unallocated",
+      "terminal": ["rejected", "released"],
+      "transitions": [
+        {"from": "unallocated", "event": "profile-inquiry", "to": "inquired"},
+        {"from": "inquired", "event": "begin-profile-negotiation", "to": "negotiating"},
+        {"from": "negotiating", "event": "channel-allocation-accepted", "to": "allocated"},
+        {"from": "negotiating", "event": "channel-allocation-rejected", "to": "rejected"},
+        {"from": "allocated", "event": "profile-release", "to": "released"}
+      ],
+      "invariants": ["allocation is not established before negotiation acceptance", "released channels are not reported as allocated"],
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-102-profile-channel-allocation-v1.1"}],
+      "verification": ["Scripts/verify_normative_coverage.py"]
+    },
+    {
+      "id": "m2-103-property-exchange-resource-errors-v1.2",
+      "document": "M2-103-UM",
+      "version": "1.2",
+      "page": 22,
+      "section": "Property Exchange message and resource rules",
+      "status": "modeled-slice",
+      "states": ["idle", "request", "accepted", "responding", "completed", "rejected", "invalid"],
+      "initial": "idle",
+      "terminal": ["completed", "rejected", "invalid"],
+      "transitions": [
+        {"from": "idle", "event": "request-resource", "to": "request"},
+        {"from": "request", "event": "resource-accepted", "to": "accepted"},
+        {"from": "accepted", "event": "emit-response-or-notification", "to": "responding"},
+        {"from": "responding", "event": "resource-complete", "to": "completed"},
+        {"from": "request", "event": "resource-rejected", "to": "rejected"},
+        {"from": "request", "event": "invalid-resource-or-flow-control", "to": "invalid"}
+      ],
+      "invariants": ["an invalid resource or flow-control use cannot complete successfully", "completion follows the declared response or notification sequence"],
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-103-property-exchange-resource-errors-v1.2"}],
+      "verification": ["Scripts/verify_normative_coverage.py"]
+    },
+    {
+      "id": "m2-104-ump-ordering-reserved-transport-v1.1.2",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 19,
+      "section": "UMP basic packet and message format",
+      "status": "modeled-slice",
+      "states": ["idle", "ordered", "transported", "reserved-value", "invalid"],
+      "initial": "idle",
+      "terminal": ["transported", "reserved-value", "invalid"],
+      "transitions": [
+        {"from": "idle", "event": "validate-ump-order-and-width", "to": "ordered"},
+        {"from": "ordered", "event": "send-through-selected-transport", "to": "transported"},
+        {"from": "idle", "event": "reserved-value", "to": "reserved-value"},
+        {"from": "idle", "event": "invalid-packet", "to": "invalid"}
+      ],
+      "invariants": ["reserved values are not interpreted as admitted message semantics", "transport success does not repair an invalid UMP packet"],
+      "implementation": [{"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-104-ump-ordering-reserved-transport-v1.1.2"}],
+      "verification": ["Scripts/verify_normative_coverage.py"]
+    }
+  ],
+  "unmodeled_frontiers": []
+}

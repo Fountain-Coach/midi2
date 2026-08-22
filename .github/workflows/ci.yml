@@ -11,6 +11,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Install normative-source audit tools
+        run: brew install ghostscript poppler
       - name: Build (warnings as errors)
         run: swift build -Xswiftc -warnings-as-errors
       - name: Run tests
@@ -43,6 +45,8 @@ jobs:
         run: |
           python3 Scripts/generate_spec_traceability.py --check
           python3 Scripts/verify_spec_provenance.py
+          python3 Scripts/generate_normative_source_inventory.py --check
+          python3 Scripts/generate_normative_source_dispositions.py --check
           python3 Scripts/generate_normative_coverage.py --check
           python3 Scripts/verify_normative_coverage.py
           python3 -m unittest discover -s Tests -p 'test_spec_provenance.py' -v

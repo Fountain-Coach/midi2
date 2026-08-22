@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 VERIFY = ROOT / "Scripts/verify_normative_coverage.py"
 
 
-def run(ledger=None, catalog=None, schema=None):
+def run(ledger=None, catalog=None, schema=None, behavior=None, source_inventory=None, source_dispositions=None, full_object=None):
     command = [sys.executable, str(VERIFY)]
     if ledger:
         command += ["--ledger", str(ledger)]
@@ -19,6 +19,14 @@ def run(ledger=None, catalog=None, schema=None):
         command += ["--catalog", str(catalog)]
     if schema:
         command += ["--schema", str(schema)]
+    if behavior:
+        command += ["--behavior", str(behavior)]
+    if source_inventory:
+        command += ["--source-inventory", str(source_inventory)]
+    if source_dispositions:
+        command += ["--source-dispositions", str(source_dispositions)]
+    if full_object:
+        command += ["--full-object", str(full_object)]
     return subprocess.run(command, cwd=ROOT, capture_output=True, text=True)
 
 
@@ -67,6 +75,30 @@ class NormativeCoverageMutationTests(unittest.TestCase):
             result = run(schema=self.write_json(directory, "schema.json", schema))
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("schema provenance does not match", result.stdout)
+
+    def test_unknown_behavior_state_machine_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            behavior = json.loads((ROOT / "docs/normative-behavior.json").read_text())
+            behavior["state_machines"][0]["id"] = "deleted-state-machine"
+            result = run(behavior=self.write_json(directory, "behavior.json", behavior))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("unknown behavior state machine id", result.stdout)
+
+    def test_removed_source_candidate_disposition_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dispositions = json.loads((ROOT / "docs/normative-source-dispositions.json").read_text())
+            dispositions["requirements"] = dispositions["requirements"][1:]
+            result = run(source_dispositions=self.write_json(directory, "dispositions.json", dispositions))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("source disposition count mismatch", result.stdout)
+
+    def test_source_fingerprint_drift_fails(self):
+        with tempfile.TemporaryDirectory() as directory:
+            dispositions = json.loads((ROOT / "docs/normative-source-dispositions.json").read_text())
+            dispositions["requirements"][0]["source_fingerprint"] = "0" * 64
+            result = run(source_dispositions=self.write_json(directory, "dispositions.json", dispositions))
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("source disposition fingerprint mismatch", result.stdout)
 
 
 if __name__ == "__main__":

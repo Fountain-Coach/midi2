@@ -12,8 +12,12 @@
 ## Specification Audit & Compliance (Updated Dec 2025)
 
 ### Bidirectional standards contract
-- **[Normative Coverage Report](generated/normative-coverage.md)** - inverse ledger report with per-source dispositions and explicit unresolved items
+- **[Normative Coverage Report](generated/normative-coverage.md)** - complete machine-readable inverse corpus report with per-source representations
 - **[Normative Coverage Methodology](normative-coverage-methodology.md)** - extraction, status, scope, and claim boundaries
+- **[Normative Behavior Model](normative-behavior.json)** - machine-readable protocol state machines and invariants linked from the inverse ledger
+- **[Full Object Composition](../midi2.full.object.json)** - machine-readable composition of the structural and behavioral projections, with explicit completion boundaries
+- **[Normative Source Inventory](normative-source-inventory.json)** - reproducible hash-bound page inventory for the remaining source extraction work
+- **[Normative Source Dispositions](normative-source-dispositions.json)** - explicit disposition for every extracted source-language candidate
 - **[Third-party Specification Sources](third-party-specification-sources.md)** - PDF hashes, attribution, and redistribution boundary
 - **[MIDI vs Fountain Coach Extensions](midi-vs-fountain-extensions.md)** - normative authority and extension separation
 

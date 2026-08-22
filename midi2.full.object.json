@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "object": "fountain-coach-midi2-full-object",
+  "version": 1,
+  "status": "accounted",
+  "authority": "MIDI Association",
+  "corpus": {
+    "path": "docs/spec-provenance.json",
+    "source_inventory": "docs/normative-source-inventory.json",
+    "source_dispositions": "docs/normative-source-dispositions.json",
+    "specifications": ["M2-100-U@1.1", "M2-101-UM@1.2", "M2-102-U@1.1", "M2-103-UM@1.2", "M2-104-UM@1.1.2", "M2-116-U@1.0"]
+  },
+  "projections": {
+    "structural": {
+      "schema": "midi2.full.closed.schema.json",
+      "openapi": "midi2.full.openapi.json"
+    },
+    "behavioral": {
+      "model": "docs/normative-behavior.json",
+      "ledger": "docs/normative-requirements.json"
+    },
+    "source_records": "docs/normative-source-dispositions.json"
+  },
+  "verification": {
+    "object_to_source": "Scripts/verify_spec_provenance.py",
+    "source_to_object": "Scripts/verify_normative_coverage.py",
+    "generated_report": "docs/generated/normative-coverage.md"
+  },
+  "boundaries": {
+    "midi_normative_semantics": "MIDI Association source corpus and linked structural/behavioral representations",
+    "fountain_coach_extensions": "docs/midi-vs-fountain-extensions.md",
+    "runtime_completeness": "docs/runtime-completeness.json",
+    "hardware_interoperability": "not-claimed"
+  },
+  "completion": {
+    "implemented_behavioral_slices": 5,
+    "modeled_behavioral_slices": 11,
+    "remaining_source_frontiers": 0,
+    "normative_keyword_candidates": 1316,
+    "candidate_dispositions": 1316,
+    "full_corpus_accounting_claim_supported": true,
+    "full_corpus_claim_supported": true,
+    "reason": "Every normalized requirement and every source-language record has a machine-readable representation, and all five source-level behavioral frontiers have explicit models or boundaries. This establishes full machine-readable corpus coverage; it does not claim runtime completeness or hardware interoperability."
+  }
+}

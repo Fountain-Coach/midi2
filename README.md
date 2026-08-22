@@ -140,7 +140,7 @@ npm run coverage
 
 The primary, canonical documentation for this repository lives in the **[docs/](docs/)** directory. For design notes, conformance checklists, and audit material, see:
 
-The standards contract is bidirectional: [source provenance](docs/spec-provenance.json) records object-to-source traceability, while the [normative coverage report](docs/generated/normative-coverage.md) records the inverse ledger and its explicit unresolved items. See the [coverage methodology](docs/normative-coverage-methodology.md) for the limits of semantic, runtime, and hardware claims.
+The standards contract is bidirectional: [source provenance](docs/spec-provenance.json) records object-to-source traceability, while the [normative coverage report](docs/generated/normative-coverage.md) records the inverse ledger. Structural rules live in the closed schema; verified behavioral slices live in the [normative behavior model](docs/normative-behavior.json). See the [coverage methodology](docs/normative-coverage-methodology.md) for the limits of semantic, runtime, and hardware claims.
 
 - **[docs/README.md](docs/README.md)** — Documentation landing page
 - **[docs/spec-compliance-dashboard.md](docs/spec-compliance-dashboard.md)** — Spec compliance dashboard

@@ -21,21 +21,24 @@ The canonical MIDI2 semantic schema is source-traceable.
 
 ## `normative-coverage-accounting` — established
 
-The declared MIDI 2.0 corpus has a machine-checked inverse coverage ledger with an explicit disposition for every identified requirement.
+The declared MIDI 2.0 corpus is represented as a complete machine-readable Fountain Coach object with no normative requirement excluded.
 
-**Reason:** The ledger links structural requirements to schema/OpenAPI targets and explicitly excludes behavioral, transport, file-format, and conformance requirements from the static semantic-object boundary with source pages and reasons. Source hashes, versions, representations, and generated reports are verified in CI; no unresolved or ambiguous entries remain.
+**Reason:** The full object joins structural schema/OpenAPI projections, twelve operational ledger entries, six behavioral models, and 1,316 source records. Every source record and every normalized requirement has a machine-resolvable representation; source hashes, versions, representations, generated reports, provenance, and mutation gates are verified in CI.
 
 **Evidence:**
 - `docs/spec-provenance.json` — declared six-document corpus, versions, and source hashes
 - `docs/normative-requirements.json` — canonical inverse requirement ledger
+- `docs/normative-behavior.json` — machine-readable behavioral protocol slices
+- `docs/normative-source-inventory.json` — hash-bound machine-readable source inventory
+- `docs/normative-source-dispositions.json` — machine-readable representation for every extracted source record
+- `midi2.full.object.json` — machine-readable composition of structural and behavioral projections
 - `Scripts/verify_normative_coverage.py` — reverse-traceability verifier
 - `docs/generated/normative-coverage.md` — generated disposition report
 - `docs/normative-coverage-methodology.md` — extraction and scope methodology
 
 **Exclusions:**
-- This is explicit accounting, not a claim that every normative requirement is implemented.
-- It does not claim runtime completeness or physical hardware interoperability.
-- Intentionally excluded behavioral and runtime requirements require separate operational evidence.
+- This does not claim runtime implementation completeness or physical hardware interoperability.
+- MIDI Association remains the normative authority for the represented corpus.
 
 ## `schema-openapi-provenance-parity` — established
 

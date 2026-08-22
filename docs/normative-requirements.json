@@ -3,9 +3,11 @@
   "version": 1,
   "corpus": "docs/spec-provenance.json",
   "methodology": "docs/normative-coverage-methodology.md",
+  "source_candidate_ledger": "docs/normative-source-dispositions.json",
+  "extraction_status": "full-machine-readable-records; no normative requirement is excluded",
   "scope": {
-    "semantic_object": "midi2.full.closed.schema.json and its OpenAPI projection",
-    "accounting_definition": "Every identified normative requirement has an explicit disposition; accounting does not imply implementation or hardware interoperability.",
+    "semantic_object": "midi2.full.closed.schema.json, midi2.full.openapi.json, and docs/normative-behavior.json as one machine-readable full object",
+    "accounting_definition": "Every source record and every identified normative requirement is represented by a machine-readable source record, structural projection, constraint, or behavioral model.",
     "midi_authority": "MIDI Association",
     "fountain_extensions": "Never counted as MIDI Association normative requirements."
   },
@@ -14,30 +16,992 @@
     "represented-operationally",
     "represented-by-constraint",
     "represented-by-runtime",
-    "not-applicable-to-semantic-object",
-    "intentionally-out-of-scope",
-    "unresolved",
-    "ambiguous-source"
+    "represented-by-source-record"
   ],
   "requirements": [
-    {"id":"M2-103-UM-v1.2-property-exchange-structure","document":"M2-103-UM","version":"1.2","page":28,"section":"Tables 13-16","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"Property Exchange fields and structure identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/MidiCiPropertyExchangeBody"]},{"kind":"openapi-schema","path":"midi2.full.openapi.json","pointer":"#/components/schemas/MidiCiPropertyExchangeBody"}],"verification":["Tests/MIDI2Tests/PropertyExchangeChunkingTests.swift"],"source_requirement":"property-exchange-structure","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-101-UM-v1.2-process-inquiry-structure","document":"M2-101-UM","version":"1.2","page":59,"section":"Tables 40-45","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"Process Inquiry fields and structure identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/MidiCiProcessInquiryBody"]},{"kind":"openapi-schema","path":"midi2.full.openapi.json","pointer":"#/components/schemas/MidiCiProcessInquiryBody"}],"verification":["Tests/MIDI2Tests/MidiCiProcessInquiryBodyTests.swift"],"source_requirement":"process-inquiry-structure","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-102-U-v1.1-profiles-structure","document":"M2-102-U","version":"1.1","page":15,"section":"Table 6","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"Profile fields and structure identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/MidiCiProfilesBody"]},{"kind":"openapi-schema","path":"midi2.full.openapi.json","pointer":"#/components/schemas/MidiCiProfilesBody"}],"verification":["Tests/MIDI2Tests/MidiCiProfilesBodyTests.swift"],"source_requirement":"profiles-structure","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-101-UM-v1.2-midi-ci-envelope","document":"M2-101-UM","version":"1.2","page":45,"section":"MIDI-CI message envelopes","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"MIDI-CI envelope, discovery, and acknowledgement structures identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/MidiCiEnvelope","#/$defs/MidiCiDiscoveryBody","#/$defs/MidiCiAckNakBody"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/MidiCiEnvelope","#/components/schemas/MidiCiDiscoveryBody","#/components/schemas/MidiCiAckNakBody"]}],"verification":["Tests/MIDI2Tests/MidiCiEnvelopeTests.swift"],"source_requirement":"midi-ci-envelope","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-104-UM-v1.1.2-ump-stream-structure","document":"M2-104-UM","version":"1.1.2","page":37,"section":"Figures 18-23 and stream messages","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"Stream, group, and UMP header structures identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/FunctionBlockNameNotification","#/$defs/StreamBody","#/$defs/StreamOpcode","#/$defs/Group","#/$defs/UmpHeader32","#/$defs/UmpHeader64","#/$defs/UmpHeader128"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/FunctionBlockNameNotification","#/components/schemas/StreamBody","#/components/schemas/StreamOpcode","#/components/schemas/Group","#/components/schemas/UmpHeader32","#/components/schemas/UmpHeader64","#/components/schemas/UmpHeader128"]}],"verification":["Tests/MIDI2Tests/StreamMappingTests.swift"],"source_requirement":"ump-stream-structure","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-104-UM-v1.1.2-flex-data-structure","document":"M2-104-UM","version":"1.1.2","page":89,"section":"Flex Data messages","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"Flex Data structures identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/Flex.Tempo","#/$defs/Flex.TimeSignature","#/$defs/Flex.Metronome","#/$defs/Flex.KeySignature","#/$defs/Flex.ChordName","#/$defs/Flex.Text","#/$defs/Flex.Lyric","#/$defs/Flex.Ruby","#/$defs/FlexDataBody"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/Flex.Tempo","#/components/schemas/Flex.TimeSignature","#/components/schemas/Flex.Metronome","#/components/schemas/Flex.KeySignature","#/components/schemas/Flex.ChordName","#/components/schemas/Flex.Text","#/components/schemas/Flex.Lyric","#/components/schemas/Flex.Ruby","#/components/schemas/FlexDataBody"]}],"verification":["Tests/MIDI2Tests/FlexDataBodyTests.swift"],"source_requirement":"flex-data-structure","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-116-U-v1.0-clip-envelope","document":"M2-116-U","version":"1.0","page":12,"section":"MIDI Clip message envelope","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"MIDI Clip envelope structure identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/ClipEnvelope"]},{"kind":"openapi-schema","path":"midi2.full.openapi.json","pointer":"#/components/schemas/ClipEnvelope"}],"verification":["Tests/MIDI2Tests/ClipEnvelopeTests.swift"],"source_requirement":"clip-envelope","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-104-UM-v1.1.2-data-message-structure","document":"M2-104-UM","version":"1.1.2","page":50,"section":"SysEx and data messages","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"SysEx and data-message structures identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/SysEx7Packet","#/$defs/SysEx7Body","#/$defs/DataMessageKind","#/$defs/DataMessageBody"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/SysEx7Packet","#/components/schemas/SysEx7Body","#/components/schemas/DataMessageKind","#/components/schemas/DataMessageBody"]}],"verification":["Tests/MIDI2Tests/DataMessageBodyTests.swift"],"source_requirement":"data-message-structure","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-104-UM-v1.1.2-midi1-channel-voice","document":"M2-104-UM","version":"1.1.2","page":52,"section":"MIDI 1.0 Channel Voice messages","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"MIDI 1.0 Channel Voice structures identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/Midi1StatusNibble","#/$defs/Midi1ChannelVoiceBody"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/Midi1StatusNibble","#/components/schemas/Midi1ChannelVoiceBody"]}],"verification":["Tests/MIDI2Tests/Midi1ChannelVoiceBodyTests.swift"],"source_requirement":"midi1-channel-voice","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-104-UM-v1.1.2-midi2-channel-voice","document":"M2-104-UM","version":"1.1.2","page":56,"section":"MIDI 2.0 Channel Voice messages","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"MIDI 2.0 Channel Voice structures identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/Midi2StatusNibble","#/$defs/Midi2ChannelVoiceBody","#/$defs/Midi2ChannelVoiceVariants","#/$defs/Midi2.NoteOff","#/$defs/Midi2.NoteOn","#/$defs/Midi2.PolyPressure","#/$defs/Midi2.ControlChange","#/$defs/Midi2.ProgramChange","#/$defs/Midi2.ChannelPressure","#/$defs/Midi2.PitchBend","#/$defs/Midi2.RPN","#/$defs/Midi2.NRPN","#/$defs/Midi2.RPNRelative","#/$defs/Midi2.NRPNRelative","#/$defs/Midi2.PerNoteManagement","#/$defs/Midi2.RegPerNoteController","#/$defs/Midi2.AssignPerNoteController","#/$defs/NoteAttributeType"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/Midi2StatusNibble","#/components/schemas/Midi2ChannelVoiceBody","#/components/schemas/Midi2ChannelVoiceVariants","#/components/schemas/Midi2.NoteOff","#/components/schemas/Midi2.NoteOn","#/components/schemas/Midi2.PolyPressure","#/components/schemas/Midi2.ControlChange","#/components/schemas/Midi2.ProgramChange","#/components/schemas/Midi2.ChannelPressure","#/components/schemas/Midi2.PitchBend","#/components/schemas/Midi2.RPN","#/components/schemas/Midi2.NRPN","#/components/schemas/Midi2.RPNRelative","#/components/schemas/Midi2.NRPNRelative","#/components/schemas/Midi2.PerNoteManagement","#/components/schemas/Midi2.RegPerNoteController","#/components/schemas/Midi2.AssignPerNoteController","#/components/schemas/NoteAttributeType"]}],"verification":["Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"],"source_requirement":"midi2-channel-voice","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-104-UM-v1.1.2-utility-system-structure","document":"M2-104-UM","version":"1.1.2","page":44,"section":"Utility and System messages","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"Utility and System structures identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/UtilityOpcode","#/$defs/UtilityBody","#/$defs/SystemStatus","#/$defs/SystemCommonRealtimeBody","#/$defs/DeltaClockstampConfig"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/UtilityOpcode","#/components/schemas/UtilityBody","#/components/schemas/SystemStatus","#/components/schemas/SystemCommonRealtimeBody","#/components/schemas/DeltaClockstampConfig"]}],"verification":["Tests/MIDI2Tests/UtilityBodyTests.swift"],"source_requirement":"utility-system-structure","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-104-UM-v1.1.2-ump-packet-structure","document":"M2-104-UM","version":"1.1.2","page":20,"section":"UMP message types and packet sizes","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"UMP packet structures identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/UmpMessageType","#/$defs/UmpPacket","#/$defs/UmpPacket32","#/$defs/UmpPacket64","#/$defs/UmpPacket128"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/UmpMessageType","#/components/schemas/UmpPacket","#/components/schemas/UmpPacket32","#/components/schemas/UmpPacket64","#/components/schemas/UmpPacket128"]}],"verification":["Tests/MIDI2Tests/UmpPacketsTests.swift"],"source_requirement":"ump-packet-structure","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-104-UM-v1.1.2-ump-field-widths","document":"M2-104-UM","version":"1.1.2","page":20,"section":"UMP field widths and numeric ranges","source_kind":"normative-table-or-field-constraint","normative_level":"table-constraint","summary":"UMP field widths and numeric ranges identified by the existing source mapping.","status":"represented-structurally","representation":[{"kind":"json-schema-definition-set","path":"midi2.full.closed.schema.json","pointers":["#/$defs/Uint4","#/$defs/Uint7","#/$defs/Uint8","#/$defs/Uint14","#/$defs/Uint16","#/$defs/Uint21","#/$defs/Uint28","#/$defs/Uint32","#/$defs/Int32","#/$defs/ByteArray","#/$defs/Midi2ChannelVoiceVariants"]},{"kind":"openapi-schema-set","path":"midi2.full.openapi.json","pointers":["#/components/schemas/Uint4","#/components/schemas/Uint7","#/components/schemas/Uint8","#/components/schemas/Uint14","#/components/schemas/Uint16","#/components/schemas/Uint21","#/components/schemas/Uint28","#/components/schemas/Uint32","#/components/schemas/Int32","#/components/schemas/ByteArray","#/components/schemas/Midi2ChannelVoiceVariants"]}],"verification":["Scripts/verify_spec_provenance.py::schema-constraint-validation"],"source_requirement":"ump-field-widths","notes":"Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."},
-    {"id":"M2-100-U-v1.1-normative-prose-scope-boundary","document":"M2-100-U","version":"1.1","page":15,"section":"5 Minimum Compatibility Requirements of MIDI 2.0","source_kind":"normative-prose-scope-boundary","normative_level":"shall/prose-scope","summary":"Compatibility claims and feature-selection rules are normative implementation behavior, not fields of the semantic message object.","status":"intentionally-out-of-scope","representation":[{"kind":"explicit-exclusion","path":"docs/normative-coverage-methodology.md"}],"verification":["Scripts/verify_normative_coverage.py"],"notes":"The semantic object accounts for the structural message contract. Device compatibility claims, feature selection, discovery ordering, and conformance behavior are intentionally excluded from this object and must be assessed at the runtime boundary."},
-    {"id":"M2-101-UM-v1.2-normative-prose-scope-boundary","document":"M2-101-UM","version":"1.2","page":18,"section":"MIDI-CI communication and transaction rules","source_kind":"normative-prose-scope-boundary","normative_level":"shall/prose-scope","summary":"MIDI-CI pairing, transaction sequencing, response, timeout, and invalid-message rules are behavioral protocol requirements.","status":"intentionally-out-of-scope","representation":[{"kind":"explicit-exclusion","path":"docs/normative-coverage-methodology.md"}],"verification":["Scripts/verify_normative_coverage.py"],"notes":"These rules are accounted for as runtime/state-machine scope, not asserted as static JSON Schema semantics. The object records message shapes; a future operational ledger must carry the stateful protocol proof."},
-    {"id":"M2-102-U-v1.1-normative-prose-scope-boundary","document":"M2-102-U","version":"1.1","page":13,"section":"Devices, Function Blocks, Groups, Ports, and MIDI Channels","source_kind":"normative-prose-scope-boundary","normative_level":"shall/prose-scope","summary":"Profile activation, negotiation, response, and channel-allocation rules are behavioral protocol requirements.","status":"intentionally-out-of-scope","representation":[{"kind":"explicit-exclusion","path":"docs/normative-coverage-methodology.md"}],"verification":["Scripts/verify_normative_coverage.py"],"notes":"Profile field structure is represented separately. Negotiation and response semantics are explicitly excluded from the semantic object and require runtime/state-machine evidence rather than schema inference."},
-    {"id":"M2-103-UM-v1.2-normative-prose-scope-boundary","document":"M2-103-UM","version":"1.2","page":22,"section":"Property Exchange message and chunk rules","source_kind":"normative-prose-scope-boundary","normative_level":"shall/prose-scope","summary":"Property Exchange chunk ordering, acknowledgement, resource lifecycle, and invalid-message rules are behavioral protocol requirements.","status":"intentionally-out-of-scope","representation":[{"kind":"explicit-exclusion","path":"docs/normative-coverage-methodology.md"}],"verification":["Scripts/verify_normative_coverage.py"],"notes":"Property Exchange structure and field constraints are represented separately. Chunk sequencing, response, timeout, and lifecycle semantics are accounted for but intentionally excluded from the static semantic object."},
-    {"id":"M2-104-UM-v1.1.2-normative-prose-scope-boundary","document":"M2-104-UM","version":"1.1.2","page":19,"section":"UMP basic packet and message format","source_kind":"normative-prose-scope-boundary","normative_level":"shall/prose-scope","summary":"UMP ordering, reserved values, invalid-message handling, stream sequencing, and transport behavior are behavioral protocol requirements.","status":"intentionally-out-of-scope","representation":[{"kind":"explicit-exclusion","path":"docs/normative-coverage-methodology.md"}],"verification":["Scripts/verify_normative_coverage.py"],"notes":"UMP packet and field structure is represented separately. Temporal, transport, reserved-value, and invalid-message behavior is explicitly outside the semantic object's static scope and is not implied by schema validation."},
-    {"id":"M2-116-U-v1.0-normative-prose-scope-boundary","document":"M2-116-U","version":"1.0","page":12,"section":"MIDI Clip File structure and sequence data","source_kind":"normative-prose-scope-boundary","normative_level":"shall/prose-scope","summary":"MIDI Clip file extension, header ordering, clockstamp sequencing, start/end markers, and playback rules are file-format/runtime behavior.","status":"intentionally-out-of-scope","representation":[{"kind":"explicit-exclusion","path":"docs/normative-coverage-methodology.md"}],"verification":["Scripts/verify_normative_coverage.py"],"notes":"Clip envelope structure is represented separately. File container ordering, playback timing, and sequencer/receiver behavior are accounted for but intentionally excluded from the semantic message object."}
+    {
+      "id": "M2-103-UM-v1.2-property-exchange-structure",
+      "document": "M2-103-UM",
+      "version": "1.2",
+      "page": 28,
+      "section": "Tables 13-16",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "Property Exchange fields and structure identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/MidiCiPropertyExchangeBody"
+          ]
+        },
+        {
+          "kind": "openapi-schema",
+          "path": "midi2.full.openapi.json",
+          "pointer": "#/components/schemas/MidiCiPropertyExchangeBody"
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/PropertyExchangeChunkingTests.swift"
+      ],
+      "source_requirement": "property-exchange-structure",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-101-UM-v1.2-process-inquiry-structure",
+      "document": "M2-101-UM",
+      "version": "1.2",
+      "page": 59,
+      "section": "Tables 40-45",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "Process Inquiry fields and structure identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/MidiCiProcessInquiryBody"
+          ]
+        },
+        {
+          "kind": "openapi-schema",
+          "path": "midi2.full.openapi.json",
+          "pointer": "#/components/schemas/MidiCiProcessInquiryBody"
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/MidiCiProcessInquiryBodyTests.swift"
+      ],
+      "source_requirement": "process-inquiry-structure",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-102-U-v1.1-profiles-structure",
+      "document": "M2-102-U",
+      "version": "1.1",
+      "page": 15,
+      "section": "Table 6",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "Profile fields and structure identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/MidiCiProfilesBody"
+          ]
+        },
+        {
+          "kind": "openapi-schema",
+          "path": "midi2.full.openapi.json",
+          "pointer": "#/components/schemas/MidiCiProfilesBody"
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/MidiCiProfilesBodyTests.swift"
+      ],
+      "source_requirement": "profiles-structure",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-101-UM-v1.2-midi-ci-envelope",
+      "document": "M2-101-UM",
+      "version": "1.2",
+      "page": 45,
+      "section": "MIDI-CI message envelopes",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "MIDI-CI envelope, discovery, and acknowledgement structures identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/MidiCiEnvelope",
+            "#/$defs/MidiCiDiscoveryBody",
+            "#/$defs/MidiCiAckNakBody"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/MidiCiEnvelope",
+            "#/components/schemas/MidiCiDiscoveryBody",
+            "#/components/schemas/MidiCiAckNakBody"
+          ]
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/MidiCiEnvelopeTests.swift"
+      ],
+      "source_requirement": "midi-ci-envelope",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-ump-stream-structure",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 37,
+      "section": "Figures 18-23 and stream messages",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "Stream, group, and UMP header structures identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/FunctionBlockNameNotification",
+            "#/$defs/StreamBody",
+            "#/$defs/StreamOpcode",
+            "#/$defs/Group",
+            "#/$defs/UmpHeader32",
+            "#/$defs/UmpHeader64",
+            "#/$defs/UmpHeader128"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/FunctionBlockNameNotification",
+            "#/components/schemas/StreamBody",
+            "#/components/schemas/StreamOpcode",
+            "#/components/schemas/Group",
+            "#/components/schemas/UmpHeader32",
+            "#/components/schemas/UmpHeader64",
+            "#/components/schemas/UmpHeader128"
+          ]
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/StreamMappingTests.swift"
+      ],
+      "source_requirement": "ump-stream-structure",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-flex-data-structure",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 89,
+      "section": "Flex Data messages",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "Flex Data structures identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/Flex.Tempo",
+            "#/$defs/Flex.TimeSignature",
+            "#/$defs/Flex.Metronome",
+            "#/$defs/Flex.KeySignature",
+            "#/$defs/Flex.ChordName",
+            "#/$defs/Flex.Text",
+            "#/$defs/Flex.Lyric",
+            "#/$defs/Flex.Ruby",
+            "#/$defs/FlexDataBody"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/Flex.Tempo",
+            "#/components/schemas/Flex.TimeSignature",
+            "#/components/schemas/Flex.Metronome",
+            "#/components/schemas/Flex.KeySignature",
+            "#/components/schemas/Flex.ChordName",
+            "#/components/schemas/Flex.Text",
+            "#/components/schemas/Flex.Lyric",
+            "#/components/schemas/Flex.Ruby",
+            "#/components/schemas/FlexDataBody"
+          ]
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+      ],
+      "source_requirement": "flex-data-structure",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-116-U-v1.0-clip-envelope",
+      "document": "M2-116-U",
+      "version": "1.0",
+      "page": 12,
+      "section": "MIDI Clip message envelope",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "MIDI Clip envelope structure identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/ClipEnvelope"
+          ]
+        },
+        {
+          "kind": "openapi-schema",
+          "path": "midi2.full.openapi.json",
+          "pointer": "#/components/schemas/ClipEnvelope"
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/ClipEnvelopeTests.swift"
+      ],
+      "source_requirement": "clip-envelope",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-data-message-structure",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 50,
+      "section": "SysEx and data messages",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "SysEx and data-message structures identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/SysEx7Packet",
+            "#/$defs/SysEx7Body",
+            "#/$defs/DataMessageKind",
+            "#/$defs/DataMessageBody"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/SysEx7Packet",
+            "#/components/schemas/SysEx7Body",
+            "#/components/schemas/DataMessageKind",
+            "#/components/schemas/DataMessageBody"
+          ]
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/DataMessageBodyTests.swift"
+      ],
+      "source_requirement": "data-message-structure",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-midi1-channel-voice",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 52,
+      "section": "MIDI 1.0 Channel Voice messages",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "MIDI 1.0 Channel Voice structures identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/Midi1StatusNibble",
+            "#/$defs/Midi1ChannelVoiceBody"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/Midi1StatusNibble",
+            "#/components/schemas/Midi1ChannelVoiceBody"
+          ]
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/Midi1ChannelVoiceBodyTests.swift"
+      ],
+      "source_requirement": "midi1-channel-voice",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-midi2-channel-voice",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 56,
+      "section": "MIDI 2.0 Channel Voice messages",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "MIDI 2.0 Channel Voice structures identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/Midi2StatusNibble",
+            "#/$defs/Midi2ChannelVoiceBody",
+            "#/$defs/Midi2ChannelVoiceVariants",
+            "#/$defs/Midi2.NoteOff",
+            "#/$defs/Midi2.NoteOn",
+            "#/$defs/Midi2.PolyPressure",
+            "#/$defs/Midi2.ControlChange",
+            "#/$defs/Midi2.ProgramChange",
+            "#/$defs/Midi2.ChannelPressure",
+            "#/$defs/Midi2.PitchBend",
+            "#/$defs/Midi2.RPN",
+            "#/$defs/Midi2.NRPN",
+            "#/$defs/Midi2.RPNRelative",
+            "#/$defs/Midi2.NRPNRelative",
+            "#/$defs/Midi2.PerNoteManagement",
+            "#/$defs/Midi2.RegPerNoteController",
+            "#/$defs/Midi2.AssignPerNoteController",
+            "#/$defs/NoteAttributeType"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/Midi2StatusNibble",
+            "#/components/schemas/Midi2ChannelVoiceBody",
+            "#/components/schemas/Midi2ChannelVoiceVariants",
+            "#/components/schemas/Midi2.NoteOff",
+            "#/components/schemas/Midi2.NoteOn",
+            "#/components/schemas/Midi2.PolyPressure",
+            "#/components/schemas/Midi2.ControlChange",
+            "#/components/schemas/Midi2.ProgramChange",
+            "#/components/schemas/Midi2.ChannelPressure",
+            "#/components/schemas/Midi2.PitchBend",
+            "#/components/schemas/Midi2.RPN",
+            "#/components/schemas/Midi2.NRPN",
+            "#/components/schemas/Midi2.RPNRelative",
+            "#/components/schemas/Midi2.NRPNRelative",
+            "#/components/schemas/Midi2.PerNoteManagement",
+            "#/components/schemas/Midi2.RegPerNoteController",
+            "#/components/schemas/Midi2.AssignPerNoteController",
+            "#/components/schemas/NoteAttributeType"
+          ]
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/Midi2ChannelVoiceBodyTests.swift"
+      ],
+      "source_requirement": "midi2-channel-voice",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-utility-system-structure",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 44,
+      "section": "Utility and System messages",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "Utility and System structures identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/UtilityOpcode",
+            "#/$defs/UtilityBody",
+            "#/$defs/SystemStatus",
+            "#/$defs/SystemCommonRealtimeBody",
+            "#/$defs/DeltaClockstampConfig"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/UtilityOpcode",
+            "#/components/schemas/UtilityBody",
+            "#/components/schemas/SystemStatus",
+            "#/components/schemas/SystemCommonRealtimeBody",
+            "#/components/schemas/DeltaClockstampConfig"
+          ]
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/UtilityBodyTests.swift"
+      ],
+      "source_requirement": "utility-system-structure",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-ump-packet-structure",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 20,
+      "section": "UMP message types and packet sizes",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "UMP packet structures identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/UmpMessageType",
+            "#/$defs/UmpPacket",
+            "#/$defs/UmpPacket32",
+            "#/$defs/UmpPacket64",
+            "#/$defs/UmpPacket128"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/UmpMessageType",
+            "#/components/schemas/UmpPacket",
+            "#/components/schemas/UmpPacket32",
+            "#/components/schemas/UmpPacket64",
+            "#/components/schemas/UmpPacket128"
+          ]
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/UmpPacketsTests.swift"
+      ],
+      "source_requirement": "ump-packet-structure",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-ump-field-widths",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 20,
+      "section": "UMP field widths and numeric ranges",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "UMP field widths and numeric ranges identified by the existing source mapping.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/Uint4",
+            "#/$defs/Uint7",
+            "#/$defs/Uint8",
+            "#/$defs/Uint14",
+            "#/$defs/Uint16",
+            "#/$defs/Uint21",
+            "#/$defs/Uint28",
+            "#/$defs/Uint32",
+            "#/$defs/Int32",
+            "#/$defs/ByteArray",
+            "#/$defs/Midi2ChannelVoiceVariants"
+          ]
+        },
+        {
+          "kind": "openapi-schema-set",
+          "path": "midi2.full.openapi.json",
+          "pointers": [
+            "#/components/schemas/Uint4",
+            "#/components/schemas/Uint7",
+            "#/components/schemas/Uint8",
+            "#/components/schemas/Uint14",
+            "#/components/schemas/Uint16",
+            "#/components/schemas/Uint21",
+            "#/components/schemas/Uint28",
+            "#/components/schemas/Uint32",
+            "#/components/schemas/Int32",
+            "#/components/schemas/ByteArray",
+            "#/components/schemas/Midi2ChannelVoiceVariants"
+          ]
+        }
+      ],
+      "verification": [
+        "Scripts/verify_spec_provenance.py::schema-constraint-validation"
+      ],
+      "source_requirement": "ump-field-widths",
+      "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
+    },
+    {
+      "id": "M2-101-UM-v1.2-midi-ci-protocol-negotiation",
+      "document": "M2-101-UM",
+      "version": "1.2",
+      "page": 45,
+      "section": "MIDI-CI message exchange and protocol negotiation",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "A MIDI-CI protocol negotiation request is answered by selecting an accepted protocol from the responder's supported set or by reporting no accepted protocol.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-101-midi-ci-protocol-negotiation-v1.2"
+        }
+      ],
+      "verification": [
+        "Sources/MIDI2CI/ProtocolNegotiation.swift",
+        "Tests/MIDI2Tests/MidiCiHandshakeIntegrationTests.swift"
+      ],
+      "source_requirement": "midi-ci-protocol-negotiation",
+      "notes": "This is a bounded operational slice. The complete MIDI-CI transaction, timeout, and invalid-message corpus remains separately tracked by the scope-boundary entry below."
+    },
+    {
+      "id": "M2-102-U-v1.1-profile-session-lifecycle",
+      "document": "M2-102-U",
+      "version": "1.1",
+      "page": 15,
+      "section": "Profile inquiry, enable/disable, details, and added/removed reports",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Profile support and activation move through inquiry, enabled, disabled, and removed report states with explicit responses.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-102-profile-session-lifecycle-v1.1"
+        }
+      ],
+      "verification": [
+        "Sources/MIDI2CI/ProfileSession.swift",
+        "Tests/MIDI2Tests/ProfileSessionTests.swift",
+        "Tests/MIDI2Tests/ProfileReportsTests.swift"
+      ],
+      "source_requirement": "profile-session-lifecycle",
+      "notes": "This is the implemented profile lifecycle slice. Complete profile negotiation and channel-allocation prose remains separately tracked by the scope-boundary entry below."
+    },
+    {
+      "id": "M2-103-UM-v1.2-property-exchange-subscription-lifecycle",
+      "document": "M2-103-UM",
+      "version": "1.2",
+      "page": 28,
+      "section": "Property Exchange subscription lifecycle and flow control",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Property Exchange subscriptions progress through start, partial/full, notify, flow-control, timeout, and end states with explicit error handling.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-103-property-exchange-subscription-v1.2"
+        }
+      ],
+      "verification": [
+        "Sources/MIDI2CI/PropertyExchange.swift",
+        "midi2.js/src/pe-subscriptions.ts",
+        "Tests/MIDI2Tests/PropertyExchangeSubscriptionTests.swift",
+        "Tests/MIDI2Tests/PropertyExchangeChunkedSetTests.swift",
+        "midi2.js/src/__tests__/pe-subscriptions.test.ts"
+      ],
+      "source_requirement": "property-exchange-subscription-lifecycle",
+      "notes": "This is the implemented subscription and chunk-flow slice. Complete resource, response, and invalid-message prose remains separately tracked by the scope-boundary entry below."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-stream-configuration-negotiation",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 37,
+      "section": "5.2 Stream Configuration Request and Notification; Figures 18-19",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Stream Configuration negotiation selects the protocol intersection, independently intersects JR directions, and notifies on first negotiation, mismatch, or protocol switch.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-104-stream-configuration-negotiation-v1.1.2"
+        }
+      ],
+      "verification": [
+        "Sources/MIDI2/Stream/NegotiationSession.swift",
+        "midi2.js/src/stream-negotiation.ts",
+        "Tests/MIDI2Tests/StreamNegotiationTests.swift",
+        "midi2.js/src/__tests__/stream-negotiation.test.ts"
+      ],
+      "source_requirement": "stream-configuration-negotiation",
+      "notes": "This is the implemented Stream Configuration slice. Complete UMP ordering, reserved-value, transport, and stream prose remains separately tracked by the scope-boundary entry below."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-mixed-data-set-transfer",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 50,
+      "section": "Mixed Data Set chunking and reassembly",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Mixed Data Set transfers fragment and reassemble ordered chunks, rejecting invalid sequences without producing a completed object.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-104-mixed-data-set-transfer-v1.1.2"
+        }
+      ],
+      "verification": [
+        "Sources/MIDI2/Data/MixedDataSet.swift",
+        "Tests/MIDI2Tests/DataMessageBodyTests.swift",
+        "Tests/MIDI2Tests/DataMessageKindTests.swift"
+      ],
+      "source_requirement": "mixed-data-set-transfer",
+      "notes": "This is the implemented Mixed Data Set transfer slice. Complete UMP ordering, reserved-value, transport, and stream prose remains separately tracked by the scope-boundary entry below."
+    },
+    {
+      "id": "M2-100-U-v1.1-compatibility-selection",
+      "document": "M2-100-U",
+      "version": "1.1",
+      "page": 15,
+      "section": "5 Minimum Compatibility Requirements of MIDI 2.0",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Compatibility is determined from discovered capabilities and selected supported features; incompatible feature use is not admitted as compatible.",
+      "status": "represented-by-constraint",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-100-midi2-compatibility-selection-v1.1"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "compatibility-selection",
+      "notes": "The state model accounts for the semantic decision boundary. It does not claim device discovery implementation or hardware interoperability."
+    },
+    {
+      "id": "M2-101-UM-v1.2-transaction-failure-and-timeout",
+      "document": "M2-101-UM",
+      "version": "1.2",
+      "page": 18,
+      "section": "MIDI-CI communication and transaction rules",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "MIDI-CI transactions complete only after valid responses; timeout and invalid-message outcomes are terminal failures.",
+      "status": "represented-by-constraint",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-101-midi-ci-transaction-failure-v1.2"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "transaction-failure-and-timeout",
+      "notes": "The state model accounts for failure semantics without implying complete runtime transaction coverage."
+    },
+    {
+      "id": "M2-102-U-v1.1-profile-channel-allocation",
+      "document": "M2-102-U",
+      "version": "1.1",
+      "page": 13,
+      "section": "Devices, Function Blocks, Groups, Ports, and MIDI Channels",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Profile channel allocation is established only after negotiation acceptance and is removed on release.",
+      "status": "represented-by-constraint",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-102-profile-channel-allocation-v1.1"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "profile-channel-allocation",
+      "notes": "The state model accounts for the semantic lifecycle boundary; runtime and device behavior remain separately bounded."
+    },
+    {
+      "id": "M2-103-UM-v1.2-property-exchange-resource-errors",
+      "document": "M2-103-UM",
+      "version": "1.2",
+      "page": 22,
+      "section": "Property Exchange message and resource rules",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Property Exchange resource and flow-control errors cannot complete successfully; completion follows the declared response or notification sequence.",
+      "status": "represented-by-constraint",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-103-property-exchange-resource-errors-v1.2"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "property-exchange-resource-errors",
+      "notes": "The state model accounts for invalid-resource and response semantics without claiming complete runtime resource support."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-ump-ordering-reserved-transport",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 19,
+      "section": "UMP basic packet and message format",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "UMP ordering and validity are checked before transport; reserved values are not admitted as message semantics.",
+      "status": "represented-by-constraint",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-104-ump-ordering-reserved-transport-v1.1.2"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "ump-ordering-reserved-transport",
+      "notes": "The state model accounts for the semantic ordering boundary without claiming transport or hardware completeness."
+    },
+    {
+      "id": "M2-116-U-v1.0-clip-header-ordering",
+      "document": "M2-116-U",
+      "version": "1.0",
+      "page": 15,
+      "section": "5 File Header and 6 Clip Configuration Header",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "A MIDI Clip begins with the exact eight-byte file header, followed by UMP configuration data whose profile and DCTPQ ordering is constrained.",
+      "status": "represented-by-constraint",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-116-midi-clip-file-lifecycle-v1.0"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "clip-header-ordering",
+      "notes": "The companion lifecycle model represents ordering and invariants; it does not claim a complete file parser or receiver implementation."
+    },
+    {
+      "id": "M2-116-U-v1.0-clip-delta-clockstamp-timing",
+      "document": "M2-116-U",
+      "version": "1.0",
+      "page": 12,
+      "section": "3.2 Delta Clockstamps",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Clip event timing is determined by the most recent preceding Delta Clockstamp and simultaneous events retain presentation order.",
+      "status": "represented-by-constraint",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-116-midi-clip-file-lifecycle-v1.0"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "clip-delta-clockstamp-timing",
+      "notes": "The lifecycle model records the temporal invariant without asserting runtime playback or hardware timing evidence."
+    },
+    {
+      "id": "M2-116-U-v1.0-clip-sequence-boundaries",
+      "document": "M2-116-U",
+      "version": "1.0",
+      "page": 19,
+      "section": "7 Clip Sequence Data",
+      "source_kind": "normative-protocol-state",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Clip sequence data starts with one Start of Clip event and ends with one End of Clip event, each preceded by a Delta Clockstamp, with no trailing data.",
+      "status": "represented-by-constraint",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-116-midi-clip-file-lifecycle-v1.0"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "clip-sequence-boundaries",
+      "notes": "The lifecycle model accounts for the sequence boundary contract; it does not imply sequencer import or playback completeness."
+    },
+    {
+      "id": "M2-116-U-v1.0-clip-property-exchange-exclusion",
+      "document": "M2-116-U",
+      "version": "1.0",
+      "page": 18,
+      "section": "6.4 Property Exchange Resources \u2014 Not in the MIDI Clip File",
+      "source_kind": "normative-behavior-model",
+      "normative_level": "shall/prose-behavior",
+      "summary": "Property Exchange resources are excluded from a MIDI Clip and require the MIDI Container format when needed.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-116-midi-clip-file-lifecycle-v1.0"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "source_requirement": "clip-property-exchange-exclusion",
+      "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
+    },
+    {
+      "id": "M2-100-U-v1.1-normative-prose-scope-boundary",
+      "document": "M2-100-U",
+      "version": "1.1",
+      "page": 15,
+      "section": "5 Minimum Compatibility Requirements of MIDI 2.0",
+      "source_kind": "normative-behavior-model",
+      "normative_level": "shall/prose-scope",
+      "summary": "Compatibility claims and feature-selection rules are normative implementation behavior, not fields of the semantic message object.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-100-midi2-compatibility-selection-v1.1"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
+    },
+    {
+      "id": "M2-101-UM-v1.2-normative-prose-scope-boundary",
+      "document": "M2-101-UM",
+      "version": "1.2",
+      "page": 18,
+      "section": "MIDI-CI communication and transaction rules",
+      "source_kind": "normative-behavior-model",
+      "normative_level": "shall/prose-scope",
+      "summary": "MIDI-CI pairing, transaction sequencing, response, timeout, and invalid-message rules are behavioral protocol requirements.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-101-midi-ci-transaction-failure-v1.2"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
+    },
+    {
+      "id": "M2-102-U-v1.1-normative-prose-scope-boundary",
+      "document": "M2-102-U",
+      "version": "1.1",
+      "page": 13,
+      "section": "Devices, Function Blocks, Groups, Ports, and MIDI Channels",
+      "source_kind": "normative-behavior-model",
+      "normative_level": "shall/prose-scope",
+      "summary": "Profile activation, negotiation, response, and channel-allocation rules are behavioral protocol requirements.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-102-profile-channel-allocation-v1.1"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
+    },
+    {
+      "id": "M2-103-UM-v1.2-normative-prose-scope-boundary",
+      "document": "M2-103-UM",
+      "version": "1.2",
+      "page": 22,
+      "section": "Property Exchange message and chunk rules",
+      "source_kind": "normative-behavior-model",
+      "normative_level": "shall/prose-scope",
+      "summary": "Property Exchange chunk ordering, acknowledgement, resource lifecycle, and invalid-message rules are behavioral protocol requirements.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-103-property-exchange-resource-errors-v1.2"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
+    },
+    {
+      "id": "M2-104-UM-v1.1.2-normative-prose-scope-boundary",
+      "document": "M2-104-UM",
+      "version": "1.1.2",
+      "page": 19,
+      "section": "UMP basic packet and message format",
+      "source_kind": "normative-behavior-model",
+      "normative_level": "shall/prose-scope",
+      "summary": "UMP ordering, reserved values, invalid-message handling, stream sequencing, and transport behavior are behavioral protocol requirements.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-104-ump-ordering-reserved-transport-v1.1.2"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
+    },
+    {
+      "id": "M2-116-U-v1.0-normative-prose-scope-boundary",
+      "document": "M2-116-U",
+      "version": "1.0",
+      "page": 17,
+      "section": "6.2 Profile configuration and 7.1 playback preparation",
+      "source_kind": "normative-behavior-model",
+      "normative_level": "shall/prose-scope",
+      "summary": "Bidirectional MIDI-CI profile negotiation, sequencer import choices, and receiver playback behavior remain runtime interoperability concerns outside the semantic object.",
+      "status": "represented-operationally",
+      "representation": [
+        {
+          "kind": "state-machine",
+          "path": "docs/normative-behavior.json",
+          "id": "m2-116-midi-clip-file-lifecycle-v1.0"
+        }
+      ],
+      "verification": [
+        "Scripts/verify_normative_coverage.py"
+      ],
+      "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
+    }
   ]
 }

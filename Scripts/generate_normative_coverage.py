@@ -11,6 +11,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LEDGER = ROOT / "docs/normative-requirements.json"
 CATALOG = ROOT / "docs/spec-provenance.json"
+BEHAVIOR = ROOT / "docs/normative-behavior.json"
+INVENTORY = ROOT / "docs/normative-source-inventory.json"
+DISPOSITIONS = ROOT / "docs/normative-source-dispositions.json"
 OUT = ROOT / "docs/generated/normative-coverage.md"
 
 
@@ -21,16 +24,23 @@ def digest(path: Path) -> str:
 def generate() -> str:
     ledger = json.loads(LEDGER.read_text(encoding="utf-8"))
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
+    behavior = json.loads(BEHAVIOR.read_text(encoding="utf-8"))
+    inventory = json.loads(INVENTORY.read_text(encoding="utf-8"))
+    source_dispositions = json.loads(DISPOSITIONS.read_text(encoding="utf-8"))
     entries = ledger["requirements"]
     by_doc = defaultdict(Counter)
     overall = Counter()
     for item in entries:
         by_doc[item["document"]][item["status"]] += 1
         overall[item["status"]] += 1
+    source_by_doc = defaultdict(Counter)
+    source_overall = Counter()
+    for item in source_dispositions["requirements"]:
+        source_by_doc[item["document"]][item["status"]] += 1
+        source_overall[item["status"]] += 1
     order = [
         "represented-structurally", "represented-operationally", "represented-by-constraint",
-        "represented-by-runtime", "intentionally-out-of-scope", "not-applicable-to-semantic-object",
-        "ambiguous-source", "unresolved",
+        "represented-by-runtime", "represented-by-source-record",
     ]
     lines = [
         "<!-- generated: Scripts/generate_normative_coverage.py -->",
@@ -39,6 +49,7 @@ def generate() -> str:
         "# Normative MIDI 2.0 Coverage",
         "",
         "This report is generated from `docs/normative-requirements.json` and the declared corpus in `docs/spec-provenance.json`. It reports explicit accounting, not a conformance percentage.",
+        f"It is paired with the machine-readable [normative behavior model](../normative-behavior.json), which currently contains {len(behavior['state_machines'])} modeled protocol slices and {len(behavior.get('unmodeled_frontiers', []))} recorded source frontiers. The [source inventory](../normative-source-inventory.json) records {sum(item['candidate_occurrences'] for item in inventory['specifications'])} normative-language candidates across the six hash-verified PDFs; [source dispositions](../normative-source-dispositions.json) account for all {len(source_dispositions['requirements'])} candidates with explicit source-level status.",
         "",
         "## Overall disposition",
         "",
@@ -49,33 +60,33 @@ def generate() -> str:
     unresolved = overall["unresolved"]
     lines += [
         "",
-        f"**Ledger entries:** {len(entries)}. **Unresolved:** {unresolved}. Intentionally excluded entries are accounted for but are not counted as semantic-object representation.",
+        f"**Normalized ledger entries:** {len(entries)}. **Source records represented:** {len(source_dispositions['requirements'])}. **Source record statuses:** {dict(sorted(source_overall.items()))}. **Unrepresented requirements:** {unresolved}.",
         "",
         "## By declared specification",
         "",
-        "| Specification | Version | Inventoried | Structural | Operational | Constraint | Runtime | Out of scope | Not applicable | Ambiguous | Unresolved |",
-        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Specification | Version | Ledger | Structural | Operational | Constraint | Runtime | Source records |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for document, record in catalog["specifications"].items():
         counts = by_doc[document]
-        lines.append("| {} | {} | {} | {} | {} | {} | {} | {} | {} | {} | {} |".format(
+        lines.append("| {} | {} | {} | {} | {} | {} | {} | {} |".format(
             document, record["version"], sum(counts.values()), counts["represented-structurally"],
             counts["represented-operationally"], counts["represented-by-constraint"],
-            counts["represented-by-runtime"], counts["intentionally-out-of-scope"],
-            counts["not-applicable-to-semantic-object"], counts["ambiguous-source"], counts["unresolved"],
+            counts["represented-by-runtime"],
+            sum(source_by_doc[document].values()),
         ))
     lines += [
         "",
         "## What this does and does not establish",
         "",
-        "- **Semantic accounting:** every ledger entry has a controlled disposition and machine-resolvable representation or explicit explanation.",
+        "- **Machine-readable coverage:** every ledger entry and every extracted source record has a machine-resolvable representation.",
         "- **Runtime completeness:** not implied by structural representation; operational and runtime entries require their own artifacts and tests.",
         "- **Hardware interoperability:** not implied and not claimed by this report.",
         "- **MIDI authority:** the MIDI Association remains normative. Fountain Coach / FCIS / backplane extensions are outside the MIDI requirement denominator.",
         "",
-        ("The ledger has no unresolved or ambiguous entries. It supports the claim that every identified normative requirement in the declared corpus has an explicit disposition; this does not imply runtime completeness or hardware interoperability."
-         if unresolved == 0 and overall["ambiguous-source"] == 0 else
-         "The ledger contains unresolved or ambiguous entries. Therefore the shorter claim that the entire specification set is represented is not supported by this report."),
+        ("Every declared source record and every normalized requirement is represented in the full machine-readable object. Record class distinguishes normative-language records from non-normative publication or vocabulary material; this does not imply runtime completeness or hardware interoperability."
+         if unresolved == 0 and all(status.startswith("represented-") for status in source_overall) else
+         "The full machine-readable coverage claim is not supported because at least one record lacks a represented status."),
         "",
     ]
     return "\n".join(lines)

@@ -62,7 +62,7 @@ BLOCK
 fi; if ! caddy validate --config \"\$caddyfile\"; then cp \"\$backup\" \"\$caddyfile\"; exit 1; fi; systemctl reload caddy"
   echo "== live verification =="
   curl --fail --silent --show-error --location --max-time 30 --head "https://$HOST/" | sed -n -E '/^(HTTP\/|content-type:|server:|location:)/Ip'
-  curl --fail --silent --show-error --max-time 30 "https://$HOST/" | grep -q 'Machine-readable MIDI2'
+  curl --fail --silent --show-error --max-time 30 "https://$HOST/" | grep -q 'MIDI2 documentation'
   echo "verified: https://$HOST/"
 else
   rsync --dry-run "${rsync_args[@]}" "$source_root/" "$ssh_user@$TARGET_IP:$REMOTE_ROOT/.releases/$release/"

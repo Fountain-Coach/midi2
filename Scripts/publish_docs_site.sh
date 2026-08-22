@@ -50,7 +50,7 @@ ssh "${ssh_opts[@]}" "$ssh_user@$TARGET_IP" "mkdir -p '$REMOTE_ROOT/.releases' '
 rsync_args=(-rlptD --checksum --delete --exclude '.DS_Store' --exclude '._*' -e "ssh ${ssh_opts[*]}")
 if [[ $apply -eq 1 && $confirm -eq 1 ]]; then
   rsync "${rsync_args[@]}" "$source_root/" "$ssh_user@$TARGET_IP:$REMOTE_ROOT/.releases/$release/"
-  ssh "${ssh_opts[@]}" "$ssh_user@$TARGET_IP" "set -eu; if test -d '$REMOTE_ROOT/current'; then mv '$REMOTE_ROOT/current' '$REMOTE_ROOT/.rollback/previous-$release'; fi; mv '$REMOTE_ROOT/.releases/$release' '$REMOTE_ROOT/current'; test -f '$REMOTE_ROOT/current/index.html'"
+  ssh "${ssh_opts[@]}" "$ssh_user@$TARGET_IP" "set -eu; chmod -R a+rX '$REMOTE_ROOT/.releases/$release'; if test -d '$REMOTE_ROOT/current'; then mv '$REMOTE_ROOT/current' '$REMOTE_ROOT/.rollback/previous-$release'; fi; mv '$REMOTE_ROOT/.releases/$release' '$REMOTE_ROOT/current'; test -f '$REMOTE_ROOT/current/index.html'"
   ssh "${ssh_opts[@]}" "$ssh_user@$TARGET_IP" "set -eu; caddyfile=/etc/caddy/Caddyfile; backup=/etc/caddy/Caddyfile.midi2-$release; cp \"\$caddyfile\" \"\$backup\"; if ! grep -q '^$HOST {' \"\$caddyfile\"; then cat >> \"\$caddyfile\" <<'BLOCK'
 
 $HOST {

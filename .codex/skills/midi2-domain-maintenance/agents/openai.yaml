@@ -1,0 +1,6 @@
+interface:
+  display_name: "MIDI2 domain maintenance"
+  short_description: "Maintain MIDI2 code, contracts, docs, and evidence"
+  default_prompt: "Use $midi2-domain-maintenance to maintain this MIDI2 repository and keep its code, contracts, documentation, and evidence aligned."
+policy:
+  allow_implicit_invocation: true

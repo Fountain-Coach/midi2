@@ -6,22 +6,22 @@ This report records public HTTPS observations. Source repositories and their val
 
 ## Surface summary
 
-| Surface | Pages crawled | HTML | Errors | Pages missing core metadata |
-|---|---:|---:|---:|---:|
-| `estate` | 147 | 130 | 17 | 117 |
-| `book` | 147 | 129 | 18 | 116 |
-| `governance` | 147 | 130 | 17 | 117 |
-| `instruments` | 147 | 128 | 19 | 115 |
-| `status` | 147 | 130 | 17 | 117 |
-| `midi2` | 175 | 147 | 28 | 116 |
+| Surface | Pages crawled | HTML | Machine-readable | Errors | Pages missing core metadata |
+|---|---:|---:|---:|---:|---:|
+| `estate` | 176 | 149 | 27 | 0 | 5 |
+| `book` | 176 | 149 | 27 | 0 | 5 |
+| `governance` | 176 | 149 | 27 | 0 | 5 |
+| `instruments` | 176 | 149 | 27 | 0 | 5 |
+| `status` | 176 | 149 | 27 | 0 | 5 |
+| `midi2` | 176 | 149 | 27 | 0 | 5 |
 
 ## Source history used for the audit
 
 | Source | Revision | Latest subject |
 |---|---|---|
-| `/Volumes/NINJA2/Github-Desktop/midi2` | `9d931d60a9c02248311b91ce3a6f139fe81965d7` | Refine MIDI2 documentation template |
-| `/Volumes/NINJA2/Github-Desktop/book-of-reframe` | `8573069eb7cd678b838b5af2c09d236e2f77b0a5` | Unify Book publication estate shell |
-| `/Volumes/NINJA2/Github-Desktop/Reframe-Refactoring` | `c332064a63d51007d4cf99ea978cf91368bf89d0` | Fix governance estate semantic publication metadata |
+| `/Volumes/NINJA2/Github-Desktop/midi2` | `9435c35b01cb82615ca2b2558bef95fa29a9694a` | Fix MIDI2 publication smoke check (#153) |
+| `/Volumes/NINJA2/Github-Desktop/book-of-reframe` | `f2025e0228a1530e573e7838f08eaf0584132d77` | Mark readings evidence as a live drive |
+| `/Volumes/NINJA2/Github-Desktop/Reframe-Refactoring` | `cdde7602babe595c628a612fad36908c6a802793` | Complete governance publication metadata (#23) |
 | `/Volumes/NINJA2/Github-Desktop/midi2-gpu-fabric` | `10f219f6fb09d074a143d6bcb2dc80d513fb323a` | Add Codex login instrument system icon |
 | `/Volumes/NINJA2/Github-Desktop/status-fountain-coach` | `—` | no-git-source |
 

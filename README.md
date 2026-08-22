@@ -79,7 +79,7 @@ let noteOn = MIDI2.noteOn(channel: 0, note: 60, velocity: 0.8)
 let packet = UMPPacket(/* ... */)
 ```
 
-See the repository's [documentation index](docs/README.md) for the canonical API, conformance, provenance, and runtime-boundary documentation. Generated hosted API documentation is not currently published.
+See the repository's [documentation index](docs/README.md) for the canonical API, conformance, provenance, and runtime-boundary documentation. The reviewed public projection is published at [midi2.fountain.coach](https://midi2.fountain.coach/); generated hosted API documentation is not currently published.
 
 ### JavaScript/TypeScript
 
@@ -146,6 +146,8 @@ npm run coverage
 
 The primary, canonical documentation for this repository lives in the **[docs/](docs/)** directory. For design notes, conformance checklists, and audit material, see:
 
+The public publication estate is linked semantically: [Fountain Coach](https://fountain.coach/) · [Book of Reframe](https://book.fountain.coach/) · [Reframe Governance](https://governance.fountain.coach/) · [MIDI2 documentation](https://midi2.fountain.coach/) · [Instruments](https://instruments.fountain.coach/) · [Status](https://status.fountain.coach/).
+
 The standards contract is bidirectional: [source provenance](docs/spec-provenance.json) records object-to-source traceability, while the [normative coverage report](docs/generated/normative-coverage.md) records the inverse ledger. Structural rules live in the closed schema; verified behavioral slices live in the [normative behavior model](docs/normative-behavior.json). See the [coverage methodology](docs/normative-coverage-methodology.md) for the limits of semantic, runtime, and hardware claims.
 
 - **[docs/README.md](docs/README.md)** — Documentation landing page
@@ -156,6 +158,7 @@ The standards contract is bidirectional: [source provenance](docs/spec-provenanc
 - **[docs/negative-test-matrix.md](docs/negative-test-matrix.md)** — Reserved, malformed, and unsupported-value coverage
 - **[docs/comprehensive-spec-audit-report.md](docs/comprehensive-spec-audit-report.md)** — Comprehensive spec audit report
 - **[docs/spec-traceability-matrix.md](docs/spec-traceability-matrix.md)** — Spec traceability matrix
+- **[docs/publication-estate-audit.md](docs/publication-estate-audit.md)** — Reproducible crawl and source-history audit of the published estate
 - **[Scripts/build_docs_site.py](Scripts/build_docs_site.py)** — Reproducible static documentation-site builder
 - **[Scripts/publish_docs_site.sh](Scripts/publish_docs_site.sh)** — Guarded publication helper for the configured documentation target
 

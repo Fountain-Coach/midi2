@@ -62,6 +62,7 @@ out/
 .workbench/
 out/
 node_modules/
+__pycache__/
 .npm/
 midi2.js/dist/
 midi2.js/coverage/

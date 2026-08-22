@@ -70,7 +70,7 @@
     {
       "id": "feature-level-runtime-support",
       "status": "partial",
-      "claim": "Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, and jitter-reduction paths.",
+      "claim": "Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, MIDI Clip lifecycle, and jitter-reduction paths.",
       "reason": "The conformance checklist provides feature-level code and test references while explicitly recording remaining partial areas.",
       "evidence": [
         {"path": "docs/conformance-checklist.md", "why": "feature-level implementation status"},

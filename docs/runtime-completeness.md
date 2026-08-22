@@ -35,6 +35,16 @@ Endpoint, Function Block, Group Terminal Block, Stream Configuration, negotiatio
 - `midi2.js/src/stream-negotiation.ts`
 - `midi2.js/src/__tests__`
 
+## `midi-clip-lifecycle` — verified
+
+SMF2CLIP header, DCTPQ/DCS timing, Start/End of Clip boundaries, stable UMP ordering, and maximum-delta chunking
+
+**Evidence:**
+- `Sources/MIDI2/MidiClipFile.swift`
+- `Tests/MIDI2Tests/MidiClipFileTests.swift`
+- `midi2.js/src/midi-clip.ts`
+- `midi2.js/src/__tests__/midi-clip.test.ts`
+
 ## `jitter-reduction` — verified
 
 JR clock/timestamp encoding, receiver reconstruction, scheduler projection, and deterministic clock tests

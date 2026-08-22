@@ -121,6 +121,31 @@ Governance reading record:
 ---
 
 Goal:
+Implement and release the bounded Swift and TypeScript MIDI2 runtime surfaces corresponding to the modeled normative behavior, with cross-language evidence.
+Scope:
+MIDI Clip file lifecycle parity, existing negotiation/profile/property/UMP runtime surfaces, tests, generated coverage evidence, and the Swift/TypeScript package release.
+Non-goals:
+Physical hardware interoperability, optional host adapters, and changing the MIDI Association semantic contract.
+Constraints:
+Do not promote a modeled behavior without executable evidence; preserve the explicit runtime and hardware claim boundaries.
+Dependencies:
+The merged normative coverage ledger, existing Swift/TypeScript implementations, local package toolchains, and protected-main release workflow.
+Risks:
+Version or generated-artifact drift could publish a package whose evidence does not match the source. Release gates must run locally before publication.
+Steps:
+  - [x] Audit existing Swift and TypeScript implementations and identify the genuine cross-language gap.
+  - [ ] Add MIDI Clip API parity and cross-language tests.
+  - [ ] Promote only tested modeled behaviors and regenerate reports.
+  - [ ] Run Swift, TypeScript, documentation, provenance, and claim validation.
+  - [ ] Bump both package versions, publish through a PR, and create the release artifacts.
+Validation:
+Swift tests; `npm run check`, `npm test`, `npm run build`; provenance, coverage, runtime, claims, and documentation verifiers; clean diff and package dry run.
+Acceptance Criteria:
+The Swift and TypeScript packages expose tested MIDI Clip lifecycle behavior; promoted runtime evidence is reproducible; package versions and changelog agree; no hardware interoperability claim is added.
+
+---
+
+Goal:
 Publish only evidence-backed MIDI2 claims with explicit scope and exclusions.
 Scope:
 Machine-readable claim register, generated public claim documentation, README/dashboard links, and CI verification.

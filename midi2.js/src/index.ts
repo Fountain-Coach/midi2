@@ -16,3 +16,4 @@ export * from "./adapters/cannon";
 export * from "./gtb-negotiation";
 export * from "./stream-negotiation";
 export * from "./muid-manager";
+export * from "./midi-clip";

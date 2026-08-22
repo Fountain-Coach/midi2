@@ -70,8 +70,8 @@
     {
       "id": "feature-level-runtime-support",
       "status": "partial",
-      "claim": "Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, MIDI Clip lifecycle, and jitter-reduction paths.",
-      "reason": "The conformance checklist provides feature-level code and test references while explicitly recording remaining partial areas.",
+      "claim": "Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, MIDI Clip lifecycle, jitter-reduction, and the remaining modeled frontier state machines.",
+      "reason": "The conformance checklist and machine-readable runtime boundary provide feature-level code and test references; physical hardware remains outside the evidence boundary.",
       "evidence": [
         {"path": "docs/conformance-checklist.md", "why": "feature-level implementation status"},
         {"path": "Sources", "why": "Swift runtime implementation"},
@@ -79,7 +79,7 @@
         {"path": "Tests", "why": "Swift runtime tests"},
         {"path": "midi2.js/src/__tests__", "why": "TypeScript runtime tests"}
       ],
-      "exclusions": ["No global claim of complete MIDI2 runtime implementation is made.", "No hardware interoperability claim is made."]
+      "exclusions": ["Optional host adapters remain outside the named core surface.", "No hardware interoperability claim is made."]
     },
     {
       "id": "core-software-runtime-completeness",

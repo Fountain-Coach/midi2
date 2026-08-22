@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - _Nothing yet._
 
+## [0.11.0] - 2026-08-22
+### Added
+- Swift and TypeScript runtime state machines for compatibility selection, MIDI-CI transaction failure, profile channel allocation, Property Exchange resource errors, and software UMP ordering/reserved-value validation.
+- Cross-language negative-path tests and runtime evidence for the remaining modeled frontiers; physical hardware interoperability remains explicitly excluded.
+
 ## [0.10.0] - 2026-08-22
 ### Added
 - Swift and TypeScript `SMF2CLIP` writers with DCTPQ/DCS timing, clip boundaries, stable UMP ordering, and maximum-delta chunking.

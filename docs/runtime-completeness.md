@@ -64,6 +64,18 @@ Reserved, unsupported, malformed, and bounded-value rejection for the covered co
 - `midi2.js/src/__tests__/negative.test.ts`
 - `docs/negative-test-matrix.md`
 
+## `modeled-frontier-runtime` — verified
+
+Compatibility selection, MIDI-CI transaction failure, profile channel allocation, Property Exchange resource errors, and software UMP ordering/reserved-value validation
+
+**Evidence:**
+- `Sources/MIDI2CI/ModeledFrontiers.swift`
+- `Sources/MIDI2/UmpOrderingValidator.swift`
+- `Tests/MIDI2Tests/ModeledFrontierTests.swift`
+- `midi2.js/src/modeled-frontiers.ts`
+- `midi2.js/src/__tests__/modeled-frontiers.test.ts`
+- `docs/normative-behavior.json`
+
 ## `optional-host-adapters` — out-of-scope
 
 Host-specific adapter negotiation and worker-only timing environments

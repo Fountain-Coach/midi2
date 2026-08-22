@@ -18,7 +18,7 @@ def main() -> int:
     ids = [entry.get("id") for entry in entries]
     if len(ids) != len(set(ids)):
         errors.append("duplicate runtime entry id")
-    required = {"ump-core", "midi-ci-core", "stream-core", "jitter-reduction", "negative-validation"}
+    required = {"ump-core", "midi-ci-core", "stream-core", "midi-clip-lifecycle", "jitter-reduction", "negative-validation"}
     missing = required - set(ids)
     if missing:
         errors.append(f"missing core entries: {', '.join(sorted(missing))}")

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - _Nothing yet._
 
+## [0.10.0] - 2026-08-22
+### Added
+- Swift and TypeScript `SMF2CLIP` writers with DCTPQ/DCS timing, clip boundaries, stable UMP ordering, and maximum-delta chunking.
+- Cross-language MIDI Clip lifecycle tests and explicit runtime evidence for the bounded core claim.
+- Runtime coverage entry for the implemented MIDI Clip behavior slice; related modeled behavior remains explicitly bounded until its state transitions have direct runtime evidence.
+
 ## [0.9.2] - 2026-08-16
 ### Added
 - Documentation: README now links the evidence-backed runtime boundary, conformance checklist, and negative-test matrix.

@@ -143,7 +143,7 @@
       "version": "1.0",
       "page": 12,
       "section": "Sections 3.2, 5, 6, and 7 — Clip ordering, timing, and termination",
-      "status": "modeled-slice",
+      "status": "implemented-slice",
       "states": [
         "file-header",
         "configuration-header",
@@ -205,9 +205,10 @@
         "Property Exchange resources are not admitted to the MIDI Clip semantic object"
       ],
       "implementation": [
-        {"kind": "machine-readable-model", "path": "docs/normative-behavior.json", "symbol": "m2-116-midi-clip-file-lifecycle-v1.0"}
+        {"kind": "swift-source", "path": "Sources/MIDI2/MidiClipFile.swift", "symbol": "MidiClipFileWriter.build"},
+        {"kind": "typescript-source", "path": "midi2.js/src/midi-clip.ts", "symbol": "buildMidiClipFile"}
       ],
-      "verification": ["Scripts/verify_normative_coverage.py"]
+      "verification": ["Tests/MIDI2Tests/MidiClipFileTests.swift", "midi2.js/src/__tests__/midi-clip.test.ts"]
     },
     {
       "id": "m2-100-midi2-compatibility-selection-v1.1",

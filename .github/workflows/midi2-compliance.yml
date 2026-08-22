@@ -112,7 +112,7 @@ jobs:
           WORKBENCH_DIR: .workbench
 
       - name: Upload compliance report
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: midi2-compliance-${{ matrix.os }}
           path: |
@@ -124,7 +124,7 @@ jobs:
           python3 midi2-compliance/tools/badge_from_report.py out/report.json out/badge.svg || true
 
       - name: Upload badge
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: midi2-badge-${{ matrix.os }}
           path: out/badge.svg

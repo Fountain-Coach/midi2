@@ -24,12 +24,13 @@ PAGES = [
     ("docs/gap-closure-tracker.md", "Gap closure tracker"),
     ("docs/spec-traceability-matrix.md", "Specification traceability matrix"),
     ("docs/spec-audit.md", "Specification audit log"), ("docs/traceability.md", "Definition of done traceability"),
+    ("docs/publication-estate-audit.md", "Publication estate audit"),
 ]
 MACHINE_FILES = [
     "docs/claims.json", "docs/normative-requirements.json", "docs/normative-behavior.json",
     "docs/normative-source-inventory.json", "docs/normative-source-dispositions.json", "docs/runtime-completeness.json",
     "docs/spec-provenance.json", "docs/generated/normative-coverage.md", "docs/generated/spec-traceability.md",
-    "docs/quiet-frame-gap-closure.yaml",
+    "docs/quiet-frame-gap-closure.yaml", "docs/publication-estate-audit.json",
 ]
 HOST = "midi2.fountain.coach"
 LOGO = "https://fountain.coach/assets/fountain-coach-logo.png"

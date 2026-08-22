@@ -7409,8 +7409,8 @@
   "source_snapshots": [
     {
       "path": "/Volumes/NINJA2/Github-Desktop/midi2",
-      "revision": "9435c35b01cb82615ca2b2558bef95fa29a9694a",
-      "subject": "Fix MIDI2 publication smoke check (#153)"
+      "revision": "489156a112bbf2a3dab1d2e372e03f28146c8e0a",
+      "subject": "Record clean publication estate crawl (#154)"
     },
     {
       "path": "/Volumes/NINJA2/Github-Desktop/book-of-reframe",

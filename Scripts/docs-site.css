@@ -1,0 +1,14 @@
+:root { color-scheme: light dark; --bg:#f7f8fa; --ink:#17202b; --muted:#5e6a78; --line:#d5dce5; --card:#fff; --accent:#165dce; }
+@media (prefers-color-scheme: dark) { :root { --bg:#11161d; --ink:#f2f5f8; --muted:#aeb9c7; --line:#36414e; --card:#1a222c; --accent:#8db8ff; } }
+* { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--ink); font:16px/1.65 system-ui,-apple-system,sans-serif; }
+a { color:var(--accent); } .masthead, main, footer { max-width:1120px; margin:auto; padding-left:28px; padding-right:28px; }
+.masthead { padding-top:72px; padding-bottom:64px; display:grid; grid-template-columns:minmax(0,2fr) minmax(220px,1fr); gap:56px; border-bottom:1px solid var(--line); }
+h1 { max-width:760px; margin:12px 0 20px; font:clamp(2.8rem,7vw,6.8rem)/.92 Georgia,serif; letter-spacing:-.055em; } h2 { margin:8px 0 0; font-size:clamp(1.7rem,3vw,2.5rem); letter-spacing:-.035em; }
+.lede { max-width:700px; color:var(--muted); font-size:1.25rem; } .meta { align-self:end; color:var(--muted); } code { font-size:.8rem; overflow-wrap:anywhere; }
+main { padding-top:58px; } section { padding:0 0 64px; border-bottom:1px solid var(--line); margin-bottom:64px; } .section-heading { margin-bottom:24px; }
+.eyebrow { color:var(--muted); font-size:.76rem; font-weight:750; letter-spacing:.14em; text-transform:uppercase; } .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:14px; }
+.card, .machine { display:block; background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; text-decoration:none; } .card:hover { border-color:var(--accent); transform:translateY(-2px); }
+.card h2 { color:var(--ink); font-size:1.25rem; } .card p { margin-bottom:0; color:var(--muted); font-family:ui-monospace,monospace; font-size:.8rem; } .machine-list { display:grid; gap:8px; }
+.machine { border-radius:8px; padding:10px 14px; font-family:ui-monospace,monospace; font-size:.9rem; } .boundary { border-left:4px solid var(--accent); padding:20px 28px; background:var(--card); } .boundary p { max-width:780px; font-size:1.15rem; }
+footer { display:flex; justify-content:space-between; gap:20px; padding-top:28px; padding-bottom:48px; color:var(--muted); font-size:.85rem; } article, body > main { max-width:900px; } article { margin:60px auto; padding:0 28px; } article img { max-width:100%; } pre { overflow:auto; padding:16px; background:var(--card); border:1px solid var(--line); border-radius:8px; }
+@media (max-width:700px) { .masthead { grid-template-columns:1fr; padding-top:40px; } footer { display:block; } footer span { display:block; margin-top:8px; } }

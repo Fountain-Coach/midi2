@@ -6,6 +6,16 @@
 
 The repository's maintenance workflow is documented as a public, reusable skill: [`midi2-domain-maintenance`](../.codex/skills/midi2-domain-maintenance/SKILL.md). It is deliberately independent of any publication domain or hosting provider and is the first reference for agents changing code, contracts, evidence, documentation, or publication projections.
 
+## Documentation site
+
+The static documentation projection is generated from the repository by [`Scripts/build_docs_site.py`](../Scripts/build_docs_site.py). Build it locally with:
+
+```sh
+python3 Scripts/build_docs_site.py --output /tmp/midi2-docs-site
+```
+
+The guarded publication helper is [`Scripts/publish_docs_site.sh`](../Scripts/publish_docs_site.sh). DNS and delivery are separate, explicitly verified operations; the generated site records its source commit and does not publish the normative source PDFs.
+
 ## Quick Start
 
 **New to this project?** Start here:

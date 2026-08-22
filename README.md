@@ -156,6 +156,8 @@ The standards contract is bidirectional: [source provenance](docs/spec-provenanc
 - **[docs/negative-test-matrix.md](docs/negative-test-matrix.md)** — Reserved, malformed, and unsupported-value coverage
 - **[docs/comprehensive-spec-audit-report.md](docs/comprehensive-spec-audit-report.md)** — Comprehensive spec audit report
 - **[docs/spec-traceability-matrix.md](docs/spec-traceability-matrix.md)** — Spec traceability matrix
+- **[Scripts/build_docs_site.py](Scripts/build_docs_site.py)** — Reproducible static documentation-site builder
+- **[Scripts/publish_docs_site.sh](Scripts/publish_docs_site.sh)** — Guarded publication helper for the configured documentation target
 
 ## Contributing
 

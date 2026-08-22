@@ -22,7 +22,7 @@ describe("MIDI 2.0 SMF2CLIP writer", () => {
     expect(packetWords).toContain(0x11111111);
     expect(packetWords).toContain(0x33333333);
     expect(packetWords).toContain(0x22222222);
-    expect(packetWords.at(-1)).toBe(0xf2210000);
+    expect(packetWords[packetWords.length - 1]).toBe(0xf2210000);
   });
 
   it("chunks deltas at the protocol maximum", () => {

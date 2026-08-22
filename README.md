@@ -11,6 +11,12 @@ The repository's runtime claim is deliberately bounded: the named Swift and Type
 
 This repository contains reusable packages and examples used to build MIDI 2.0-aware components and adapters for Apple platforms, Linux, and web browsers.
 
+## Agent maintenance — read this first
+
+Agents maintaining this repository should use the public [`midi2-domain-maintenance`](.codex/skills/midi2-domain-maintenance/SKILL.md) skill. It keeps implementation, machine-readable contracts, human documentation, provenance, tests, claims, and optional publication projections aligned.
+
+The skill is repository-scoped and domain-agnostic: publication hosts, subdomains, DNS, and delivery providers are supplied as external configuration. The repository remains the source of truth. Its [publication adapter contract](.codex/skills/midi2-domain-maintenance/references/publication-adapter.md) explains how a project may connect sanitized documentation projections without coupling the MIDI2 maintenance workflow to a particular web estate.
+
 ## Overview
 
 **Swift Packages:**
@@ -73,7 +79,7 @@ let noteOn = MIDI2.noteOn(channel: 0, note: 60, velocity: 0.8)
 let packet = UMPPacket(/* ... */)
 ```
 
-See [Package documentation](https://fountain-coach.github.io/midi2/) for full API reference.
+See the repository's [documentation index](docs/README.md) for the canonical API, conformance, provenance, and runtime-boundary documentation. Generated hosted API documentation is not currently published.
 
 ### JavaScript/TypeScript
 

@@ -1,6 +1,10 @@
 # Documentation
 
-**Last Updated**: 2025-12-16 | **Version**: 0.9.0
+**Last Updated**: 2026-08-22 | **Version**: 0.11.0
+
+## Agent maintenance
+
+The repository's maintenance workflow is documented as a public, reusable skill: [`midi2-domain-maintenance`](../.codex/skills/midi2-domain-maintenance/SKILL.md). It is deliberately independent of any publication domain or hosting provider and is the first reference for agents changing code, contracts, evidence, documentation, or publication projections.
 
 ## Quick Start
 

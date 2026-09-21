@@ -70,21 +70,21 @@ func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
                     for rep in st.profiles.handle(b) {
                         let payload = rep.sysEx8Bytes()
                         if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
-                            for f in frames { if let p = UmpPacket128(words: f) { _ = sendUMP128(p) } }
+                            for f in frames { if let p = UmpPacket128(rawBytes: f) { _ = sendUMP128(p) } }
                         }
                     }
                 case .propertyExchange(let b):
                     for rep in st.pe.handle(b) {
                         let payload = rep.sysEx8Bytes()
                         if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
-                            for f in frames { if let p = UmpPacket128(words: f) { _ = sendUMP128(p) } }
+                            for f in frames { if let p = UmpPacket128(rawBytes: f) { _ = sendUMP128(p) } }
                         }
                     }
                 case .processInquiry(let b):
                     if let rep = st.pi.handle(b) {
                         let payload = rep.sysEx8Bytes()
                         if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
-                            for f in frames { if let p = UmpPacket128(words: f) { _ = sendUMP128(p) } }
+                            for f in frames { if let p = UmpPacket128(rawBytes: f) { _ = sendUMP128(p) } }
                         }
                     }
                 case .discovery(_):
@@ -100,7 +100,7 @@ func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
                     )
                     let payload = adv.sysEx8Bytes()
                     if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
-                        for f in frames { if let p = UmpPacket128(words: f) { _ = sendUMP128(p) } }
+                        for f in frames { if let p = UmpPacket128(rawBytes: f) { _ = sendUMP128(p) } }
                     }
                 case .ackNak(_): break
                 }

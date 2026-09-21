@@ -1,7 +1,7 @@
 // swift-tools-version: 6.1
 import PackageDescription
 
-let packageVersion = "0.12.0"
+let packageVersion = "0.12.1"
 
 let package = Package(
     name: "MIDI2",
@@ -68,7 +68,7 @@ let package = Package(
         ),
         .executableTarget(
             name: "midi2umpd",
-            dependencies: ["MIDI2", "MIDI2CI", "UMPALSA"],
+            dependencies: ["MIDI2", "MIDI2CI", "MIDI2Transports", "UMPALSA"],
             swiftSettings: [
                 .define("LINUX", .when(platforms: [.linux]))
             ]

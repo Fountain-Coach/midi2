@@ -3,6 +3,9 @@ import Foundation
 @preconcurrency import UMPALSA
 import MIDI2
 import MIDI2CI
+import MIDI2Transports
+
+var rtpSession: RTPMidiSession?
 
 struct GroupState {
     var profiles = ProfileSession(supportedProfiles: ["/org.midi/piano"]) // demo profile
@@ -16,12 +19,14 @@ var groups: [UInt8: GroupState] = [:]
 @discardableResult
 func sendUMP32(_ word: UInt32) -> Swift.Int32 {
     var w = [word]
+    try? rtpSession?.send(umpWords: w)
     return ump_alsa_send(&w, Swift.Int32(1), Swift.Int32((word >> 24) & 0xF))
 }
 
 @discardableResult
 func sendUMP64(_ pkt: UmpPacket64) -> Swift.Int32 {
     var words = pkt.words
+    try? rtpSession?.send(umpWords: words)
     return words.withUnsafeMutableBufferPointer { buf in
         ump_alsa_send(buf.baseAddress, Swift.Int32(2), Swift.Int32((pkt.word0 >> 24) & 0xF))
     }
@@ -30,6 +35,7 @@ func sendUMP64(_ pkt: UmpPacket64) -> Swift.Int32 {
 @discardableResult
 func sendUMP128(_ pkt: UmpPacket128) -> Swift.Int32 {
     var words = pkt.words
+    try? rtpSession?.send(umpWords: words)
     return words.withUnsafeMutableBufferPointer { buf in
         return ump_alsa_send(buf.baseAddress, Swift.Int32(4), Swift.Int32((pkt.word0 >> 24) & 0xF))
     }
@@ -163,6 +169,34 @@ func handleStream32(group: UInt8, word: UInt32) {
 }
 
 // Main
+let requestedRTPPort: UInt16 = {
+    if let index = CommandLine.arguments.firstIndex(of: "--rtp-port"),
+       index + 1 < CommandLine.arguments.count,
+       let port = UInt16(CommandLine.arguments[index + 1]) { return port }
+    if let value = ProcessInfo.processInfo.environment["MIDI2_RTP_PORT"],
+       let port = UInt16(value) { return port }
+    return 5004
+}()
+
+let network = RTPMidiSession(localName: "Fountain Coach MIDI2", listenPort: requestedRTPPort)
+try? network.open()
+try? network.waitUntilReady()
+rtpSession = network
+network.onReceiveUMP = { words in
+    guard let first = words.first else { return }
+    let group = UInt8((first >> 24) & 0xF)
+    let messageType = UInt8((first >> 28) & 0xF)
+    Task { @MainActor in
+        if messageType == 0xF, words.count == 1 {
+            handleStream32(group: group, word: first)
+        } else if messageType == 0x5, words.count == 4,
+                  let packet = UmpPacket128(words: words) {
+            handleSysEx8(group: group, pkt128: packet)
+        }
+    }
+}
+FileHandle.standardOutput.write(Data("midi2umpd RTP-MIDI2 listening on udp/\(network.port ?? 0)\n".utf8))
+
 if ump_alsa_open() != 0 {
     FileHandle.standardError.write(Data("Failed to open ALSA UMP client\n".utf8))
     exit(1)

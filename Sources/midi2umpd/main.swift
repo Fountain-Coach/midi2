@@ -1,6 +1,6 @@
 import Foundation
 #if os(Linux)
-import UMPALSA
+@preconcurrency import UMPALSA
 import MIDI2
 import MIDI2CI
 
@@ -14,22 +14,31 @@ struct GroupState {
 var groups: [UInt8: GroupState] = [:]
 
 @discardableResult
-func sendUMP32(_ word: UInt32) -> Int32 {
+func sendUMP32(_ word: UInt32) -> Swift.Int32 {
     var w = [word]
-    return ump_alsa_send(&w, 1, Int((word >> 24) & 0xF))
+    return ump_alsa_send(&w, Swift.Int32(1), Swift.Int32((word >> 24) & 0xF))
 }
 
 @discardableResult
-func sendUMP128(_ pkt: UmpPacket128) -> Int32 {
+func sendUMP64(_ pkt: UmpPacket64) -> Swift.Int32 {
     var words = pkt.words
     return words.withUnsafeMutableBufferPointer { buf in
-        return ump_alsa_send(buf.baseAddress, 4, Int((pkt.word0 >> 24) & 0xF))
+        ump_alsa_send(buf.baseAddress, Swift.Int32(2), Swift.Int32((pkt.word0 >> 24) & 0xF))
+    }
+}
+
+@discardableResult
+func sendUMP128(_ pkt: UmpPacket128) -> Swift.Int32 {
+    var words = pkt.words
+    return words.withUnsafeMutableBufferPointer { buf in
+        return ump_alsa_send(buf.baseAddress, Swift.Int32(4), Swift.Int32((pkt.word0 >> 24) & 0xF))
     }
 }
 
 // SysEx8 reassembly per group
 var syx8Acc: [UInt8: [UmpPacket128]] = [:]
 
+@MainActor
 func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
     var arr = syx8Acc[group] ?? []
     arr.append(pkt128)
@@ -60,21 +69,21 @@ func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
                     }
                     for rep in st.profiles.handle(b) {
                         let payload = rep.sysEx8Bytes()
-                        if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: Int(group)) {
+                        if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
                             for f in frames { if let p = UmpPacket128(words: f) { _ = sendUMP128(p) } }
                         }
                     }
                 case .propertyExchange(let b):
                     for rep in st.pe.handle(b) {
                         let payload = rep.sysEx8Bytes()
-                        if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: Int(group)) {
+                        if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
                             for f in frames { if let p = UmpPacket128(words: f) { _ = sendUMP128(p) } }
                         }
                     }
                 case .processInquiry(let b):
                     if let rep = st.pi.handle(b) {
                         let payload = rep.sysEx8Bytes()
-                        if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: Int(group)) {
+                        if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
                             for f in frames { if let p = UmpPacket128(words: f) { _ = sendUMP128(p) } }
                         }
                     }
@@ -90,7 +99,7 @@ func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
                         maxSysEx: 2048
                     )
                     let payload = adv.sysEx8Bytes()
-                    if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: Int(group)) {
+                    if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
                         for f in frames { if let p = UmpPacket128(words: f) { _ = sendUMP128(p) } }
                     }
                 case .ackNak(_): break
@@ -106,6 +115,7 @@ func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
     }
 }
 
+@MainActor
 func handleStream32(group: UInt8, word: UInt32) {
     let pkt = UmpPacket32(word: word)
     guard let body = StreamBody(ump: pkt) else { return }
@@ -128,8 +138,8 @@ func handleStream32(group: UInt8, word: UInt32) {
         // Provide FB info (two blocks of 4 groups starting at 0 then 4) with profile hints in metadata
         let fb1 = try? FunctionBlockInfoNotification(index: 0, firstGroup: 0, groupCount: 4, active: true, direction: .bidirectional, midi1Bandwidth: .unrestricted, uiHints: 0x10)
         let fb2 = try? FunctionBlockInfoNotification(index: 1, firstGroup: 4, groupCount: 4, active: true, direction: .output, midi1Bandwidth: .restrict31_25kbps, uiHints: 0x20)
-        if let fb1 = fb1 { _ = sendUMP128(fb1.ump(group: Uint4(group)!)) }
-        if let fb2 = fb2 { _ = sendUMP128(fb2.ump(group: Uint4(group)!)) }
+        if let fb1 = fb1 { _ = sendUMP64(fb1.ump(group: Uint4(group)!)) }
+        if let fb2 = fb2 { _ = sendUMP64(fb2.ump(group: Uint4(group)!)) }
         // Send Function Block names to mirror Figure 22 sequence (optional)
         let names: [(UInt8, String)] = [(0, "FB 0 (BiDir)"), (1, "FB 1 (Out)")]
         for (idx, name) in names {
@@ -154,13 +164,13 @@ func handleStream32(group: UInt8, word: UInt32) {
 
 // Main
 if ump_alsa_open() != 0 {
-    fputs("Failed to open ALSA UMP client\n", stderr)
+    FileHandle.standardError.write(Data("Failed to open ALSA UMP client\n".utf8))
     exit(1)
 }
 
 var words = [UInt32](repeating: 0, count: 4)
-var cnt: Int32 = 0
-var grp: Int32 = 0
+var cnt: Swift.Int32 = 0
+var grp: Swift.Int32 = 0
 
 while true {
     if ump_alsa_get_event(&words, &cnt, &grp) == 0 {

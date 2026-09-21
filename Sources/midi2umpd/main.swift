@@ -182,8 +182,13 @@ let requestedRTPPort: UInt16 = {
 }()
 
 let network = RTPMidiSession(localName: "Fountain Coach MIDI2", listenPort: requestedRTPPort)
-try? network.open()
-try? network.waitUntilReady()
+do {
+    try network.open()
+    try network.waitUntilReady()
+} catch {
+    FileHandle.standardError.write(Data("midi2umpd RTP-MIDI2 bind failed on udp/\(requestedRTPPort): \(error)\n".utf8))
+    exit(1)
+}
 rtpSession = network
 network.onReceiveUMP = { words in
     guard let first = words.first else { return }

@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 - Added a reusable `MidiCiDiscoveryResponder` and wired `midi2device` to answer
   MIDI-CI Discovery with its typed instrument advertisement.
 
+## [0.12.5] - 2026-09-21
+### Fixed
+- Fail closed when the RTP-MIDI2 listener cannot bind its requested UDP port.
+
 ## [0.12.4] - 2026-09-21
 ### Fixed
 - Marked the RTP responder send helpers `@MainActor` for Swift 6 Linux builds.

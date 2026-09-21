@@ -11,6 +11,11 @@ All notable changes to this project will be documented in this file.
 - Swift `MIDI2Transports` package with cross-platform RTP-MIDI2 UMP transport.
 - UDP loopback coverage proving complete UMP messages cross two transport sessions.
 
+## [0.12.1] - 2026-09-21
+### Added
+- Linux `midi2umpd` now routes its existing MIDI-CI responder over the public RTP-MIDI2 transport.
+- RTP-MIDI2 transport accepts complete 32-, 64-, and 128-bit UMP messages.
+
 ## [0.11.0] - 2026-08-22
 ### Added
 - Swift and TypeScript runtime state machines for compatibility selection, MIDI-CI transaction failure, profile channel allocation, Property Exchange resource errors, and software UMP ordering/reserved-value validation.

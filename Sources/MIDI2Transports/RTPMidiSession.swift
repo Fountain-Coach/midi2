@@ -175,7 +175,8 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
                 recvfrom(fd, buffer.baseAddress, buffer.count, 0, $0, &length)
             } }
         }
-        guard count >= 16, [4, 8, 16].contains(count - 12) else { return }
+        let payloadByteCount = count - 12
+        guard payloadByteCount > 0, payloadByteCount.isMultiple(of: 16) else { return }
         var words: [UInt32] = []; var offset = 12
         while offset < count { words.append(bytes[offset..<offset+4].withUnsafeBytes { UInt32(bigEndian: $0.load(as: UInt32.self)) }); offset += 4 }
         onReceiveUMP?(words)

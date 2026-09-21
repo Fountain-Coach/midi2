@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 - Added a reusable `MidiCiDiscoveryResponder` and wired `midi2device` to answer
   MIDI-CI Discovery with its typed instrument advertisement.
 
+## [0.12.8] - 2026-09-21
+### Fixed
+- Accept multi-packet SysEx8 UMP payloads in the Linux RTP receiver.
+
 ## [0.12.7] - 2026-09-21
 ### Fixed
 - Keep the ALSA polling loop off the main actor so RTP MIDI-CI replies can run.

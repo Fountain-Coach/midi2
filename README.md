@@ -31,6 +31,7 @@ The skill is repository-scoped and domain-agnostic: publication hosts, subdomain
 ## Packages
 
 **Swift Packages:**
+- **`MIDI2Transports`** — Cross-platform RTP-MIDI2 UMP transport for connecting governed software peers over an explicitly selected UDP endpoint.
 - **[Packages/MIDI2BridgeAUCore](Packages/MIDI2BridgeAUCore/README.md)** — Core classes to build an AUv3 MIDI Processor that forwards host MIDI to external CoreMIDI destinations. See the README for integration instructions.
 - **[Packages/TeatroAppleBridge](Packages/TeatroAppleBridge/README.md)** — Adapter package that maps the midi2 UMP model to Core MIDI and Apple sequencing APIs. See the README for examples.
 
@@ -48,7 +49,7 @@ The skill is repository-scoped and domain-agnostic: publication hosts, subdomain
 Add to your `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.11.0")
+    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.12.0")
 ]
 ```
 

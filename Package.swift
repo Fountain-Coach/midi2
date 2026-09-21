@@ -1,7 +1,7 @@
 // swift-tools-version: 6.1
 import PackageDescription
 
-let packageVersion = "0.11.0"
+let packageVersion = "0.12.0"
 
 let package = Package(
     name: "MIDI2",
@@ -9,6 +9,7 @@ let package = Package(
     products: [
         .library(name: "MIDI2", targets: ["MIDI2"]),
         .library(name: "MIDI2CI", targets: ["MIDI2CI"]),
+        .library(name: "MIDI2Transports", targets: ["MIDI2Transports"]),
         .executable(name: "midi2demo", targets: ["midi2demo"]),
         .executable(name: "jitterdemo", targets: ["jitterdemo"]),
         .executable(name: "midi2compliance", targets: ["midi2compliance"]),
@@ -22,6 +23,7 @@ let package = Package(
     targets: [
         .target(name: "MIDI2", dependencies: [.product(name: "Numerics", package: "swift-numerics")]),
         .target(name: "MIDI2CI", dependencies: ["MIDI2"]),
+        .target(name: "MIDI2Transports", dependencies: []),
         .executableTarget(
             name: "midi2demo",
             dependencies: [
@@ -71,7 +73,7 @@ let package = Package(
                 .define("LINUX", .when(platforms: [.linux]))
             ]
         ),
-        .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "midi2demo"]),
+        .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "MIDI2Transports", "midi2demo"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")
     ]
 )

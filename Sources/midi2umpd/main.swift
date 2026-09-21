@@ -210,22 +210,30 @@ if ump_alsa_open() != 0 {
     exit(1)
 }
 
-var words = [UInt32](repeating: 0, count: 4)
-var cnt: Swift.Int32 = 0
-var grp: Swift.Int32 = 0
-
-while true {
-    if ump_alsa_get_event(&words, &cnt, &grp) == 0 {
-        let group = UInt8(grp)
-        let mt = UInt8((words[0] >> 28) & 0xF)
-        if mt == 0xF { handleStream32(group: group, word: words[0]) }
-        else if mt == 0x5 && cnt >= 4 {
-            if let pkt = UmpPacket128(words: words) { handleSysEx8(group: group, pkt128: pkt) }
+Task.detached {
+    var words = [UInt32](repeating: 0, count: 4)
+    var cnt: Swift.Int32 = 0
+    var grp: Swift.Int32 = 0
+    while true {
+        if ump_alsa_get_event(&words, &cnt, &grp) == 0 {
+            let receivedWords = words
+            let receivedCount = cnt
+            let group = UInt8(grp)
+            let messageType = UInt8((receivedWords[0] >> 28) & 0xF)
+            await MainActor.run {
+                if messageType == 0xF, receivedWords.count >= 1 {
+                    handleStream32(group: group, word: receivedWords[0])
+                } else if messageType == 0x5, receivedCount >= 4,
+                          let pkt = UmpPacket128(words: receivedWords) {
+                    handleSysEx8(group: group, pkt128: pkt)
+                }
+            }
+        } else {
+            usleep(1000)
         }
-    } else {
-        usleep(1000)
     }
 }
+dispatchMain()
 #else
 print("midi2umpd is Linux-only")
 #endif

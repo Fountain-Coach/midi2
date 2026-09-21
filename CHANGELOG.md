@@ -6,6 +6,10 @@ All notable changes to this project will be documented in this file.
 - Added a reusable `MidiCiDiscoveryResponder` and wired `midi2device` to answer
   MIDI-CI Discovery with its typed instrument advertisement.
 
+## [0.12.7] - 2026-09-21
+### Fixed
+- Keep the ALSA polling loop off the main actor so RTP MIDI-CI replies can run.
+
 ## [0.12.6] - 2026-09-21
 ### Fixed
 - Receive RTP-MIDI2 datagrams through the Linux socket's mutable byte buffer.

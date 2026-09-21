@@ -13,6 +13,7 @@ final class UMPDevice {
     private var source = MIDIEndpointRef()
     private var destination = MIDIEndpointRef()
     private let streamSession = StreamNegotiationSession(responderCaps: .init())
+    private let discoveryResponder: MidiCiDiscoveryResponder
 
     // Simple stateful sessions for CI flows
     private let profiles = ProfileSession(supportedProfiles: ["/org.midi/piano"]) // example profile
@@ -20,6 +21,15 @@ final class UMPDevice {
     private let piSession = ProcessInquirySession(filters: ["sysex": 1, "ci": 1])
 
     init() throws {
+        discoveryResponder = try MidiCiDiscoveryResponder(advertisement: MidiCiDiscoveryBody(
+            muid: 0x0A0B0C0D,
+            manufacturerId: [0x00, 0x20, 0x33],
+            deviceFamily: 0x1234,
+            deviceModel: 0x5678,
+            softwareRev: 0x00010001,
+            categories: .init(profiles: true, propertyExchange: true, processInquiry: true),
+            maxSysEx: 2048
+        ))
         try createClient()
         try createEndpoints()
         loadGtbContextIfPresent()
@@ -152,17 +162,9 @@ final class UMPDevice {
         case .processInquiry(let b):
             if let rep = piSession.handle(b) { sendCIEnvelope(rep, group: group) }
         case .discovery(_):
-            // Reply with our device advertisement
-            let adv = MidiCiDiscoveryBody(
-                muid: 0x0A0B0C0D,
-                manufacturerId: [0x00, 0x20, 0x33],
-                deviceFamily: 0x1234,
-                deviceModel: 0x5678,
-                softwareRev: 0x00010001,
-                categories: .init(profiles: true, propertyExchange: true, processInquiry: true),
-                maxSysEx: 2048
-            )
-            sendCIEnvelope(adv, group: group)
+            if let response = discoveryResponder.respond(to: env) {
+                sendCIEnvelope(response, group: group)
+            }
         case .ackNak(let a):
             _ = a
         }
@@ -183,6 +185,9 @@ final class UMPDevice {
     private func sendCIEnvelope(_ body: MidiCiDiscoveryBody, group: UInt8) {
         let payload = body.sysEx8Bytes()
         sendSysEx8(payload, group: group)
+    }
+    private func sendCIEnvelope(_ envelope: MidiCiEnvelope, group: UInt8) {
+        sendSysEx8(envelope.sysEx8Payload(), group: group)
     }
 
     private func sendSysEx8(_ payload: [UInt8], group: UInt8) {

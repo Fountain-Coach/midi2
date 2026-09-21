@@ -3,7 +3,8 @@
 All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
-- _Nothing yet._
+- Added a reusable `MidiCiDiscoveryResponder` and wired `midi2device` to answer
+  MIDI-CI Discovery with its typed instrument advertisement.
 
 ## [0.12.0] - 2026-09-21
 ### Added

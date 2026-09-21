@@ -17,6 +17,7 @@ struct GroupState {
 var groups: [UInt8: GroupState] = [:]
 
 @discardableResult
+@MainActor
 func sendUMP32(_ word: UInt32) -> Swift.Int32 {
     var w = [word]
     try? rtpSession?.send(umpWords: w)
@@ -24,6 +25,7 @@ func sendUMP32(_ word: UInt32) -> Swift.Int32 {
 }
 
 @discardableResult
+@MainActor
 func sendUMP64(_ pkt: UmpPacket64) -> Swift.Int32 {
     var words = pkt.words
     try? rtpSession?.send(umpWords: words)
@@ -33,6 +35,7 @@ func sendUMP64(_ pkt: UmpPacket64) -> Swift.Int32 {
 }
 
 @discardableResult
+@MainActor
 func sendUMP128(_ pkt: UmpPacket128) -> Swift.Int32 {
     var words = pkt.words
     try? rtpSession?.send(umpWords: words)

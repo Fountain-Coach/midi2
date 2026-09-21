@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 - Added a reusable `MidiCiDiscoveryResponder` and wired `midi2device` to answer
   MIDI-CI Discovery with its typed instrument advertisement.
 
+## [0.12.2] - 2026-09-21
+### Fixed
+- Corrected the Linux `addrinfo` initializer ordering so the RTP-MIDI2
+  transport builds with the target's Swift toolchain.
+
 ## [0.12.0] - 2026-09-21
 ### Added
 - Swift `MIDI2Transports` package with cross-platform RTP-MIDI2 UMP transport.

@@ -148,7 +148,7 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     }
 
     public func connect(host: String, port: UInt16) throws {
-        var hints = addrinfo(ai_flags: 0, ai_family: AF_INET, ai_socktype: SOCK_DGRAM, ai_protocol: 0, ai_addrlen: 0, ai_canonname: nil, ai_addr: nil, ai_next: nil)
+        var hints = addrinfo(ai_flags: 0, ai_family: AF_INET, ai_socktype: SOCK_DGRAM, ai_protocol: 0, ai_addrlen: 0, ai_addr: nil, ai_canonname: nil, ai_next: nil)
         var result: UnsafeMutablePointer<addrinfo>?
         guard getaddrinfo(host, String(port), &hints, &result) == 0, let result, let raw = result.pointee.ai_addr else { throw RTPMidiError.invalidPort(port) }
         defer { freeaddrinfo(result) }

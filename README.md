@@ -49,7 +49,7 @@ The skill is repository-scoped and domain-agnostic: publication hosts, subdomain
 Add to your `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.12.1")
+    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.12.2")
 ]
 ```
 

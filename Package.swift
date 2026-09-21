@@ -1,7 +1,7 @@
 // swift-tools-version: 6.1
 import PackageDescription
 
-let packageVersion = "0.12.1"
+let packageVersion = "0.12.2"
 
 let package = Package(
     name: "MIDI2",

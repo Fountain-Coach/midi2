@@ -170,7 +170,11 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     private func receiveDatagram() {
         var bytes = [UInt8](repeating: 0, count: 65_535); var sender = sockaddr_in(); var length = socklen_t(MemoryLayout<sockaddr_in>.size)
         lock.lock(); let fd = socketFD; lock.unlock(); guard fd >= 0 else { return }
-        let count = withUnsafeMutablePointer(to: &sender) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { recvfrom(fd, &bytes, bytes.count, 0, $0, &length) } }
+        let count = bytes.withUnsafeMutableBytes { buffer in
+            withUnsafeMutablePointer(to: &sender) { $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                recvfrom(fd, buffer.baseAddress, buffer.count, 0, $0, &length)
+            } }
+        }
         guard count >= 16, [4, 8, 16].contains(count - 12) else { return }
         var words: [UInt32] = []; var offset = 12
         while offset < count { words.append(bytes[offset..<offset+4].withUnsafeBytes { UInt32(bigEndian: $0.load(as: UInt32.self)) }); offset += 4 }

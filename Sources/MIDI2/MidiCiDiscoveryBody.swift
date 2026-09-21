@@ -1,5 +1,5 @@
 /// SysEx body for MIDI-CI Discovery messages.
-public struct MidiCiDiscoveryBody: Equatable {
+public struct MidiCiDiscoveryBody: Equatable, Sendable {
     /// Unique ID of the endpoint.
     public var muid: UInt32
     /// Manufacturer identifier (1 or 3 bytes).
@@ -11,7 +11,7 @@ public struct MidiCiDiscoveryBody: Equatable {
     /// Software revision.
     public var softwareRev: UInt32
     /// Supported categories as booleans.
-    public struct Categories: Equatable {
+    public struct Categories: Equatable, Sendable {
         public var profiles: Bool
         public var propertyExchange: Bool
         public var processInquiry: Bool

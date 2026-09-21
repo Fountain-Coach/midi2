@@ -1,5 +1,15 @@
 # PLANS Protocol (FCIS RFC 0001)
 
+## Active: cross-machine Discovery repair (2026-09-21)
+
+Goal: make the existing midi2umpd Discovery responder answer a remote RTP peer.
+Scope: UDP reply address, multi-packet framing/dispatch, complete SysEx8
+reassembly, and Discovery envelope serialization. Reuse MidiCiDiscoveryResponder.
+Acceptance: bidirectional transport and incomplete-fragment regression tests;
+build and activate the exact candidate on Linux; decode its Discovery response
+on the remote initiator. Promote to main only after this exchange succeeds.
+Non-goals: protocol redesign, enrollment, Store admission, unrelated CI changes.
+
 ## Purpose
 Define the planning protocol for multi-step or high-risk work in this repository. Plans capture intent, scope, and acceptance criteria before implementation begins.
 

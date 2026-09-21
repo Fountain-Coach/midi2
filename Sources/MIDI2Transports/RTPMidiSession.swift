@@ -78,7 +78,7 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     }
 
     public func send(umpWords: [UInt32]) throws {
-        guard [1, 2, 4].contains(umpWords.count) else { throw RTPMidiError.invalidPayload }
+        guard [1, 2].contains(umpWords.count) || (!umpWords.isEmpty && umpWords.count.isMultiple(of: 4)) else { throw RTPMidiError.invalidPayload }
         guard let connection else { throw RTPMidiError.notConnected }
         var payload = Data([0x80, 0x61, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
         for word in umpWords { var value = word.bigEndian; payload.append(Data(bytes: &value, count: 4)) }
@@ -93,7 +93,8 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     }
 
     private static func decode(_ data: Data) -> [[UInt32]]? {
-        guard data.count >= 16, [4, 8, 16].contains(data.count - 12) else { return nil }
+        let payloadSize = data.count - 12
+        guard [4, 8].contains(payloadSize) || (payloadSize > 0 && payloadSize.isMultiple(of: 16)) else { return nil }
         let payload = data.dropFirst(12)
         var words: [UInt32] = []
         var offset = payload.startIndex
@@ -159,7 +160,7 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     public func close() throws { readSource?.cancel(); readSource = nil; lock.lock(); socketFD = -1; peerAddress = nil; lock.unlock() }
 
     public func send(umpWords: [UInt32]) throws {
-        guard [1, 2, 4].contains(umpWords.count) else { throw RTPMidiError.invalidPayload }
+        guard [1, 2].contains(umpWords.count) || (!umpWords.isEmpty && umpWords.count.isMultiple(of: 4)) else { throw RTPMidiError.invalidPayload }
         lock.lock(); let fd = socketFD; let address = peerAddress; lock.unlock(); guard fd >= 0, var address else { throw RTPMidiError.notConnected }
         var data = Data(repeating: 0, count: 12)
         for word in umpWords { var value = word.bigEndian; withUnsafeBytes(of: &value) { data.append(contentsOf: $0) } }
@@ -176,9 +177,10 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
             } }
         }
         let payloadByteCount = count - 12
-        guard payloadByteCount > 0, payloadByteCount.isMultiple(of: 16) else { return }
+        guard [4, 8].contains(payloadByteCount) || (payloadByteCount > 0 && payloadByteCount.isMultiple(of: 16)) else { return }
         var words: [UInt32] = []; var offset = 12
         while offset < count { words.append(bytes[offset..<offset+4].withUnsafeBytes { UInt32(bigEndian: $0.load(as: UInt32.self)) }); offset += 4 }
+        lock.lock(); peerAddress = sender; lock.unlock()
         onReceiveUMP?(words)
     }
 }

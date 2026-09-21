@@ -2,6 +2,33 @@ import XCTest
 @testable import MIDI2Transports
 
 final class RTPMidiSessionTests: XCTestCase {
+    func testResponderRepliesToSenderWithMultiPacketPayload() throws {
+        let received = expectation(description: "reply returns to initiator")
+        let payload: [UInt32] = [0x501E7E7E, 0x0D700101, 0x02030400, 0x7D004643,
+                                 0x503B0001, 0x00010001, 0x07000008, 0]
+        let responder = RTPMidiSession(localName: "reply-responder")
+        responder.onReceiveUMP = { words in
+            XCTAssertEqual(words, payload)
+            do { try responder.send(umpWords: words) }
+            catch { XCTFail("responder could not reply: \(error)") }
+        }
+        try responder.open(); try responder.waitUntilReady()
+        let port = try XCTUnwrap(responder.port)
+        let initiator = RTPMidiSession(localName: "reply-initiator")
+        initiator.onReceiveUMP = { words in
+            XCTAssertEqual(words, payload)
+            received.fulfill()
+        }
+        try initiator.open(); try initiator.waitUntilReady()
+        try initiator.connect(host: "127.0.0.1", port: port)
+        defer {
+            responder.onReceiveUMP = nil
+            try? initiator.close(); try? responder.close()
+        }
+        try initiator.send(umpWords: payload)
+        wait(for: [received], timeout: 2)
+    }
+
     func testLoopbackCarriesUMPOverUDP() throws {
         let received = expectation(description: "UMP packets received")
         received.expectedFulfillmentCount = 3

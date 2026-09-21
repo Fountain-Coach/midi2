@@ -6,6 +6,11 @@ All notable changes to this project will be documented in this file.
 - Added a reusable `MidiCiDiscoveryResponder` and wired `midi2device` to answer
   MIDI-CI Discovery with its typed instrument advertisement.
 
+## [0.12.0] - 2026-09-21
+### Added
+- Swift `MIDI2Transports` package with cross-platform RTP-MIDI2 UMP transport.
+- UDP loopback coverage proving complete UMP messages cross two transport sessions.
+
 ## [0.11.0] - 2026-08-22
 ### Added
 - Swift and TypeScript runtime state machines for compatibility selection, MIDI-CI transaction failure, profile channel allocation, Property Exchange resource errors, and software UMP ordering/reserved-value validation.

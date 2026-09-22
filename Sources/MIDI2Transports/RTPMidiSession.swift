@@ -158,14 +158,33 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     public func connect(host: String, port: UInt16) throws {
         guard let endpointPort = NWEndpoint.Port(rawValue: port) else { throw RTPMidiError.invalidPort(port) }
         let connection = NWConnection(host: NWEndpoint.Host(host), port: endpointPort, using: .udp)
-        connection.stateUpdateHandler = { state in
-            if case .failed(let error) = state {
-                FileHandle.standardError.write(Data("[RTP-MIDI] connection failed: \(error)\n".utf8))
+        let connectionReadiness = DispatchSemaphore(value: 0)
+        let connectionState = ConnectionState()
+        connection.stateUpdateHandler = { [weak self] state in
+            switch state {
+            case .ready:
+                self?.onPeerConnectionState?("ready")
+                connectionReadiness.signal()
+            case .failed(let error):
+                connectionState.set(error)
+                self?.onPeerConnectionState?("failed: \(error.localizedDescription)")
+                connectionReadiness.signal()
+            case .cancelled:
+                connectionState.set(RTPMidiError.connectionCancelled)
+                self?.onPeerConnectionState?("cancelled")
+                connectionReadiness.signal()
+            default:
+                break
             }
         }
         configureReceive(on: connection)
         connection.start(queue: queue)
         self.connection = connection
+        guard connectionReadiness.wait(timeout: .now() + 10) == .success else {
+            connection.cancel()
+            throw RTPMidiError.connectionReadinessTimedOut
+        }
+        if let error = connectionState.error { throw error }
     }
 
     /// Connect to an endpoint obtained from `discoverPeer`; no numeric port is accepted here.

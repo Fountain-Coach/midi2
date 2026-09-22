@@ -265,3 +265,28 @@ Validation:
 `swift test --parallel`, `npm run ci --prefix midi2.js`, runtime/provenance/normative/claim/docs verifiers, generated-artifact freshness, and `git diff --check`.
 Acceptance Criteria:
 All five remaining modeled frontiers have tested Swift and TypeScript software surfaces; the core software claim is evidence-backed; hardware interoperability remains excluded; v0.11.0 artifacts are prepared through the PR workflow.
+
+---
+
+Goal:
+Promote the RTP-MIDI2 host capabilities currently duplicated in the estate workspace into the authoritative Fountain-Coach/midi2 transport package, then let estate consumers depend on that owned implementation directly.
+Scope:
+RTPMidiSession Bonjour peer discovery, typed peer connection, pre-bound UDP descriptor adoption, datagram delivery of 32/64-bit UMP and contiguous SysEx8-style 128-bit packet sequences, focused tests, changelog, and public runtime documentation.
+Non-goals:
+Estate-specific joining-machine capability names, static-release semantics, owner authorization, Caddy behavior, or Keychain policy; those remain estate-layer concerns.
+Constraints:
+Preserve existing explicit-listen/explicit-connect semantics, fail closed on listener/bind errors, keep Linux and Network.framework behavior aligned, and make no hardware-interoperability claim.
+Dependencies:
+Current main at a9813fa21fd416a6ff27d76cd57c57012e082922 and existing MIDI2Transports loopback coverage.
+Risks:
+The workspace duplicate accumulated APIs beyond the released package. Migration must preserve existing one-message behavior while adding only generic transport capabilities supported by focused tests.
+Steps:
+  - [x] Compare the estate duplicate with authoritative MIDI2Transports and identify generic deltas.
+  - [x] Move generic discovery, typed peer, descriptor-adoption, and multi-packet SysEx8 datagram support into the authoritative transport.
+  - [x] Add focused tests for 32/64/128-bit sends, multi-packet 128-bit datagrams, descriptor adoption, and typed discovery where deterministic.
+  - [x] Run Swift tests and repository documentation/claim gates relevant to the change.
+  - [ ] Publish through the protected PR workflow and then repoint estate consumers to the merged revision.
+Validation:
+`swift test --filter RTPMidiSessionTests`, descriptor tests, full `swift test`, documentation verification, claim verification, and `git diff --check`.
+Acceptance Criteria:
+The authoritative package exposes every generic RTP-MIDI2 host capability needed by joining-machine consumers; existing transport behavior remains tested; estate-specific semantics stay out of midi2; no second transport implementation is needed by EstatePublisher.

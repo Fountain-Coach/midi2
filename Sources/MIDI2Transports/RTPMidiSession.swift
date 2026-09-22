@@ -448,9 +448,11 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
         var length = socklen_t(MemoryLayout<sockaddr_in>.size)
         lock.lock(); let fd = socketFD; lock.unlock()
         guard fd >= 0 else { return }
-        let count = withUnsafeMutablePointer(to: &sender) { pointer in
-            pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) { senderPointer in
-                recvfrom(fd, &bytes, bytes.count, 0, senderPointer, &length)
+        let count = bytes.withUnsafeMutableBytes { buffer in
+            withUnsafeMutablePointer(to: &sender) { pointer in
+                pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) { senderPointer in
+                    recvfrom(fd, buffer.baseAddress, buffer.count, 0, senderPointer, &length)
+                }
             }
         }
         guard count > 0, let words = Self.decode(Data(bytes.prefix(Int(count)))) else { return }
@@ -459,8 +461,8 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     }
 
     private func resolve(host: String, port: UInt16) -> sockaddr_in? {
-        var hints = addrinfo(ai_flags: 0, ai_family: AF_INET, ai_socktype: SOCK_DGRAM, ai_protocol: 0,
-                             ai_addrlen: 0, ai_canonname: nil, ai_addr: nil, ai_next: nil)
+        var hints = addrinfo(ai_flags: 0, ai_family: AF_INET, ai_socktype: Int32(SOCK_DGRAM.rawValue), ai_protocol: 0,
+                             ai_addrlen: 0, ai_addr: nil, ai_canonname: nil, ai_next: nil)
         var result: UnsafeMutablePointer<addrinfo>?
         let service = String(port)
         guard getaddrinfo(host, service, &hints, &result) == 0, let result else { return nil }

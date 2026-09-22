@@ -56,6 +56,13 @@ final class PropertyExchangeChunkingTests: XCTestCase {
             data: payload,
             maxDataPerMessage: 80)
         XCTAssertGreaterThan(chunks.count, 1)
+        let transaction = PropertyExchangeSetTransaction(
+            requestId: requestId, resource: resource, encoding: .json)
+        var completed: [UInt8]?
+        for chunk in chunks { completed = try transaction.ingest(request: chunk) ?? completed }
+        XCTAssertTrue(transaction.completed)
+        XCTAssertEqual(completed, payload)
+
         let session = PropertyExchangeSession(maxDataPerMessage: 80)
         var replies: [MidiCiPropertyExchangeBody] = []
         for chunk in chunks { replies.append(contentsOf: session.handle(chunk)) }

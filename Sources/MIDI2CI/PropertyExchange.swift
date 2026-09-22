@@ -201,6 +201,55 @@ public final class PropertyExchangeTransaction {
     }
 }
 
+/// Accumulates chunked SET requests and reassembles the full value.
+public final class PropertyExchangeSetTransaction {
+    public let requestId: UInt32
+    public let resource: String
+    public let encoding: MidiCiPropertyExchangeBody.Encoding
+
+    private(set) public var buffer: [UInt8] = []
+    private var expectedTotal: Int?
+    private var nextOffset: Int = 0
+    private(set) public var completed: Bool = false
+
+    public init(requestId: UInt32,
+                resource: String,
+                encoding: MidiCiPropertyExchangeBody.Encoding) {
+        self.requestId = requestId
+        self.resource = resource
+        self.encoding = encoding
+    }
+
+    /// Ingest one SET body. Returns the complete encoded value on the final chunk.
+    public func ingest(request: MidiCiPropertyExchangeBody) throws -> [UInt8]? {
+        guard request.command == .set else { throw PropertyExchangeError.missingHeaders }
+        if completed { throw PropertyExchangeError.alreadyCompleted }
+        guard request.requestId == requestId else { throw PropertyExchangeError.inconsistentRequestId }
+        guard request.encoding == encoding else { throw PropertyExchangeError.missingHeaders }
+        guard request.header["res"] == resource,
+              let totalStr = request.header["total"], let total = Int(totalStr),
+              let offsetStr = request.header["offset"], let offset = Int(offsetStr),
+              let lengthStr = request.header["length"], let length = Int(lengthStr),
+              let moreStr = request.header["more"], (moreStr == "0" || moreStr == "1") else {
+            throw PropertyExchangeError.missingHeaders
+        }
+        if let expected = expectedTotal {
+            guard expected == total else { throw PropertyExchangeError.invalidChunkLength }
+        } else {
+            expectedTotal = total
+            buffer.reserveCapacity(total)
+        }
+        guard offset == nextOffset else { throw PropertyExchangeError.invalidChunkOffset }
+        guard length == request.data.count else { throw PropertyExchangeError.invalidChunkLength }
+        buffer.append(contentsOf: request.data)
+        nextOffset += length
+        if moreStr == "1" { return nil }
+        guard buffer.count == expectedTotal else { throw PropertyExchangeError.invalidChunkLength }
+        completed = true
+        return buffer
+    }
+}
+
 // MARK: - Builder helpers for Property Exchange bodies
 
 public enum PropertyExchangeBuilder {

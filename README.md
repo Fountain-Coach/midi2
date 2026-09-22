@@ -31,7 +31,7 @@ The skill is repository-scoped and domain-agnostic: publication hosts, subdomain
 ## Packages
 
 **Swift Packages:**
-- **`MIDI2Transports`** — Cross-platform RTP-MIDI2 UMP transport for connecting governed software peers over an explicitly selected UDP endpoint.
+- **`MIDI2Transports`** — Cross-platform RTP-MIDI2 UMP transport for governed software peers, including explicit host/port connection, typed Bonjour peer discovery on Apple platforms, pre-bound listener adoption, and contiguous SysEx8-style 128-bit packet sequences.
 - **[Packages/MIDI2BridgeAUCore](Packages/MIDI2BridgeAUCore/README.md)** — Core classes to build an AUv3 MIDI Processor that forwards host MIDI to external CoreMIDI destinations. See the README for integration instructions.
 - **[Packages/TeatroAppleBridge](Packages/TeatroAppleBridge/README.md)** — Adapter package that maps the midi2 UMP model to Core MIDI and Apple sequencing APIs. See the README for examples.
 

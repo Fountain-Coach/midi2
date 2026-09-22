@@ -5,6 +5,9 @@ All notable changes to this project will be documented in this file.
 ## [Unreleased]
 - Added a reusable `MidiCiDiscoveryResponder` and wired `midi2device` to answer
   MIDI-CI Discovery with its typed instrument advertisement.
+- Extended `MIDI2Transports.RTPMidiSession` with typed Bonjour peer discovery,
+  pre-bound UDP descriptor adoption, and contiguous 128-bit UMP packet-sequence
+  datagrams for governed software peers while preserving explicit peer selection.
 
 ## [0.12.7] - 2026-09-21
 ### Fixed

@@ -455,7 +455,9 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
                 }
             }
         }
-        guard count > 0, let words = Self.decode(Data(bytes.prefix(Int(count)))) else { return }
+        guard count > 0 else { return }
+        lock.lock(); peerAddress = sender; lock.unlock()
+        guard let words = Self.decode(Data(bytes.prefix(Int(count)))) else { return }
         onReceiveUmps?(words)
         words.forEach { onReceiveUMP?($0) }
     }

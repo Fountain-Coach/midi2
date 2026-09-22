@@ -72,6 +72,42 @@ public enum PropertyExchangeChunker {
         return bodies
     }
 
+    /// Split arbitrary SET data into multiple SET bodies with chunk metadata.
+    public static func chunkSet(resource: String,
+                                requestId: UInt32,
+                                encoding: MidiCiPropertyExchangeBody.Encoding,
+                                data: [UInt8],
+                                maxDataPerMessage: Int) -> [MidiCiPropertyExchangeBody] {
+        precondition(maxDataPerMessage > 0, "maxDataPerMessage must be > 0")
+        if data.isEmpty {
+            return [MidiCiPropertyExchangeBody(
+                command: .set, requestId: requestId, encoding: encoding,
+                header: ["res": resource, "total": "0", "offset": "0", "length": "0", "more": "0"],
+                data: [])]
+        }
+        var offset = 0
+        var bodies: [MidiCiPropertyExchangeBody] = []
+        while offset < data.count {
+            let length = min(maxDataPerMessage, data.count - offset)
+            let more = (offset + length) < data.count
+            let header: [String: String] = [
+                "res": resource,
+                "total": String(data.count),
+                "offset": String(offset),
+                "length": String(length),
+                "more": more ? "1" : "0"
+            ]
+            bodies.append(MidiCiPropertyExchangeBody(
+                command: .set,
+                requestId: requestId,
+                encoding: encoding,
+                header: header,
+                data: Array(data[offset..<(offset + length)])))
+            offset += length
+        }
+        return bodies
+    }
+
     /// Split arbitrary data for Notify into multiple NOTIFY bodies with chunk metadata.
     /// Each chunk carries the same notification sequence number in header key "seq".
     public static func chunkNotify(resource: String,
@@ -167,6 +203,57 @@ public final class PropertyExchangeTransaction {
             }
         }
         return false
+    }
+}
+
+/// Accumulates chunked SET requests and returns the complete encoded value on the final chunk.
+public final class PropertyExchangeSetTransaction {
+    public let requestId: UInt32
+    public let resource: String
+    public let encoding: MidiCiPropertyExchangeBody.Encoding
+
+    private var expectedTotal: Int?
+    private var nextOffset: Int = 0
+    private var buffer: [UInt8] = []
+    private(set) public var completed: Bool = false
+
+    public init(requestId: UInt32,
+                resource: String,
+                encoding: MidiCiPropertyExchangeBody.Encoding) {
+        self.requestId = requestId
+        self.resource = resource
+        self.encoding = encoding
+    }
+
+    /// Returns the complete encoded value on the final chunk, otherwise nil.
+    public func ingest(request: MidiCiPropertyExchangeBody) throws -> [UInt8]? {
+        guard request.command == .set else { throw PropertyExchangeError.missingHeaders }
+        if completed { throw PropertyExchangeError.alreadyCompleted }
+        guard request.requestId == requestId else { throw PropertyExchangeError.inconsistentRequestId }
+        guard request.encoding == encoding else { throw PropertyExchangeError.missingHeaders }
+        guard let res = request.header["res"], res == resource,
+              let totalStr = request.header["total"], let total = Int(totalStr),
+              let offsetStr = request.header["offset"], let offset = Int(offsetStr),
+              let lengthStr = request.header["length"], let length = Int(lengthStr),
+              let moreStr = request.header["more"], (moreStr == "0" || moreStr == "1") else {
+            throw PropertyExchangeError.missingHeaders
+        }
+        if let expected = expectedTotal {
+            guard expected == total else { throw PropertyExchangeError.invalidChunkLength }
+        } else {
+            expectedTotal = total
+            buffer.reserveCapacity(total)
+        }
+        guard offset == nextOffset else { throw PropertyExchangeError.invalidChunkOffset }
+        guard length == request.data.count else { throw PropertyExchangeError.invalidChunkLength }
+        buffer.append(contentsOf: request.data)
+        nextOffset += length
+        if moreStr == "1" { return nil }
+        guard let expected = expectedTotal, buffer.count == expected else {
+            throw PropertyExchangeError.invalidChunkLength
+        }
+        completed = true
+        return buffer
     }
 }
 

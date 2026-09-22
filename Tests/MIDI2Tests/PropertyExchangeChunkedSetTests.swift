@@ -3,6 +3,25 @@ import XCTest
 @testable import MIDI2CI
 
 final class PropertyExchangeChunkedSetTests: XCTestCase {
+    func testChunkSetAndReusableAccumulatorRoundTripLargePayload() throws {
+        let resource = "com.fountaincoach.joining-machine/static-release/command"
+        let data = Array(repeating: UInt8(0x41), count: 700)
+        let chunks = PropertyExchangeChunker.chunkSet(
+            resource: resource, requestId: 0x5102, encoding: .json,
+            data: data, maxDataPerMessage: 80)
+        XCTAssertGreaterThan(chunks.count, 1)
+        XCTAssertTrue(chunks.allSatisfy { $0.data.count <= 80 })
+        let transaction = PropertyExchangeSetTransaction(
+            requestId: 0x5102, resource: resource, encoding: .json)
+        var complete: [UInt8]?
+        for chunk in chunks {
+            complete = try transaction.ingest(request: chunk) ?? complete
+            _ = chunk.sysEx8Bytes() // Regression: each wire body must remain encodable.
+        }
+        XCTAssertEqual(complete, data)
+        XCTAssertTrue(transaction.completed)
+    }
+
     func testChunkedSetStoredAndNotifyChunked() throws {
         let resource = "/clip/title"
         let enc: MidiCiPropertyExchangeBody.Encoding = .json

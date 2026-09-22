@@ -107,9 +107,17 @@ func handleSysEx8(group: UInt8, pkt128: UmpPacket128) {
                         categories: .init(profiles: true, propertyExchange: true, processInquiry: true),
                         maxSysEx: 2048
                     )
-                    let payload = adv.sysEx8Bytes()
+                    let responder = try MidiCiDiscoveryResponder(advertisement: adv)
+                    guard let reply = responder.respond(to: env) else { return }
+                    let payload = reply.sysEx8Payload()
                     if let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: payload, group: group) {
-                        for f in frames { if let p = UmpPacket128(rawBytes: f) { _ = sendUMP128(p) } }
+                        let packets = frames.compactMap { UmpPacket128(rawBytes: $0) }
+                        // Preserve one complete CI envelope on the datagram transport.
+                        try rtpSession?.send(umpWords: packets.flatMap(\.words))
+                        for packet in packets {
+                            var words = packet.words
+                            _ = ump_alsa_send(&words, Swift.Int32(4), Swift.Int32(group))
+                        }
                     }
                 case .ackNak(_): break
                 }
@@ -197,9 +205,12 @@ network.onReceiveUMP = { words in
     Task { @MainActor in
         if messageType == 0xF, words.count == 1 {
             handleStream32(group: group, word: first)
-        } else if messageType == 0x5, words.count == 4,
-                  let packet = UmpPacket128(words: words) {
-            handleSysEx8(group: group, pkt128: packet)
+        } else if messageType == 0x5, words.count.isMultiple(of: 4) {
+            for index in stride(from: 0, to: words.count, by: 4) {
+                let chunk = Array(words[index..<(index + 4)])
+                guard chunk[0] >> 28 == 0x5, let packet = UmpPacket128(words: chunk) else { return }
+                handleSysEx8(group: UInt8((chunk[0] >> 24) & 0xF), pkt128: packet)
+            }
         }
     }
 }

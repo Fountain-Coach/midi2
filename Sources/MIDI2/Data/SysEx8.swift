@@ -58,6 +58,12 @@ public enum SysEx8 {
     /// - Returns: Manufacturer ID and payload.
     public static func reassemble(_ packets: [[UInt8]]) throws -> (manufacturerID: [UInt8], payload: [UInt8]) {
         guard !packets.isEmpty else { throw StreamError.invalidPacketSequence }
+        guard let first = packets.first, let last = packets.last,
+              first.count == 16, last.count == 16,
+              (packets.count == 1 && first[1] >> 4 == 0) ||
+              (packets.count > 1 && first[1] >> 4 == 1 && last[1] >> 4 == 3) else {
+            throw StreamError.invalidPacketSequence
+        }
         var bytes: [UInt8] = []
         for (i, packet) in packets.enumerated() {
             guard packet.count == 16 else { throw StreamError.invalidPacketSequence }
@@ -107,4 +113,3 @@ public enum SysEx8 {
         }
     }
 }
-

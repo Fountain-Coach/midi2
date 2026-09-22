@@ -9,6 +9,14 @@ All notable changes to this project will be documented in this file.
   pre-bound UDP descriptor adoption, and contiguous 128-bit UMP packet-sequence
   datagrams for governed software peers while preserving explicit peer selection.
 
+## [0.12.8] - 2026-09-21
+### Fixed
+- Accept multi-packet SysEx8 UMP payloads in the Linux RTP receiver.
+- Retain the UDP sender for replies, preserve 32/64-bit packets, and carry
+  complete multi-packet CI envelopes on both platforms.
+- Reassemble SysEx8 only after its end fragment and route all Discovery
+  fragments through midi2umpd's existing responder with a complete reply envelope.
+
 ## [0.12.7] - 2026-09-21
 ### Fixed
 - Keep the ALSA polling loop off the main actor so RTP MIDI-CI replies can run.

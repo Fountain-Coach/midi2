@@ -72,6 +72,37 @@ public enum PropertyExchangeChunker {
         return bodies
     }
 
+    /// Split a large SET payload into multiple SET bodies with chunk metadata.
+    public static func chunkSet(resource: String,
+                                requestId: UInt32,
+                                encoding: MidiCiPropertyExchangeBody.Encoding,
+                                data: [UInt8],
+                                maxDataPerMessage: Int) -> [MidiCiPropertyExchangeBody] {
+        precondition(maxDataPerMessage > 0, "maxDataPerMessage must be > 0")
+        var offset = 0
+        var bodies: [MidiCiPropertyExchangeBody] = []
+        while offset < data.count {
+            let length = min(maxDataPerMessage, data.count - offset)
+            let chunk = Array(data[offset..<(offset + length)])
+            let more = (offset + length) < data.count
+            let header: [String: String] = [
+                "res": resource,
+                "total": String(data.count),
+                "offset": String(offset),
+                "length": String(length),
+                "more": more ? "1" : "0"
+            ]
+            bodies.append(MidiCiPropertyExchangeBody(
+                command: .set,
+                requestId: requestId,
+                encoding: encoding,
+                header: header,
+                data: chunk))
+            offset += length
+        }
+        return bodies
+    }
+
     /// Split arbitrary data for Notify into multiple NOTIFY bodies with chunk metadata.
     /// Each chunk carries the same notification sequence number in header key "seq".
     public static func chunkNotify(resource: String,

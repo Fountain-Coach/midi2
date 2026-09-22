@@ -45,6 +45,26 @@ final class PropertyExchangeChunkingTests: XCTestCase {
         XCTAssertEqual(tx.buffer, payload)
     }
 
+    func testChunkedSetRoundTripsThroughSession() throws {
+        let resource = "/estate/static-release/command"
+        let requestId: UInt32 = 0x5102
+        let payload = Array(repeating: UInt8(ascii: "x"), count: 828)
+        let chunks = PropertyExchangeChunker.chunkSet(
+            resource: resource,
+            requestId: requestId,
+            encoding: .json,
+            data: payload,
+            maxDataPerMessage: 80)
+        XCTAssertGreaterThan(chunks.count, 1)
+        let session = PropertyExchangeSession(maxDataPerMessage: 80)
+        var replies: [MidiCiPropertyExchangeBody] = []
+        for chunk in chunks { replies.append(contentsOf: session.handle(chunk)) }
+        XCTAssertEqual(session.store[resource], payload)
+        XCTAssertEqual(replies.count, 1)
+        XCTAssertEqual(replies[0].command, .setReply)
+        XCTAssertEqual(replies[0].header["ok"], "1")
+    }
+
     func testOutOfOrderRejected() throws {
         let resource = "/device/name"
         let requestId: UInt32 = 7

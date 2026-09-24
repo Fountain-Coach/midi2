@@ -212,6 +212,9 @@ final class InstrumentHost {
         case .propertyExchange(let body) where body.command == .get && body.header["res"] == instrumentResource:
             let replies = PropertyExchangeChunker.chunkGetReply(resource: instrumentResource, requestId: body.requestId, encoding: body.encoding, data: Array(profile), maxDataPerMessage: 80)
             for reply in replies { sendCI(MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7C, version: 1, body: .propertyExchange(reply)), group: group) }
+        case .processInquiry(let body) where body.command == .capInquiry:
+            let reply = MidiCiProcessInquiryBody(command: .capReply, filters: ["messageDataControl": 0x7F])
+            sendCI(MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7E, version: 1, body: .processInquiry(reply)), group: group)
         default: break
         }
     }

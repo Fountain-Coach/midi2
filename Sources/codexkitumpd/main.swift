@@ -257,7 +257,7 @@ final class InstrumentHost {
 
     private func sendFlex(_ envelope: WireEnvelope, group: UInt8) {
         guard let data = try? JSONEncoder().encode(envelope),
-              let frames = try? SysEx8.fragment(manufacturerID: [0x7D], payload: data, group: group) else { return }
+              let frames = try? SysEx8.fragment(manufacturerID: [0x7D], payload: [UInt8](data), group: group) else { return }
         let packets = frames.compactMap { UmpPacket128(rawBytes: $0) }
         send(packets.flatMap(\.words))
     }

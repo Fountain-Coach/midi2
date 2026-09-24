@@ -168,8 +168,12 @@ final class InstrumentHost {
         self.runtime = runtime
         self.session = session
         profile = (try? JSONSerialization.data(withJSONObject: [
-            "identity": instrumentID, "version": instrumentVersion, "role": "llm.invoke",
-            "operations": operations, "propertyExchangeResource": instrumentResource
+            "identity": instrumentID, "version": instrumentVersion, "displayName": "Remote CodexKit",
+            "role": "governed remote Codex execution peer", "operations": operations,
+            "invokeTopic": "reframe/capability.invoke", "traits": [
+                "midi-ci-discovery", "property-exchange", "rtp-midi2", "typed-lifecycle",
+                "correlated-session", "disconnect-resume", "app-server-boundary", "store-evidence-required"
+            ], "softwarePeer": true, "propertyExchangeResource": instrumentResource
         ])) ?? Data()
     }
 
@@ -212,7 +216,21 @@ final class InstrumentHost {
     }
 
     private func handleFlex(_ flex: FlexEnvelope, group: UInt8) {
-        guard case .object(let object) = flex.body, let data = try? JSONEncoder().encode(JSONValue.object(object)), let request = try? JSONDecoder().decode(WireEnvelope.self, from: data), request.payload["instrumentId"] == instrumentID else { return }
+        guard case .object(let object) = flex.body,
+              let data = try? JSONEncoder().encode(JSONValue.object(object)),
+              let request = try? JSONDecoder().decode(WireEnvelope.self, from: data) else { return }
+        if request.topic == "reframe/capability.discover" {
+            var payload = request.payload
+            payload["phase"] = "admitted"
+            payload["sessionId"] = request.sessionId
+            payload["corpusId"] = "remote-codexkit-peer-acceptance"
+            payload["sourceDocumentId"] = "remote-codexkit:instrument-profile"
+            payload["midiCIInstrument"] = profile.base64EncodedString()
+            payload["instrumentProfiles"] = profile.base64EncodedString()
+            sendFlex(response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument discovered.", threadID: nil, turnID: nil, payload: payload), group: group)
+            return
+        }
+        guard request.payload["instrumentId"] == instrumentID else { return }
         let admitted = response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument admitted.", threadID: nil, turnID: nil)
         sendFlex(admitted, group: group)
         Task { @MainActor in
@@ -225,8 +243,8 @@ final class InstrumentHost {
         }
     }
 
-    private func response(for request: WireEnvelope, phase: String, summary: String, threadID: String?, turnID: String?) -> WireEnvelope {
-        var payload = request.payload; payload["phase"] = phase; payload["summary"] = summary; payload["operation"] = payload["operation"] ?? ""; if let threadID { payload["threadId"] = threadID }; if let turnID { payload["turnId"] = turnID }; payload["terminal"] = ["succeeded", "resumed", "failed", "canceled"].contains(phase) ? "true" : "false"
+    private func response(for request: WireEnvelope, phase: String, summary: String, threadID: String?, turnID: String?, payload suppliedPayload: [String: String]? = nil) -> WireEnvelope {
+        var payload = suppliedPayload ?? request.payload; payload["phase"] = phase; payload["summary"] = summary; payload["operation"] = payload["operation"] ?? ""; if let threadID { payload["threadId"] = threadID }; if let turnID { payload["turnId"] = turnID }; payload["terminal"] = ["succeeded", "resumed", "failed", "canceled"].contains(phase) ? "true" : "false"
         return WireEnvelope(topic: "reframe/capability.event", schemaVersion: "reframe-midi2/1", correlationId: request.correlationId, timestamp: UInt64(Date().timeIntervalSince1970 * 1_000_000_000), qos: request.qos, sessionId: request.sessionId, capabilityMask: request.capabilityMask, resumeToken: request.resumeToken, ttlMs: request.ttlMs, payload: payload, arguments: nil)
     }
 

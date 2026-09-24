@@ -452,6 +452,7 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
         guard umpWords.count == 1 || umpWords.count == 2 || (!umpWords.isEmpty && umpWords.count.isMultiple(of: 4)) else { throw RTPMidiError.invalidPayload }
         lock.lock(); let fd = socketFD; let address = peerAddress; lock.unlock()
         guard fd >= 0, var address else { throw RTPMidiError.notConnected }
+        let addressLength = Self.addressLength(address)
         var bytes = Data(repeating: 0, count: 12)
         for word in umpWords {
             var value = word.bigEndian
@@ -460,7 +461,7 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
         let sent = bytes.withUnsafeBytes { rawBuffer in
             withUnsafePointer(to: &address) { pointer in
                 pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                    sendto(fd, rawBuffer.baseAddress, bytes.count, 0, $0, Self.addressLength(address))
+                    sendto(fd, rawBuffer.baseAddress, bytes.count, 0, $0, addressLength)
                 }
             }
         }

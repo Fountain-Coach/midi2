@@ -196,8 +196,8 @@ final class InstrumentHost {
 
     private func handleStream(group: UInt8, word: UInt32) {
         guard let body = StreamBody(ump: UmpPacket32(word: word)) else { return }
-        if body.opcode == .endpointDiscovery { send(StreamBody(opcode: .endpointDiscovery, data1: 1, data2: 8).ump(group: Uint4(group)!).word) }
-        if body.opcode == .functionBlockDiscovery { send(StreamBody(opcode: .functionBlockDiscovery, data1: 0, data2: 1).ump(group: Uint4(group)!).word) }
+        if body.opcode == .endpointDiscovery { send([StreamBody(opcode: .endpointDiscovery, data1: 1, data2: 8).ump(group: Uint4(group)!).word]) }
+        if body.opcode == .functionBlockDiscovery { send([StreamBody(opcode: .functionBlockDiscovery, data1: 0, data2: 1).ump(group: Uint4(group)!).word]) }
     }
 
     private func handleCI(_ envelope: MidiCiEnvelope, group: UInt8) {

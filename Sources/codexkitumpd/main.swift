@@ -248,8 +248,19 @@ final class InstrumentHost {
         return WireEnvelope(topic: "reframe/capability.event", schemaVersion: "reframe-midi2/1", correlationId: request.correlationId, timestamp: UInt64(Date().timeIntervalSince1970 * 1_000_000_000), qos: request.qos, sessionId: request.sessionId, capabilityMask: request.capabilityMask, resumeToken: request.resumeToken, ttlMs: request.ttlMs, payload: payload, arguments: nil)
     }
 
-    private func sendCI(_ envelope: MidiCiEnvelope, group: UInt8) { if let bytes = try? envelope.sysEx8Payload(), let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: bytes, group: group), let packets = frames.compactMap({ UmpPacket128(rawBytes: $0) }) as [UmpPacket128]? { send(packets.flatMap(\.words)) } }
-    private func sendFlex(_ envelope: WireEnvelope, group: UInt8) { guard let data = try? JSONEncoder().encode(envelope), let frames = try? SysEx8.fragment(manufacturerID: [0x7D], payload: data, group: group), let packets = frames.compactMap({ UmpPacket128(rawBytes: $0) }) as [UmpPacket128]? else { return }; send(packets.flatMap(\.words)) }
+    private func sendCI(_ envelope: MidiCiEnvelope, group: UInt8) {
+        guard let bytes = try? envelope.sysEx8Payload(),
+              let frames = try? SysEx8.fragment(manufacturerID: [0x7E], payload: bytes, group: group) else { return }
+        let packets = frames.compactMap { UmpPacket128(rawBytes: $0) }
+        send(packets.flatMap(\.words))
+    }
+
+    private func sendFlex(_ envelope: WireEnvelope, group: UInt8) {
+        guard let data = try? JSONEncoder().encode(envelope),
+              let frames = try? SysEx8.fragment(manufacturerID: [0x7D], payload: data, group: group) else { return }
+        let packets = frames.compactMap { UmpPacket128(rawBytes: $0) }
+        send(packets.flatMap(\.words))
+    }
     private func send(_ words: [UInt32]) { try? session.send(umpWords: words) }
 }
 

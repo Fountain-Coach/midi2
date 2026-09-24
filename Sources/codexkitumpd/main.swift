@@ -231,7 +231,7 @@ final class InstrumentHost {
             payload["sessionId"] = request.sessionId
             payload["corpusId"] = "remote-codexkit-peer-acceptance"
             payload["sourceDocumentId"] = "remote-codexkit:instrument-profile"
-            sendFlex(response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument discovered.", threadID: nil, turnID: nil, payload: payload), group: group)
+            sendFlex(response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument discovered.", threadID: nil, turnID: nil, payload: payload, topic: "reframe/capability.discovery"), group: group)
             return
         }
         guard request.payload["instrumentId"] == instrumentID else { return }
@@ -247,9 +247,9 @@ final class InstrumentHost {
         }
     }
 
-    private func response(for request: WireEnvelope, phase: String, summary: String, threadID: String?, turnID: String?, payload suppliedPayload: [String: String]? = nil) -> WireEnvelope {
+    private func response(for request: WireEnvelope, phase: String, summary: String, threadID: String?, turnID: String?, payload suppliedPayload: [String: String]? = nil, topic: String = "reframe/capability.event") -> WireEnvelope {
         var payload = suppliedPayload ?? request.payload; payload["phase"] = phase; payload["summary"] = summary; payload["operation"] = payload["operation"] ?? ""; if let threadID { payload["threadId"] = threadID }; if let turnID { payload["turnId"] = turnID }; payload["terminal"] = ["succeeded", "resumed", "failed", "canceled"].contains(phase) ? "true" : "false"
-        return WireEnvelope(topic: "reframe/capability.event", schemaVersion: "reframe-midi2/1", correlationId: request.correlationId, timestamp: UInt64(Date().timeIntervalSince1970 * 1_000_000_000), qos: request.qos, sessionId: request.sessionId, capabilityMask: request.capabilityMask, resumeToken: request.resumeToken, ttlMs: request.ttlMs, payload: payload, arguments: nil)
+        return WireEnvelope(topic: topic, schemaVersion: "reframe-midi2/1", correlationId: request.correlationId, timestamp: UInt64(Date().timeIntervalSince1970 * 1_000_000_000), qos: request.qos, sessionId: request.sessionId, capabilityMask: request.capabilityMask, resumeToken: request.resumeToken, ttlMs: request.ttlMs, payload: payload, arguments: nil)
     }
 
     private func sendCI(_ envelope: MidiCiEnvelope, group: UInt8) {

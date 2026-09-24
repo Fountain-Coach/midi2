@@ -232,7 +232,6 @@ final class InstrumentHost {
             payload["corpusId"] = "remote-codexkit-peer-acceptance"
             payload["sourceDocumentId"] = "remote-codexkit:instrument-profile"
             payload["midiCIInstrument"] = profile.base64EncodedString()
-            payload["instrumentProfiles"] = profile.base64EncodedString()
             sendFlex(response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument discovered.", threadID: nil, turnID: nil, payload: payload), group: group)
             return
         }

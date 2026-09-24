@@ -134,6 +134,9 @@ actor CodexKitRuntime {
                 guard event.method == "turn/completed", let params = object(event.payload["params"]),
                       string(params["threadId"]) == thread, let completed = object(params["turn"]),
                       string(completed["id"]) == turnID else { continue }
+                if let error = object(completed["error"]), let detail = turnErrorDetail(error) {
+                    throw RuntimeError.invalid("upstream turn failed: \(detail)")
+                }
                 let text = agentMessageText(completed["items"])
                 guard !text.isEmpty else { throw RuntimeError.invalid("empty agent message") }
                 return RuntimeResult(phase: "succeeded", summary: text, threadID: thread, turnID: turnID)
@@ -153,6 +156,12 @@ actor CodexKitRuntime {
     private func string(_ value: JSONValue?) -> String? { guard case .string(let value)? = value else { return nil }; return value }
     private func require(_ value: String?, name: String) throws -> String { guard let value, !value.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { throw RuntimeError.invalid("missing (name)") }; return value }
     private func agentMessageText(_ value: JSONValue?) -> String { guard case .array(let items)? = value else { return "" }; return items.compactMap { item in guard case .object(let object) = item, string(object["type"]) == "agentMessage" else { return nil }; return string(object["text"]) }.joined(separator: "\n").trimmingCharacters(in: .whitespacesAndNewlines) }
+    private func turnErrorDetail(_ error: [String: JSONValue]) -> String? {
+        if let message = string(error["message"]), !message.isEmpty { return message }
+        if let details = string(error["additionalDetails"]), !details.isEmpty { return details }
+        if let info = object(error["codexErrorInfo"]), let type = string(info["type"]), !type.isEmpty { return type }
+        return nil
+    }
 }
 
 enum RuntimeError: Error { case invalid(String) }

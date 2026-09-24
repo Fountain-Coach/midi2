@@ -403,7 +403,7 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
         let fd = socket(AF_INET6, Int32(SOCK_DGRAM.rawValue), 0)
         guard fd >= 0 else { lock.unlock(); throw RTPMidiError.socketUnavailable }
         var v6Only: Int32 = 0
-        _ = setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &v6Only, socklen_t(MemoryLayout<Int32>.size))
+        _ = setsockopt(fd, Int32(IPPROTO_IPV6), IPV6_V6ONLY, &v6Only, socklen_t(MemoryLayout<Int32>.size))
         var address = sockaddr_in6()
         address.sin6_family = sa_family_t(AF_INET6)
         address.sin6_addr = in6addr_any

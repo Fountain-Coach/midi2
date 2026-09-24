@@ -188,7 +188,8 @@ final class InstrumentHost {
             var packets = sysex[group] ?? []; packets.append(packet)
             guard let body = DataMessageBody(sysex8Packets: packets) else { sysex[group] = packets; continue }
             sysex[group] = []
-            guard case .sysex8(let manufacturer, let data) = body, manufacturer == [0x7D] else { continue }
+            guard case .sysex8(let manufacturer, let data) = body,
+                  manufacturer == [0x7D] || manufacturer == [0x7E] else { continue }
             if let flex = try? JSONDecoder().decode(FlexEnvelope.self, from: Data(data)) { handleFlex(flex, group: group) }
             else if let ci = try? MidiCiEnvelope(sysEx8Payload: data) { handleCI(ci, group: group) }
         }

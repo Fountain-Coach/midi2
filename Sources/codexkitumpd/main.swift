@@ -208,7 +208,7 @@ final class InstrumentHost {
             if let responder = try? MidiCiDiscoveryResponder(advertisement: adv), let reply = responder.respond(to: envelope) { sendCI(reply, group: group) }
         case .profiles(let body) where body.command == .inquiry:
             let reply = MidiCiProfilesBody(command: .reply, profileId: body.profileId, target: body.target, details: body.profileId == instrumentID ? ["supported": 1] : ["supported": 0])
-            sendCI(MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7E, version: 1, body: .profiles(reply)), group: group)
+            sendCI(MidiCiEnvelope(scope: .nonRealtime, subId2: 0x72, version: 1, body: .profiles(reply)), group: group)
         case .propertyExchange(let body) where body.command == .get && body.header["res"] == instrumentResource:
             let replies = PropertyExchangeChunker.chunkGetReply(resource: instrumentResource, requestId: body.requestId, encoding: body.encoding, data: Array(profile), maxDataPerMessage: 80)
             for reply in replies { sendCI(MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7C, version: 1, body: .propertyExchange(reply)), group: group) }

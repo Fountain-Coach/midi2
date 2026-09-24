@@ -84,7 +84,9 @@ actor CodexKitRuntime {
             var params: [String: JSONValue] = ["experimentalRawEvents": .bool(false)]
             if let cwd = request.payload["cwd"], !cwd.isEmpty { params["cwd"] = .string(cwd) }
             let result = try await instrument.request(method: "thread/start", params: params, operation: operation, correlationID: correlation, executionID: execution)
-            let id = object(result["thread"])?["id"].flatMap(string)
+            guard let id = object(result["thread"])?["id"].flatMap(string), !id.isEmpty else {
+                throw RuntimeError.invalid("thread/start response missing thread.id")
+            }
             threadID = id
             return RuntimeResult(phase: "succeeded", summary: "Codex thread created.", threadID: id, turnID: nil)
         case "codex/thread.resume":
@@ -121,7 +123,10 @@ actor CodexKitRuntime {
             }()
             if id == nil {
                 let created = try await instrument.request(method: "thread/start", params: ["experimentalRawEvents": .bool(false)], operation: "codex/thread.create", correlationID: correlation, executionID: execution)
-                threadID = object(created["thread"])?["id"].flatMap(string)
+                guard let createdID = object(created["thread"])?["id"].flatMap(string), !createdID.isEmpty else {
+                    throw RuntimeError.invalid("thread/start response missing thread.id")
+                }
+                threadID = createdID
             }
             guard let thread = threadID else { throw RuntimeError.invalid("thread unavailable") }
             let started = try await instrument.request(method: "turn/start", params: [
@@ -132,8 +137,9 @@ actor CodexKitRuntime {
             guard let stream = events else { throw RuntimeError.invalid("event stream") }
             for await event in stream {
                 guard event.method == "turn/completed", let params = object(event.payload["params"]),
-                      string(params["threadId"]) == thread, let completed = object(params["turn"]),
-                      string(completed["id"]) == turnID else { continue }
+                      let completed = object(params["turn"]),
+                      (string(completed["id"]) ?? string(params["turnId"])) == turnID else { continue }
+                if let eventThread = string(params["threadId"]), eventThread != thread { continue }
                 if let error = object(completed["error"]), let detail = turnErrorDetail(error) {
                     throw RuntimeError.invalid("upstream turn failed: \(detail)")
                 }

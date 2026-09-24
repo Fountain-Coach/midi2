@@ -231,7 +231,7 @@ final class InstrumentHost {
             payload["sessionId"] = request.sessionId
             payload["corpusId"] = "remote-codexkit-peer-acceptance"
             payload["sourceDocumentId"] = "remote-codexkit:instrument-profile"
-            payload["midiCIInstrument"] = profile.base64EncodedString()
+            payload["midiCIInstrument"] = discoveryProfile.base64EncodedString()
             sendFlex(response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument discovered.", threadID: nil, turnID: nil, payload: payload), group: group)
             return
         }
@@ -246,6 +246,12 @@ final class InstrumentHost {
                 sendFlex(response(for: request, phase: "failed", summary: "CodexKit instrument failed: \(error)", threadID: nil, turnID: nil), group: group)
             }
         }
+    }
+
+    private var discoveryProfile: Data {
+        guard var object = (try? JSONSerialization.jsonObject(with: profile)) as? [String: Any] else { return profile }
+        object["traits"] = ["midi-ci-discovery"]
+        return (try? JSONSerialization.data(withJSONObject: object)) ?? profile
     }
 
     private func response(for request: WireEnvelope, phase: String, summary: String, threadID: String?, turnID: String?, payload suppliedPayload: [String: String]? = nil) -> WireEnvelope {

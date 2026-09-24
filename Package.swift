@@ -16,6 +16,7 @@ let package = Package(
         .executable(name: "midi2umpd", targets: ["midi2umpd"])
     ],
     dependencies: [
+        .package(url: "https://github.com/Fountain-Coach/FountainCodexLaneKit.git", revision: "a7b338d6a6b314e142cdea3dfc7c3146f8782ef0"),
         .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.6.1"),
         .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0")
@@ -69,6 +70,19 @@ let package = Package(
         .executableTarget(
             name: "midi2umpd",
             dependencies: ["MIDI2", "MIDI2CI", "MIDI2Transports", "UMPALSA"],
+            swiftSettings: [
+                .define("LINUX", .when(platforms: [.linux]))
+            ]
+        ),
+        .executableTarget(
+            name: "codexkitumpd",
+            dependencies: [
+                "MIDI2",
+                "MIDI2CI",
+                "MIDI2Transports",
+                "UMPALSA",
+                .product(name: "FountainCodexLaneKit", package: "FountainCodexLaneKit")
+            ],
             swiftSettings: [
                 .define("LINUX", .when(platforms: [.linux]))
             ]

@@ -206,7 +206,7 @@ final class InstrumentHost {
             let adv = MidiCiDiscoveryBody(muid: 0x0A0B0C0E, manufacturerId: [0x00, 0x20, 0x33], deviceFamily: 0x1490, deviceModel: 0x0001, softwareRev: 0x00010000, categories: .init(profiles: true, propertyExchange: true, processInquiry: true), maxSysEx: 2048)
             if let responder = try? MidiCiDiscoveryResponder(advertisement: adv), let reply = responder.respond(to: envelope) { sendCI(reply, group: group) }
         case .profiles(let body) where body.command == .inquiry:
-            let reply = MidiCiProfileBody(command: .reply, target: body.target, profileId: body.profileId, details: body.profileId == instrumentID ? ["supported": 1] : ["supported": 0])
+            let reply = MidiCiProfilesBody(command: .reply, target: body.target, profileId: body.profileId, details: body.profileId == instrumentID ? ["supported": 1] : ["supported": 0])
             sendCI(MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7E, version: 1, body: .profiles(reply)), group: group)
         case .propertyExchange(let body) where body.command == .get && body.header["res"] == instrumentResource:
             let replies = PropertyExchangeChunker.chunkGetReply(resource: instrumentResource, requestId: body.requestId, encoding: body.encoding, data: Array(profile), maxDataPerMessage: 80)

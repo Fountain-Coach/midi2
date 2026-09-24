@@ -7,7 +7,7 @@ import MIDI2Transports
 import FountainCodexLaneKit
 
 private let instrumentID = "fountaincoach.codexkit@0.1.0"
-private let instrumentVersion = "1"
+private let instrumentVersion = "0.1.0"
 private let instrumentResource = "midi-ci/property-exchange/instrument-profile"
 private let operations = [
     "codex/account.status", "codex/thread.list", "codex/thread.create", "codex/thread.resume",
@@ -213,7 +213,6 @@ final class InstrumentHost {
             let replies = PropertyExchangeChunker.chunkGetReply(resource: instrumentResource, requestId: body.requestId, encoding: body.encoding, data: Array(profile), maxDataPerMessage: 80)
             for reply in replies { sendCI(MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7C, version: 1, body: .propertyExchange(reply)), group: group) }
         case .processInquiry(let body):
-            FileHandle.standardOutput.write(Data("codexkit process-inquiry command=\(body.command.rawValue)\n".utf8))
             let processInquiry = ProcessInquirySession(filters: ["messageDataControl": 0x7F])
             if let reply = processInquiry.handle(body) {
                 sendCI(MidiCiEnvelope(scope: .nonRealtime, subId2: 0x7E, version: 1, body: .processInquiry(reply)), group: group)

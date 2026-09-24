@@ -367,7 +367,7 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     private let listenPort: UInt16?
     private let queue = DispatchQueue(label: "FountainCoach.MIDI2Transports.RTPMidiSession.linux")
     private var socketFD: Int32 = -1
-    private var peerAddress: sockaddr_in?
+    private var peerAddress: sockaddr_storage?
     private var readSource: DispatchSourceRead?
     private let lock = NSLock()
 
@@ -382,29 +382,35 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
     public var port: UInt16? {
         lock.lock(); defer { lock.unlock() }
         guard socketFD >= 0 else { return nil }
-        var address = sockaddr_in()
-        var length = socklen_t(MemoryLayout<sockaddr_in>.size)
+        var address = sockaddr_storage()
+        var length = socklen_t(MemoryLayout<sockaddr_storage>.size)
         let result = withUnsafeMutablePointer(to: &address) { pointer in
             pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
                 getsockname(socketFD, $0, &length)
             }
         }
         guard result == 0 else { return nil }
-        return UInt16(bigEndian: address.sin_port)
+        return withUnsafePointer(to: &address) { pointer in
+            pointer.withMemoryRebound(to: sockaddr_in6.self, capacity: 1) {
+                UInt16(bigEndian: $0.pointee.sin6_port)
+            }
+        }
     }
 
     public func open() throws {
         lock.lock()
         guard socketFD < 0 else { lock.unlock(); return }
-        let fd = socket(AF_INET, Int32(SOCK_DGRAM.rawValue), 0)
+        let fd = socket(AF_INET6, Int32(SOCK_DGRAM.rawValue), 0)
         guard fd >= 0 else { lock.unlock(); throw RTPMidiError.socketUnavailable }
-        var address = sockaddr_in()
-        address.sin_family = sa_family_t(AF_INET)
-        address.sin_addr = in_addr(s_addr: in_addr_t(0))
-        address.sin_port = listenPort.map { $0.bigEndian } ?? 0
+        var v6Only: Int32 = 0
+        _ = setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &v6Only, socklen_t(MemoryLayout<Int32>.size))
+        var address = sockaddr_in6()
+        address.sin6_family = sa_family_t(AF_INET6)
+        address.sin6_addr = in6addr_any
+        address.sin6_port = listenPort.map { $0.bigEndian } ?? 0
         let bindResult = withUnsafePointer(to: &address) { pointer in
             pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                bind(fd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+                bind(fd, $0, socklen_t(MemoryLayout<sockaddr_in6>.size))
             }
         }
         guard bindResult == 0 else {
@@ -454,7 +460,7 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
         let sent = bytes.withUnsafeBytes { rawBuffer in
             withUnsafePointer(to: &address) { pointer in
                 pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                    sendto(fd, rawBuffer.baseAddress, bytes.count, 0, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+                    sendto(fd, rawBuffer.baseAddress, bytes.count, 0, $0, Self.addressLength(address))
                 }
             }
         }
@@ -463,8 +469,8 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
 
     private func receiveDatagram() {
         var bytes = [UInt8](repeating: 0, count: 65_535)
-        var sender = sockaddr_in()
-        var length = socklen_t(MemoryLayout<sockaddr_in>.size)
+        var sender = sockaddr_storage()
+        var length = socklen_t(MemoryLayout<sockaddr_storage>.size)
         lock.lock(); let fd = socketFD; lock.unlock()
         guard fd >= 0 else { return }
         let count = bytes.withUnsafeMutableBytes { buffer in
@@ -481,15 +487,23 @@ public final class RTPMidiSession: MIDITransport, @unchecked Sendable {
         words.forEach { onReceiveUMP?($0) }
     }
 
-    private func resolve(host: String, port: UInt16) -> sockaddr_in? {
-        var hints = addrinfo(ai_flags: 0, ai_family: AF_INET, ai_socktype: Int32(SOCK_DGRAM.rawValue), ai_protocol: 0,
+    private func resolve(host: String, port: UInt16) -> sockaddr_storage? {
+        var hints = addrinfo(ai_flags: 0, ai_family: AF_UNSPEC, ai_socktype: Int32(SOCK_DGRAM.rawValue), ai_protocol: 0,
                              ai_addrlen: 0, ai_addr: nil, ai_canonname: nil, ai_next: nil)
         var result: UnsafeMutablePointer<addrinfo>?
         let service = String(port)
         guard getaddrinfo(host, service, &hints, &result) == 0, let result else { return nil }
         defer { freeaddrinfo(result) }
         guard let raw = result.pointee.ai_addr else { return nil }
-        return raw.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { $0.pointee }
+        var address = sockaddr_storage()
+        memcpy(&address, raw, Int(result.pointee.ai_addrlen))
+        return address
+    }
+
+    private static func addressLength(_ address: sockaddr_storage) -> socklen_t {
+        address.ss_family == sa_family_t(AF_INET6)
+            ? socklen_t(MemoryLayout<sockaddr_in6>.size)
+            : socklen_t(MemoryLayout<sockaddr_in>.size)
     }
 
     private static func decode(_ data: Data) -> [[UInt32]]? {

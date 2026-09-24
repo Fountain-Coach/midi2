@@ -1,5 +1,5 @@
 {
-  "originHash" : "3af277e89801d695bba590c763227f10d65960d819124b966529f39d7327bdab",
+  "originHash" : "9f11b23add310a9547712189e76ac476e6a2954f921225b4afbb36a7cfa33183",
   "pins" : [
     {
       "identity" : "chalk",
@@ -24,7 +24,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Fountain-Coach/FountainCodexLaneKit.git",
       "state" : {
-        "revision" : "a7b338d6a6b314e142cdea3dfc7c3146f8782ef0"
+        "revision" : "12724bd8a6bbd79b01b43555121f076266434ece"
       }
     },
     {

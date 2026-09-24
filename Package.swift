@@ -16,7 +16,7 @@ let package = Package(
         .executable(name: "midi2umpd", targets: ["midi2umpd"])
     ],
     dependencies: [
-    .package(url: "https://github.com/Fountain-Coach/FountainCodexLaneKit.git", revision: "12724bd8a6bbd79b01b43555121f076266434ece"),
+    .package(url: "https://github.com/Fountain-Coach/FountainCodexLaneKit.git", revision: "5f40d123c5abd1e8833de006013580d3808a13ee"),
         .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.6.1"),
         .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0")

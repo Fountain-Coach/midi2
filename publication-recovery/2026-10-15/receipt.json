@@ -1,0 +1,39 @@
+{
+  "capturedDate": "2026-10-15",
+  "containsPrivateRuntimeState": false,
+  "disposition": "historical recovery byte evidence; not an automatic publication or an authored source replacement",
+  "documents": [
+    {
+      "artifactIdentity": "public HTML captured from HTTPS; NOT generated from current owner source",
+      "bytes": 20867,
+      "publicUrl": "https://midi2.fountain.coach/docs/README.html",
+      "publishedPath": "docs/README.html",
+      "recoveryPath": "publication-recovery/2026-10-15/public-html/docs/README.html",
+      "sha256": "03a47b4d45cdf00de78c7c36ec3faabc3368b0b77bec51bb3c38afb81395cdfb",
+      "sourceEvidence": "Fountain-Coach/estate/recovery/public-byte-provenance.json"
+    },
+    {
+      "artifactIdentity": "public HTML captured from HTTPS; NOT generated from current owner source",
+      "bytes": 15594,
+      "publicUrl": "https://midi2.fountain.coach/docs/generated/normative-coverage.html",
+      "publishedPath": "docs/generated/normative-coverage.html",
+      "recoveryPath": "publication-recovery/2026-10-15/public-html/docs/generated/normative-coverage.html",
+      "sha256": "6bf7810f0953a2979b2199f313b298f95021a2981dde4d6206fb64cd52117069",
+      "sourceEvidence": "Fountain-Coach/estate/recovery/public-byte-provenance.json"
+    },
+    {
+      "artifactIdentity": "public HTML captured from HTTPS; NOT generated from current owner source",
+      "bytes": 11553,
+      "publicUrl": "https://midi2.fountain.coach/docs/spec-compliance-dashboard.html",
+      "publishedPath": "docs/spec-compliance-dashboard.html",
+      "recoveryPath": "publication-recovery/2026-10-15/public-html/docs/spec-compliance-dashboard.html",
+      "sha256": "56b9aaef34b006c9140aa4be0e631eac8d8bc897270162bbb566dea6c4471cea",
+      "sourceEvidence": "Fountain-Coach/estate/recovery/public-byte-provenance.json"
+    }
+  ],
+  "gitRestoreAllowed": "Only with separate approved public release manifest and full asset proof",
+  "ownerRepository": "Fountain-Coach/midi2",
+  "publishedHost": "midi2.fountain.coach",
+  "schema": "fountain.publication.owner-site-readback.v1",
+  "sourceAuthority": "This repository remains the canonical domain owner. These are public readbacks, not source manuscript."
+}

@@ -3,25 +3,6 @@ import Foundation
 @testable import CodexKitAdmission
 
 final class CodexKitProtectedSessionTests: XCTestCase {
-    func testPrivateUserlandArchiveScopeAndPathRefusals() throws {
-        let content = Data("{\"schemaVersion\":1,\"exchanges\":[],\"threadID\":null}".utf8)
-        let request = try CodexKitUserlandRequest(operation: .store,
-             archiveID: "physical-fixture-1", archiveData: content)
-        let decoded = try JSONDecoder().decode(CodexKitUserlandRequest.self,
-             from: JSONEncoder().encode(request))
-        XCTAssertEqual(request, decoded)
-        XCTAssertThrowsError(try CodexKitUserlandRequest(
-             operation: .store, archiveID: "../private", archiveData: content))
-        XCTAssertThrowsError(try CodexKitUserlandRequest(
-             operation: .store, archiveID: "invalid/slash", archiveData: content))
-        XCTAssertThrowsError(try CodexKitUserlandRequest(
-             operation: .load, archiveID: "valid", archiveData: content))
-        XCTAssertThrowsError(try CodexKitUserlandRequest(
-             operation: .store, archiveID: "valid", archiveData: Data()))
-        XCTAssertThrowsError(try CodexKitUserlandRequest(
-             operation: .store, archiveID: "valid", archiveData: Data(repeating: 5, count: 16385)))
-    }
-
     func testComposerThreadCursorIsAuthenticatedAndValidated() throws {
         let turn = try CodexKitPrivateComposerTurn(
             text: "continue", threadID: "0192a321-5cba-7ede-8f43-0db2c92e5177")

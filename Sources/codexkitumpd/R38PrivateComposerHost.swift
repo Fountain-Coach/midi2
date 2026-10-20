@@ -68,18 +68,7 @@ final class R38PrivateComposerHost {
               request.payload["executionId"] == packet.executionID else {
             throw Failure.refused
         }
-        let verified = try await key.open(packet)
-        if let archive = try? JSONDecoder().decode(CodexKitUserlandRequest.self, from: verified) {
-            let receipt = try R38UserlandArchiveHost().perform(archive)
-            FileHandle.standardError.write(Data("r38.userland.\(receipt.status.rawValue)\n".utf8))
-            return try await key.seal(JSONEncoder().encode(receipt),
-                                      correlationID: packet.correlationID,
-                                      executionID: packet.executionID)
-        }
-        guard let turn = try? JSONDecoder().decode(CodexKitPrivateComposerTurn.self, from: verified) else {
-            throw Failure.refused
-        }
-        try turn.validated()
+        let turn = try await key.openComposerTurn(packet)
         // Construct an internal typed request from verified ciphertext.
         // No caller-supplied external Codex operation or prompt is trusted.
         let admitted = WireEnvelope(

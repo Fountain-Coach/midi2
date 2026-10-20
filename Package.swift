@@ -10,6 +10,7 @@ let package = Package(
         .library(name: "MIDI2", targets: ["MIDI2"]),
         .library(name: "MIDI2CI", targets: ["MIDI2CI"]),
         .library(name: "MIDI2Transports", targets: ["MIDI2Transports"]),
+        .library(name: "CodexKitAdmission", targets: ["CodexKitAdmission"]),
         .executable(name: "midi2demo", targets: ["midi2demo"]),
         .executable(name: "jitterdemo", targets: ["jitterdemo"]),
         .executable(name: "midi2compliance", targets: ["midi2compliance"]),
@@ -17,6 +18,9 @@ let package = Package(
     ],
     dependencies: [
     .package(url: "https://github.com/Fountain-Coach/FountainCodexLaneKit.git", revision: "dc589b32675bd31858c97165a482e526ce92a915"),
+        // Portable AEAD for a separately owner-approved, private MIDI2 session.
+        .package(url: "https://github.com/apple/swift-crypto.git",
+                 revision: "95ba0316a9b733e92bb6b071255ff46263bbe7dc"),
         .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
         .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.6.1"),
         .package(url: "https://github.com/apple/swift-numerics.git", from: "1.0.0")
@@ -25,6 +29,11 @@ let package = Package(
         .target(name: "MIDI2", dependencies: [.product(name: "Numerics", package: "swift-numerics")]),
         .target(name: "MIDI2CI", dependencies: ["MIDI2"]),
         .target(name: "MIDI2Transports", dependencies: []),
+        // R38 safety gate: unauthenticated RTP-MIDI2 discovery cannot
+        // become execution against the host's ChatGPT-backed Codex session.
+        .target(name: "CodexKitAdmission", dependencies: [
+            .product(name: "Crypto", package: "swift-crypto")
+        ]),
         .executableTarget(
             name: "midi2demo",
             dependencies: [
@@ -80,6 +89,7 @@ let package = Package(
                 "MIDI2",
                 "MIDI2CI",
                 "MIDI2Transports",
+                "CodexKitAdmission",
                 "UMPALSA",
                 .product(name: "FountainCodexLaneKit", package: "FountainCodexLaneKit")
             ],
@@ -88,6 +98,7 @@ let package = Package(
             ]
         ),
         .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "MIDI2Transports", "midi2demo"]),
+        .testTarget(name: "CodexKitAdmissionTests", dependencies: ["CodexKitAdmission"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")
     ]
 )

@@ -5,6 +5,7 @@ import MIDI2
 import MIDI2CI
 import MIDI2Transports
 import FountainCodexLaneKit
+import CodexKitAdmission
 
 private let instrumentID = "fountaincoach.codexkit@0.1.0"
 private let instrumentVersion = "0.1.0"
@@ -118,12 +119,24 @@ actor CodexKitRuntime {
             return RuntimeResult(phase: "resumed", summary: "Codex session resumed.", threadID: threadID, turnID: nil)
         case "codex/turn.submit":
             let prompt = try require(request.payload["prompt"], name: "prompt")
-            let id = threadID ?? {
-                return nil
-            }()
-            if id == nil {
-                let created = try await instrument.request(method: "thread/start", params: ["experimentalRawEvents": .bool(false)], operation: "codex/thread.create", correlationID: correlation, executionID: execution)
-                guard let createdID = object(created["thread"])?["id"].flatMap(string), !createdID.isEmpty else {
+            // A device-restored thread ID is accepted only from the already
+            // authenticated, encrypted private Composer turn. The host must
+            // not silently substitute its global previous conversation.
+            if let requested = request.payload["threadId"], !requested.isEmpty {
+                if threadID != requested {
+                    let resumed = try await instrument.request(
+                        method: "thread/resume", params: ["threadId": .string(requested)],
+                        operation: "codex/thread.resume", correlationID: correlation,
+                        executionID: execution)
+                    threadID = object(resumed["thread"])?["id"].flatMap(string) ?? requested
+                }
+            } else {
+                let created = try await instrument.request(
+                    method: "thread/start", params: ["experimentalRawEvents": .bool(false)],
+                    operation: "codex/thread.create", correlationID: correlation,
+                    executionID: execution)
+                guard let createdID = object(created["thread"])?["id"].flatMap(string),
+                      !createdID.isEmpty else {
                     throw RuntimeError.invalid("thread/start response missing thread.id")
                 }
                 threadID = createdID
@@ -176,6 +189,7 @@ enum RuntimeError: Error { case invalid(String) }
 final class InstrumentHost {
     let session: RTPMidiSession
     let runtime: CodexKitRuntime
+    private let privateComposer = R38PrivateComposerHost()
     let profile: Data
     var sysex: [UInt8: [UmpPacket128]] = [:]
 
@@ -240,7 +254,23 @@ final class InstrumentHost {
         guard case .object(let object) = flex.body,
               let data = try? JSONEncoder().encode(JSONValue.object(object)),
               let request = try? JSONDecoder().decode(WireEnvelope.self, from: data) else { return }
-        if request.topic == "reframe/capability.discover" {
+        if request.topic == "reframe/capability.pair" {
+            Task { @MainActor in
+                await handlePrivatePairing(request, group: group)
+            }
+            return
+        }
+        if request.topic == "reframe/capability.protected" {
+            Task { @MainActor in
+                await handlePrivateTurn(request, group: group)
+            }
+            return
+        }
+        let admission = CodexKitRemoteInvocationGate.decide(
+            topic: request.topic,
+            instrumentID: request.payload["instrumentId"],
+            operation: request.payload["operation"])
+        if admission == .allowDiscovery {
             var payload: [String: String] = [:]
             payload["phase"] = "admitted"
             payload["sessionId"] = request.sessionId
@@ -249,21 +279,89 @@ final class InstrumentHost {
             sendFlex(response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument discovered.", threadID: nil, turnID: nil, payload: payload, topic: "reframe/capability.discovery"), group: group)
             return
         }
+        // Public discovery cannot invoke Codex. Only a provisioned-device
+        // pairing can establish the private session used by protected turns.
+        guard admission == .refuseExecution else { return }
+        sendFlex(response(for: request, phase: "refused",
+                          summary: "Verified owner session required.",
+                          threadID: nil, turnID: nil,
+                          payload: CodexKitRemoteInvocationGate.refusalPayload(
+                              operation: request.payload["operation"])), group: group)
+        return
+    }
+
+    private func handlePrivatePairing(_ request: WireEnvelope, group: UInt8) async {
         guard request.payload["instrumentId"] == instrumentID else { return }
-        let admitted = response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument admitted.", threadID: nil, turnID: nil)
-        sendFlex(admitted, group: group)
-        Task { @MainActor in
-            do {
-                let result = try await runtime.execute(request)
-                sendFlex(response(for: request, phase: result.phase, summary: result.summary, threadID: result.threadID, turnID: result.turnID), group: group)
-            } catch {
-                sendFlex(response(for: request, phase: "failed", summary: "CodexKit instrument failed: \(error)", threadID: nil, turnID: nil), group: group)
+        let operation = request.payload["operation"] ?? ""
+        do {
+            var reply: [String: String] = ["operation": operation]
+            switch operation {
+            case "pair.start":
+                let offer = try await privateComposer.begin(sessionID: request.sessionId)
+                reply["offer"] = try JSONEncoder().encode(offer).base64EncodedString()
+                reply["proof"] = try privateComposer.signedOffer(offer)
+                reply["phase"] = "offer"
+            case "pair.finish":
+                guard let encoded = request.payload["response"],
+                      let data = Data(base64Encoded: encoded) else { return }
+                let response = try JSONDecoder().decode(CodexKitPairingResponse.self, from: data)
+                guard response.sessionID == request.sessionId else { return }
+                guard let proof = request.payload["proof"] else { return }
+                try await privateComposer.finish(response, proof: proof)
+                reply["phase"] = "approved"
+            case "pair.status":
+                reply["phase"] = try privateComposer.status(sessionID: request.sessionId)
+                    ? "approved" : "pendingOwner"
+            case "pair.disconnect":
+                await privateComposer.revoke(sessionID: request.sessionId)
+                reply["phase"] = "disconnected"
+            default: return
             }
+            sendFlex(response(for: request, phase: reply["phase"] ?? "refused",
+                              summary: "", threadID: nil, turnID: nil,
+                              payload: reply, topic: "reframe/capability.pair.event"), group: group)
+        } catch {
+            sendFlex(response(for: request, phase: "refused",
+                              summary: "Owner session not admitted.",
+                              threadID: nil, turnID: nil,
+                              payload: ["operation": operation, "phase": "refused"],
+                              topic: "reframe/capability.pair.event"), group: group)
+        }
+    }
+
+    private func handlePrivateTurn(_ request: WireEnvelope, group: UInt8) async {
+        guard request.payload["instrumentId"] == instrumentID,
+              let sealed = request.payload["sealedPacket"],
+              sealed.utf8.count <= 65_000,
+              let data = Data(base64Encoded: sealed),
+              let packet = try? JSONDecoder().decode(CodexKitProtectedPacket.self, from: data) else {
+            return
+        }
+        do {
+            let answer = try await privateComposer.execute(packet: packet, runtime: runtime, request: request)
+            let answerData = try JSONEncoder().encode(answer)
+            sendFlex(response(for: request, phase: "succeeded",
+                              summary: "", threadID: nil, turnID: nil,
+                              payload: ["phase": "succeeded",
+                                        "sealedPacket": answerData.base64EncodedString(),
+                                        "executionId": packet.executionID],
+                              topic: "reframe/capability.protected.event"), group: group)
+        } catch {
+            FileHandle.standardError.write(Data("r38.private.turn.refused\n".utf8))
+            sendFlex(response(for: request, phase: "refused",
+                              summary: "Private Composer operation refused.",
+                              threadID: nil, turnID: nil,
+                              payload: ["phase": "refused", "executionId": packet.executionID],
+                              topic: "reframe/capability.protected.event"), group: group)
         }
     }
 
     private func response(for request: WireEnvelope, phase: String, summary: String, threadID: String?, turnID: String?, payload suppliedPayload: [String: String]? = nil, topic: String = "reframe/capability.event") -> WireEnvelope {
-        var payload = suppliedPayload ?? request.payload; payload["phase"] = phase; payload["summary"] = summary; payload["operation"] = payload["operation"] ?? ""; if let threadID { payload["threadId"] = threadID }; if let turnID { payload["turnId"] = turnID }; payload["terminal"] = ["succeeded", "resumed", "failed", "canceled"].contains(phase) ? "true" : "false"
+        var payload = suppliedPayload ?? request.payload
+        payload.removeValue(forKey: "prompt")
+        payload.removeValue(forKey: "authorization")
+        payload.removeValue(forKey: "token")
+        payload["phase"] = phase; payload["summary"] = summary; payload["operation"] = payload["operation"] ?? ""; if let threadID { payload["threadId"] = threadID }; if let turnID { payload["turnId"] = turnID }; payload["terminal"] = ["succeeded", "resumed", "failed", "canceled", "refused"].contains(phase) ? "true" : "false"
         return WireEnvelope(topic: topic, schemaVersion: "reframe-midi2/1", correlationId: request.correlationId, timestamp: UInt64(Date().timeIntervalSince1970 * 1_000_000_000), qos: request.qos, sessionId: request.sessionId, capabilityMask: request.capabilityMask, resumeToken: request.resumeToken, ttlMs: request.ttlMs, payload: payload, arguments: nil)
     }
 
@@ -298,7 +396,13 @@ let codexHome = URL(fileURLWithPath: argument("--codex-home", default: "/var/lib
 let runtime = CodexKitRuntime(executable: executable, codexHome: codexHome, runtimeDigest: argument("--runtime-digest", default: "unsealed"), protocolRevision: argument("--protocol-revision", default: "v2"))
 let session = RTPMidiSession(localName: "Fountain Coach CodexKit", listenPort: port)
 let host = InstrumentHost(runtime: runtime, session: session)
-session.onReceiveUMP = { words in Task { @MainActor in host.receive(words) } }
+// Process one received datagram's complete UMP packet sequence in order.
+// Individual Task per SysEx8 packet can scramble a multi-frame pairing response.
+session.onReceiveUmps = { packets in
+    Task { @MainActor in
+        for packet in packets { host.receive(packet) }
+    }
+}
 try session.open()
 FileHandle.standardOutput.write(Data("codexkitumpd instrument=\(instrumentID) rtp-port=\(session.port ?? port)\n".utf8))
 if ump_alsa_open() != 0 { exit(1) }

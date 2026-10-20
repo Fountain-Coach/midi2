@@ -5,6 +5,7 @@ import MIDI2
 import MIDI2CI
 import MIDI2Transports
 import FountainCodexLaneKit
+import CodexKitAdmission
 
 private let instrumentID = "fountaincoach.codexkit@0.1.0"
 private let instrumentVersion = "0.1.0"
@@ -240,7 +241,11 @@ final class InstrumentHost {
         guard case .object(let object) = flex.body,
               let data = try? JSONEncoder().encode(JSONValue.object(object)),
               let request = try? JSONDecoder().decode(WireEnvelope.self, from: data) else { return }
-        if request.topic == "reframe/capability.discover" {
+        let admission = CodexKitRemoteInvocationGate.decide(
+            topic: request.topic,
+            instrumentID: request.payload["instrumentId"],
+            operation: request.payload["operation"])
+        if admission == .allowDiscovery {
             var payload: [String: String] = [:]
             payload["phase"] = "admitted"
             payload["sessionId"] = request.sessionId
@@ -249,21 +254,22 @@ final class InstrumentHost {
             sendFlex(response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument discovered.", threadID: nil, turnID: nil, payload: payload, topic: "reframe/capability.discovery"), group: group)
             return
         }
-        guard request.payload["instrumentId"] == instrumentID else { return }
-        let admitted = response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument admitted.", threadID: nil, turnID: nil)
-        sendFlex(admitted, group: group)
-        Task { @MainActor in
-            do {
-                let result = try await runtime.execute(request)
-                sendFlex(response(for: request, phase: result.phase, summary: result.summary, threadID: result.threadID, turnID: result.turnID), group: group)
-            } catch {
-                sendFlex(response(for: request, phase: "failed", summary: "CodexKit instrument failed: \(error)", threadID: nil, turnID: nil), group: group)
-            }
-        }
+        // The live Codex provider login is *not* a writer's remote grant.
+        // No owner-session verifier is installed in the current responder.
+        // Keep public discovery working, but refuse all executable requests.
+        guard admission == .refuseExecution else { return }
+        sendFlex(response(for: request, phase: "refused",
+                          summary: "Verified owner session required.",
+                          threadID: nil, turnID: nil), group: group)
+        return
     }
 
     private func response(for request: WireEnvelope, phase: String, summary: String, threadID: String?, turnID: String?, payload suppliedPayload: [String: String]? = nil, topic: String = "reframe/capability.event") -> WireEnvelope {
-        var payload = suppliedPayload ?? request.payload; payload["phase"] = phase; payload["summary"] = summary; payload["operation"] = payload["operation"] ?? ""; if let threadID { payload["threadId"] = threadID }; if let turnID { payload["turnId"] = turnID }; payload["terminal"] = ["succeeded", "resumed", "failed", "canceled"].contains(phase) ? "true" : "false"
+        var payload = suppliedPayload ?? request.payload
+        payload.removeValue(forKey: "prompt")
+        payload.removeValue(forKey: "authorization")
+        payload.removeValue(forKey: "token")
+        payload["phase"] = phase; payload["summary"] = summary; payload["operation"] = payload["operation"] ?? ""; if let threadID { payload["threadId"] = threadID }; if let turnID { payload["turnId"] = turnID }; payload["terminal"] = ["succeeded", "resumed", "failed", "canceled", "refused"].contains(phase) ? "true" : "false"
         return WireEnvelope(topic: topic, schemaVersion: "reframe-midi2/1", correlationId: request.correlationId, timestamp: UInt64(Date().timeIntervalSince1970 * 1_000_000_000), qos: request.qos, sessionId: request.sessionId, capabilityMask: request.capabilityMask, resumeToken: request.resumeToken, ttlMs: request.ttlMs, payload: payload, arguments: nil)
     }
 

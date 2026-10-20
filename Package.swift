@@ -25,6 +25,9 @@ let package = Package(
         .target(name: "MIDI2", dependencies: [.product(name: "Numerics", package: "swift-numerics")]),
         .target(name: "MIDI2CI", dependencies: ["MIDI2"]),
         .target(name: "MIDI2Transports", dependencies: []),
+        // R38 safety gate: unauthenticated RTP-MIDI2 discovery cannot
+        // become execution against the host's ChatGPT-backed Codex session.
+        .target(name: "CodexKitAdmission", dependencies: []),
         .executableTarget(
             name: "midi2demo",
             dependencies: [
@@ -80,6 +83,7 @@ let package = Package(
                 "MIDI2",
                 "MIDI2CI",
                 "MIDI2Transports",
+                "CodexKitAdmission",
                 "UMPALSA",
                 .product(name: "FountainCodexLaneKit", package: "FountainCodexLaneKit")
             ],
@@ -88,6 +92,7 @@ let package = Package(
             ]
         ),
         .testTarget(name: "MIDI2Tests", dependencies: ["MIDI2", "MIDI2CI", "MIDI2Transports", "midi2demo"]),
+        .testTarget(name: "CodexKitAdmissionTests", dependencies: ["CodexKitAdmission"]),
         .testTarget(name: "Fuzz", dependencies: ["MIDI2", "SwiftCheck"], path: "Tests/Fuzz")
     ]
 )

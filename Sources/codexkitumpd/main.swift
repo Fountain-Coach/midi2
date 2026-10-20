@@ -383,7 +383,13 @@ let codexHome = URL(fileURLWithPath: argument("--codex-home", default: "/var/lib
 let runtime = CodexKitRuntime(executable: executable, codexHome: codexHome, runtimeDigest: argument("--runtime-digest", default: "unsealed"), protocolRevision: argument("--protocol-revision", default: "v2"))
 let session = RTPMidiSession(localName: "Fountain Coach CodexKit", listenPort: port)
 let host = InstrumentHost(runtime: runtime, session: session)
-session.onReceiveUMP = { words in Task { @MainActor in host.receive(words) } }
+// Process one received datagram's complete UMP packet sequence in order.
+// Individual Task per SysEx8 packet can scramble a multi-frame pairing response.
+session.onReceiveUmps = { packets in
+    Task { @MainActor in
+        for packet in packets { host.receive(packet) }
+    }
+}
 try session.open()
 FileHandle.standardOutput.write(Data("codexkitumpd instrument=\(instrumentID) rtp-port=\(session.port ?? port)\n".utf8))
 if ump_alsa_open() != 0 { exit(1) }

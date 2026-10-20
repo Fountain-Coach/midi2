@@ -267,9 +267,8 @@ final class InstrumentHost {
             sendFlex(response(for: request, phase: "admitted", summary: "CodexKit MIDI2 instrument discovered.", threadID: nil, turnID: nil, payload: payload, topic: "reframe/capability.discovery"), group: group)
             return
         }
-        // The live Codex provider login is *not* a writer's remote grant.
-        // No owner-session verifier is installed in the current responder.
-        // Keep public discovery working, but refuse all executable requests.
+        // Public discovery cannot invoke Codex. Only a provisioned-device
+        // pairing can establish the private session used by protected turns.
         guard admission == .refuseExecution else { return }
         sendFlex(response(for: request, phase: "refused",
                           summary: "Verified owner session required.",
@@ -288,14 +287,16 @@ final class InstrumentHost {
             case "pair.start":
                 let offer = try await privateComposer.begin(sessionID: request.sessionId)
                 reply["offer"] = try JSONEncoder().encode(offer).base64EncodedString()
+                reply["proof"] = try privateComposer.signedOffer(offer)
                 reply["phase"] = "offer"
             case "pair.finish":
                 guard let encoded = request.payload["response"],
                       let data = Data(base64Encoded: encoded) else { return }
                 let response = try JSONDecoder().decode(CodexKitPairingResponse.self, from: data)
                 guard response.sessionID == request.sessionId else { return }
-                try await privateComposer.finish(response)
-                reply["phase"] = "pendingOwner"
+                guard let proof = request.payload["proof"] else { return }
+                try await privateComposer.finish(response, proof: proof)
+                reply["phase"] = "approved"
             case "pair.status":
                 reply["phase"] = try privateComposer.status(sessionID: request.sessionId)
                     ? "approved" : "pendingOwner"

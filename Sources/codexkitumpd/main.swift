@@ -335,6 +335,7 @@ final class InstrumentHost {
                                         "executionId": packet.executionID],
                               topic: "reframe/capability.protected.event"), group: group)
         } catch {
+            FileHandle.standardError.write(Data("r38.private.turn.refused\n".utf8))
             sendFlex(response(for: request, phase: "refused",
                               summary: "Private Composer operation refused.",
                               threadID: nil, turnID: nil,

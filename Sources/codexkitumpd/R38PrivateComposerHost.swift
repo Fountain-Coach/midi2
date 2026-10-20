@@ -81,7 +81,9 @@ final class R38PrivateComposerHost {
                       "operation": turn.operation, "prompt": turn.text,
                       "executionId": packet.executionID],
             arguments: nil)
+        FileHandle.standardError.write(Data("r38.private.turn.admitted\n".utf8))
         let result = try await runtime.execute(admitted)
+        FileHandle.standardError.write(Data("r38.private.turn.codex.completed bytes=\(result.summary.utf8.count)\n".utf8))
         guard result.phase == "succeeded", !result.summary.isEmpty else {
             throw Failure.upstreamFailed
         }

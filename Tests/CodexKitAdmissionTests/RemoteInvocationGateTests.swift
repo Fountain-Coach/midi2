@@ -22,6 +22,17 @@ final class RemoteInvocationGateTests: XCTestCase {
         }
     }
 
+    func testRefusalHasOnlyPublicBoundedFieldsAndNoCallerData() {
+        let result = CodexKitRemoteInvocationGate.refusalPayload(operation: "codex/turn.submit")
+        XCTAssertEqual(result, [
+            "operation": "codex/turn.submit", "phase": "refused",
+            "summary": "Verified owner session required.", "terminal": "true"
+        ])
+        XCTAssertNil(result["prompt"])
+        XCTAssertNil(result["token"])
+        XCTAssertNil(result["authorization"])
+    }
+
     func testClaimedSessionMetadataCannotAuthorizeOrBroadenInstrument() {
         XCTAssertEqual(CodexKitRemoteInvocationGate.decide(
             topic: "reframe/capability.invoke",

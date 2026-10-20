@@ -260,7 +260,9 @@ final class InstrumentHost {
         guard admission == .refuseExecution else { return }
         sendFlex(response(for: request, phase: "refused",
                           summary: "Verified owner session required.",
-                          threadID: nil, turnID: nil), group: group)
+                          threadID: nil, turnID: nil,
+                          payload: CodexKitRemoteInvocationGate.refusalPayload(
+                              operation: request.payload["operation"])), group: group)
         return
     }
 

@@ -19,6 +19,13 @@ public enum CodexKitRemoteInvocationGate {
         case ignore
     }
 
+    /// Never reflect untrusted user text or credentials into a refusal.
+    /// The response envelope already carries session/correlation identities.
+    public static func refusalPayload(operation: String?) -> [String: String] {
+        ["operation": operation ?? "", "phase": "refused",
+         "summary": "Verified owner session required.", "terminal": "true"]
+    }
+
     /// Inputs are untrusted wire data, not a verified host or writer identity.
     /// No amount of caller-supplied session/correlation metadata promotes it.
     public static func decide(topic: String, instrumentID: String?, operation: String?) -> Decision {

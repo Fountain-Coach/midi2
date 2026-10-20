@@ -413,8 +413,7 @@ FileHandle.standardOutput.write(Data("codexkitumpd instrument=\(instrumentID) rt
 let headlessRTP = args.contains("--rtp-only")
 if !headlessRTP && ump_alsa_open() != 0 { exit(1) }
 if headlessRTP {
-    FileHandle.standardOutput.write(Data("codexkitumpd mode=software-rtp-only
-".utf8))
+    print("codexkitumpd mode=software-rtp-only")
 }
 dispatchMain()
 #else

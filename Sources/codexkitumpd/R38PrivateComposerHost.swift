@@ -3,9 +3,10 @@ import CodexKitAdmission
 #if os(Linux)
 import Glibc
 
-/// The existing trusted Mac provisions this iPad and managed Linux host.
-/// A short-lived transcript must be authenticated by their provisioned key.
-/// No login ceremony, public identity provider or manuscript permission.
+/// R38 pairs over the existing ephemeral MIDI2 transcript.
+/// Replacement hosts may opt into owner-pinned peer signatures, without
+/// receiving the pre-existing iPad Keychain secret. Admission does not imply
+/// manuscript authority or public discovery-based execution.
 @MainActor
 final class R38PrivateComposerHost {
     private struct Pending {
@@ -16,6 +17,21 @@ final class R38PrivateComposerHost {
     private var active: [String: CodexKitSealedSession] = [:]
     private var admittedProofs: [String: String] = [:]
     private let deviceKeyPath = "/etc/fountaincoach/r38-provisioned-device.key"
+    private let hostSigningSeedPath = "/etc/fountaincoach/r38-host-ed25519.key"
+    private let trustedDevicePublicKeyPath = "/etc/fountaincoach/r38-device-ed25519.pub"
+
+    // The recovered host explicitly opts into public-key admission. When
+    // enabled, there is no fallback to the former shared-key protocol.
+    private var usesSignedPeers: Bool {
+        ProcessInfo.processInfo.environment["R38_PAIRING_AUTH_MODE"] == "signed-v1"
+    }
+
+    private func requireKnownMode() throws {
+        let selected = ProcessInfo.processInfo.environment["R38_PAIRING_AUTH_MODE"]
+        guard selected == nil || selected == "legacy-v1" || selected == "signed-v1" else {
+            throw Failure.refused
+        }
+    }
 
     func begin(sessionID: String) async throws -> CodexKitPairingOffer {
         guard UUID(uuidString: sessionID) != nil else { throw Failure.invalidRequest }
@@ -33,10 +49,17 @@ final class R38PrivateComposerHost {
     }
 
     func signedOffer(_ offer: CodexKitPairingOffer) throws -> String {
-        try R38ProvisionedDevice.offerProof(key: deviceSecret(), offer: offer)
+        try requireKnownMode()
+        if usesSignedPeers {
+            return try R38PeerSignedPairing.hostOfferProof(
+                hostSigningSeed: loadRootOwnedBase64(
+                    hostSigningSeedPath, privateMaterial: true), offer: offer)
+        }
+        return try R38ProvisionedDevice.offerProof(key: deviceSecret(), offer: offer)
     }
 
     func finish(_ response: CodexKitPairingResponse, proof: String) async throws {
+        try requireKnownMode()
         // A lost UDP approval response permits retransmission of the SAME
         // device-authenticated transcript, not a second grant.
         if active[response.sessionID] != nil {
@@ -48,10 +71,17 @@ final class R38PrivateComposerHost {
             throw Failure.refused
         }
         let offer = await state.host.currentOffer()
-        guard R38ProvisionedDevice.verifiesResponse(
-            key: try deviceSecret(), offer: offer, response: response, proof: proof) else {
-            throw Failure.refused
+        let authenticated: Bool
+        if usesSignedPeers {
+            authenticated = R38PeerSignedPairing.verifiesDeviceResponse(
+                trustedDevicePublicKey: try loadRootOwnedBase64(
+                    trustedDevicePublicKeyPath, privateMaterial: false),
+                offer: offer, response: response, proof: proof)
+        } else {
+            authenticated = R38ProvisionedDevice.verifiesResponse(
+                key: try deviceSecret(), offer: offer, response: response, proof: proof)
         }
+        guard authenticated else { throw Failure.refused }
         let agreement = try await state.host.receive(response)
         let admitted = try agreement.withUnapprovedMaterial {
             try CodexKitSealedSession(independentlyApprovedSecret: $0,
@@ -112,6 +142,19 @@ final class R38PrivateComposerHost {
     }
 
     enum Failure: Error { case invalidRequest, refused, upstreamFailed, untrustedLocalFile }
+
+    private func loadRootOwnedBase64(_ path: String, privateMaterial: Bool) throws -> Data {
+        var info = stat()
+        guard lstat(path, &info) == 0,
+              info.st_uid == 0,
+              (info.st_mode & mode_t(S_IFMT)) == mode_t(S_IFREG),
+              (info.st_mode & mode_t(privateMaterial ? 0o077 : 0o022)) == 0,
+              info.st_size >= 43, info.st_size <= 60,
+              let encoded = try? String(contentsOfFile: path, encoding: .utf8),
+              let key = Data(base64Encoded: encoded.trimmingCharacters(in: .whitespacesAndNewlines)),
+              key.count == 32 else { throw Failure.untrustedLocalFile }
+        return key
+    }
 
     private func deviceSecret() throws -> Data {
         var info = stat()

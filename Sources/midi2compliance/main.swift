@@ -182,7 +182,7 @@ do {
     try writeReport(exportPath, report)
     print("[midi2compliance] Report written to \(exportPath)")
 } catch {
-    fputs("Failed to write report: \(error)\n", stderr)
+    FileHandle.standardError.write(Data("Failed to write report: \(error)\n".utf8))
     exit(2)
 }
 exit(passed ? 0 : 1)

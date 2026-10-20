@@ -177,6 +177,7 @@ enum RuntimeError: Error { case invalid(String) }
 final class InstrumentHost {
     let session: RTPMidiSession
     let runtime: CodexKitRuntime
+    private let privateComposer = R38PrivateComposerHost()
     let profile: Data
     var sysex: [UInt8: [UmpPacket128]] = [:]
 
@@ -241,6 +242,18 @@ final class InstrumentHost {
         guard case .object(let object) = flex.body,
               let data = try? JSONEncoder().encode(JSONValue.object(object)),
               let request = try? JSONDecoder().decode(WireEnvelope.self, from: data) else { return }
+        if request.topic == "reframe/capability.pair" {
+            Task { @MainActor in
+                await handlePrivatePairing(request, group: group)
+            }
+            return
+        }
+        if request.topic == "reframe/capability.protected" {
+            Task { @MainActor in
+                await handlePrivateTurn(request, group: group)
+            }
+            return
+        }
         let admission = CodexKitRemoteInvocationGate.decide(
             topic: request.topic,
             instrumentID: request.payload["instrumentId"],
@@ -264,6 +277,69 @@ final class InstrumentHost {
                           payload: CodexKitRemoteInvocationGate.refusalPayload(
                               operation: request.payload["operation"])), group: group)
         return
+    }
+
+    private func handlePrivatePairing(_ request: WireEnvelope, group: UInt8) async {
+        guard request.payload["instrumentId"] == instrumentID else { return }
+        let operation = request.payload["operation"] ?? ""
+        do {
+            var reply: [String: String] = ["operation": operation]
+            switch operation {
+            case "pair.start":
+                let offer = try await privateComposer.begin(sessionID: request.sessionId)
+                reply["offer"] = try JSONEncoder().encode(offer).base64EncodedString()
+                reply["phase"] = "offer"
+            case "pair.finish":
+                guard let encoded = request.payload["response"],
+                      let data = Data(base64Encoded: encoded) else { return }
+                let response = try JSONDecoder().decode(CodexKitPairingResponse.self, from: data)
+                guard response.sessionID == request.sessionId else { return }
+                try await privateComposer.finish(response)
+                reply["phase"] = "pendingOwner"
+            case "pair.status":
+                reply["phase"] = try privateComposer.status(sessionID: request.sessionId)
+                    ? "approved" : "pendingOwner"
+            case "pair.disconnect":
+                await privateComposer.revoke(sessionID: request.sessionId)
+                reply["phase"] = "disconnected"
+            default: return
+            }
+            sendFlex(response(for: request, phase: reply["phase"] ?? "refused",
+                              summary: "", threadID: nil, turnID: nil,
+                              payload: reply, topic: "reframe/capability.pair.event"), group: group)
+        } catch {
+            sendFlex(response(for: request, phase: "refused",
+                              summary: "Owner session not admitted.",
+                              threadID: nil, turnID: nil,
+                              payload: ["operation": operation, "phase": "refused"],
+                              topic: "reframe/capability.pair.event"), group: group)
+        }
+    }
+
+    private func handlePrivateTurn(_ request: WireEnvelope, group: UInt8) async {
+        guard request.payload["instrumentId"] == instrumentID,
+              let sealed = request.payload["sealedPacket"],
+              sealed.utf8.count <= 65_000,
+              let data = Data(base64Encoded: sealed),
+              let packet = try? JSONDecoder().decode(CodexKitProtectedPacket.self, from: data) else {
+            return
+        }
+        do {
+            let answer = try await privateComposer.execute(packet: packet, runtime: runtime, request: request)
+            let answerData = try JSONEncoder().encode(answer)
+            sendFlex(response(for: request, phase: "succeeded",
+                              summary: "", threadID: nil, turnID: nil,
+                              payload: ["phase": "succeeded",
+                                        "sealedPacket": answerData.base64EncodedString(),
+                                        "executionId": packet.executionID],
+                              topic: "reframe/capability.protected.event"), group: group)
+        } catch {
+            sendFlex(response(for: request, phase: "refused",
+                              summary: "Private Composer operation refused.",
+                              threadID: nil, turnID: nil,
+                              payload: ["phase": "refused", "executionId": packet.executionID],
+                              topic: "reframe/capability.protected.event"), group: group)
+        }
     }
 
     private func response(for request: WireEnvelope, phase: String, summary: String, threadID: String?, turnID: String?, payload suppliedPayload: [String: String]? = nil, topic: String = "reframe/capability.event") -> WireEnvelope {

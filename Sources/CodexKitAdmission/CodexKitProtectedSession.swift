@@ -24,6 +24,9 @@ public struct CodexKitProtectedBinding: Codable, Equatable, Sendable {
 
     public init(sessionID: String, instrumentID: String, expiresAtSeconds: Int64) throws {
         guard !sessionID.isEmpty, sessionID.utf8.count <= 128,
+              sessionID.utf8.allSatisfy({ ($0 >= 48 && $0 <= 57) ||
+                  ($0 >= 65 && $0 <= 90) || ($0 >= 97 && $0 <= 122) ||
+                  $0 == 45 || $0 == 95 }),
               instrumentID == Self.instrument,
               expiresAtSeconds > 0 else {
             throw CodexKitProtectedSessionError.invalidBinding

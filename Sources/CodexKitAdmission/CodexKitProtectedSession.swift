@@ -60,8 +60,10 @@ public struct CodexKitPrivateComposerTurn: Codable, Equatable, Sendable {
     public let operation: String
     public let instrumentID: String
     public let text: String
+    /// Optional Codex thread cursor, inside authenticated ciphertext only.
+    public let threadID: String?
 
-    public init(text: String) throws {
+    public init(text: String, threadID: String? = nil) throws {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               text.utf8.count <= 32_768 else {
             throw CodexKitProtectedSessionError.oversized
@@ -69,6 +71,8 @@ public struct CodexKitPrivateComposerTurn: Codable, Equatable, Sendable {
         self.operation = CodexKitProtectedBinding.scope
         self.instrumentID = CodexKitProtectedBinding.instrument
         self.text = text
+        self.threadID = threadID
+        try validated()
     }
 
     public func validated() throws {
@@ -79,6 +83,13 @@ public struct CodexKitPrivateComposerTurn: Codable, Equatable, Sendable {
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
               text.utf8.count <= 32_768 else {
             throw CodexKitProtectedSessionError.oversized
+        }
+        if let threadID {
+            guard !threadID.isEmpty, threadID.utf8.count <= 128,
+                  threadID.utf8.allSatisfy({ byte in
+                      (48...57).contains(byte) || (65...90).contains(byte) ||
+                      (97...122).contains(byte) || byte == 45 || byte == 95
+                  }) else { throw CodexKitProtectedSessionError.invalidBinding }
         }
     }
 }

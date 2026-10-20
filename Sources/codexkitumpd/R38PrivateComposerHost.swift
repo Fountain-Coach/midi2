@@ -79,6 +79,7 @@ final class R38PrivateComposerHost {
             capabilityMask: 0, resumeToken: nil, ttlMs: 119_000,
             payload: ["instrumentId": CodexKitProtectedBinding.instrument,
                       "operation": turn.operation, "prompt": turn.text,
+                      "threadId": turn.threadID ?? "",
                       "executionId": packet.executionID],
             arguments: nil)
         FileHandle.standardError.write(Data("r38.private.turn.admitted\n".utf8))

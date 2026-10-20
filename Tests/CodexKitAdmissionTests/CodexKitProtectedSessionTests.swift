@@ -3,6 +3,17 @@ import Foundation
 @testable import CodexKitAdmission
 
 final class CodexKitProtectedSessionTests: XCTestCase {
+    func testComposerThreadCursorIsAuthenticatedAndValidated() throws {
+        let turn = try CodexKitPrivateComposerTurn(
+            text: "continue", threadID: "0192a321-5cba-7ede-8f43-0db2c92e5177")
+        let encoded = try JSONEncoder().encode(turn)
+        let restored = try JSONDecoder().decode(CodexKitPrivateComposerTurn.self, from: encoded)
+        XCTAssertEqual(restored, turn)
+        XCTAssertEqual(restored.threadID, turn.threadID)
+        XCTAssertThrowsError(try CodexKitPrivateComposerTurn(text: "continue", threadID: "../unauthorized"))
+        XCTAssertNil(try CodexKitPrivateComposerTurn(text: "first turn").threadID)
+    }
+
     private func pair(_ secret: Data = Data(repeating: 0xC7, count: 32)) throws
     -> (CodexKitSealedSession, CodexKitSealedSession) {
         let binding = try CodexKitProtectedBinding(

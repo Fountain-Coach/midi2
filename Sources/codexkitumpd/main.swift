@@ -119,12 +119,24 @@ actor CodexKitRuntime {
             return RuntimeResult(phase: "resumed", summary: "Codex session resumed.", threadID: threadID, turnID: nil)
         case "codex/turn.submit":
             let prompt = try require(request.payload["prompt"], name: "prompt")
-            let id = threadID ?? {
-                return nil
-            }()
-            if id == nil {
-                let created = try await instrument.request(method: "thread/start", params: ["experimentalRawEvents": .bool(false)], operation: "codex/thread.create", correlationID: correlation, executionID: execution)
-                guard let createdID = object(created["thread"])?["id"].flatMap(string), !createdID.isEmpty else {
+            // A device-restored thread ID is accepted only from the already
+            // authenticated, encrypted private Composer turn. The host must
+            // not silently substitute its global previous conversation.
+            if let requested = request.payload["threadId"], !requested.isEmpty {
+                if threadID != requested {
+                    let resumed = try await instrument.request(
+                        method: "thread/resume", params: ["threadId": .string(requested)],
+                        operation: "codex/thread.resume", correlationID: correlation,
+                        executionID: execution)
+                    threadID = object(resumed["thread"])?["id"].flatMap(string) ?? requested
+                }
+            } else {
+                let created = try await instrument.request(
+                    method: "thread/start", params: ["experimentalRawEvents": .bool(false)],
+                    operation: "codex/thread.create", correlationID: correlation,
+                    executionID: execution)
+                guard let createdID = object(created["thread"])?["id"].flatMap(string),
+                      !createdID.isEmpty else {
                     throw RuntimeError.invalid("thread/start response missing thread.id")
                 }
                 threadID = createdID

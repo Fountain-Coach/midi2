@@ -16,7 +16,7 @@ final class R38PrivateComposerHost {
     }
     private var pending: [String: Pending] = [:]
     private var active: [String: CodexKitSealedSession] = [:]
-    private let parent = "/run/fountaincoach/r38-codexkit-pairing"
+    private let parent = "/run/fountaincoach-r38-codexkit-pairing"
 
     func begin(sessionID: String) async throws -> CodexKitPairingOffer {
         guard UUID(uuidString: sessionID) != nil else { throw Failure.invalidRequest }
@@ -118,7 +118,7 @@ final class R38PrivateComposerHost {
 
     private func initializeRootOnlyDirectory() throws {
         // Operates under the existing root-owned CodexKit service identity.
-        for directory in ["/run/fountaincoach", parent, parent + "/pending", parent + "/approved"] {
+        for directory in [parent, parent + "/pending", parent + "/approved"] {
             try FileManager.default.createDirectory(atPath: directory, withIntermediateDirectories: false)
             if chmod(directory, mode_t(0o700)) != 0 { throw Failure.untrustedLocalFile }
             var statBuffer = stat()

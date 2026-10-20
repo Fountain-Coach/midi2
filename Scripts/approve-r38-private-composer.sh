@@ -8,7 +8,7 @@ SESSION="$1"
 CODE="$2"
 [[ "$SESSION" =~ ^[a-fA-F0-9-]{36}$ ]] || { echo 'refused: invalid session identity' >&2; exit 12; }
 [[ "$CODE" =~ ^[0-9]{8}$ ]] || { echo 'refused: invalid confirmation code' >&2; exit 12; }
-BASE=/run/fountaincoach/r38-codexkit-pairing
+BASE=/run/fountaincoach-r38-codexkit-pairing
 PENDING="$BASE/pending/$SESSION"
 APPROVED="$BASE/approved/$SESSION"
 [[ -d "$BASE" && ! -L "$BASE" && -f "$PENDING" && ! -L "$PENDING" && ! -e "$APPROVED" ]] ||

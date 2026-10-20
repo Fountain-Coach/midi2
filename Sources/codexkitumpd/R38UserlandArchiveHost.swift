@@ -1,5 +1,4 @@
 import Foundation
-import CodexKitAdmission
 #if os(Linux)
 import Glibc
 
@@ -28,13 +27,12 @@ struct R38UserlandArchiveHost {
             let parsed = try parse(next)
             if let existing {
                 let old = try parse(existing)
-                let isOlder = old.exchanges.count > parsed.exchanges.count
-                let divergentAtSameRevision = old.exchanges.count == parsed.exchanges.count && existing != next
-                let prefixMatches = zip(old.exchanges, parsed.exchanges).allSatisfy { oldEntry, newEntry in
-                    oldEntry.id == newEntry.id && oldEntry.prompt == newEntry.prompt &&
-                    oldEntry.response == newEntry.response && oldEntry.threadID == newEntry.threadID
-                }
-                if isOlder || divergentAtSameRevision || !prefixMatches {
+                if old.exchanges.count > parsed.exchanges.count ||
+                   (old.exchanges.count == parsed.exchanges.count && existing != next) ||
+                   !zip(old.exchanges, parsed.exchanges).allSatisfy({
+                       $0.id == $1.id && $0.prompt == $1.prompt &&
+                       $0.response == $1.response && $0.threadID == $1.threadID
+                   }) {
                     return .init(operation: .store, archiveID: request.archiveID, status: .conflict)
                 }
                 if existing == next {

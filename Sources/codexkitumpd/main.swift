@@ -405,7 +405,17 @@ session.onReceiveUmps = { packets in
 }
 try session.open()
 FileHandle.standardOutput.write(Data("codexkitumpd instrument=\(instrumentID) rtp-port=\(session.port ?? port)\n".utf8))
-if ump_alsa_open() != 0 { exit(1) }
+// Cloud recovery hosts do not necessarily provide an ALSA sequencer.
+// CodexKit is a software RTP-MIDI2 instrument; ALSA is an optional local
+// hardware bridge, not a precondition for its governed network transport.
+// Preserve the existing Ubuntu default; only an explicitly selected
+// replacement-host mode runs without any access to /dev/snd.
+let headlessRTP = args.contains("--rtp-only")
+if !headlessRTP && ump_alsa_open() != 0 { exit(1) }
+if headlessRTP {
+    FileHandle.standardOutput.write(Data("codexkitumpd mode=software-rtp-only
+".utf8))
+}
 dispatchMain()
 #else
 print("codexkitumpd is Linux-only")

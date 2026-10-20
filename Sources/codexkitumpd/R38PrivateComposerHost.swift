@@ -14,12 +14,15 @@ final class R38PrivateComposerHost {
     }
     private var pending: [String: Pending] = [:]
     private var active: [String: CodexKitSealedSession] = [:]
+    private var admittedProofs: [String: String] = [:]
     private let deviceKeyPath = "/etc/fountaincoach/r38-provisioned-device.key"
 
     func begin(sessionID: String) async throws -> CodexKitPairingOffer {
         guard UUID(uuidString: sessionID) != nil else { throw Failure.invalidRequest }
         pending = pending.filter { $0.value.expires > Int64(Date().timeIntervalSince1970) }
-        guard pending.count < 4, pending[sessionID] == nil, active[sessionID] == nil else {
+        // Retrying the same short-lived offer must not create new authority.
+        if let previous = pending[sessionID] { return await previous.host.currentOffer() }
+        guard pending.count < 4, active[sessionID] == nil else {
             throw Failure.refused
         }
         let expiry = Int64(Date().timeIntervalSince1970) + 119
@@ -34,6 +37,12 @@ final class R38PrivateComposerHost {
     }
 
     func finish(_ response: CodexKitPairingResponse, proof: String) async throws {
+        // A lost UDP approval response permits retransmission of the SAME
+        // device-authenticated transcript, not a second grant.
+        if active[response.sessionID] != nil {
+            guard admittedProofs[response.sessionID] == proof else { throw Failure.refused }
+            return
+        }
         guard let state = pending.removeValue(forKey: response.sessionID),
               state.expires > Int64(Date().timeIntervalSince1970) else {
             throw Failure.refused
@@ -50,6 +59,7 @@ final class R38PrivateComposerHost {
                                       localDirection: .hostToWriter)
         }
         active[response.sessionID] = admitted
+        admittedProofs[response.sessionID] = proof
     }
 
     func status(sessionID: String) throws -> Bool {
@@ -98,6 +108,7 @@ final class R38PrivateComposerHost {
     func revoke(sessionID: String) async {
         if let key = active.removeValue(forKey: sessionID) { await key.invalidate() }
         pending.removeValue(forKey: sessionID)
+        admittedProofs.removeValue(forKey: sessionID)
     }
 
     enum Failure: Error { case invalidRequest, refused, upstreamFailed, untrustedLocalFile }

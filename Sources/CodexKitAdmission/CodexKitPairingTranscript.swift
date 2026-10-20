@@ -156,7 +156,9 @@ public actor CodexKitPairingHost {
     }
 }
 
-public struct CodexKitPairingDevice: Sendable {
+/// Immutable pairing private key; the pinned swift-crypto X25519 key has no
+/// Sendable annotation on Linux. We never mutate or expose its bytes.
+public struct CodexKitPairingDevice: @unchecked Sendable {
     private let privateKey: Curve25519.KeyAgreement.PrivateKey
     public let response: CodexKitPairingResponse
     private let offer: CodexKitPairingOffer

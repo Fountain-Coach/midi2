@@ -382,13 +382,7 @@ let codexHome = URL(fileURLWithPath: argument("--codex-home", default: "/var/lib
 let runtime = CodexKitRuntime(executable: executable, codexHome: codexHome, runtimeDigest: argument("--runtime-digest", default: "unsealed"), protocolRevision: argument("--protocol-revision", default: "v2"))
 let session = RTPMidiSession(localName: "Fountain Coach CodexKit", listenPort: port)
 let host = InstrumentHost(runtime: runtime, session: session)
-// Preserve fragment order within each received RTP datagram. Spawning a
-// separate actor task per SysEx8 UMP can reorder ciphertext fragments.
-session.onReceiveUmps = { packets in
-    Task { @MainActor in
-        for packet in packets { host.receive(packet) }
-    }
-}
+session.onReceiveUMP = { words in Task { @MainActor in host.receive(words) } }
 try session.open()
 FileHandle.standardOutput.write(Data("codexkitumpd instrument=\(instrumentID) rtp-port=\(session.port ?? port)\n".utf8))
 if ump_alsa_open() != 0 { exit(1) }

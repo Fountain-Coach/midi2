@@ -1,3 +1,8 @@
+---
+name: deprecation-lifecycle
+description: Plan MIDI2 API deprecations and breaking changes with announcements, one-minor-version support, migration guidance, and major-release removal. Use when deprecating APIs or preparing a breaking change.
+---
+
 # Deprecation Lifecycle
 
 ## Purpose

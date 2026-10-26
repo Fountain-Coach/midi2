@@ -1,3 +1,8 @@
+---
+name: maintenance-cadence
+description: Run the repository’s weekly, monthly, and quarterly maintenance tasks across triage, dependencies, CI, documentation, release planning, performance, security, and archival review. Use for scheduled maintenance cycles.
+---
+
 # Maintenance Cadence
 
 ## Purpose

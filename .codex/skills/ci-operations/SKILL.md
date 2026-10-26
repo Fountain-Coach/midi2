@@ -1,3 +1,8 @@
+---
+name: ci-operations
+description: Investigate and maintain the MIDI2 repository’s GitHub Actions workflows, build matrices, required checks, and runner versions. Use when CI fails, flakes, or requires workflow maintenance.
+---
+
 # CI Operations
 
 ## Purpose

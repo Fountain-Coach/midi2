@@ -1,3 +1,8 @@
+---
+name: sunsetting
+description: Retire a MIDI2 package or repository using the stated archival criteria, notice period, final release, documentation updates, and package deprecation. Use when maintenance is ending.
+---
+
 # Sunsetting and Archival
 
 ## Purpose

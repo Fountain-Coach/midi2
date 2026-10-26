@@ -35,7 +35,7 @@ jobs:
             build: swift build
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
         if: ${{ matrix.setup-node != '' }}

@@ -1,3 +1,8 @@
+---
+name: release-process
+description: Coordinate a versioned MIDI2 Swift and JavaScript release, including changelog and package version updates, validation, signed tagging, npm publication, and GitHub release. Use for scheduled releases and hotfixes.
+---
+
 # Release Process
 
 ## Purpose

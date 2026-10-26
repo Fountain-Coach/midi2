@@ -1,3 +1,8 @@
+---
+name: midi2-js-workflow
+description: Maintain the MIDI2 JavaScript and TypeScript package by running type checks, tests, builds, keeping core logic platform-agnostic, and synchronizing API docs and gap tracking. Use for changes under midi2.js.
+---
+
 # midi2.js Workflow
 
 ## Purpose

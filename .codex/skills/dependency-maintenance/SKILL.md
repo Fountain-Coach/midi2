@@ -1,3 +1,8 @@
+---
+name: dependency-maintenance
+description: Review dependency updates and security advisories, assess patch, minor, or major risk, validate CI, and document significant changes. Use for Dependabot pull requests, CVEs, and scheduled dependency audits.
+---
+
 # Dependency Maintenance
 
 ## Purpose

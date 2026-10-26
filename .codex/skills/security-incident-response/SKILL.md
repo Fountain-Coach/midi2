@@ -1,3 +1,8 @@
+---
+name: security-incident-response
+description: Handle MIDI2 vulnerability reports through severity assessment, private fixes, coordinated disclosure, patched releases, and security advisories. Use for vulnerability reports and critical or high dependency alerts.
+---
+
 # Security Incident Response
 
 ## Purpose

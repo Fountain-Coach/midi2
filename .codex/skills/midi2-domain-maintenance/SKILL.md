@@ -1,8 +1,6 @@
 ---
 name: midi2-domain-maintenance
 description: Maintain a MIDI 2.0 repository and its human, machine-readable, and evidence-backed documentation surfaces as one versioned contract.
-metadata:
-  short-description: Maintain MIDI2 code, contracts, docs, and evidence
 ---
 
 # MIDI2 domain maintenance

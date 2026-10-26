@@ -1,3 +1,8 @@
+---
+name: onboarding-maintainers
+description: Onboard MIDI2 maintainers by confirming repository and package access, reviewing required docs, completing local Swift and JavaScript setup, and assigning initial work. Use when adding maintainers or rotating on-call roles.
+---
+
 # Onboarding Maintainers
 
 ## Purpose

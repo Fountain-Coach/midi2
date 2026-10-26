@@ -1,3 +1,8 @@
+---
+name: spec-pdf-to-schema
+description: Map verified MIDI 2.0 specification facts from PDF source pages into the canonical schema and OpenAPI artifacts before aligning implementation and tests. Use when encoding or changing normative protocol details.
+---
+
 # Spec PDF to Schema Mapping
 
 ## Purpose

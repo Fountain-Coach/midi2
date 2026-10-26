@@ -1,3 +1,8 @@
+---
+name: triage-workflow
+description: Triage new MIDI2 issues and pull requests, set type, area, and priority labels, route security reports, and assign clear ownership. Use when new issues or pull requests arrive or during scheduled triage.
+---
+
 # Triage Workflow
 
 ## Purpose

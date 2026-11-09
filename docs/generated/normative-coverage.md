@@ -1,29 +1,29 @@
 <!-- generated: Scripts/generate_normative_coverage.py -->
-<!-- ledger-sha256: b37c8a2bf6b9cb58e15e0500c1345e06fba9b8ad4fa3b2623025c0a8a13c93f9 -->
-<!-- corpus-sha256: 4deec604d3adf4a543547d4e8445568028708b9e17d63de7e0451a6d7aee1e81 -->
+<!-- ledger-sha256: 7ac9dfe7c9913bf5144f9e4b86ef0e3a18dde46d09caaaaceaa8dc9a5746e90c -->
+<!-- corpus-sha256: 79a3e5c17c09525095da96e55b7b20d48710e20c62da1991e434ad0e036ad7db -->
 # Normative MIDI 2.0 Coverage
 
 This report is generated from `docs/normative-requirements.json` and the declared corpus in `docs/spec-provenance.json`. It reports explicit accounting, not a conformance percentage.
-It is paired with the machine-readable [normative behavior model](../normative-behavior.json), which currently contains 11 modeled protocol slices and 0 recorded source frontiers. The [source inventory](../normative-source-inventory.json) records 1316 normative-language candidates across the six hash-verified PDFs; [source dispositions](../normative-source-dispositions.json) account for all 1316 candidates with explicit source-level status.
+It is paired with the machine-readable [normative behavior model](../normative-behavior.json), which currently contains 11 modeled protocol slices and 0 recorded source frontiers. The [source inventory](../normative-source-inventory.json) records 1247 normative-language candidates across the six hash-verified PDFs; [source dispositions](../normative-source-dispositions.json) account for all 1247 candidates with explicit source-level status.
 
 ## Overall disposition
 
 | Disposition | Count |
 |---|---:|
-| `represented-structurally` | 13 |
+| `represented-structurally` | 14 |
 | `represented-operationally` | 12 |
 | `represented-by-constraint` | 8 |
 | `represented-by-runtime` | 0 |
 | `represented-by-source-record` | 0 |
 
-**Normalized ledger entries:** 33. **Source records represented:** 1316. **Source record statuses:** {'represented-by-source-record': 1316}. **Unrepresented requirements:** 0.
+**Normalized ledger entries:** 34. **Source records represented:** 1247. **Source record statuses:** {'represented-by-source-record': 1247}. **Unrepresented requirements:** 0.
 
 ## By declared specification
 
 | Specification | Version | Ledger | Structural | Operational | Constraint | Runtime | Source records |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | M2-100-U | 1.1 | 2 | 0 | 1 | 1 | 0 | 50 |
-| M2-101-UM | 1.2 | 5 | 2 | 2 | 1 | 0 | 349 |
+| M2-101-UM | 1.2.1 | 6 | 3 | 2 | 1 | 0 | 280 |
 | M2-102-U | 1.1 | 4 | 1 | 2 | 1 | 0 | 176 |
 | M2-103-UM | 1.2 | 4 | 1 | 2 | 1 | 0 | 291 |
 | M2-104-UM | 1.1.2 | 12 | 8 | 3 | 1 | 0 | 336 |

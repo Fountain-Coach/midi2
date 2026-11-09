@@ -1,5 +1,5 @@
 <!-- generated: Scripts/generate_spec_traceability.py -->
-<!-- source-sha256: b38e461dbcc4d3003a6369a038339eeb895bc98baeec4248fa352a731e9a92e3 -->
+<!-- source-sha256: e40f856335549930b80b38f818cc9e2830a210b3a6e4fb05e0eb7012b6cb60ac -->
 # MIDI 2.0 Specification Traceability Matrix (generated)
 
 This matrix reports semantic traceability only. Runtime implementation and hardware interoperability are separate claims.
@@ -39,12 +39,12 @@ This matrix reports semantic traceability only. Runtime implementation and hardw
 | `StreamBody` | `M2-104-UM v1.1.2` | 37 | Figures 18-23 and stream messages | `ump-stream-structure-streambody` | `Tests/MIDI2Tests/StreamMappingTests.swift`  ✅ |
 | `DeltaClockstampConfig` | `M2-104-UM v1.1.2` | 44 | Utility and System messages | `utility-system-structure-deltaclockstampconfig` | `Tests/MIDI2Tests/UtilityBodyTests.swift`  ✅ |
 | `ClipEnvelope` | `M2-116-U v1.0` | 12 | MIDI Clip message envelope | `clip-envelope-clipenvelope` | `Tests/MIDI2Tests/ClipEnvelopeTests.swift`  ✅ |
-| `MidiCiEnvelope` | `M2-101-UM v1.2` | 45 | MIDI-CI message envelopes | `midi-ci-envelope-midicienvelope` | `Tests/MIDI2Tests/MidiCiEnvelopeTests.swift`  ✅ |
-| `MidiCiDiscoveryBody` | `M2-101-UM v1.2` | 45 | MIDI-CI message envelopes | `midi-ci-envelope-midicidiscoverybody` | `Tests/MIDI2Tests/MidiCiEnvelopeTests.swift`  ✅ |
-| `MidiCiAckNakBody` | `M2-101-UM v1.2` | 45 | MIDI-CI message envelopes | `midi-ci-envelope-midiciacknakbody` | `Tests/MIDI2Tests/MidiCiEnvelopeTests.swift`  ✅ |
+| `MidiCiEnvelope` | `M2-101-UM v1.2.1` | 45 | MIDI-CI message envelopes | `midi-ci-envelope-midicienvelope` | `Tests/MIDI2Tests/MidiCiEnvelopeTests.swift`  ✅ |
+| `MidiCiDiscoveryBody` | `M2-101-UM v1.2.1` | 45 | MIDI-CI message envelopes | `midi-ci-envelope-midicidiscoverybody` | `Tests/MIDI2Tests/MidiCiEnvelopeTests.swift`  ✅ |
+| `MidiCiAckNakBody` | `M2-101-UM v1.2.1` | 45 | MIDI-CI message envelopes | `midi-ci-envelope-midiciacknakbody` | `Tests/MIDI2Tests/MidiCiEnvelopeTests.swift`  ✅ |
 | `MidiCiProfilesBody` | `M2-102-U v1.1` | 15 | Table 6 | `profiles-structure-midiciprofilesbody` | `Tests/MIDI2Tests/MidiCiProfilesBodyTests.swift`  ✅ |
 | `MidiCiPropertyExchangeBody` | `M2-103-UM v1.2` | 28 | Tables 13-16 | `property-exchange-structure-midicipropertyexchangebody` | `Tests/MIDI2Tests/PropertyExchangeChunkingTests.swift`  ✅ |
-| `MidiCiProcessInquiryBody` | `M2-101-UM v1.2` | 59 | Tables 40-45 | `process-inquiry-structure-midiciprocessinquirybody` | `Tests/MIDI2Tests/MidiCiProcessInquiryBodyTests.swift`  ✅ |
+| `MidiCiProcessInquiryBody` | `M2-101-UM v1.2.1` | 59 | Tables 40-45 | `process-inquiry-structure-midiciprocessinquirybody` | `Tests/MIDI2Tests/MidiCiProcessInquiryBodyTests.swift`  ✅ |
 | `FunctionBlockNameNotification` | `M2-104-UM v1.1.2` | 37 | Figures 18-23 and stream messages | `ump-stream-structure-functionblocknamenotification` | `Tests/MIDI2Tests/StreamMappingTests.swift`  ✅ |
 | `UmpPacket` | `M2-104-UM v1.1.2` | 20 | UMP message types and packet sizes | `ump-packet-structure-umppacket` | `Tests/MIDI2Tests/UmpPacketsTests.swift`  ✅ |
 | `UmpPacket32` | `M2-104-UM v1.1.2` | 20 | UMP message types and packet sizes | `ump-packet-structure-umppacket32` | `Tests/MIDI2Tests/UmpPacketsTests.swift`  ✅ |
@@ -73,3 +73,4 @@ This matrix reports semantic traceability only. Runtime implementation and hardw
 | `Flex.Text` | `M2-104-UM v1.1.2` | 89 | Flex Data messages | `flex-data-structure-flex-text` | `Tests/MIDI2Tests/FlexDataBodyTests.swift`  ✅ |
 | `Flex.Lyric` | `M2-104-UM v1.1.2` | 89 | Flex Data messages | `flex-data-structure-flex-lyric` | `Tests/MIDI2Tests/FlexDataBodyTests.swift`  ✅ |
 | `Flex.Ruby` | `M2-104-UM v1.1.2` | 89 | Flex Data messages | `flex-data-structure-flex-ruby` | `Tests/MIDI2Tests/FlexDataBodyTests.swift`  ✅ |
+| `MidiCiPEFlowControl` | `M2-101-UM v1.2.1` | 34 | §5.10.2 ACK Table 14; §5.11.2 NAK Table 16 | `midi-ci-pe-flow-control-status-midicipeflowcontrol` | `Tests/MIDI2Tests/MidiCiPEFlowControlTests.swift`  ✅ |

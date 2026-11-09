@@ -75,3 +75,6 @@ vm/
 
 # Ad-hoc workflows locally generated
 .github/workflows/qemu.yml
+
+# Retrieved, copyrighted MIDI Association PDF: local/CI source verification only
+/M2-101-UM_v1-2-1_MIDI-CI_Specification.pdf

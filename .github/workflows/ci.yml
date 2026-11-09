@@ -11,6 +11,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Retrieve SHA-256 pinned current MIDI-CI source (not committed)
+        run: python3 Scripts/fetch_spec_sources.py --document M2-101-UM
       - name: Install normative-source audit tools
         run: brew install ghostscript poppler
       - name: Build (warnings as errors)
@@ -49,6 +51,8 @@ jobs:
           python3 Scripts/generate_normative_source_dispositions.py --check
           python3 Scripts/generate_normative_coverage.py --check
           python3 Scripts/verify_normative_coverage.py
+          python3 Scripts/verify_spec_release_candidate.py
+          ruby Scripts/verify_midi_ci_121_scenario.rb
           python3 -m unittest discover -s Tests -p 'test_spec_provenance.py' -v
           python3 -m unittest discover -s Tests -p 'test_normative_coverage.py' -v
       - name: Verify evidence-backed claim register

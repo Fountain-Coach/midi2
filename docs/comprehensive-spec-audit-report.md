@@ -1,3 +1,5 @@
+> **Historical audit:** This document retains its original M2-101-UM v1.2 references and historical percentage estimates. The current canonical corpus is defined in [spec-provenance.json](spec-provenance.json) and the current bounded claim register is [claim-register.md](claim-register.md).
+
 # Comprehensive MIDI 2.0 Specification Audit Report
 
 **Initial Audit Date**: 2025-12-13  

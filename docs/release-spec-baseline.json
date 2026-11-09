@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "purpose": "Date-bound official MIDI 2.0 specification baseline for the 0.13.0 release candidate. A successful check does not guarantee no newer specification was published later.",
+  "catalog_reviewed_on": "2026-11-09",
+  "release_candidate": "0.13.0",
+  "declared_core_versions": {
+    "M2-100-U": "1.1",
+    "M2-101-UM": "1.2.1",
+    "M2-102-U": "1.1",
+    "M2-103-UM": "1.2",
+    "M2-104-UM": "1.1.2",
+    "M2-116-U": "1.0"
+  },
+  "midi_ci": {
+    "document": "M2-101-UM",
+    "verified_pdf_sha256": "f3c3c63d768f049a387c79998081da284a1baf8605ca10d246e9a52258056e6f",
+    "previous_version": "1.2",
+    "required_ack_status": 17,
+    "required_nak_status": 18,
+    "latest_pdf_is_not_redistributed": true,
+    "current_implementation_scope": "typed PE ACK/NAK flow-control status and details; no end-to-end PE recovery/legacy Notify conformance claim"
+  },
+  "other_transport_baseline": {
+    "document": "M2-124-UM",
+    "version": "1.0.1",
+    "scope": "different candidate PR #203, excluded from this core release"
+  }
+}

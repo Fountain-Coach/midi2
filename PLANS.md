@@ -290,3 +290,35 @@ Validation:
 `swift test --filter RTPMidiSessionTests`, descriptor tests, full `swift test`, documentation verification, claim verification, and `git diff --check`.
 Acceptance Criteria:
 The authoritative package exposes every generic RTP-MIDI2 host capability needed by joining-machine consumers; existing transport behavior remains tested; estate-specific semantics stay out of midi2; no second transport implementation is needed by EstatePublisher.
+
+---
+
+## Active: current normative MIDI-CI spec and package version gate (2026-11-09)
+
+**Intent:** Make the MIDI2 source corpus, Swift/TypeScript implementation and release-candidate versions agree with the newest verified M2-101-UM v1.2.1, without falsely claiming independent interoperability or silently distributing copyrighted PDFs.
+
+**History-first:** main at `b596c7e8b2f1b1fd12b430b72cb79dae54c23a8a`, package versions Swift+TS 0.12.8, current core manifest MIDI-CI v1.2. Separate PR #203 is a candidate for M2-124 v1.0.1 but is NOT merged and cannot be released as though it were. Existing source-based inventory, dispositions, inverse ledger and generated full object are tied to the older v1.2 PDF.
+
+**Source evidence:** Official M2-101-UM v1.2.1 (published 2025-12-18), 76 pages, PDF SHA-256 `f3c3c63d768f049a387c79998081da284a1baf8605ca10d246e9a52258056e6f`. Older v1.2 source SHA-256 `bba165c24d6fd6d4464b514da3f3cbcc4f7db4171057aa8a31f8910ea0037f3b`. Its v1.2.1 version-history states PE Notify is replaced by MIDI-CI ACK/NAK and adds PE flow-control codes. ACK 0x11 "send next chunks" (§5.10.2, Table 14, p.34); NAK 0x12 "resend most recent chunk" (§5.11.2, Table 16, p.36). Rendered page images inspected. Manufacturer-ID Appendix added, plus editorial corrections. The PDF explicitly forbids redistribution; no commit or public copy of new source is authorized.
+
+**Governance reading record:**
+- Chapters read: 07 no broad/invented scope or bypassing PR; 08 independent evidence must not be collapsed; 73 scenario terminal assertions; 91/93 IDL versus kit authority, release/admission separation. Normative authority is the source PDF; source-to-schema mapping follows the `spec-pdf-to-schema` skill.
+- Forbidden: altering a hash without versioned corpus update, claiming hardware interop, labeling source-count completeness as runtime conformance, publishing copyrighted PDF, releasing unmerged candidate PR #203, or tagging before CI and release approval.
+- Conflicts: the published catalogue can lag; the title/version/history of the retrieved official signed-off source take precedence for M2-101-UM. Release policy requires signed tags, protected-main merge and green CI; these remain separate from candidate branch version preparation.
+- Excluded: M2-124 network socket implementation/PR #203, Reframe GUI, FCIS instrument admission, hardware, production publishing and npm release until independent acceptance.
+
+**Planned steps:**
+- [x] Verify newest source and inspect pages/bit fields and prior version.
+- [x] Record new version and rights-preserving retrieval with exact SHA-256; source is gitignored and not committed; CI source retrieval succeeded.
+- [x] Promote source-provenance schema/OpenAPI and inverse corpus to v1.2.1 with source-to-representation mapping; generated reports pass reverse-traceability, mutation and freshness checks.
+- [x] Implement typed MIDI-CI ACK/NAK PE flow-control status/details in Swift and TypeScript, focused positive/negative tests; legacy Notify is not silently promoted.
+- [x] Prepare both package manifests/lockfiles for 0.13.0; Mac Swift build/test 376/376 PASS, TypeScript 213 PASS + 1 skipped, ESM/CJS/DTS builds PASS.
+- [x] Open draft PR #206 linked to #205, with distinct source/semver/claim boundaries; old M2-124 PR #203 stays out of this candidate.
+- [x] Add source-currency snapshot and automated spec/version consistency gate, bounded by explicit catalogue review date 2026-11-09. Future standards versions still require an updated review; this is not dynamic external currency monitoring.
+- [x] Add versioned, checked YAML/JSON MIDI-CI 1.2.1 PE flow-control scenario and CI guard. This establishes typed/negative vectors only; it is not an accepted end-to-end peer scenario.
+- [ ] Green GitHub CI including coverage, independent review, protected main merge, release authority, signed tag and publication receipts remain distinct terminal gates.
+- [ ] End-to-end 1.2.1 Property Exchange ACK/NAK session dispatch and legacy Notify receive compatibility must be proven before a complete 1.2.1 PE runtime compliance claim.
+
+**DoD:** exact latest MIDI Association M2-101-UM v1.2.1 source pinned; type-checked v1.2.1 PE ACK/NAK behavior and tests; versioned corpus/derived artifacts consistent; both packages have the same new semver; no new third-party PDF redistribution; green local tests and GitHub CI; published version only after owning maintainer approval, signed tag, and npm/GitHub release receipts.
+
+**Rollback:** PR branch only; production main, npm, release tags and PR #203 unchanged until acceptance.

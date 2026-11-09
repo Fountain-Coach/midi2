@@ -6,6 +6,7 @@ import hashlib
 import json
 import re
 import shutil
+import sys
 import subprocess
 import argparse
 from pathlib import Path
@@ -36,8 +37,8 @@ def page_text(path: Path, page: int) -> str:
 
 
 def generate() -> dict:
-    if shutil.which("gs") is None or shutil.which("pdfinfo") is None:
-        raise RuntimeError("ghostscript and pdfinfo are required")
+    if shutil.which("gs") is None:
+        raise RuntimeError("ghostscript is required")
     catalog = json.loads(CATALOG.read_text(encoding="utf-8"))
     documents = []
     for document, record in catalog["specifications"].items():
@@ -45,8 +46,20 @@ def generate() -> dict:
         actual = hashlib.sha256(source.read_bytes()).hexdigest()
         if actual != record["sha256"]:
             raise RuntimeError(f"source hash drift for {document}: {actual}")
-        info = subprocess.check_output(["pdfinfo", str(source)], text=True)
-        pages = int(re.search(r"^Pages:\s+(\d+)", info, re.M).group(1))
+        if shutil.which("pdfinfo"):
+            info = subprocess.check_output(["pdfinfo", str(source)], text=True)
+            pages = int(re.search(r"^Pages:\s+(\d+)", info, re.M).group(1))
+        elif sys.platform == "darwin" and shutil.which("swift"):
+            # Apple's PDFKit gets a page count without disabling Ghostscript's
+            # secure file-access policy, when poppler is not installed locally.
+            output = subprocess.check_output([
+                "swift", "-e",
+                'import Foundation; import PDFKit; let p = PDFDocument(url: URL(fileURLWithPath: CommandLine.arguments[1]))!; print(p.pageCount)',
+                str(source),
+            ], text=True)
+            pages = int(output.strip())
+        else:
+            raise RuntimeError("pdfinfo or macOS PDFKit is required for source-page count")
         candidates = []
         for page in range(1, pages + 1):
             raw_lines = page_text(source, page).splitlines()

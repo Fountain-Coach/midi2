@@ -50,9 +50,9 @@
       "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
     },
     {
-      "id": "M2-101-UM-v1.2-process-inquiry-structure",
+      "id": "M2-101-UM-v1.2.1-process-inquiry-structure",
       "document": "M2-101-UM",
-      "version": "1.2",
+      "version": "1.2.1",
       "page": 59,
       "section": "Tables 40-45",
       "source_kind": "normative-table-or-field-constraint",
@@ -110,9 +110,9 @@
       "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
     },
     {
-      "id": "M2-101-UM-v1.2-midi-ci-envelope",
+      "id": "M2-101-UM-v1.2.1-midi-ci-envelope",
       "document": "M2-101-UM",
-      "version": "1.2",
+      "version": "1.2.1",
       "page": 45,
       "section": "MIDI-CI message envelopes",
       "source_kind": "normative-table-or-field-constraint",
@@ -538,9 +538,9 @@
       "notes": "Object-level seed from the deliberate provenance catalogue; this does not establish that every prose requirement in the source has been extracted."
     },
     {
-      "id": "M2-101-UM-v1.2-midi-ci-protocol-negotiation",
+      "id": "M2-101-UM-v1.2.1-midi-ci-protocol-negotiation",
       "document": "M2-101-UM",
-      "version": "1.2",
+      "version": "1.2.1",
       "page": 45,
       "section": "MIDI-CI message exchange and protocol negotiation",
       "source_kind": "normative-protocol-state",
@@ -551,7 +551,7 @@
         {
           "kind": "state-machine",
           "path": "docs/normative-behavior.json",
-          "id": "m2-101-midi-ci-protocol-negotiation-v1.2"
+          "id": "m2-101-midi-ci-protocol-negotiation-v1.2.1"
         }
       ],
       "verification": [
@@ -688,9 +688,9 @@
       "notes": "The state model accounts for the semantic decision boundary. It does not claim device discovery implementation or hardware interoperability."
     },
     {
-      "id": "M2-101-UM-v1.2-transaction-failure-and-timeout",
+      "id": "M2-101-UM-v1.2.1-transaction-failure-and-timeout",
       "document": "M2-101-UM",
-      "version": "1.2",
+      "version": "1.2.1",
       "page": 18,
       "section": "MIDI-CI communication and transaction rules",
       "source_kind": "normative-protocol-state",
@@ -701,7 +701,7 @@
         {
           "kind": "state-machine",
           "path": "docs/normative-behavior.json",
-          "id": "m2-101-midi-ci-transaction-failure-v1.2"
+          "id": "m2-101-midi-ci-transaction-failure-v1.2.1"
         }
       ],
       "verification": [
@@ -853,7 +853,7 @@
       "document": "M2-116-U",
       "version": "1.0",
       "page": 18,
-      "section": "6.4 Property Exchange Resources \u2014 Not in the MIDI Clip File",
+      "section": "6.4 Property Exchange Resources — Not in the MIDI Clip File",
       "source_kind": "normative-behavior-model",
       "normative_level": "shall/prose-behavior",
       "summary": "Property Exchange resources are excluded from a MIDI Clip and require the MIDI Container format when needed.",
@@ -894,9 +894,9 @@
       "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
     },
     {
-      "id": "M2-101-UM-v1.2-normative-prose-scope-boundary",
+      "id": "M2-101-UM-v1.2.1-normative-prose-scope-boundary",
       "document": "M2-101-UM",
-      "version": "1.2",
+      "version": "1.2.1",
       "page": 18,
       "section": "MIDI-CI communication and transaction rules",
       "source_kind": "normative-behavior-model",
@@ -907,7 +907,7 @@
         {
           "kind": "state-machine",
           "path": "docs/normative-behavior.json",
-          "id": "m2-101-midi-ci-transaction-failure-v1.2"
+          "id": "m2-101-midi-ci-transaction-failure-v1.2.1"
         }
       ],
       "verification": [
@@ -1002,6 +1002,37 @@
         "Scripts/verify_normative_coverage.py"
       ],
       "notes": "This behavioral requirement is represented by the machine-readable state model. The model records the normative boundary without implying runtime completeness or hardware interoperability."
+    },
+    {
+      "id": "M2-101-UM-v1.2.1-midi-ci-pe-flow-control-status",
+      "document": "M2-101-UM",
+      "version": "1.2.1",
+      "page": 34,
+      "section": "§5.10.2 and §5.11.2 Tables 14 and 16",
+      "source_kind": "normative-table-or-field-constraint",
+      "normative_level": "table-constraint",
+      "summary": "MIDI-CI ACK status 0x11 requests the next PE chunks; NAK status 0x12 requests the most recent chunk again; PE stream and chunk details use specified fields. Legacy Notify is not the new outgoing flow-control channel.",
+      "status": "represented-structurally",
+      "representation": [
+        {
+          "kind": "json-schema-definition-set",
+          "path": "midi2.full.closed.schema.json",
+          "pointers": [
+            "#/$defs/MidiCiPEFlowControl"
+          ]
+        },
+        {
+          "kind": "openapi-schema",
+          "path": "midi2.full.openapi.json",
+          "pointer": "#/components/schemas/MidiCiPEFlowControl"
+        }
+      ],
+      "verification": [
+        "Tests/MIDI2Tests/MidiCiPEFlowControlTests.swift",
+        "midi2.js/src/__tests__/midi-ci-pe-flow-control.test.ts"
+      ],
+      "source_requirement": "midi-ci-pe-flow-control-status",
+      "notes": "The new typed status/detail contract is represented and tested for Swift and TypeScript. Actual PE transaction-state recovery, MIDI-CI MUID routing, downstream Notify compatibility, and external device interoperability are separately scoped and not established by this structural entry."
     }
   ]
 }

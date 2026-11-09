@@ -7,6 +7,8 @@
 
 Lightweight Swift library and reference implementations for the Universal MIDI Packet (UMP) model and bridging between MIDI 2.0 and legacy CoreMIDI hosts. Also includes **midi2.js**, a cross-browser, CoreMIDI-free TypeScript/JavaScript MIDI 2.0 protocol library.
 
+The current **0.13.0 release-candidate branch** tracks MIDI-CI M2-101-UM v1.2.1 with SHA-256 pinned source evidence and typed Property Exchange ACK/NAK flow control. The installation snippet below still targets the last published version (0.12.8); a 0.13.0 Git tag/npm release must not be assumed until CI, review, signed tagging and publication are verified.
+
 The repository's runtime claim is deliberately bounded: the named Swift and TypeScript core software surfaces are tested and runtime-complete within the declared boundary. This does not claim every optional MIDI 2.0 extension, host adapter, or physical-device interoperability.
 
 This repository contains reusable packages and examples used to build MIDI 2.0-aware components and adapters for Apple platforms, Linux, and web browsers.

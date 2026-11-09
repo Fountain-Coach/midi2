@@ -8,7 +8,14 @@
     "path": "docs/spec-provenance.json",
     "source_inventory": "docs/normative-source-inventory.json",
     "source_dispositions": "docs/normative-source-dispositions.json",
-    "specifications": ["M2-100-U@1.1", "M2-101-UM@1.2", "M2-102-U@1.1", "M2-103-UM@1.2", "M2-104-UM@1.1.2", "M2-116-U@1.0"]
+    "specifications": [
+      "M2-100-U@1.1",
+      "M2-101-UM@1.2",
+      "M2-102-U@1.1",
+      "M2-103-UM@1.2",
+      "M2-104-UM@1.1.2",
+      "M2-116-U@1.0"
+    ]
   },
   "projections": {
     "structural": {
@@ -36,10 +43,10 @@
     "implemented_behavioral_slices": 5,
     "modeled_behavioral_slices": 11,
     "remaining_source_frontiers": 0,
-    "normative_keyword_candidates": 1316,
-    "candidate_dispositions": 1316,
+    "normative_keyword_candidates": 1247,
+    "candidate_dispositions": 1247,
     "full_corpus_accounting_claim_supported": true,
     "full_corpus_claim_supported": true,
-    "reason": "Every normalized requirement and every source-language record has a machine-readable representation, and all five source-level behavioral frontiers have explicit models or boundaries. This establishes full machine-readable corpus coverage; it does not claim runtime completeness or hardware interoperability."
+    "reason": "Every normalized ledger requirement and every source-language record of the updated six-document corpus has a machine-readable representation; this is accounting, not universal runtime conformance. MIDI-CI M2-101-UM v1.2.1 adds tested structured PE ACK/NAK flow-control fields; end-to-end sessions and hardware interoperability are not inferred."
   }
 }

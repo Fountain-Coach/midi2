@@ -1475,7 +1475,7 @@
       "x-midi-spec": [
         {
           "document": "M2-101-UM",
-          "version": "1.2",
+          "version": "1.2.1",
           "page": 45,
           "section": "MIDI-CI message envelopes",
           "requirement": "midi-ci-envelope-midicienvelope"
@@ -1546,7 +1546,7 @@
       "x-midi-spec": [
         {
           "document": "M2-101-UM",
-          "version": "1.2",
+          "version": "1.2.1",
           "page": 45,
           "section": "MIDI-CI message envelopes",
           "requirement": "midi-ci-envelope-midicidiscoverybody"
@@ -1576,7 +1576,7 @@
       "x-midi-spec": [
         {
           "document": "M2-101-UM",
-          "version": "1.2",
+          "version": "1.2.1",
           "page": 45,
           "section": "MIDI-CI message envelopes",
           "requirement": "midi-ci-envelope-midiciacknakbody"
@@ -1990,7 +1990,7 @@
       "x-midi-spec": [
         {
           "document": "M2-101-UM",
-          "version": "1.2",
+          "version": "1.2.1",
           "page": 59,
           "section": "Tables 40-45",
           "requirement": "process-inquiry-structure-midiciprocessinquirybody"
@@ -3334,6 +3334,72 @@
         {
           "kind": "swift-test-file",
           "id": "Tests/MIDI2Tests/FlexDataBodyTests.swift"
+        }
+      ]
+    },
+    "MidiCiPEFlowControl": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "type": "string",
+          "enum": [
+            "sendNextChunks",
+            "resendMostRecentChunk"
+          ]
+        },
+        "originalTransactionSubId2": {
+          "type": "integer",
+          "minimum": 48,
+          "maximum": 63
+        },
+        "peStreamId": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 127
+        },
+        "peChunkNumber": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 16383
+        },
+        "statusData": {
+          "const": 0
+        },
+        "statusCode": {
+          "type": "integer",
+          "enum": [
+            17,
+            18
+          ]
+        },
+        "subId2": {
+          "type": "integer",
+          "enum": [
+            125,
+            127
+          ]
+        }
+      },
+      "required": [
+        "action",
+        "originalTransactionSubId2",
+        "peStreamId",
+        "peChunkNumber"
+      ],
+      "additionalProperties": false,
+      "x-midi-spec": [
+        {
+          "document": "M2-101-UM",
+          "version": "1.2.1",
+          "page": 34,
+          "section": "\u00a75.10.2 ACK Table 14; \u00a75.11.2 NAK Table 16",
+          "requirement": "midi-ci-pe-flow-control-status-midicipeflowcontrol"
+        }
+      ],
+      "x-verification": [
+        {
+          "kind": "swift-test-file",
+          "id": "Tests/MIDI2Tests/MidiCiPEFlowControlTests.swift"
         }
       ]
     }

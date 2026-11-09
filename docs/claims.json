@@ -6,31 +6,72 @@
       "id": "semantic-traceability",
       "status": "established",
       "claim": "The canonical MIDI2 semantic schema is source-traceable.",
-      "reason": "All 67 schema definitions carry deliberate embedded MIDI Association provenance and declared verification metadata. This is object-to-source traceability; inverse corpus accounting is reported separately.",
+      "reason": "All 68 schema definitions carry deliberate embedded MIDI Association provenance and declared verification metadata. This is object-to-source traceability; inverse corpus accounting is reported separately.",
       "evidence": [
-        {"path": "midi2.full.closed.schema.json", "why": "canonical semantic object"},
-        {"path": "Scripts/verify_spec_provenance.py", "why": "machine-checks provenance"},
-        {"path": "docs/generated/spec-traceability.md", "why": "generated definition-level report"}
+        {
+          "path": "midi2.full.closed.schema.json",
+          "why": "canonical semantic object"
+        },
+        {
+          "path": "Scripts/verify_spec_provenance.py",
+          "why": "machine-checks provenance"
+        },
+        {
+          "path": "docs/generated/spec-traceability.md",
+          "why": "generated definition-level report"
+        }
       ],
-      "exclusions": ["This does not claim runtime implementation completeness or hardware interoperability."]
+      "exclusions": [
+        "This does not claim runtime implementation completeness or hardware interoperability."
+      ]
     },
     {
       "id": "normative-coverage-accounting",
       "status": "established",
       "claim": "The declared MIDI 2.0 corpus is represented as a complete machine-readable Fountain Coach object with no normative requirement excluded.",
-      "reason": "The full object joins structural schema/OpenAPI projections, twelve operational ledger entries, six behavioral models, and 1,316 source records. Every source record and every normalized requirement has a machine-resolvable representation; source hashes, versions, representations, generated reports, provenance, and mutation gates are verified in CI.",
+      "reason": "The full object joins structural schema/OpenAPI projections, 12 operational ledger entries, 11 modeled behavioral slices, and 1,247 source records in the six-document corpus (M2-101-UM v1.2.1). Every source record and every normalized requirement has a machine-resolvable representation; source hashes, versions, representations, generated reports, provenance and mutation gates are verified. Source accounting does not imply all behavior is implemented.",
       "evidence": [
-        {"path": "docs/spec-provenance.json", "why": "declared six-document corpus, versions, and source hashes"},
-        {"path": "docs/normative-requirements.json", "why": "canonical inverse requirement ledger"},
-        {"path": "docs/normative-behavior.json", "why": "machine-readable behavioral protocol slices"},
-        {"path": "docs/normative-source-inventory.json", "why": "hash-bound machine-readable source inventory"},
-        {"path": "docs/normative-source-dispositions.json", "why": "machine-readable representation for every extracted source record"},
-        {"path": "midi2.full.object.json", "why": "machine-readable composition of structural and behavioral projections"},
-        {"path": "Scripts/verify_normative_coverage.py", "why": "reverse-traceability verifier"},
-        {"path": "docs/generated/normative-coverage.md", "why": "generated disposition report"},
-        {"path": "docs/normative-coverage-methodology.md", "why": "extraction and scope methodology"}
+        {
+          "path": "docs/spec-provenance.json",
+          "why": "declared six-document corpus, versions, and source hashes"
+        },
+        {
+          "path": "docs/normative-requirements.json",
+          "why": "canonical inverse requirement ledger"
+        },
+        {
+          "path": "docs/normative-behavior.json",
+          "why": "machine-readable behavioral protocol slices"
+        },
+        {
+          "path": "docs/normative-source-inventory.json",
+          "why": "hash-bound machine-readable source inventory"
+        },
+        {
+          "path": "docs/normative-source-dispositions.json",
+          "why": "machine-readable representation for every extracted source record"
+        },
+        {
+          "path": "midi2.full.object.json",
+          "why": "machine-readable composition of structural and behavioral projections"
+        },
+        {
+          "path": "Scripts/verify_normative_coverage.py",
+          "why": "reverse-traceability verifier"
+        },
+        {
+          "path": "docs/generated/normative-coverage.md",
+          "why": "generated disposition report"
+        },
+        {
+          "path": "docs/normative-coverage-methodology.md",
+          "why": "extraction and scope methodology"
+        }
       ],
-      "exclusions": ["This does not claim runtime implementation completeness or physical hardware interoperability.", "MIDI Association remains the normative authority for the represented corpus."]
+      "exclusions": [
+        "This does not claim runtime implementation completeness or physical hardware interoperability.",
+        "MIDI Association remains the normative authority for the represented corpus."
+      ]
     },
     {
       "id": "schema-openapi-provenance-parity",
@@ -38,11 +79,22 @@
       "claim": "The closed schema and OpenAPI representation carry equivalent provenance metadata.",
       "reason": "CI compares the embedded provenance entries for every shared schema definition.",
       "evidence": [
-        {"path": "midi2.full.closed.schema.json", "why": "closed schema provenance"},
-        {"path": "midi2.full.openapi.json", "why": "OpenAPI provenance"},
-        {"path": "Scripts/verify_spec_provenance.py", "why": "parity verifier"}
+        {
+          "path": "midi2.full.closed.schema.json",
+          "why": "closed schema provenance"
+        },
+        {
+          "path": "midi2.full.openapi.json",
+          "why": "OpenAPI provenance"
+        },
+        {
+          "path": "Scripts/verify_spec_provenance.py",
+          "why": "parity verifier"
+        }
       ],
-      "exclusions": ["This is provenance parity, not a claim that both artifacts expose identical runtime behavior."]
+      "exclusions": [
+        "This is provenance parity, not a claim that both artifacts expose identical runtime behavior."
+      ]
     },
     {
       "id": "automated-verification",
@@ -50,10 +102,18 @@
       "claim": "The provenance contract is protected by deterministic CI and mutation checks.",
       "reason": "CI rejects missing or invalid provenance, missing verification references, OpenAPI drift, stale generated reports, and unannotated schema definitions.",
       "evidence": [
-        {"path": "Tests/test_spec_provenance.py", "why": "six mutation cases"},
-        {"path": ".github/workflows/ci.yml", "why": "pull-request gate"}
+        {
+          "path": "Tests/test_spec_provenance.py",
+          "why": "six mutation cases"
+        },
+        {
+          "path": ".github/workflows/ci.yml",
+          "why": "pull-request gate"
+        }
       ],
-      "exclusions": ["These checks verify the repository contract; they do not simulate physical MIDI2 devices."]
+      "exclusions": [
+        "These checks verify the repository contract; they do not simulate physical MIDI2 devices."
+      ]
     },
     {
       "id": "measured-test-runs",
@@ -61,11 +121,22 @@
       "claim": "The recorded validation run passed 354 Swift tests and 200 TypeScript tests, with one TypeScript test skipped.",
       "reason": "The claim reports one identified local validation run rather than extrapolating from it to full conformance.",
       "evidence": [
-        {"path": "Package.swift", "why": "Swift package under test"},
-        {"path": "midi2.js/package.json", "why": "TypeScript package test commands"},
-        {"path": "docs/claim-register.md", "why": "this claim's recorded scope"}
+        {
+          "path": "Package.swift",
+          "why": "Swift package under test"
+        },
+        {
+          "path": "midi2.js/package.json",
+          "why": "TypeScript package test commands"
+        },
+        {
+          "path": "docs/claim-register.md",
+          "why": "this claim's recorded scope"
+        }
       ],
-      "exclusions": ["Test counts are not a runtime-completeness percentage and are not hardware evidence."]
+      "exclusions": [
+        "Test counts are not a runtime-completeness percentage and are not hardware evidence."
+      ]
     },
     {
       "id": "feature-level-runtime-support",
@@ -73,13 +144,31 @@
       "claim": "Selected MIDI2 runtime features are implemented and tested, including UMP, MIDI-CI, Property Exchange, Stream/Function Block, MIDI Clip lifecycle, jitter-reduction, and the remaining modeled frontier state machines.",
       "reason": "The conformance checklist and machine-readable runtime boundary provide feature-level code and test references; physical hardware remains outside the evidence boundary.",
       "evidence": [
-        {"path": "docs/conformance-checklist.md", "why": "feature-level implementation status"},
-        {"path": "Sources", "why": "Swift runtime implementation"},
-        {"path": "midi2.js/src", "why": "TypeScript runtime implementation"},
-        {"path": "Tests", "why": "Swift runtime tests"},
-        {"path": "midi2.js/src/__tests__", "why": "TypeScript runtime tests"}
+        {
+          "path": "docs/conformance-checklist.md",
+          "why": "feature-level implementation status"
+        },
+        {
+          "path": "Sources",
+          "why": "Swift runtime implementation"
+        },
+        {
+          "path": "midi2.js/src",
+          "why": "TypeScript runtime implementation"
+        },
+        {
+          "path": "Tests",
+          "why": "Swift runtime tests"
+        },
+        {
+          "path": "midi2.js/src/__tests__",
+          "why": "TypeScript runtime tests"
+        }
       ],
-      "exclusions": ["Optional host adapters remain outside the named core surface.", "No hardware interoperability claim is made."]
+      "exclusions": [
+        "Optional host adapters remain outside the named core surface.",
+        "No hardware interoperability claim is made."
+      ]
     },
     {
       "id": "core-software-runtime-completeness",
@@ -87,13 +176,31 @@
       "claim": "The declared owned core software surface is runtime-complete across the Swift and TypeScript implementations.",
       "reason": "The machine-readable runtime boundary names the required protocol surfaces, marks each as verified, and is protected by Swift and TypeScript validation gates.",
       "evidence": [
-        {"path": "docs/runtime-completeness.json", "why": "canonical runtime boundary and status ledger"},
-        {"path": "docs/runtime-completeness.md", "why": "generated human-readable boundary"},
-        {"path": "Scripts/verify_runtime_completeness.py", "why": "machine-checks the ledger and hardware exclusion"},
-        {"path": "Tests", "why": "Swift runtime tests"},
-        {"path": "midi2.js/src/__tests__", "why": "TypeScript runtime tests"}
+        {
+          "path": "docs/runtime-completeness.json",
+          "why": "canonical runtime boundary and status ledger"
+        },
+        {
+          "path": "docs/runtime-completeness.md",
+          "why": "generated human-readable boundary"
+        },
+        {
+          "path": "Scripts/verify_runtime_completeness.py",
+          "why": "machine-checks the ledger and hardware exclusion"
+        },
+        {
+          "path": "Tests",
+          "why": "Swift runtime tests"
+        },
+        {
+          "path": "midi2.js/src/__tests__",
+          "why": "TypeScript runtime tests"
+        }
       ],
-      "exclusions": ["This is bounded to the named core software surface; it is not a claim that every optional MIDI2 extension or host adapter is implemented.", "It does not claim physical MIDI2 hardware interoperability."]
+      "exclusions": [
+        "This is bounded to the named core software surface; it is not a claim that every optional MIDI2 extension or host adapter is implemented.",
+        "It does not claim physical MIDI2 hardware interoperability."
+      ]
     },
     {
       "id": "hardware-interoperability",
@@ -101,9 +208,14 @@
       "claim": "Hardware interoperability is not claimed.",
       "reason": "The repository has no physical MIDI2 devices or external-device acceptance evidence in scope.",
       "evidence": [
-        {"path": "docs/conformance-checklist.md", "why": "records hardware interoperability as missing"}
+        {
+          "path": "docs/conformance-checklist.md",
+          "why": "records hardware interoperability as missing"
+        }
       ],
-      "exclusions": ["No claim about successful operation with physical MIDI2 hardware."]
+      "exclusions": [
+        "No claim about successful operation with physical MIDI2 hardware."
+      ]
     }
   ]
 }

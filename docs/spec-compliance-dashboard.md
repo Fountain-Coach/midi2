@@ -1,12 +1,12 @@
 <!-- generated: Scripts/generate_spec_traceability.py -->
-<!-- source-sha256: b38e461dbcc4d3003a6369a038339eeb895bc98baeec4248fa352a731e9a92e3 -->
+<!-- source-sha256: e40f856335549930b80b38f818cc9e2830a210b3a6e4fb05e0eb7012b6cb60ac -->
 # Spec Compliance Dashboard (generated)
 
 ## Semantic traceability
 
-- Canonical schema definitions: **67**
-- Definitions with embedded source provenance: **67/67 (100%)**
-- Definitions with declared verification: **67/67 (100%)**
+- Canonical schema definitions: **68**
+- Definitions with embedded source provenance: **68/68 (100%)**
+- Definitions with declared verification: **68/68 (100%)**
 - Schema/OpenAPI provenance parity: enforced by `Scripts/verify_spec_provenance.py`
 
 ## Scope boundary

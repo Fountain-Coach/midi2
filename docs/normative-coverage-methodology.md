@@ -6,7 +6,7 @@ The inverse coverage ledger answers a machine-readability question distinct from
 
 ## Corpus and extraction
 
-The corpus is the six exact document/version pairs declared in `docs/spec-provenance.json`. Each PDF is identified by filename and SHA-256. A source update is a versioned event in the corpus manifest; replacing a PDF without updating the manifest is a failure.
+The corpus is the six exact document/version pairs declared in `docs/spec-provenance.json`. Each PDF is identified by filename and SHA-256. A source update is a versioned event in the corpus manifest; replacing a PDF without updating the manifest is a failure. The updated M2-101-UM v1.2.1 PDF is copyright-controlled and obtained only into an ignored ephemeral CI/local cache by `Scripts/fetch_spec_sources.py`, with its SHA-256 verified before extraction. No current source PDF is redistributed by this update.
 
 Extraction starts with normative tables, figures, field constraints, and prose. RFC-style `MUST`, `MUST NOT`, `SHALL`, and `SHALL NOT` are normative. `SHOULD`, `SHOULD NOT`, and `MAY` are recorded when the source uses them normatively, with the term preserved in `normative_level`. Examples, explanatory notes, historical commentary, and informative appendices are not requirements unless the source gives them normative force.
 

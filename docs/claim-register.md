@@ -9,7 +9,7 @@ This register distinguishes semantic evidence, runtime evidence, measured tests,
 
 The canonical MIDI2 semantic schema is source-traceable.
 
-**Reason:** All 67 schema definitions carry deliberate embedded MIDI Association provenance and declared verification metadata. This is object-to-source traceability; inverse corpus accounting is reported separately.
+**Reason:** All 68 schema definitions carry deliberate embedded MIDI Association provenance and declared verification metadata. This is object-to-source traceability; inverse corpus accounting is reported separately.
 
 **Evidence:**
 - `midi2.full.closed.schema.json` — canonical semantic object
@@ -23,7 +23,7 @@ The canonical MIDI2 semantic schema is source-traceable.
 
 The declared MIDI 2.0 corpus is represented as a complete machine-readable Fountain Coach object with no normative requirement excluded.
 
-**Reason:** The full object joins structural schema/OpenAPI projections, twelve operational ledger entries, six behavioral models, and 1,316 source records. Every source record and every normalized requirement has a machine-resolvable representation; source hashes, versions, representations, generated reports, provenance, and mutation gates are verified in CI.
+**Reason:** The full object joins structural schema/OpenAPI projections, 12 operational ledger entries, 11 modeled behavioral slices, and 1,247 source records in the six-document corpus (M2-101-UM v1.2.1). Every source record and every normalized requirement has a machine-resolvable representation; source hashes, versions, representations, generated reports, provenance and mutation gates are verified. Source accounting does not imply all behavior is implemented.
 
 **Evidence:**
 - `docs/spec-provenance.json` — declared six-document corpus, versions, and source hashes

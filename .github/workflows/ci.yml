@@ -11,6 +11,8 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
+      - name: Retrieve SHA-256 pinned current MIDI-CI source (not committed)
+        run: python3 Scripts/fetch_spec_sources.py --document M2-101-UM
       - name: Install normative-source audit tools
         run: brew install ghostscript poppler
       - name: Build (warnings as errors)

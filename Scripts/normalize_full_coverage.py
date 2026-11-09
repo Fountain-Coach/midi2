@@ -10,7 +10,7 @@ LEDGER = ROOT / "docs/normative-requirements.json"
 
 MODEL_BY_DOCUMENT = {
     "M2-100-U": "m2-100-midi2-compatibility-selection-v1.1",
-    "M2-101-UM": "m2-101-midi-ci-transaction-failure-v1.2",
+    "M2-101-UM": "m2-101-midi-ci-transaction-failure-v1.2.1",
     "M2-102-U": "m2-102-profile-channel-allocation-v1.1",
     "M2-103-UM": "m2-103-property-exchange-resource-errors-v1.2",
     "M2-104-UM": "m2-104-ump-ordering-reserved-transport-v1.1.2",

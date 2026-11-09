@@ -4,6 +4,7 @@ export * from "./scheduler";
 export * from "./ump";
 export * from "./sysex";
 export * from "./midici";
+export * from "./midi-ci-pe-flow-control";
 export * from "./midi1";
 export * from "./jitter";
 export { PeSubscriptionManager } from "./pe-subscriptions";

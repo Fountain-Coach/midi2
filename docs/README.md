@@ -1,6 +1,6 @@
 # Documentation
 
-**Last Updated**: 2026-08-22 | **Version**: 0.11.0
+**Corpus reconciled**: 2026-11-09 | **Release candidate**: 0.13.0 (not tagged or published; last documented package release 0.12.8)
 
 ## Agent maintenance
 
@@ -26,6 +26,8 @@ The guarded publication helper is [`Scripts/publish_docs_site.sh`](../Scripts/pu
 ## Specification Audit & Compliance (Updated Dec 2025)
 
 ### Bidirectional standards contract
+- **[Current source manifest](spec-provenance.json)** — six-document corpus; MIDI-CI M2-101-UM v1.2.1; exact version/hash and no new PDF redistribution
+- **[Claim Register](claim-register.md)** — machine-verified representation, runtime and hardware evidence boundaries
 - **[Normative Coverage Report](generated/normative-coverage.md)** - complete machine-readable inverse corpus report with per-source representations
 - **[Normative Coverage Methodology](normative-coverage-methodology.md)** - extraction, status, scope, and claim boundaries
 - **[Normative Behavior Model](normative-behavior.json)** - machine-readable protocol state machines and invariants linked from the inverse ledger
@@ -36,6 +38,7 @@ The guarded publication helper is [`Scripts/publish_docs_site.sh`](../Scripts/pu
 - **[MIDI vs Fountain Coach Extensions](midi-vs-fountain-extensions.md)** - normative authority and extension separation
 
 ### Overview Documents
+The legacy audit percentages and gap trackers below are dated historical measurements, **not** current runtime or standards-conformance percentages.
 - **[Spec Compliance Dashboard](spec-compliance-dashboard.md)** - Quick reference with visual progress bars, metrics, and roadmap
 - **[Comprehensive Spec Audit Report](comprehensive-spec-audit-report.md)** - Full analysis covering:
   - UMP encode/decode implementation (84% complete)
@@ -71,7 +74,7 @@ The guarded publication helper is [`Scripts/publish_docs_site.sh`](../Scripts/pu
 
 For normative MIDI Association specification PDFs, see the repository root:
 - M2-100-U v1.1 (MIDI 2.0 Overview)
-- M2-101-UM v1.2 (MIDI-CI)
+- M2-101-UM v1.2.1 (MIDI-CI; checksum-verified external PDF retrieved only for local/CI verification)
 - M2-102-U v1.1 (Profiles)
 - M2-103-UM v1.2 (Property Exchange)
 - M2-104-UM v1.1.2 (UMP and Protocol)

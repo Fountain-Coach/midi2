@@ -657,56 +657,20 @@
     },
     {
       "document": "M2-101-UM",
-      "version": "1.2",
-      "source_file": "M2-101-UM_v1-2_MIDI-CI_Specification.pdf",
-      "source_sha256": "bba165c24d6fd6d4464b514da3f3cbcc4f7db4171057aa8a31f8910ea0037f3b",
-      "candidate_pages": 74,
-      "candidate_occurrences": 349,
+      "version": "1.2.1",
+      "source_file": "M2-101-UM_v1-2-1_MIDI-CI_Specification.pdf",
+      "source_sha256": "f3c3c63d768f049a387c79998081da284a1baf8605ca10d246e9a52258056e6f",
+      "candidate_pages": 58,
+      "candidate_occurrences": 280,
       "pages_with_candidates": [
         {
-          "id": "M2-101-UM-v1-2-page-1",
-          "page": 1,
-          "candidate_count": 2,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
-            {
-              "line": 13,
-              "fingerprint": "a96859ebec1d7e537b236c428087e2baf8355b8ada39c07bfd6e1a09c57aec3c",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "publication-metadata"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-2",
+          "id": "M2-101-UM-v1-2-1-page-2",
           "page": 2,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
             "may"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 14,
               "fingerprint": "22dd6818cbb10c0abe70ae063c7a8df6ea092a521a6dc8a3636f102227f5933d",
@@ -720,81 +684,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-3",
-          "page": 3,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-4",
-          "page": 4,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-5",
-          "page": 5,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-6",
+          "id": "M2-101-UM-v1-2-1-page-6",
           "page": 6,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
             "may"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 15,
               "fingerprint": "7c86892c79a4956cc0f165270ee8414ed35c5df7b50a5fd8c6b7bd9ec7869cf1",
@@ -808,102 +704,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-7",
-          "page": 7,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-8",
-          "page": 8,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-9",
-          "page": 9,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-10",
-          "page": 10,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-11",
+          "id": "M2-101-UM-v1-2-1-page-11",
           "page": 11,
-          "candidate_count": 5,
+          "candidate_count": 4,
           "keywords": [
             "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 11,
               "fingerprint": "2cb5fc8c846b8c41ea4d28ba501592fe9704cfbb302f623b6592e752bb547c2e",
@@ -922,7 +730,7 @@
             },
             {
               "line": 29,
-              "fingerprint": "8f986611989e00a9a350e5dc11d22aba983123f0b2e39286001199fee0095162",
+              "fingerprint": "94dc8e7cf1bb80092a3c7ca99da3a7e32140a95823cf7a58246fcc42a0aa60f5",
               "keyword_terms": [
                 "may"
               ],
@@ -941,42 +749,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-12",
-          "page": 12,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-13",
+          "id": "M2-101-UM-v1-2-1-page-13",
           "page": 13,
-          "candidate_count": 4,
+          "candidate_count": 3,
           "keywords": [
             "may",
             "required"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 25,
               "fingerprint": "dd6a1c495bd6c67ef7bd5ddd68f98161c4540a1fff143dc05858748dd33b8c9b",
@@ -1006,21 +786,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-14",
+          "id": "M2-101-UM-v1-2-1-page-14",
           "page": 14,
-          "candidate_count": 4,
+          "candidate_count": 3,
           "keywords": [
             "may"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 32,
               "fingerprint": "a903c5a6e27c1556f149783bda161c00504ddc68d75622fdc251c136694d90c6",
@@ -1050,21 +822,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-15",
+          "id": "M2-101-UM-v1-2-1-page-15",
           "page": 15,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
             "may"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 14,
               "fingerprint": "644f1fe40e421a16866b8a34ecc501f51f2c1c06612558a00747121de2e9de6d",
@@ -1086,9 +850,9 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-16",
+          "id": "M2-101-UM-v1-2-1-page-16",
           "page": 16,
-          "candidate_count": 14,
+          "candidate_count": 13,
           "keywords": [
             "may",
             "must",
@@ -1097,14 +861,6 @@
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 3,
               "fingerprint": "3670794f492fd13b9988109af0d531edda73333fe8c36f225778e196cfd20b03",
@@ -1217,43 +973,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-17",
-          "page": 17,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-18",
+          "id": "M2-101-UM-v1-2-1-page-18",
           "page": 18,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "required",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 6,
               "fingerprint": "8bfaf35195722c48ad7a845624437a47f2a5d144bff87b705fd93fb24035b293",
@@ -1308,23 +1036,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-19",
+          "id": "M2-101-UM-v1-2-1-page-19",
           "page": 19,
-          "candidate_count": 4,
+          "candidate_count": 3,
           "keywords": [
             "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 11,
               "fingerprint": "efd6109c28cc12f1bd29cf31d3c4cfbb73ae85e936208cea666567eb04b5a3ab",
@@ -1354,23 +1074,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-20",
+          "id": "M2-101-UM-v1-2-1-page-20",
           "page": 20,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
-            "may",
             "shall",
             "shall not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 27,
               "fingerprint": "223163bac24b9bbbed37761b367382ddff8c91ddd1bfa543557098b93e6e78dc",
@@ -1424,23 +1135,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-21",
+          "id": "M2-101-UM-v1-2-1-page-21",
           "page": 21,
-          "candidate_count": 6,
+          "candidate_count": 5,
           "keywords": [
             "may",
             "shall",
             "shall not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 3,
               "fingerprint": "33907bc964909106d169c5d385aeb4e819ab598a6d013a71cda1d47e8803076c",
@@ -1487,23 +1190,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-22",
+          "id": "M2-101-UM-v1-2-1-page-22",
           "page": 22,
-          "candidate_count": 4,
+          "candidate_count": 3,
           "keywords": [
             "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 5,
               "fingerprint": "f5f60e1a3b6f1f2b296ce1cd7998774188443dacf23da5be2d515b804de70e28",
@@ -1533,22 +1228,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-23",
+          "id": "M2-101-UM-v1-2-1-page-23",
           "page": 23,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
-            "may",
             "required"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 24,
               "fingerprint": "9975295c45f949d040e2904b4070bff2124a8916847968779a5318156e998af6",
@@ -1562,23 +1248,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-24",
+          "id": "M2-101-UM-v1-2-1-page-24",
           "page": 24,
-          "candidate_count": 4,
+          "candidate_count": 3,
           "keywords": [
             "may",
             "shall",
             "shall not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 32,
               "fingerprint": "08e38d7457838b98dcd51b755a2b8dba6be568989ff0abea97c9694324578b20",
@@ -1608,9 +1286,9 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-25",
+          "id": "M2-101-UM-v1-2-1-page-25",
           "page": 25,
-          "candidate_count": 16,
+          "candidate_count": 15,
           "keywords": [
             "may",
             "required",
@@ -1620,14 +1298,6 @@
           ],
           "candidates": [
             {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
-            {
               "line": 5,
               "fingerprint": "fb2bf11dfe299935cd49cb3d56226f32674d9c9c029524291d21c5d93ec1304e",
               "keyword_terms": [
@@ -1636,7 +1306,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 16,
+              "line": 15,
               "fingerprint": "d701f72ab4dde525fca58b7093ab012cc1808d5a4a268558b741e934bec3b6c6",
               "keyword_terms": [
                 "shall"
@@ -1644,7 +1314,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 17,
+              "line": 16,
               "fingerprint": "c833acdb381f8c7c10819868e9e613a99bd4a8c286b07f327269ae7827b00b14",
               "keyword_terms": [
                 "should"
@@ -1652,7 +1322,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 19,
+              "line": 18,
               "fingerprint": "a6bb59d6a30993207939f816eaf773157387cd4d803c2a246b340e38c259e126",
               "keyword_terms": [
                 "shall"
@@ -1660,7 +1330,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 20,
+              "line": 19,
               "fingerprint": "e974ba5f785ccd64661c4fe6ea29d0bdf1576a9d5fd55a47dcd1cbdaddcf8944",
               "keyword_terms": [
                 "shall"
@@ -1668,7 +1338,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 23,
+              "line": 22,
               "fingerprint": "e6600d0d1651516ab24b7c6bca7146a48930d4285951c459759cf512d3231cec",
               "keyword_terms": [
                 "shall"
@@ -1676,7 +1346,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 26,
+              "line": 25,
               "fingerprint": "c99966b81c435e18558c74f6c964d7fd38587aa6fe4bc56c7b16a34cdb02537f",
               "keyword_terms": [
                 "shall"
@@ -1684,7 +1354,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 28,
+              "line": 27,
               "fingerprint": "0be378f51eb368105ed3619efcef94c6640bc49a83b143fda92e334f30ade820",
               "keyword_terms": [
                 "shall"
@@ -1692,7 +1362,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 31,
+              "line": 30,
               "fingerprint": "21d55aed598be403f6493c6e72f6e51332b596058808516e1258cd212b9bae34",
               "keyword_terms": [
                 "shall"
@@ -1700,7 +1370,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 33,
+              "line": 32,
               "fingerprint": "7be44afc41d1474dc2bbbec59b877fc45bd9e33f9a6488237a3064f6f1110776",
               "keyword_terms": [
                 "shall"
@@ -1708,7 +1378,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 34,
+              "line": 33,
               "fingerprint": "da2ebc77f6a941a6511c7e0112421e2772b28516b692ed29009db03ecfe028bb",
               "keyword_terms": [
                 "shall not"
@@ -1716,7 +1386,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 35,
+              "line": 34,
               "fingerprint": "7f2875e8e8c5dbfc1c9aeba24c70cbe797ba505e22e17281a3b1fc55bdccde31",
               "keyword_terms": [
                 "shall"
@@ -1724,7 +1394,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 38,
+              "line": 37,
               "fingerprint": "90fde5f295e6c0e6b286319bb4b8a92d371786b605eb6a5d56f8b6a230c65cdf",
               "keyword_terms": [
                 "shall"
@@ -1732,7 +1402,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 40,
+              "line": 39,
               "fingerprint": "3e8621d531856faaf140e3f66bf3cf9043dbff22d9183c47399f538c3c5d1c43",
               "keyword_terms": [
                 "required"
@@ -1740,7 +1410,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 41,
+              "line": 40,
               "fingerprint": "e1a4f04c1ff31d6f9e32376881656538052b88ba2148c226992121dc1bab6364",
               "keyword_terms": [
                 "should"
@@ -1752,9 +1422,9 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-26",
+          "id": "M2-101-UM-v1-2-1-page-26",
           "page": 26,
-          "candidate_count": 11,
+          "candidate_count": 10,
           "keywords": [
             "may",
             "must",
@@ -1762,14 +1432,6 @@
             "shall not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 2,
               "fingerprint": "f63defbd339e00592645f0af58b1398fd75c62ae805fec6d65bb2a2d15c91557",
@@ -1856,23 +1518,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-27",
+          "id": "M2-101-UM-v1-2-1-page-27",
           "page": 27,
-          "candidate_count": 6,
+          "candidate_count": 5,
           "keywords": [
             "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 3,
               "fingerprint": "21cde1d2f2670fa14e189f10345b08541203ad5c615ae059e964a3356cad5288",
@@ -1918,23 +1572,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-28",
+          "id": "M2-101-UM-v1-2-1-page-28",
           "page": 28,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "required",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 14,
               "fingerprint": "13d45e07bc2e98ab0b214e72f812984a50d58d5216a74ef5904f51fb939e481f",
@@ -1988,23 +1634,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-29",
+          "id": "M2-101-UM-v1-2-1-page-29",
           "page": 29,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
-            "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 3,
               "fingerprint": "8f18dfd0f6a007903ee7ff99e18d4674068a855c005baba969a4215a021bf898",
@@ -2015,7 +1652,7 @@
             },
             {
               "line": 6,
-              "fingerprint": "c06b63e6208472cc0d37d11b4b06cf94a2530c6dfb21b0eeab59a335e59c5a84",
+              "fingerprint": "72a21515b6ebaafefd19ce0989e4e0d940759c99a393f8ad22cd8f82728b6cc9",
               "keyword_terms": [
                 "should"
               ],
@@ -2058,22 +1695,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-30",
+          "id": "M2-101-UM-v1-2-1-page-30",
           "page": 30,
-          "candidate_count": 5,
+          "candidate_count": 4,
           "keywords": [
             "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 7,
               "fingerprint": "4f857a637bfcff57755fde49a3d9bb5e7c178d665bf64c5b9ae8b9541664ee45",
@@ -2084,7 +1713,7 @@
             },
             {
               "line": 10,
-              "fingerprint": "9ddba5d425f4eabf12f74604d02bd049b26d53385138a30c850ee852aca0e0e5",
+              "fingerprint": "1be1eefed255be14d69d7d802f22f26fe9d8414b84db3221d96180cbbe1d684a",
               "keyword_terms": [
                 "shall"
               ],
@@ -2111,22 +1740,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-31",
+          "id": "M2-101-UM-v1-2-1-page-31",
           "page": 31,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
-            "may",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 11,
               "fingerprint": "e195f991209cd538e4fbb9e8f957f302785d2c3783d457251daa75c2b78c1bb2",
@@ -2148,11 +1768,10 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-32",
+          "id": "M2-101-UM-v1-2-1-page-32",
           "page": 32,
-          "candidate_count": 10,
+          "candidate_count": 9,
           "keywords": [
-            "may",
             "required",
             "shall",
             "shall not",
@@ -2160,16 +1779,8 @@
           ],
           "candidates": [
             {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
-            {
               "line": 4,
-              "fingerprint": "e87b838d756db2415d1b0692683732336e01b34235955bbd4caf7694bc99c336",
+              "fingerprint": "5ba95cc363211590c205238c7c19b5afe5265907f293503518bcb74abc054088",
               "keyword_terms": [
                 "shall"
               ],
@@ -2177,7 +1788,7 @@
             },
             {
               "line": 7,
-              "fingerprint": "efe74fe297348ccdc2de6a8c9e303b2f1b347b995cda6b6284e157b07ce06bfd",
+              "fingerprint": "4aebf138c905a4b10f9a9b31b72238d1cd62bc22360ba4f9738c6d715721bc00",
               "keyword_terms": [
                 "should"
               ],
@@ -2185,7 +1796,7 @@
             },
             {
               "line": 8,
-              "fingerprint": "f1094e3f28d0655c8dbb5647c08690d97be811ccdd3af7a0c12fc1d8143f773a",
+              "fingerprint": "9a4aaa5fdf1e70065117f8d93601bb90c3c459b9703f14447c16f52e52a70882",
               "keyword_terms": [
                 "should"
               ],
@@ -2193,7 +1804,7 @@
             },
             {
               "line": 10,
-              "fingerprint": "2fb9c361fb1a52c9f24a311790195e4cd52c23a57c2c3b4254976dd011f880ee",
+              "fingerprint": "3f80377e17cc741c830a21fbf987fcbc1e78ca3075e55f1d06018f01bc250ed5",
               "keyword_terms": [
                 "shall"
               ],
@@ -2201,7 +1812,7 @@
             },
             {
               "line": 11,
-              "fingerprint": "d9cba939b4dd9d76cba59c94415485c1b7c369b8a00b49a315406c281d12ce1c",
+              "fingerprint": "dbcd15d8dc0a8e967a9e82be4cf14c7b8c486270a08d62bcc96bb1e83b766d42",
               "keyword_terms": [
                 "shall not"
               ],
@@ -2245,23 +1856,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-33",
+          "id": "M2-101-UM-v1-2-1-page-33",
           "page": 33,
-          "candidate_count": 12,
+          "candidate_count": 11,
           "keywords": [
             "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 5,
               "fingerprint": "f3fda2bd4884c94827842bc11d72ad57a394e3388e019f2070e6443ab7c573fa",
@@ -2355,29 +1958,9 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-34",
-          "page": 34,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-35",
+          "id": "M2-101-UM-v1-2-1-page-35",
           "page": 35,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "shall",
@@ -2386,14 +1969,6 @@
             "should not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 4,
               "fingerprint": "2b715300836734821901407651dc30fa092fe349dded650418516c563e7c826b",
@@ -2447,29 +2022,9 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-36",
-          "page": 36,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-37",
+          "id": "M2-101-UM-v1-2-1-page-37",
           "page": 37,
-          "candidate_count": 5,
+          "candidate_count": 4,
           "keywords": [
             "may",
             "shall not",
@@ -2477,31 +2032,23 @@
           ],
           "candidates": [
             {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
-            {
-              "line": 6,
-              "fingerprint": "a8d834c9bf3c03146e225b7153237e0c87e7cdc8a5b8a968befb8d68600f12b2",
+              "line": 8,
+              "fingerprint": "a3c2fd2654d7e9e5c8ae9c875d0ced16c46deb63dce9484f8b5caae806eb4312",
               "keyword_terms": [
                 "may"
               ],
               "role": "substantive-candidate"
             },
             {
-              "line": 7,
-              "fingerprint": "747d89dffb17208ba4d4773b41219ff2bbef8c38573d9b3e37fe80a9369365f2",
+              "line": 9,
+              "fingerprint": "ae2412090cde7c93dde17505e68157f78c6fa3f2ebd5039a99b22efedb51efb1",
               "keyword_terms": [
                 "may"
               ],
               "role": "substantive-candidate"
             },
             {
-              "line": 17,
+              "line": 23,
               "fingerprint": "2b715300836734821901407651dc30fa092fe349dded650418516c563e7c826b",
               "keyword_terms": [
                 "should"
@@ -2509,7 +2056,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 18,
+              "line": 24,
               "fingerprint": "9c96b3ecc9be786321c08a089111d4995f77134643161fcd79d52b802ee90ab8",
               "keyword_terms": [
                 "shall not"
@@ -2521,42 +2068,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-38",
-          "page": 38,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-39",
+          "id": "M2-101-UM-v1-2-1-page-39",
           "page": 39,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
             "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 12,
               "fingerprint": "8ffbe10c56940a2e9883b67be01fa8d093242ba4dbde37ee81c562871bd4ef5b",
@@ -2578,22 +2097,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-40",
+          "id": "M2-101-UM-v1-2-1-page-40",
           "page": 40,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
             "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 8,
               "fingerprint": "e6a50b7f655157a70ba70a89b40769b614c723644cd5e758fbbb4aed94e505ce",
@@ -2615,21 +2126,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-41",
+          "id": "M2-101-UM-v1-2-1-page-41",
           "page": 41,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
             "may"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 16,
               "fingerprint": "e9894927a21faeea5a98337970007265812602399a3684d5094ac1c4626f828e",
@@ -2643,23 +2146,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-42",
+          "id": "M2-101-UM-v1-2-1-page-42",
           "page": 42,
-          "candidate_count": 5,
+          "candidate_count": 4,
           "keywords": [
-            "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 5,
               "fingerprint": "04e9b52ac37447a8f21304fb05c7fab63d978a272ddf3b670d91e25e871ce5d0",
@@ -2697,22 +2191,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-43",
+          "id": "M2-101-UM-v1-2-1-page-43",
           "page": 43,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 12,
               "fingerprint": "934451a42840fb8949d46343f332df0ee4a9eb901fe1094d113215a9aeee23a4",
@@ -2739,7 +2225,7 @@
             },
             {
               "line": 20,
-              "fingerprint": "8f986611989e00a9a350e5dc11d22aba983123f0b2e39286001199fee0095162",
+              "fingerprint": "94dc8e7cf1bb80092a3c7ca99da3a7e32140a95823cf7a58246fcc42a0aa60f5",
               "keyword_terms": [
                 "may"
               ],
@@ -2766,22 +2252,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-44",
+          "id": "M2-101-UM-v1-2-1-page-44",
           "page": 44,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
-            "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 13,
               "fingerprint": "9f34086404879c93c7400b8080e34c0f6137c0b04f2c20a113fff66b0475463e",
@@ -2795,22 +2272,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-45",
+          "id": "M2-101-UM-v1-2-1-page-45",
           "page": 45,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
             "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 6,
               "fingerprint": "6d77c16f1ab2d52ca1fe98b7da16a422a04bba2cabdae7e598d26e58cee0b55d",
@@ -2820,7 +2289,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 19,
+              "line": 18,
               "fingerprint": "8695f2b83b0519394ecb3974b4614f39144680961dfc5056532091abf7171f25",
               "keyword_terms": [
                 "may"
@@ -2832,23 +2301,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-46",
+          "id": "M2-101-UM-v1-2-1-page-46",
           "page": 46,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 6,
               "fingerprint": "6b2b661ba7d34038c0defad30599f0d6369cd58fda03c0ce224a6b5b555a8775",
@@ -2902,23 +2363,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-47",
+          "id": "M2-101-UM-v1-2-1-page-47",
           "page": 47,
-          "candidate_count": 6,
+          "candidate_count": 5,
           "keywords": [
-            "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 22,
               "fingerprint": "e8ee43c8a2e5fc314cbda8adcd607024bde2b485bb7050b37f3405cd0b45f580",
@@ -2964,21 +2416,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-48",
+          "id": "M2-101-UM-v1-2-1-page-48",
           "page": 48,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
             "may"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 17,
               "fingerprint": "6f19a9eb611d92bc14c2f57e43b1fe305d1f173d50f534899770f10f981eb295",
@@ -3000,9 +2444,9 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-49",
+          "id": "M2-101-UM-v1-2-1-page-49",
           "page": 49,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "shall",
@@ -3011,16 +2455,8 @@
           ],
           "candidates": [
             {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
-            {
               "line": 2,
-              "fingerprint": "04289dcb750bd730ed597ffa72ecd40c35181cee9b159d7eaff164d79b30df62",
+              "fingerprint": "aeaa90a089fcf9ff498bd40ddc81d23cc5abff35e96d86b50e16330b91f6187f",
               "keyword_terms": [
                 "shall not"
               ],
@@ -3028,15 +2464,14 @@
             },
             {
               "line": 3,
-              "fingerprint": "13d20ed9a6afb0a15ef3afe5d0a25a74611b09502b500653dec170af228ff5db",
+              "fingerprint": "a10a538cecdff68381d9d5a32e548a53b5b38d15351e709a7ff28e274dbf62b0",
               "keyword_terms": [
-                "shall",
-                "shall not"
+                "shall"
               ],
               "role": "substantive-candidate"
             },
             {
-              "line": 6,
+              "line": 5,
               "fingerprint": "3e1983829f0386dd9b8066ea53cc3a3d8647625062a3e4e19b837af3b56647aa",
               "keyword_terms": [
                 "should"
@@ -3044,7 +2479,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 7,
+              "line": 6,
               "fingerprint": "ec8e19776ddfb53fbeb031c4d41e9916ebf7f00b822064d4cdbcaafbd5a46279",
               "keyword_terms": [
                 "may"
@@ -3052,7 +2487,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 11,
+              "line": 10,
               "fingerprint": "3d6a4cfc098b39942c33b24f1f3e2f980e100273dd965fe7cd5883cd146d01b8",
               "keyword_terms": [
                 "shall"
@@ -3060,7 +2495,7 @@
               "role": "substantive-candidate"
             },
             {
-              "line": 15,
+              "line": 14,
               "fingerprint": "b7b8ae36a45bec41f1abbf4a41fc94963e9d983a05314b749eaf79f73a5b2250",
               "keyword_terms": [
                 "should"
@@ -3072,22 +2507,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-50",
+          "id": "M2-101-UM-v1-2-1-page-50",
           "page": 50,
-          "candidate_count": 14,
+          "candidate_count": 13,
           "keywords": [
             "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 11,
               "fingerprint": "813b504eefdfc08c50440918bdf671e394803570d89aabddaeed603cfd394b91",
@@ -3197,23 +2624,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-51",
+          "id": "M2-101-UM-v1-2-1-page-51",
           "page": 51,
-          "candidate_count": 11,
+          "candidate_count": 10,
           "keywords": [
-            "may",
             "shall",
             "shall not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 2,
               "fingerprint": "c0e10d8682fc70a928b33bc28e5d865e69296f39b9bdc50b5560988b617f14c3",
@@ -3299,22 +2717,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-52",
+          "id": "M2-101-UM-v1-2-1-page-52",
           "page": 52,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 9,
               "fingerprint": "f9a0f5cdeb866f23d2991fd30aa37adb0481372931ff17a7216c8cd70414b65b",
@@ -3369,23 +2779,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-53",
+          "id": "M2-101-UM-v1-2-1-page-53",
           "page": 53,
-          "candidate_count": 5,
+          "candidate_count": 4,
           "keywords": [
             "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 5,
               "fingerprint": "45d0d6ad03921a3ccfcaf1bfc22a818faa9cedd14e04212507350642e1662caf",
@@ -3423,22 +2825,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-54",
+          "id": "M2-101-UM-v1-2-1-page-54",
           "page": 54,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
-            "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 24,
               "fingerprint": "dbbec332dec283e84cfff02f8f949c0d22dd3c558181d9f46dcd3db8ebbfe727",
@@ -3452,22 +2845,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-55",
+          "id": "M2-101-UM-v1-2-1-page-55",
           "page": 55,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
-            "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 13,
               "fingerprint": "01484531db68ee57365910d0d23a589e04750ba6fe14e48b255b05a53c9bcdb3",
@@ -3481,23 +2865,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-56",
+          "id": "M2-101-UM-v1-2-1-page-56",
           "page": 56,
-          "candidate_count": 5,
+          "candidate_count": 4,
           "keywords": [
             "may",
             "shall",
             "shall not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 3,
               "fingerprint": "758ab1f6a732dd8320e6e6b1a5f956158a189bbc867819ae9386fb30566a5fe9",
@@ -3536,22 +2912,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-57",
+          "id": "M2-101-UM-v1-2-1-page-57",
           "page": 57,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
-            "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 19,
               "fingerprint": "5b6185034980f848293957ed3c069300bc43b051371ec452a02452b3beebaa97",
@@ -3565,24 +2932,36 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-58",
+          "id": "M2-101-UM-v1-2-1-page-58",
           "page": 58,
-          "candidate_count": 2,
+          "candidate_count": 3,
           "keywords": [
-            "may"
+            "may",
+            "shall",
+            "should",
+            "should not"
           ],
           "candidates": [
             {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
+              "line": 9,
+              "fingerprint": "46c8da6e1e6317b9aacc78d4117a32e8a36571d28c3ed3e7fc540469a797d854",
               "keyword_terms": [
-                "may"
+                "should",
+                "should not"
               ],
-              "role": "page-header"
+              "role": "substantive-candidate"
             },
             {
-              "line": 8,
-              "fingerprint": "147a588ad9fbecd6c73378fedc1bbf890e520a89227e42a2814b714d8ee0ee00",
+              "line": 10,
+              "fingerprint": "e6e9920ce0b06355eacb6c837d2ec56d0ef65526e5763f9f7279b28a8cc06248",
+              "keyword_terms": [
+                "shall"
+              ],
+              "role": "substantive-candidate"
+            },
+            {
+              "line": 13,
+              "fingerprint": "925012bda360c67f30f5826eafc2fa9a83c795888cd924f62291315b02f6a9ee",
               "keyword_terms": [
                 "may"
               ],
@@ -3593,22 +2972,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-59",
+          "id": "M2-101-UM-v1-2-1-page-59",
           "page": 59,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
-            "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 17,
               "fingerprint": "ab65dd27f9dce6f2b4a82850aa58d118f44c6bb44a2715f76bdeb0e54630198f",
@@ -3630,42 +3000,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-60",
-          "page": 60,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-61",
+          "id": "M2-101-UM-v1-2-1-page-61",
           "page": 61,
-          "candidate_count": 4,
+          "candidate_count": 3,
           "keywords": [
             "may",
             "required"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 5,
               "fingerprint": "eacfb105150d30afd7f6bf2e26082673e5152299470d91eea88b549d1ea9e16c",
@@ -3695,23 +3037,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-62",
+          "id": "M2-101-UM-v1-2-1-page-62",
           "page": 62,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 15,
               "fingerprint": "c51315dd7e731159a37145a412a4dfdc8b1af3751c68a099ea9bc55420625f8a",
@@ -3765,23 +3099,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-63",
+          "id": "M2-101-UM-v1-2-1-page-63",
           "page": 63,
-          "candidate_count": 7,
+          "candidate_count": 6,
           "keywords": [
             "may",
             "shall",
             "shall not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 3,
               "fingerprint": "7f329a38af15133d5e27b0e1b966c83dbbfcd8d4b972ba430c2edc5ed919099b",
@@ -3835,24 +3161,15 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-64",
+          "id": "M2-101-UM-v1-2-1-page-64",
           "page": 64,
-          "candidate_count": 14,
+          "candidate_count": 13,
           "keywords": [
-            "may",
             "required",
             "shall",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 12,
               "fingerprint": "27c12404f932d1111709c03821ca23e7d071d944065eaed9bb9f770dcb100965",
@@ -3963,23 +3280,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-65",
+          "id": "M2-101-UM-v1-2-1-page-65",
           "page": 65,
-          "candidate_count": 12,
+          "candidate_count": 11,
           "keywords": [
-            "may",
             "shall",
             "shall not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 2,
               "fingerprint": "7405a17521345a610dc9d967c669578a1b5228a3065bae39a5119f2f9d8dee6d",
@@ -4073,22 +3381,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-66",
+          "id": "M2-101-UM-v1-2-1-page-66",
           "page": 66,
-          "candidate_count": 4,
+          "candidate_count": 3,
           "keywords": [
-            "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 5,
               "fingerprint": "2a6a7e540656ee1a7c510ffab8901e78bbd9447381e515ebf954561cca13c568",
@@ -4118,22 +3417,14 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-67",
+          "id": "M2-101-UM-v1-2-1-page-67",
           "page": 67,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
             "may",
             "should"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 11,
               "fingerprint": "fcc2ca2804057e0e07ad3a7cf5f2304998052ff242c0382368d805ac22501bb9",
@@ -4155,9 +3446,9 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-68",
+          "id": "M2-101-UM-v1-2-1-page-68",
           "page": 68,
-          "candidate_count": 11,
+          "candidate_count": 10,
           "keywords": [
             "may",
             "shall",
@@ -4165,14 +3456,6 @@
             "should not"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 5,
               "fingerprint": "a7026d53f7c8754bce46e30e1afa66d395bc87a23cbb9d490048ce779a7ed829",
@@ -4259,22 +3542,13 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-69",
+          "id": "M2-101-UM-v1-2-1-page-69",
           "page": 69,
-          "candidate_count": 2,
+          "candidate_count": 1,
           "keywords": [
-            "may",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 3,
               "fingerprint": "42e0c1af5f276b58b1afd20ba63a5c4f782e5ecf644468cf1f5e56c583c814a6",
@@ -4288,33 +3562,25 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-70",
+          "id": "M2-101-UM-v1-2-1-page-70",
           "page": 70,
-          "candidate_count": 3,
+          "candidate_count": 2,
           "keywords": [
             "may",
             "may not"
           ],
           "candidates": [
             {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
-            {
-              "line": 14,
-              "fingerprint": "ecd84871aeffe2f02eea51098a9e339256710a57d4df4bad31b771941e275f15",
+              "line": 13,
+              "fingerprint": "f4db1fcdd31263bb9ad9ad3b26315d6cc55c0f96096c0bdeca584c166e7e9dbd",
               "keyword_terms": [
                 "may not"
               ],
               "role": "substantive-candidate"
             },
             {
-              "line": 27,
-              "fingerprint": "7ea63271e00c279e06c9dd68462068127aa282db0753d2c43cc885d139b3810b",
+              "line": 21,
+              "fingerprint": "4030beb5af0b6d88e7e3df13fcb206679bcd6510a9eeec6c25764f3a5143f9ef",
               "keyword_terms": [
                 "may"
               ],
@@ -4325,63 +3591,60 @@
           "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
         },
         {
-          "id": "M2-101-UM-v1-2-page-71",
+          "id": "M2-101-UM-v1-2-1-page-71",
           "page": 71,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-72",
-          "page": 72,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-73",
-          "page": 73,
-          "candidate_count": 6,
+          "candidate_count": 4,
           "keywords": [
             "may",
+            "required",
+            "shall not"
+          ],
+          "candidates": [
+            {
+              "line": 16,
+              "fingerprint": "1b2c4202ed1f0c9410a67163126b5a75d008812bd4ce8c0c325e540355498de1",
+              "keyword_terms": [
+                "may"
+              ],
+              "role": "substantive-candidate"
+            },
+            {
+              "line": 18,
+              "fingerprint": "630319b5db0a06caf1ef5b3a29d5a04136bf1a50455fbe5b13c074c87c2d0eb5",
+              "keyword_terms": [
+                "may"
+              ],
+              "role": "substantive-candidate"
+            },
+            {
+              "line": 20,
+              "fingerprint": "a29931aa1cccfa1489826b253bc33d7446ecde6712e98662eb7142a5be72ba14",
+              "keyword_terms": [
+                "required"
+              ],
+              "role": "substantive-candidate"
+            },
+            {
+              "line": 26,
+              "fingerprint": "18093b64f4bcba5447c3ce8e721765286aa5e580639d8dd25bc545f22e0359f7",
+              "keyword_terms": [
+                "shall not"
+              ],
+              "role": "substantive-candidate"
+            }
+          ],
+          "disposition": "candidate-page-requires-ledger-classification",
+          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
+        },
+        {
+          "id": "M2-101-UM-v1-2-1-page-74",
+          "page": 74,
+          "candidate_count": 5,
+          "keywords": [
             "must",
             "shall"
           ],
           "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
-            },
             {
               "line": 3,
               "fingerprint": "8890aafd9d0465d7785b78ca0f60ef95a6541224bf1c98368540c6fe24af735b",
@@ -4421,26 +3684,6 @@
                 "must"
               ],
               "role": "substantive-candidate"
-            }
-          ],
-          "disposition": "candidate-page-requires-ledger-classification",
-          "notes": "Location inventory only; source text is not reproduced. Candidates must be classified in the requirement ledger."
-        },
-        {
-          "id": "M2-101-UM-v1-2-page-74",
-          "page": 74,
-          "candidate_count": 1,
-          "keywords": [
-            "may"
-          ],
-          "candidates": [
-            {
-              "line": 1,
-              "fingerprint": "447f6549d281b857aa61c0d6ab5427f4cdbbb7bc7718e3f7e320bc69a3b1f863",
-              "keyword_terms": [
-                "may"
-              ],
-              "role": "page-header"
             }
           ],
           "disposition": "candidate-page-requires-ledger-classification",

@@ -18,7 +18,7 @@
 | Flex – Tempo / Time Signature | Flex spec | BPM < 1; denominatorPow2 > 0x1F | Rejected (TS; Swift validated via throwing inits) |
 | Flex – Payload bounds | Flex spec | Tempo > 16.16 max; text/ruby/lyric/chord/key >12 bytes; metronome accent >10 bytes | Rejected (Swift + TS) |
 | Flex – Unknown status within class | Flex spec | Unrecognised status values in class 0x10/0x11 | Rejected (Swift + TS) |
-| MIDI-CI Process Inquiry | M2-101-UM v1.2 | Invalid command byte; length overrun | Rejected (Swift throwing validator) |
+| MIDI-CI Process Inquiry | M2-101-UM v1.2.1 | Invalid command byte; length overrun | Rejected (Swift throwing validator) |
 | MIDI-CI Profiles Details | M2-102-U v1.1 Table 6 | Missing profileId in details inquiry; unsupported setOn | Rejected (Swift replies disabled/empty) |
 | MIDI-CI Profiles Details (targets) | M2-102-U v1.1 Table 6 | Target missing on setOn/Off; channel count overflow | Rejected (Swift drops request) |
 | Flex – Reserved status class | Flex spec | Status class ≠ 0x10 | Rejected (Swift + TS) |
@@ -27,7 +27,7 @@
 | MIDI 2 System – Unsupported status/data | M2-104-UM §5.2 | Status outside allowed set; data1/data2 > 0x7F | Rejected (Swift decode nil; TS RangeError) |
 | MIDI 2 Per-note Management – Invalid note | M2-104-UM §7.4 | Note > 0x7F | Rejected (Swift decode nil) |
 | MIDI-CI Profiles – Channel/target bounds | M2-102-U v1.1 | Channel count overflow; invalid target nibble | Rejected (Swift decode nil/empty; TS envelope drops) |
-| Process Inquiry – messageDataControl | M2-101-UM v1.2 | messageDataControl not in {0x00,0x01,0x7F} | Rejected (Swift + TS) |
+| Process Inquiry – messageDataControl | M2-101-UM v1.2.1 | messageDataControl not in {0x00,0x01,0x7F} | Rejected (Swift + TS) |
 
 ## Next Targets
 - Utility reserved opcodes and out-of-range fields (beyond group/status already covered).

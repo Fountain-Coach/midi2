@@ -393,3 +393,30 @@ credential/ownership gate is still open under issue #207: public npm
 0.13.0 and package integrity need actual registry receipts. Publish the
 source projection by the typed MIDI2 EstatePublisher with immutable
 rollback, exact commit and independent HTTPS hash readback.
+
+---
+
+## 2026-11-09 definitive MIDI2 GitHub-first release authority
+
+Decision: the canonical Fountain-Coach/midi2 Git repository, signed version
+tag, protected CI and public GitHub Release are the release contract for
+Swift and TypeScript/JavaScript source. npm and all other registries are
+OPTIONAL independent mirrors, never release gates. No npm account, token
+or publishing website controls our source release authority.
+
+Evidence: v0.13.0 signed tag and public GitHub Release exist and point to
+fb007d34367de86414ad7621159741e2849c827a. TypeScript package source
+lives at that same Git revision under midi2.js. npm CLI may be used to
+install development dependencies/build, not to publish this library. An
+existing signed tag is immutable; never retroactively change its contents.
+
+Scope: rewrite RELEASE.md, repository-local release-process Skill and JS
+checklist; revise README/documentation, changelog, machine release status
+and generated homepage; add consistency check to CI. Preserve normative
+source version, runtime boundary and independent hardware-evidence claims.
+
+Acceptance: source-owned policy gates, type/schema/doc verifiers, protected
+PR/CI and main merge. Public site projection is a separately authorized
+publication and only complete after exact source and HTTPS SHA readback.
+Existing issue #207 may be closed as superseded by the GitHub-first release
+contract; npm registration is not an action item.

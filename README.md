@@ -6,7 +6,7 @@
 
 Lightweight Swift library and reference implementations for the Universal MIDI Packet (UMP) model and bridging between MIDI 2.0 and legacy CoreMIDI hosts. Also includes **midi2.js**, a cross-browser, CoreMIDI-free TypeScript/JavaScript MIDI 2.0 protocol library.
 
-The protected **main** branch contains **source/package version 0.13.0**, tracking MIDI-CI M2-101-UM v1.2.1 with SHA-256-pinned source evidence and tested Property Exchange ACK/NAK types. The **signed `v0.13.0` Git tag is available for Swift Package Manager** (Ed25519 signature verified locally; GitHub account-level signature verification not independently established). The **GitHub v0.13.0 source Release is now published and marked Latest**; it provides the signed source/tag for Swift Package Manager but does not publish the JavaScript npm package. The npm registry still does **not** expose `@fountain-coach/midi2` (404 checked 2026-11-09). This is **not a complete Swift-and-npm public release**.
+The protected **main** branch contains **source version 0.13.0** and the MIDI-CI M2-101-UM v1.2.1 evidence baseline. The **signed v0.13.0 Git tag** and **public GitHub v0.13.0 Release** constitute the completed source release for Swift and TypeScript/JavaScript. Swift Package Manager uses the signed Git tag; midi2.js is available in that same versioned Git source. Third-party package registries are optional mirrors, never prerequisites for this release. Independent hardware interoperability is not claimed.
 
 The repository's runtime claim is deliberately bounded: the named Swift and TypeScript core software surfaces are tested and runtime-complete within the declared boundary. This does not claim every optional MIDI 2.0 extension, host adapter, or physical-device interoperability.
 
@@ -27,7 +27,7 @@ The skill is repository-scoped and domain-agnostic: publication hosts, subdomain
 
 **JavaScript/TypeScript Library:**
 - **[midi2.js](midi2.js/)** — Cross-browser MIDI 2.0 library with UMP encoding/decoding, SysEx7/8 fragmentation, MIDI-CI envelopes, jitter-aware scheduler, and adapters for WebAudio/Three.js/Cannon.js.
-- npm package name declared in `midi2.js/package.json`: `@fountain-coach/midi2`. **Public npm availability is not established**; as of 2026-11-09 the public registry returned 404. Build from the Git source until an authorized release is published.
+- **[Signed v0.13.0 Git source](https://github.com/Fountain-Coach/midi2/tree/v0.13.0)** — the TypeScript/JavaScript package lives in midi2.js/. Build from that versioned source; any external registry mirror is optional.
 
 ## Packages
 
@@ -59,13 +59,13 @@ Or add via Xcode: **File → Add Packages** and enter the repository URL.
 ### JavaScript/TypeScript — build from source
 
 ```bash
-git clone https://github.com/Fountain-Coach/midi2.git
+git clone --depth 1 --branch v0.13.0 https://github.com/Fountain-Coach/midi2.git
 cd midi2/midi2.js
 npm ci
 npm run build
 ```
 
-For source-based development, the built package exposes the following exports; publish/install from a package registry only after an actual release:
+The versioned source includes the following API exports. To consume the built output, link or bundle the generated midi2.js/dist files explicitly; registry publication is not required:
 ```typescript
 import { encodeNoteOn, decodeMIDI2Message } from '@fountain-coach/midi2';
 ```

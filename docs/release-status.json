@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "fountain-coach.midi2.release-status.v3",
+  "schemaVersion": "fountain-coach.midi2.release-status.v4",
   "reviewedAt": "2026-11-09",
   "source": {
     "repository": "https://github.com/Fountain-Coach/midi2",
     "branch": "main",
     "packageVersion": "0.13.0",
-    "state": "signed-source-and-github-release-published-npm-pending",
+    "state": "signed-git-tag-and-github-source-release-published",
     "versionIntroducedInCommit": "09f046b1980a152f4363aeef50f750ce2bc524f7"
   },
   "normativeCorpus": {
@@ -20,17 +20,24 @@
   "distribution": {
     "verifiedLatestGitTag": "v0.13.0",
     "verifiedLatestGitHubRelease": "v0.13.0",
-    "publicNpmPackage": "@fountain-coach/midi2",
-    "publicNpmState": "not-available-on-2026-11-09",
     "gitTagTargetCommit": "fb007d34367de86414ad7621159741e2849c827a",
     "gitTagSignatureVerifiedLocally": true,
     "gitHubSignatureVerification": "not-independently-established",
     "swiftGitTagAvailable": true,
-    "npmAndPublishedGitHubReleaseComplete": false,
     "gitHubReleaseState": "published",
     "publishedGitHubReleaseTag": "v0.13.0",
     "publishedGitHubReleaseUrl": "https://github.com/Fountain-Coach/midi2/releases/tag/v0.13.0",
-    "publishedGitHubReleaseAt": "2026-11-09T11:11:39Z"
+    "publishedGitHubReleaseAt": "2026-11-09T11:11:39Z",
+    "releaseAuthority": "signed-git-tag-and-public-github-release",
+    "sourceReleaseComplete": true,
+    "javascriptDelivery": "versioned-git-source; build from midi2.js/",
+    "optionalRegistries": {
+      "npm": {
+        "requiredForSourceRelease": false,
+        "published": false,
+        "note": "Optional registry mirror; NOT a release DoD gate"
+      }
+    }
   },
   "implementation": {
     "midiCiPeFlowControl": "typed-ack-nak-status-fields-tested",
@@ -43,8 +50,9 @@
     "specBaseline": "docs/release-spec-baseline.json",
     "claimRegister": "docs/claims.json",
     "candidateFlowControlScenario": "Tests/Scenarios/midi-ci-v121-pe-flow-control.json",
-    "releaseGateIssue": "https://github.com/Fountain-Coach/midi2/issues/207",
     "remainingPeIssue": "https://github.com/Fountain-Coach/midi2/issues/205",
-    "networkTransportCandidate": "https://github.com/Fountain-Coach/midi2/pull/203"
+    "networkTransportCandidate": "https://github.com/Fountain-Coach/midi2/pull/203",
+    "sourceRelease": "https://github.com/Fountain-Coach/midi2/releases/tag/v0.13.0",
+    "optionalRegistryHistory": "https://github.com/Fountain-Coach/midi2/issues/207"
   }
 }

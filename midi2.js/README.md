@@ -8,6 +8,28 @@ a **timestamped, structured, vendor‑agnostic event fabric** capable of driving
 
 ---
 
+## Distribution
+
+The canonical TypeScript/JavaScript source ships in the signed MIDI2 Git tag
+and public GitHub Release. Version 0.13.0 is available at
+https://github.com/Fountain-Coach/midi2/tree/v0.13.0/midi2.js .
+Clone the signed tag and build this package with the checked-in lockfile:
+
+~~~sh
+git clone --branch v0.13.0 --depth 1 https://github.com/Fountain-Coach/midi2.git
+cd midi2/midi2.js
+npm ci
+npm run build
+~~~
+
+These npm CLI commands install build dependencies and build locally.
+They do NOT require a Fountain Coach npm publishing account or a published
+MIDI2 registry package. Link or bundle dist/ explicitly as appropriate.
+External package registries are optional convenience mirrors, not release
+requirements. See the top-level RELEASE.md.
+
+---
+
 ## 1. Why MIDI 2.0 is Not a Music Protocol Anymore
 
 MIDI 2.0 introduces:

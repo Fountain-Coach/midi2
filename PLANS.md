@@ -345,3 +345,14 @@ The authoritative package exposes every generic RTP-MIDI2 host capability needed
 - **Acceptance:** focused Swift codec tests and existing RTP tests, source/claim/runtime checks, YAML/JSON parity, negative mutation check for manifest drift, and `git diff --check`. The planned `NetworkMidi2Session` remains unimplemented pending independent state and network tests.
 - **Governance:** chapters 07 (no invented prerequisite), 08 (separate evidence authority), 73 (scenario owns terminal predicates), 91/93 (kit/host/operation boundaries), chapter 150 proposed transport replacement seam. No current conflict. Excludes Reframe/AX, hardware interoperability, certification, release, and publication.
 - **Next explicit bounded phase:** protocol state machine with host/client session identity, per-peer admission, invitation/accepted/bye/NAK/ping, UMP sequencing/deduplication, cancellation/timeout and retransmission behavior. Only after that: a NetworkMidi2Session transport conforming to MIDITransport, with two-process and third-party peer evidence.
+
+### 2026-11-09 stacked scenario: bounded session core (candidate)
+- Goal: extend reviewed M2-124 v1.0.1 framing with source-backed deterministic no-I/O session state transitions, without new IDL or host authority.
+- Governance read: chapters 07 (goal fidelity), 08 (independent witnesses), 73 (scenario-first), 91 and 93 (kit and admission), 150 (transport proposal). Root AGENTS and existing PLANS read. No conflicting rule found.
+- History-first: base 6bfdd92 contains source-verified packet codec and manifest, but no NetworkMidi2Session socket transport. Preserve unchanged RTP adapter and reuse the base codec.
+- Scope: no-auth invitation, accept/pending, ping/NAK, ordered UMP command/duplicate/gap observation, reset and Bye. Default refusal of unpermitted peers; separate host/FCIS admission.
+- Focused acceptance: explicit success/failure transitions, malformed input, deterministic two-role codec exchange, all relevant Swift and claim gates.
+- Excluded: real UDP, DNS-SD, crypto, FEC/retransmission timers, multi-client networking, hardware, releases, Reframe integration and publication.
+- Stop: a source-backed state model is neither NetworkMidi2Session nor independent software-peer interoperability; retain candidate status.
+- Source: M2-124-UM v1.0.1 SHA-256 21262fe97d69ff99f194d7bc0b78a566e431687a78e0a4cdb4cbc12ad894dd24; source PDF not committed (rights).
+- Git workflow: separate stacked PR to avoid concurrent writes to PR #203, preserving its independent source review.

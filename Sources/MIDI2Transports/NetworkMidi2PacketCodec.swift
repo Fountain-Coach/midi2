@@ -135,6 +135,46 @@ public enum NetworkMidi2PacketCodec {
         )
     }
 
+    /// Decode the invitation/accepted/pending identity from M2-124-UM v1.0.1,
+    /// tables 10, 12, and 13. Network permission is not decided here.
+    public static func endpointIdentity(
+        from command: NetworkMidi2Command
+    ) throws -> (name: String, productID: String) {
+        guard command.code == 0x01 || command.code == 0x10 || command.code == 0x11 else {
+            throw NetworkMidi2PacketError.invalidEndpointName
+        }
+        let nameWordCount = Int(command.specificData >> 8)
+        guard (1...25).contains(nameWordCount),
+              command.payload.count >= nameWordCount + 1,
+              command.payload.count <= 36 else {
+            throw NetworkMidi2PacketError.invalidEndpointName
+        }
+        var bytes: [UInt8] = []
+        for word in command.payload {
+            bytes.append(UInt8((word >> 24) & 0xFF))
+            bytes.append(UInt8((word >> 16) & 0xFF))
+            bytes.append(UInt8((word >> 8) & 0xFF))
+            bytes.append(UInt8(word & 0xFF))
+        }
+        func unpad(_ buffer: [UInt8]) -> [UInt8]? {
+            guard let null = buffer.firstIndex(of: 0) else { return buffer }
+            guard buffer[null...].allSatisfy({ $0 == 0 }) else { return nil }
+            return Array(buffer[..<null])
+        }
+        guard let nameBytes = unpad(Array(bytes.prefix(nameWordCount * 4))),
+              !nameBytes.isEmpty, nameBytes.count <= 98,
+              let name = String(bytes: nameBytes, encoding: .utf8) else {
+            throw NetworkMidi2PacketError.invalidEndpointName
+        }
+        guard let productBytes = unpad(Array(bytes.dropFirst(nameWordCount * 4))),
+              !productBytes.isEmpty, productBytes.count <= 42,
+              productBytes.allSatisfy({ (32...126).contains(Int($0)) }),
+              let productID = String(bytes: productBytes, encoding: .ascii) else {
+            throw NetworkMidi2PacketError.invalidProductInstanceID
+        }
+        return (name, productID)
+    }
+
     public static func umpData(
         sequenceNumber: UInt16, words: [UInt32]
     ) throws -> NetworkMidi2Command {

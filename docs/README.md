@@ -1,6 +1,6 @@
 # Documentation
 
-**Corpus reconciled**: 2026-11-09 | **Release candidate**: 0.13.0 (not tagged or published; last documented package release 0.12.8)
+**Corpus reconciled**: 2026-11-09 | **Release candidate**: 0.13.0 (not tagged or published; last Git tag v0.12.8; GitHub Releases lists v0.11.0 latest; public npm not available)
 
 ## Agent maintenance
 

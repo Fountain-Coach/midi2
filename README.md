@@ -1,13 +1,12 @@
 # midi2
 
 [![CI](https://github.com/Fountain-Coach/midi2/workflows/CI/badge.svg)](https://github.com/Fountain-Coach/midi2/actions/workflows/ci.yml)
-[![npm version](https://badge.fury.io/js/@fountain-coach%2Fmidi2.svg)](https://www.npmjs.com/package/@fountain-coach/midi2)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <!-- TODO: Add coverage badge when coverage reporting is configured -->
 
 Lightweight Swift library and reference implementations for the Universal MIDI Packet (UMP) model and bridging between MIDI 2.0 and legacy CoreMIDI hosts. Also includes **midi2.js**, a cross-browser, CoreMIDI-free TypeScript/JavaScript MIDI 2.0 protocol library.
 
-The current **0.13.0 release-candidate branch** tracks MIDI-CI M2-101-UM v1.2.1 with SHA-256 pinned source evidence and typed Property Exchange ACK/NAK flow control. The installation snippet below still targets the last published version (0.12.8); a 0.13.0 Git tag/npm release must not be assumed until CI, review, signed tagging and publication are verified.
+The current **0.13.0 release-candidate branch** tracks MIDI-CI M2-101-UM v1.2.1 with SHA-256 pinned source evidence and typed Property Exchange ACK/NAK flow control. The Swift installation snippet below targets the last verified Git tag (v0.12.8; signature status not independently established); the GitHub Releases listing still identifies v0.11.0 as the latest released edition. The public npm registry does not currently expose `@fountain-coach/midi2` (404 verified 2026-11-09); a 0.13.0 tag, GitHub release or npm publication must not be assumed until verified.
 
 The repository's runtime claim is deliberately bounded: the named Swift and TypeScript core software surfaces are tested and runtime-complete within the declared boundary. This does not claim every optional MIDI 2.0 extension, host adapter, or physical-device interoperability.
 
@@ -28,7 +27,7 @@ The skill is repository-scoped and domain-agnostic: publication hosts, subdomain
 
 **JavaScript/TypeScript Library:**
 - **[midi2.js](midi2.js/)** — Cross-browser MIDI 2.0 library with UMP encoding/decoding, SysEx7/8 fragmentation, MIDI-CI envelopes, jitter-aware scheduler, and adapters for WebAudio/Three.js/Cannon.js.
-- Available on npm: `@fountain-coach/midi2`
+- npm package name declared in `midi2.js/package.json`: `@fountain-coach/midi2`. **Public npm availability is not established**; as of 2026-11-09 the public registry returned 404. Build from the Git source until an authorized release is published.
 
 ## Packages
 
@@ -57,13 +56,16 @@ dependencies: [
 
 Or add via Xcode: **File → Add Packages** and enter the repository URL.
 
-### npm (JavaScript/TypeScript)
+### JavaScript/TypeScript — build from source
 
 ```bash
-npm install @fountain-coach/midi2
+git clone https://github.com/Fountain-Coach/midi2.git
+cd midi2/midi2.js
+npm ci
+npm run build
 ```
 
-Then import in your project:
+For source-based development, the built package exposes the following exports; publish/install from a package registry only after an actual release:
 ```typescript
 import { encodeNoteOn, decodeMIDI2Message } from '@fountain-coach/midi2';
 ```

@@ -72,3 +72,11 @@ article th, article td { border: 1px solid var(--line); padding: .55rem .7rem; t
 .footer small { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; overflow-wrap: anywhere; }
 @media (max-width: 60rem) { .estate-nav { gap: .45rem; } .estate-nav span { display: none; } }
 @media (max-width: 48rem) { .topbar { flex-wrap: wrap; gap: .8rem; } .estate-nav { order: 3; width: 100%; justify-content: flex-start; overflow: auto; } .menu-button { display: inline-block; } .chapter-rail { display: none; position: fixed; inset: 4.25rem 0 0; z-index: 4; overflow: auto; } .chapter-rail[data-open="true"] { display: block; } .workspace { display: block; } .canvas { padding-top: 1.25rem; } .section-heading { display: block; } .section-heading p { margin-top: .7rem; } }
+
+/* Release truth is editorial source context, not a promotional badge. */
+.release-status { border-top: 1px solid var(--line, #bbb); margin-top: 2rem; padding-top: 1.5rem; }
+.release-status-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin: 1.25rem 0; }
+.release-status-grid > div { border-top:1px solid var(--line,#aaa); padding-top:0.75rem; display:flex; flex-direction:column; gap:0.35rem; }
+.release-status-grid strong { font-size:1.25rem; font-variant-numeric:tabular-nums; }
+.release-status-grid span { font-size:0.9rem; opacity:0.8; }
+@media(max-width:640px) { .release-status-grid {grid-template-columns:1fr;} }

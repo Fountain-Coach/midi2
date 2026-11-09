@@ -290,3 +290,47 @@ Validation:
 `swift test --filter RTPMidiSessionTests`, descriptor tests, full `swift test`, documentation verification, claim verification, and `git diff --check`.
 Acceptance Criteria:
 The authoritative package exposes every generic RTP-MIDI2 host capability needed by joining-machine consumers; existing transport behavior remains tested; estate-specific semantics stay out of midi2; no second transport implementation is needed by EstatePublisher.
+
+---
+
+## Active: M2-124 software-peer transport scenario and instrument seam (2026-11-09)
+
+**Intent:** Establish a standards-facing, independently testable Network MIDI 2.0 UDP software-peer path without changing the identity or operation vocabulary of any existing Fountain Coach MIDI2 instrument.
+
+**Status:** scenario-definition candidate; no M2-124 implementation, admission, release, publication, or conformance claim has been established by this plan.
+
+**Owner and identity:** `Fountain-Coach/midi2` owns the `MIDI2Transports` kit and proposed `NetworkMidi2Session: MIDITransport` seam. A Reframe peer is a later consumer of a released kit; a transport adapter is not a new registered MIDI2 command or an independently admitted FCIS instrument. Preserve `RTPMidiSession` unchanged.
+
+**History-first reconstruction (FCIS-KIT-16):**
+- Observed in source: `MIDI2Transports`, `RTPMidiSession`, `MIDITransport`, and package version 0.12.8 exist; `NetworkMidi2Session` was not found in the current source tree.
+- Existing work to reuse: UMP core, MIDI-CI core, transport interface, `RTPMidiSession` regression tests, the source-provenance verifier, and the explicit hardware exclusion.
+- Unestablished: current M2-124-UM v1.0.1 PDF hash, exact 1.0 -> 1.0.1 changes, independent standards-facing interoperability, live two-peer run, and kit/consumer release evidence.
+- Missing seam: a distinct `NetworkMidi2Session` conforming to the source-verified M2-124-UM wire and session behavior; not a rewrite or alias of the Fountain RTP/UMP transport.
+- Stop condition: do not implement version-specific packet fields or claim M2-124 conformance until the authoritative versioned PDF, version differences and page/section citations are verified. Do not promote software-peer or hardware claims without independent witnesses.
+
+**Governance reading record:**
+- Chapters read: 07 goal fidelity and non-invention; 08 separate evidence authorities; 73 versioned, scenario-first acceptance and independently witnessed outcomes; 91 the IDL / kit / host / Store separation; 93 instrument lifecycle and non-self-admission; 81 universal MIDI2 operation plane. Chapter 150 was read as a transport architecture proposal: a new transport belongs below `MIDITransport`, not in a new command vocabulary.
+- Forbidden: treating RTP/UMP as M2-124, inventing wire semantics from marketing prose, making transport discovery equal instrument authorization, self-certifying interop, bypassing the owned kit, or claiming hardware success from software traces.
+- Conflicts: the official M2-124-UM catalogue currently names v1.0.1, but the accessible third-party references describe v1.0 and do not establish v1.0.1 deltas; the catalogue remains authoritative. No other governance conflict resolved by this plan.
+- Excluded: CoreMIDI/CoreAudio integration, physical devices, Reframe GUI/AX/live-drive, product authorization changes, release and public deployment; these need separate consumer scenarios after upstream transport evidence.
+
+**Scenario source:** `Tests/Scenarios/network-midi2-udp-peer.yaml` — system-boundary candidate. A checked executable JSON projection and an independently witnessed software-peer run are prerequisites to promotion; this YAML is not yet a live-accepted executable scenario.
+
+**Scope:** source admission for M2-124-UM v1.0.1; discovery/session/data/loss/teardown and unsupported command cases; named independent software peers; preservation of existing MIDI2/FCIS operation identity and admission across transport choice.
+
+**Non-goals:** new MIDI2 IDL topics solely for network transport; importing Windows or third-party transport code; replacing `RTPMidiSession`; editing the existing six-document core corpus to silently include a transport spec; hardware interoperability; publication.
+
+**Risks:** unverified spec revisions, conflating software transport connectivity with MIDI-CI or host authorization, silently losing packet ordering/loss recovery, or advertising interoperability after a self-to-self test.
+
+**Steps:**
+- [x] Inspect the current transport and core evidence boundary; resolve governance and select one system-boundary scenario.
+- [x] Author the candidate scenario with explicit failure, cancellation, timeout, packet-loss and independent-peer witness requirements.
+- [ ] Admit a source-verified M2-124-UM v1.0.1 artifact by hash and page/section delta audit; keep third-party PDF redistribution rights separate.
+- [ ] Generate and check the executable scenario projection against the instrument scenario runner before any runtime edits.
+- [ ] Implement the smallest source-verified `NetworkMidi2Session` slice in `MIDI2Transports`, with focused positive/negative tests.
+- [ ] Run the Swift kit tests, source/claim gates and independent external software-peer session; record source/build/run tuple and trace evidence.
+- [ ] Seek independent instrument admission, release the kit by semver, and only then integrate a consumer with the unchanged IDL operation plane.
+
+**Validation / acceptance:** check exact versioned source and hashes; prove two distinct processes/ports/executables exchange named UMP data after valid session setup; test malformed/unknown messages, timeout, duplicate, packet loss/recovery, sequence wrap, teardown and reconnect; record negative cases and trace digest; confirm no transport-driven authority escalation; compare application operation identity and terminal evidence across RTP and M2-124. A self-peer run establishes internal behavior only; a separate implementation is required for software interoperability; a physical MIDI2 device is required for hardware interoperability.
+
+**Rollback:** leave existing RTP implementation, core claims, release tags, and production website unchanged; discard the isolated candidate branch if source verification or scenario acceptance fails.

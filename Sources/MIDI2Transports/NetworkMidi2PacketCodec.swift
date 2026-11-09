@@ -1,8 +1,10 @@
 import Foundation
 
-/// The bounded, sans-I/O UDP command framing defined by M2-124-UM v1.0.1
-/// sections 5.1-5.6. The wire codec is not a session implementation, a
-/// discovery mechanism, or a claim of peer interoperability.
+/// Bounded framing for M2-124-UM v1.0.1, sections 5.1-5.5 (pp. 21-24),
+/// section 6.4 (pp. 27-29), section 7.1 (p. 42) and Appendix A.1 (pp. 51-52).
+///
+/// This is not NetworkMidi2Session: no socket, discovery, authorization,
+/// session admission, FEC, retransmit or hardware interoperability is claimed.
 public enum NetworkMidi2PacketError: Error, Equatable, Sendable {
     case invalidSignature
     case truncatedCommand
@@ -11,19 +13,19 @@ public enum NetworkMidi2PacketError: Error, Equatable, Sendable {
     case udpPacketTooLarge
     case invalidEndpointName
     case invalidProductInstanceID
+    case invalidInvitationCapabilities
 }
 
 public struct NetworkMidi2Command: Equatable, Sendable {
     public let code: UInt8
     public let specificData: UInt16
-    /// The complete command payload, in 32-bit network-byte-order words.
-    /// For code 0xFF, these are UMP words, whose message boundaries must be
-    /// verified by the owning UMP runtime before dispatch.
+    /// Payload in network-order 32-bit words. For 0xFF, UMP message boundaries
+    /// must be verified by the owning UMP runtime before dispatch.
     public let payload: [UInt32]
 
     public init(code: UInt8, specificData: UInt16 = 0, payload: [UInt32] = []) throws {
         guard payload.count <= 255 else { throw NetworkMidi2PacketError.commandPayloadTooLarge }
-        // M2-124-UM v1.0.1 section 7.1: at most 64 UMP words per command.
+        // §7.1 limits each UMP Data command to 64 32-bit words.
         guard code != 0xFF || payload.count <= 64 else {
             throw NetworkMidi2PacketError.commandPayloadTooLarge
         }
@@ -36,12 +38,11 @@ public struct NetworkMidi2Command: Equatable, Sendable {
 }
 
 public enum NetworkMidi2PacketCodec {
-    public static let signature: UInt32 = 0x4D49_4449 // "MIDI"
-    /// Source section 5.1.1 recommends a datagram not exceeding 1400 bytes.
+    /// §5.2: big-endian "MIDI" signature exactly once per UDP payload.
+    public static let signature: UInt32 = 0x4D49_4449
+    /// §5.1.1 recommends a 1400-byte UDP limit. This is sender policy, not a SHALL receiver limit.
     public static let maximumEmissionBytes = 1400
 
-    /// Encode one or more command packets behind the single UDP signature.
-    /// This method has no socket, session, authentication or instrument authority.
     public static func encode(_ commands: [NetworkMidi2Command]) throws -> Data {
         var bytes: [UInt8] = []
         bytes.reserveCapacity(4 + commands.reduce(0) { $0 + 4 + $1.payload.count * 4 })
@@ -59,10 +60,8 @@ public enum NetworkMidi2PacketCodec {
         return Data(bytes)
     }
 
-    /// Decode a datagram into framing-level commands without dispatching them.
-    /// Unknown commands are preserved for the future session layer to NAK.
-    /// As required by section 5.3, reserved fields and trailing command words
-    /// remain available instead of being treated as framing errors.
+    /// Preserves unknown command codes and reserved words for the future
+    /// session layer. The codec itself cannot issue the §5.5 NAK.
     public static func decode(_ datagram: Data) throws -> [NetworkMidi2Command] {
         let bytes = Array(datagram)
         guard bytes.count >= 4 else { throw NetworkMidi2PacketError.invalidPacketLength }
@@ -76,19 +75,19 @@ public enum NetworkMidi2PacketCodec {
                 throw NetworkMidi2PacketError.truncatedCommand
             }
             let code = bytes[offset]
-            let payloadWordCount = Int(bytes[offset + 1])
+            let count = Int(bytes[offset + 1])
+            guard code != 0xFF || count <= 64 else {
+                throw NetworkMidi2PacketError.commandPayloadTooLarge
+            }
             let specificData = UInt16(bytes[offset + 2]) << 8 | UInt16(bytes[offset + 3])
             offset += 4
-            let payloadBytes = payloadWordCount * 4
-            guard bytes.count - offset >= payloadBytes else {
+            guard bytes.count - offset >= count * 4 else {
                 throw NetworkMidi2PacketError.truncatedCommand
             }
             var words: [UInt32] = []
-            words.reserveCapacity(payloadWordCount)
-            for index in 0..<payloadWordCount {
-                words.append(readWord(bytes, at: offset + index * 4))
-            }
-            offset += payloadBytes
+            words.reserveCapacity(count)
+            for i in 0..<count { words.append(readWord(bytes, at: offset + i * 4)) }
+            offset += count * 4
             commands.append(try NetworkMidi2Command(
                 code: code, specificData: specificData, payload: words
             ))
@@ -96,11 +95,11 @@ public enum NetworkMidi2PacketCodec {
         return commands
     }
 
-    /// M2-124-UM v1.0.1 section 6.4, table 10: non-empty UMP endpoint
-    /// name (UTF-8, at most 98 bytes) and product instance ID
-    /// (ASCII 32...126, at most 42 bytes).
-    public static func invitation(
-        endpointName: String, productInstanceID: String, capabilities: UInt8 = 0
+    /// §6.4 Table 10 and §6.5 Table 12. Identity encoding is reusable for
+    /// invitation and accepted reply. Authentication and permission remain elsewhere.
+    private static func endpointIdentity(
+        code: UInt8, endpointName: String, productInstanceID: String,
+        capabilities: UInt8 = 0
     ) throws -> NetworkMidi2Command {
         let name = Array(endpointName.utf8)
         guard !name.isEmpty, name.count <= 98, !name.contains(0) else {
@@ -115,18 +114,30 @@ public enum NetworkMidi2PacketCodec {
         padToWord(&nameBytes)
         var productBytes = product
         padToWord(&productBytes)
-        let nameWords = nameBytes.count / 4
-        let specificData = UInt16(nameWords) << 8 | UInt16(capabilities)
+        let specificData = UInt16(nameBytes.count / 4) << 8 |
+            UInt16(code == 0x01 ? capabilities : 0)
         return try NetworkMidi2Command(
-            code: 0x01,
-            specificData: specificData,
+            code: code, specificData: specificData,
             payload: words(from: nameBytes + productBytes)
         )
     }
 
-    /// Section 7.1: sequence belongs to the sender's established session.
-    /// Validation of whole UMP messages and ordering belongs to the runtime.
-    public static func umpData(sequenceNumber: UInt16, words: [UInt32]) throws -> NetworkMidi2Command {
+    public static func invitation(
+        endpointName: String, productInstanceID: String, capabilities: UInt8 = 0
+    ) throws -> NetworkMidi2Command {
+        // §6.4 Table 11: only bit 0 and bit 1 are defined; D2-D7 are reserved.
+        guard capabilities & 0xFC == 0 else {
+            throw NetworkMidi2PacketError.invalidInvitationCapabilities
+        }
+        return try endpointIdentity(
+            code: 0x01, endpointName: endpointName,
+            productInstanceID: productInstanceID, capabilities: capabilities
+        )
+    }
+
+    public static func umpData(
+        sequenceNumber: UInt16, words: [UInt32]
+    ) throws -> NetworkMidi2Command {
         try NetworkMidi2Command(code: 0xFF, specificData: sequenceNumber, payload: words)
     }
 
@@ -138,11 +149,11 @@ public enum NetworkMidi2PacketCodec {
         stride(from: 0, to: bytes.count, by: 4).map { readWord(bytes, at: $0) }
     }
 
-    private static func readWord(_ bytes: [UInt8], at index: Int) -> UInt32 {
-        UInt32(bytes[index]) << 24 |
-        UInt32(bytes[index + 1]) << 16 |
-        UInt32(bytes[index + 2]) << 8 |
-        UInt32(bytes[index + 3])
+    private static func readWord(_ bytes: [UInt8], at i: Int) -> UInt32 {
+        UInt32(bytes[i]) << 24 |
+        UInt32(bytes[i + 1]) << 16 |
+        UInt32(bytes[i + 2]) << 8 |
+        UInt32(bytes[i + 3])
     }
 
     private static func append(_ word: UInt32, to bytes: inout [UInt8]) {

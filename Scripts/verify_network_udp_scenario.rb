@@ -40,6 +40,17 @@ implementation = scenario.fetch("implementation")
 topology = scenario.fetch("topology")
 claim = scenario.fetch("claim_boundary")
 fail_contract("wrong spec/version") unless spec["document"] == "M2-124-UM" && spec["required_version"] == "1.0.1"
+manifest_path = spec["source_manifest"]
+fail_contract("wrong or missing source manifest path") unless manifest_path == "docs/network-midi2-udp-source.json"
+manifest = JSON.parse(File.read(File.join(ROOT, manifest_path)))
+source = manifest.fetch("document")
+fail_contract("source ID/version drift") unless source["id"] == spec["document"] && source["version"] == spec["required_version"]
+fail_contract("source hash or version evidence drift") unless spec["source_verified"] == true &&
+  source["sha256"] == spec["source_hash"] && source["sha256"].match?(/\A[0-9a-f]{64}\z/) &&
+  source["pdfCommitted"] == false && source["redistributionRightsEstablished"] == false
+fail_contract("missing source page evidence") unless spec["source_page_map"].is_a?(Hash) &&
+  spec["source_page_map"]["framing"] && spec["source_page_map"]["ump_data"] &&
+  spec["source_page_map"]["multiple_clients"]
 fail_contract("transport namespace changes IDL") unless implementation["requires_new_idl_topic"] == false && implementation["changes_existing_idl"] == false
 fail_contract("incumbent RTP implementation missing from boundary") unless implementation["incumbent_transport"] == "Sources/MIDI2Transports/RTPMidiSession.swift"
 fail_contract("no independent peer topology") unless topology.dig("initiator", "process") != topology.dig("responder", "process")

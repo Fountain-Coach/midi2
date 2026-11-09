@@ -12,18 +12,16 @@
       "required_version": "1.0.1",
       "source_hash": "21262fe97d69ff99f194d7bc0b78a566e431687a78e0a4cdb4cbc12ad894dd24",
       "source_verified": true,
-      "source_location": "https://drive.google.com/file/d/12-mWKKjeKB-Y-R8lNM95VeUsQeaLr8DD/view",
-      "retrieved": "2026-11-09",
-      "local_only_source": true,
+      "source_manifest": "docs/network-midi2-udp-source.json",
       "source_page_map": {
         "framing": "pp. 21-24, sections 5.1-5.6",
         "invitation": "pp. 27-30, sections 6.4-6.6",
         "states": "pp. 25-27, sections 6.1-6.3",
-        "ping_bye": "pp. 37-41, sections 6.13-6.17",
-        "ump_data": "pp. 42-47, sections 7.1-7.2.4",
+        "ump_data": "p. 42, section 7.1",
+        "multiple_clients": "p. 48, section 8",
         "examples": "pp. 51-52, appendix A.1"
       },
-      "source_note": "Copyright MIDI Association/AMEI. PDF is not committed or redistributed."
+      "source_note": "MIDI Association/AMEI copyrighted PDF inspected locally, not committed or redistributed."
     },
     "implementation": {
       "target": "Sources/MIDI2Transports/NetworkMidi2Session.swift",

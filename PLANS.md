@@ -355,3 +355,5 @@ The authoritative package exposes every generic RTP-MIDI2 host capability needed
 - **Terminal predicates:** valid explicit invitation reaches established only after host decision; no UMP before acceptance; Ping in idle returns matching Ping Reply; unknown command yields source-backed NAK; Bye acknowledged in idle and established; bounded refusal for invalid input; existing RTP tests unchanged.
 - **Recovery and timing:** no automatic retry or silent timeout handling. Later socket runtime must own timing, retransmission and correlation; this state machine does not claim those layers.
 - **Readings:** governance 07/08/73/91/93 and M2-124 source as above; no conflict. Host application and end-to-end Reframe acceptance excluded.
+
+- **Sequence handling refinement:** the no-I/O component now suppresses UMP Data duplicate sequence numbers using a bounded 1024-entry recent-history window (source §7.2.1 p. 43). It does not buffer out-of-order data, offer retransmission or provide full FEC. Focused duplicate/wrap tests are required before accepting this refinement.

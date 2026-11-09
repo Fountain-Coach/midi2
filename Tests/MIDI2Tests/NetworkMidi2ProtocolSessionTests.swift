@@ -199,6 +199,41 @@ final class NetworkMidi2ProtocolSessionTests: XCTestCase {
         XCTAssertEqual(host.state, .idle)
     }
 
+    func testDuplicateUMPSequenceIsNotDeliveredTwice() throws {
+        var host = try host()
+        let invitation = try NetworkMidi2PacketCodec.invitation(
+            endpointName: "Client", productInstanceID: "C1"
+        )
+        _ = try host.receive(invitation, hostAdmission: .allow)
+        let packet = try NetworkMidi2PacketCodec.umpData(
+            sequenceNumber: 0, words: [0x10F8_0000]
+        )
+        XCTAssertEqual(try host.receive(packet).incomingUMPWords, [0x10F8_0000])
+        XCTAssertTrue(try host.receive(packet).incomingUMPWords.isEmpty)
+        let next = try NetworkMidi2PacketCodec.umpData(
+            sequenceNumber: 1, words: [0x10FA_0000]
+        )
+        XCTAssertEqual(try host.receive(next).incomingUMPWords, [0x10FA_0000])
+        XCTAssertTrue(try host.receive(packet).incomingUMPWords.isEmpty)
+    }
+
+    func testSequenceWrapDoesNotDiscardLegitimateZero() throws {
+        var host = try host()
+        let invitation = try NetworkMidi2PacketCodec.invitation(
+            endpointName: "Client", productInstanceID: "C1"
+        )
+        _ = try host.receive(invitation, hostAdmission: .allow)
+        let last = try NetworkMidi2PacketCodec.umpData(
+            sequenceNumber: 0xFFFF, words: [0x10F8_0000]
+        )
+        let wrapped = try NetworkMidi2PacketCodec.umpData(
+            sequenceNumber: 0, words: [0x10FA_0000]
+        )
+        XCTAssertEqual(try host.receive(last).incomingUMPWords, [0x10F8_0000])
+        XCTAssertEqual(try host.receive(wrapped).incomingUMPWords, [0x10FA_0000])
+        XCTAssertTrue(try host.receive(wrapped).incomingUMPWords.isEmpty)
+    }
+
     func testByeAcknowledgedEvenWithoutSession() throws {
         var host = try host()
         let bye = try NetworkMidi2Command(code: 0xF0, specificData: 0x0400)

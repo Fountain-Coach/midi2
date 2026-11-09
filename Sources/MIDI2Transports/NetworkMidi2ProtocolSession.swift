@@ -49,6 +49,11 @@ public struct NetworkMidi2ProtocolSession: Sendable {
     private let productInstanceID: String
     private var nextSequenceNumber: UInt16 = 0
     private var outstandingPingID: UInt32?
+    // Bounded duplicate suppression for retransmitted/FEC copies (§7.2.1).
+    // This does not establish out-of-order buffering or lost-packet recovery.
+    private var recentlyDeliveredSequenceNumbers: Set<UInt16> = []
+    private var recentSequenceOrder: [UInt16] = []
+    private static let duplicateHistoryLimit = 1024
 
     public init(role: Role, endpointName: String, productInstanceID: String) throws {
         // Reuse the source-bound codec's identity validation.
@@ -189,6 +194,16 @@ public struct NetworkMidi2ProtocolSession: Sendable {
                 reset()
                 return Outcome(outgoing: [try bye(reason: 0x05)])
             }
+            let sequence = command.specificData
+            guard recentlyDeliveredSequenceNumbers.insert(sequence).inserted else {
+                // §7.2.1: receivers ignore an already processed UMP Data command.
+                return Outcome()
+            }
+            recentSequenceOrder.append(sequence)
+            if recentSequenceOrder.count > Self.duplicateHistoryLimit {
+                let forgotten = recentSequenceOrder.removeFirst()
+                recentlyDeliveredSequenceNumbers.remove(forgotten)
+            }
             return Outcome(incomingUMPWords: command.payload)
 
         default: // §5.5 unimplemented/unknown command: NAK, no session promotion
@@ -201,6 +216,8 @@ public struct NetworkMidi2ProtocolSession: Sendable {
         remoteIdentity = nil
         nextSequenceNumber = 0
         outstandingPingID = nil
+        recentlyDeliveredSequenceNumbers.removeAll()
+        recentSequenceOrder.removeAll()
     }
 
     private func acceptedReply() throws -> NetworkMidi2Command {

@@ -1,6 +1,6 @@
 # Documentation
 
-**Last Updated**: 2026-08-22 | **Version**: 0.11.0
+**Index reconciled**: 2026-11-09 | **Current package**: 0.12.8. Historical audit reports below retain older versions and percentages; use the generated claim register for present implementation claims.
 
 ## Agent maintenance
 
@@ -26,6 +26,8 @@ The guarded publication helper is [`Scripts/publish_docs_site.sh`](../Scripts/pu
 ## Specification Audit & Compliance (Updated Dec 2025)
 
 ### Bidirectional standards contract
+- **[Evidence-backed Claim Register](claim-register.md)** - present, bounded project claims; distinguishes core software completeness from physical hardware interoperability
+- **[Network MIDI 2.0 UDP candidate](network-midi2-udp.md)** and [source manifest](network-midi2-udp-source.json) - separately versioned M2-124-UM v1.0.1 transport implementation slice, not a claim of independent network interoperability
 - **[Normative Coverage Report](generated/normative-coverage.md)** - complete machine-readable inverse corpus report with per-source representations
 - **[Normative Coverage Methodology](normative-coverage-methodology.md)** - extraction, status, scope, and claim boundaries
 - **[Normative Behavior Model](normative-behavior.json)** - machine-readable protocol state machines and invariants linked from the inverse ledger
@@ -36,6 +38,7 @@ The guarded publication helper is [`Scripts/publish_docs_site.sh`](../Scripts/pu
 - **[MIDI vs Fountain Coach Extensions](midi-vs-fountain-extensions.md)** - normative authority and extension separation
 
 ### Overview Documents
+The documents in this section contain **historical audit metrics**, not the current runtime-completeness assessment; see [claim-register.md](claim-register.md) and [runtime-completeness.md](runtime-completeness.md) for the current evidence boundary.
 - **[Spec Compliance Dashboard](spec-compliance-dashboard.md)** - Quick reference with visual progress bars, metrics, and roadmap
 - **[Comprehensive Spec Audit Report](comprehensive-spec-audit-report.md)** - Full analysis covering:
   - UMP encode/decode implementation (84% complete)

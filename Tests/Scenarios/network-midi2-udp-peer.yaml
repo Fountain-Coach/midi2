@@ -1,0 +1,155 @@
+# Candidate scenario. Executable projection and external peer acceptance NOT YET ESTABLISHED.
+scenario:
+  id: midi2.network-udp.two-software-peers
+  version: "0.1.0"
+  kind: system-boundary
+  owner: Fountain-Coach/midi2
+  scope: MIDI2Transports.NetworkMidi2Session
+  status: candidate
+  specification:
+    authority: MIDI Association and AMEI
+    document: M2-124-UM
+    required_version: "1.0.1"
+    source_hash: 21262fe97d69ff99f194d7bc0b78a566e431687a78e0a4cdb4cbc12ad894dd24
+    source_verified: true
+    source_manifest: docs/network-midi2-udp-source.json
+    source_page_map:
+      framing: "pp. 21-24, sections 5.1-5.6"
+      invitation: "pp. 27-30, sections 6.4-6.6"
+      states: "pp. 25-27, sections 6.1-6.3"
+      ump_data: "p. 42, section 7.1"
+      multiple_clients: "p. 48, section 8"
+      examples: "pp. 51-52, appendix A.1"
+    source_note: "MIDI Association/AMEI copyrighted PDF inspected locally, not committed or redistributed."
+  implementation:
+    target: Sources/MIDI2Transports/NetworkMidi2Session.swift
+    transport_protocol: Sources/MIDI2Transports/MIDITransport.swift
+    incumbent_transport: Sources/MIDI2Transports/RTPMidiSession.swift
+    package: MIDI2Transports
+    requires_new_idl_topic: false
+    changes_existing_idl: false
+  claim_boundary:
+    eligible_after_source_verification:
+      - source-backed network session behavior
+      - tested bounded Swift transport behavior
+    requires_independent_software_peer: software-peer interoperability
+    requires_physical_device: hardware interoperability
+    excluded:
+      - MIDI Association certification
+      - physical-device interoperability
+      - application authorization or instrument admission from network discovery
+      - blanket conformance based only on loopback tests
+  topology:
+    initiator:
+      role: client
+      process: standalone-process-A
+      executable_digest: required
+      listen_port: distinct
+    responder:
+      role: host
+      process: standalone-process-B
+      executable_digest: required
+      listen_port: distinct
+    witnesses:
+      - initiator-protocol-trace
+      - responder-protocol-trace
+      - independent-packet-capture
+      - source-build-run-provenance
+    no_in_process_loopback_as_sole_evidence: true
+  preconditions:
+    - source-hash-and-version-verified
+    - source-derived-command-layouts-and-state-transitions-verified
+    - named-candidate-built-from-committed-source
+    - two-distinct-peer-processes-and-ports
+    - external-network-peer-authorized-by-host-policy
+    - finite-test-window-and-clean-session-state
+    - source-version-compatibility-with-peer-verified
+  actions:
+    - id: discovery
+      actor: initiator
+      action: discover-standards-facing-peer
+      expect: endpoint-discovered-not-admitted
+    - id: invite
+      actor: initiator
+      action: establish-network-midi2-session
+      expect: session-established-with-peer-identity-and-transport-state
+    - id: data
+      actor: initiator
+      action: transmit-known-ump-vector
+      input:
+        ump_words: ["0x40903c00", "0x7fffffff"]
+      expect: exactly-same-ump-words-decoded-at-responder
+    - id: return-data
+      actor: responder
+      action: transmit-known-ump-vector
+      input:
+        ump_words: ["0x40803c00", "0x00000000"]
+      expect: exactly-same-ump-words-decoded-at-initiator
+    - id: transport-invariance
+      actor: witness
+      action: compare-application-operation-contract
+      expect: identical-operation-identity-and-admission-policy-across-transports
+    - id: teardown
+      actor: initiator
+      action: close-session
+      expect: both-peers-transition-to-closed
+  negative_cases:
+    - id: malformed-datagram
+      inject: source-verified-invalid-packet
+      terminal: refused-without-ump-delivery
+    - id: unknown-command
+      inject: source-verified-unsupported-command
+      terminal: normative-refusal-or-ignore-per-source-state
+    - id: invitation-timeout
+      inject: no-response-to-invitation
+      terminal: bounded-timeout-with-no-admission
+    - id: duplicate-sequence
+      inject: duplicate-data-command
+      terminal: no-double-delivery
+    - id: packet-loss-and-recovery
+      inject: deterministic-drop-of-recoverable-datagram
+      terminal: correct-recovery-or-explicit-source-supported-failure
+    - id: sequence-boundary
+      inject: source-verified-sequence-wrap-vector
+      terminal: no-corruption-or-duplicate-delivery
+    - id: teardown-and-reconnect
+      inject: peer-closes-then-reconnects
+      terminal: old-session-revoked-new-session-distinct
+    - id: discovery-is-not-authority
+      inject: discoverable-but-not-admitted-peer
+      terminal: no-registered-operation-executed
+  terminal_predicates:
+    success:
+      - authenticated-or-policy-admitted-peer-not-inferred-from-transport
+      - distinct-peer-traces-correlate-to-one-run
+      - bidirectional-ump-payload-matches
+      - normative-session-lifecycle-observed
+      - negative-cases-have-source-backed-terminal-disposition
+      - no-unintended-change-to-rtp-ump-transport
+    blocked:
+      - missing-authoritative-versioned-source
+      - source-delta-not-reviewed
+      - missing-wire-field-page-citation
+      - independent-peer-unavailable
+      - unreviewed-security-or-permission-boundary
+  evidence:
+    independent_software_peer_receipt: null # Must be independently witnessed; not an in-process fixture
+    required:
+      - specification-file-sha256-and-page-references
+      - source-revision-and-resolved-dependencies
+      - executable-sha256-for-both-peers
+      - source-backed-command-test-vector-map
+      - independent-packet-capture-sha256
+      - correlated-initiator-and-responder-traces
+      - negative-test-results
+      - named-run-time-and-terminal-classification
+    prohibited_inference:
+      - successful-build-implies-conformance
+      - software-loopback-implies-independent-interoperability
+      - software-peer-interop-implies-physical-device-interop
+      - transport-discovery-implies-instrument-authorization
+  cleanup:
+    - close-session-both-peers
+    - stop-owned-processes-only
+    - retain-sanitized-immutable-evidence
+    - leave-existing-rtp-adapter-unmodified

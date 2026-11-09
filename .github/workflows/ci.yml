@@ -59,6 +59,9 @@ jobs:
         run: |
           python3 Scripts/generate_runtime_completeness.py --check
           python3 Scripts/verify_runtime_completeness.py
+      - name: Verify Network MIDI 2.0 scenario contract (candidate, not conformance)
+        run: |
+          ruby Scripts/verify_network_udp_scenario.rb --check
 
   # Keep the repository's protected-branch `test` status contract explicit.
   # The substantive suite runs in build-test; this dependent job exposes the

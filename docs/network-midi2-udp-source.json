@@ -1,0 +1,76 @@
+{
+  "manifestVersion": 1,
+  "domain": "Network MIDI 2.0 over UDP",
+  "scope": "transport addendum, distinct from the six-document core semantic corpus",
+  "authority": "MIDI Association / AMEI",
+  "document": {
+    "id": "M2-124-UM",
+    "title": "Network MIDI 2.0 (UDP) Transport Specification",
+    "version": "1.0.1",
+    "published": "2025-12-03",
+    "sha256": "21262fe97d69ff99f194d7bc0b78a566e431687a78e0a4cdb4cbc12ad894dd24",
+    "sourceURL": "https://drive.google.com/file/d/12-mWKKjeKB-Y-R8lNM95VeUsQeaLr8DD/view",
+    "retrieved": "2026-11-09",
+    "pages": 56,
+    "redistributionRightsEstablished": false,
+    "pdfCommitted": false
+  },
+  "comparison": {
+    "previousVersion": "1.0",
+    "previousSha256": "b60efa0e6ec74d86e674825445faa889267d065014189dec979bf4aa854da049",
+    "previousURL": "https://amei-music.github.io/midi2.0-docs/amei-pdf/M2-124-UM_v1-0_Network-MIDI-2-0-UDP.pdf",
+    "status": "selected page-and-text review; not an exhaustive normative requirement delta",
+    "verifiedChanges": [
+      {
+        "section": "6.4",
+        "page": 29,
+        "effect": "v1.0.1 explicitly requires that both invitation UMP Endpoint Name and Product Instance Id fields not be empty",
+        "implementation": "NetworkMidi2PacketCodec.invitation",
+        "test": "NetworkMidi2PacketCodecTests.testInvitationIdentityRestrictions"
+      },
+      {
+        "section": "8",
+        "page": 48,
+        "effect": "v1.0.1 adds multi-client host behavior: distinguish sessions by host UDP port plus client IP/UDP port; reject over-capacity invitation using Bye 0x40; still answer Ping",
+        "implementation": "not implemented",
+        "test": "pending"
+      },
+      {
+        "section": "5.1-5.4",
+        "pages": [
+          21,
+          22,
+          23,
+          24
+        ],
+        "effect": "signature, big-endian words and command header framing independently checked in both revisions; no behavioral change found within inspected pages",
+        "implementation": "NetworkMidi2PacketCodec",
+        "test": "NetworkMidi2PacketCodecTests"
+      },
+      {
+        "section": "7.1",
+        "page": 42,
+        "effect": "UMP Data maximum 64 words, sequence header and message ordering text independently checked in both revisions; no behavioral change found within inspected page",
+        "implementation": "NetworkMidi2PacketCodec.umpData",
+        "test": "NetworkMidi2PacketCodecTests"
+      }
+    ]
+  },
+  "implementationBoundary": {
+    "kit": "MIDI2Transports",
+    "implemented": "stateless datagram framing and bounded in-memory, per-peer session-control handling; no UDP sockets or independent interoperability",
+    "notEstablished": [
+      "NetworkMidi2Session",
+      "mDNS/DNS-SD discovery",
+      "session establishment and permission",
+      "complete UMP message validation",
+      "FEC or retransmit",
+      "independent software-peer interoperability",
+      "hardware interoperability",
+      "MIDI Association conformance certification",
+      "full M2-124-UM session control and retries"
+    ],
+    "existingRTPTransportUnchanged": true,
+    "applicationIDLOperationsUnchanged": true
+  }
+}

@@ -290,3 +290,70 @@ Validation:
 `swift test --filter RTPMidiSessionTests`, descriptor tests, full `swift test`, documentation verification, claim verification, and `git diff --check`.
 Acceptance Criteria:
 The authoritative package exposes every generic RTP-MIDI2 host capability needed by joining-machine consumers; existing transport behavior remains tested; estate-specific semantics stay out of midi2; no second transport implementation is needed by EstatePublisher.
+
+---
+
+## Active: M2-124 software-peer transport scenario and instrument seam (2026-11-09)
+
+**Intent:** Establish a standards-facing, independently testable Network MIDI 2.0 UDP software-peer path without changing the identity or operation vocabulary of any existing Fountain Coach MIDI2 instrument.
+
+**Status:** scenario-definition candidate; no M2-124 implementation, admission, release, publication, or conformance claim has been established by this plan.
+
+**Owner and identity:** `Fountain-Coach/midi2` owns the `MIDI2Transports` kit and proposed `NetworkMidi2Session: MIDITransport` seam. A Reframe peer is a later consumer of a released kit; a transport adapter is not a new registered MIDI2 command or an independently admitted FCIS instrument. Preserve `RTPMidiSession` unchanged.
+
+**History-first reconstruction (FCIS-KIT-16):**
+- Observed in source: `MIDI2Transports`, `RTPMidiSession`, `MIDITransport`, and package version 0.12.8 exist; `NetworkMidi2Session` was not found in the current source tree.
+- Existing work to reuse: UMP core, MIDI-CI core, transport interface, `RTPMidiSession` regression tests, the source-provenance verifier, and the explicit hardware exclusion.
+- Unestablished: current M2-124-UM v1.0.1 PDF hash, exact 1.0 -> 1.0.1 changes, independent standards-facing interoperability, live two-peer run, and kit/consumer release evidence.
+- Missing seam: a distinct `NetworkMidi2Session` conforming to the source-verified M2-124-UM wire and session behavior; not a rewrite or alias of the Fountain RTP/UMP transport.
+- Stop condition: do not implement version-specific packet fields or claim M2-124 conformance until the authoritative versioned PDF, version differences and page/section citations are verified. Do not promote software-peer or hardware claims without independent witnesses.
+
+**Governance reading record:**
+- Chapters read: 07 goal fidelity and non-invention; 08 separate evidence authorities; 73 versioned, scenario-first acceptance and independently witnessed outcomes; 91 the IDL / kit / host / Store separation; 93 instrument lifecycle and non-self-admission; 81 universal MIDI2 operation plane. Chapter 150 was read as a transport architecture proposal: a new transport belongs below `MIDITransport`, not in a new command vocabulary.
+- Forbidden: treating RTP/UMP as M2-124, inventing wire semantics from marketing prose, making transport discovery equal instrument authorization, self-certifying interop, bypassing the owned kit, or claiming hardware success from software traces.
+- Conflicts: the official M2-124-UM catalogue currently names v1.0.1, but the accessible third-party references describe v1.0 and do not establish v1.0.1 deltas; the catalogue remains authoritative. No other governance conflict resolved by this plan.
+- Excluded: CoreMIDI/CoreAudio integration, physical devices, Reframe GUI/AX/live-drive, product authorization changes, release and public deployment; these need separate consumer scenarios after upstream transport evidence.
+
+**Scenario source:** `Tests/Scenarios/network-midi2-udp-peer.yaml` — system-boundary candidate. A checked executable JSON projection and an independently witnessed software-peer run are prerequisites to promotion; this YAML is not yet a live-accepted executable scenario.
+
+**Scope:** source admission for M2-124-UM v1.0.1; discovery/session/data/loss/teardown and unsupported command cases; named independent software peers; preservation of existing MIDI2/FCIS operation identity and admission across transport choice.
+
+**Non-goals:** new MIDI2 IDL topics solely for network transport; importing Windows or third-party transport code; replacing `RTPMidiSession`; editing the existing six-document core corpus to silently include a transport spec; hardware interoperability; publication.
+
+**Risks:** unverified spec revisions, conflating software transport connectivity with MIDI-CI or host authorization, silently losing packet ordering/loss recovery, or advertising interoperability after a self-to-self test.
+
+**Steps:**
+- [x] Inspect the current transport and core evidence boundary; resolve governance and select one system-boundary scenario.
+- [x] Author the candidate scenario with explicit failure, cancellation, timeout, packet-loss and independent-peer witness requirements.
+- [ ] Admit a source-verified M2-124-UM v1.0.1 artifact by hash and page/section delta audit; keep third-party PDF redistribution rights separate.
+- [x] Generate and check a deterministic YAML-to-JSON scenario projection and add a CI structure/claim-boundary gate. This is a **candidate contract projection**, not yet an executable runner-admitted scenario.
+- [ ] Check the projected scenario against the appropriate admitted scenario runner; no such execution authority is established for this kit-only transport candidate yet.
+- [ ] Implement the smallest source-verified `NetworkMidi2Session` slice in `MIDI2Transports`, with focused positive/negative tests.
+- [ ] Run the Swift kit tests, source/claim gates and independent external software-peer session; record source/build/run tuple and trace evidence.
+- [ ] Seek independent instrument admission, release the kit by semver, and only then integrate a consumer with the unchanged IDL operation plane.
+
+**Validation / acceptance:** check exact versioned source and hashes; prove two distinct processes/ports/executables exchange named UMP data after valid session setup; test malformed/unknown messages, timeout, duplicate, packet loss/recovery, sequence wrap, teardown and reconnect; record negative cases and trace digest; confirm no transport-driven authority escalation; compare application operation identity and terminal evidence across RTP and M2-124. A self-peer run establishes internal behavior only; a separate implementation is required for software interoperability; a physical MIDI2 device is required for hardware interoperability.
+
+**Rollback:** leave existing RTP implementation, core claims, release tags, and production website unchanged; discard the isolated candidate branch if source verification or scenario acceptance fails.
+
+### 2026-11-09 source-admitted framing slice (PR #203)
+
+- **Observed source:** M2-124-UM v1.0.1, published 2025-12-03, PDF SHA-256 `21262fe97d69ff99f194d7bc0b78a566e431687a78e0a4cdb4cbc12ad894dd24`. The prior v1.0 is separately hash-pinned in `docs/network-midi2-udp-source.json`. PDF source inspected via rendered p. 22 and p. 42 images; copyrighted files remain outside Git and publication.
+- **Source delta:** v1.0.1 explicitly adds non-empty invitation endpoint and product identities (§6.4 p. 29), and new multi-client host/session isolation rules (§8 p. 48). For the reviewed §5 framing pages and §7.1 UMP payload page, no behavioral wire-field delta was observed. This is a *selected review*, not an exhaustive delta certificate.
+- **Bounded implementation:** `NetworkMidi2PacketCodec` in existing `MIDI2Transports`. Source-backed datagram signature, big-endian command header, multiple commands, invitation identity and 64-word UMP Data bounds. No new IDL topic, new package, extra dependencies, host authorization, or second transport command plane.
+- **Scenario:** `Tests/Scenarios/network-midi2-udp-peer.yaml` and checked JSON point to the machine-readable transport addendum manifest. The scenario remains `candidate`. Its software-peer terminal criteria are **not** settled by codec tests.
+- **Acceptance:** focused Swift codec tests and existing RTP tests, source/claim/runtime checks, YAML/JSON parity, negative mutation check for manifest drift, and `git diff --check`. The planned `NetworkMidi2Session` remains unimplemented pending independent state and network tests.
+- **Governance:** chapters 07 (no invented prerequisite), 08 (separate evidence authority), 73 (scenario owns terminal predicates), 91/93 (kit/host/operation boundaries), chapter 150 proposed transport replacement seam. No current conflict. Excludes Reframe/AX, hardware interoperability, certification, release, and publication.
+- **Next explicit bounded phase:** protocol state machine with host/client session identity, per-peer admission, invitation/accepted/bye/NAK/ping, UMP sequencing/deduplication, cancellation/timeout and retransmission behavior. Only after that: a NetworkMidi2Session transport conforming to MIDITransport, with two-process and third-party peer evidence.
+
+### 2026-11-09 phase: source-backed no-I/O session-control state machine
+
+- **Intent:** Exercise the smallest observable M2-124 v1.0.1 session-control behavior before UDP sockets: explicit host invitation decision, accepted session, Ping/Ping Reply in any state, unsupported-command NAK, data-before-session Bye, and bidirectional Bye acknowledgement.
+- **Normative source:** M2-124-UM v1.0.1 §§5.5, 6.1–6.6, 6.13–6.17 and 7.1; pp. 24–30 and 37–42. The host decides whether to accept through an explicit external admission result; discovery never authorizes it.
+- **Implementation location:** `Sources/MIDI2Transports/NetworkMidi2ProtocolSession.swift` with focused `Tests/MIDI2Tests/NetworkMidi2ProtocolSessionTests.swift`. Reuse one canonical `NetworkMidi2PacketCodec`; no second command vocabulary, no new kit dependency and no host-specific policy inside this package.
+- **Non-goals and evidence limits:** no UDP socket, DNS-SD, authentication, full reset/NAK policy, retransmission/FEC, complete UMP boundary validation, independent peer interop or hardware. Do not label this complete `NetworkMidi2Session`.
+- **Terminal predicates:** valid explicit invitation reaches established only after host decision; no UMP before acceptance; Ping in idle returns matching Ping Reply; unknown command yields source-backed NAK; Bye acknowledged in idle and established; bounded refusal for invalid input; existing RTP tests unchanged.
+- **Recovery and timing:** no automatic retry or silent timeout handling. Later socket runtime must own timing, retransmission and correlation; this state machine does not claim those layers.
+- **Readings:** governance 07/08/73/91/93 and M2-124 source as above; no conflict. Host application and end-to-end Reframe acceptance excluded.
+
+- **Sequence handling refinement:** the no-I/O component now suppresses UMP Data duplicate sequence numbers using a bounded 1024-entry recent-history window (source §7.2.1 p. 43). It does not buffer out-of-order data, offer retransmission or provide full FEC. Focused duplicate/wrap tests are required before accepting this refinement.

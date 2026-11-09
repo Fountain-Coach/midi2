@@ -9,14 +9,14 @@ All notable changes to this project will be documented in this file.
   pre-bound UDP descriptor adoption, and contiguous 128-bit UMP packet-sequence
   datagrams for governed software peers while preserving explicit peer selection.
 
-## [0.13.0] - 2026-11-09 (release candidate; PR, not published)
+## [0.13.0] - 2026-11-09 (signed Git tag; npm and GitHub Release publication pending)
 ### Changed
 - Updated the declared six-document MIDI 2.0 corpus to the current MIDI-CI M2-101-UM v1.2.1 source (published 2025-12-18), retaining its SHA-256 and the prior v1.2 audit provenance.
 - Regenerated structural/schema/OpenAPI and inverse normative-source evidence for the new corpus, with ephemeral checksum-verified source retrieval instead of adding the copyrighted PDF to Git.
 ### Added
 - Source-backed MIDI-CI Property Exchange ACK 0x11 and NAK 0x12 flow-control status/detail fields in Swift and TypeScript, with negative and source-version tests. A versioned, JSON-projected candidate scenario protects source, wire vectors, witness paths and release boundaries. This is a bounded typed implementation, not proof of complete end-to-end MIDI-CI interoperability.
 ### Limitations
-- Legacy Notify receive compatibility remains a separate runtime obligation; full PE transaction recovery, external devices, M2-124 network transport (PR #203), certification and release publication are not established by this commit.
+- Legacy Notify receive compatibility remains a separate runtime obligation; full PE transaction recovery, external devices, M2-124 network transport (PR #203), certification, npm publication and a published GitHub Release are not established by this source edition.
 
 ## [0.12.8] - 2026-09-21
 ### Fixed

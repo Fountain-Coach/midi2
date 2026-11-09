@@ -1,10 +1,10 @@
 # Documentation
 
-**Corpus reconciled**: 2026-11-09 | **Release candidate**: 0.13.0 (not tagged or published; last Git tag v0.12.8; GitHub Releases lists v0.11.0 latest; public npm not available)
+**Corpus reconciled**: 2026-11-09 | **Source version**: 0.13.0 | **Signed Swift Git tag**: v0.13.0 (locally verified) | **GitHub Release**: v0.13.0 draft, latest published v0.11.0 | **Public npm**: not available
 
 ## What is current, and what is published?
 
-The [release-status record](release-status.json) distinguishes the current source version, the latest verified Git tag, the latest published GitHub Release and npm availability. **0.13.0 is on main, not a public package release.** The machine-readable [specification baseline](release-spec-baseline.json) is a dated official-source review, not a promise of continuously monitored standards currency. Full MIDI-CI v1.2.1 Property Exchange runtime recovery and third-party interoperability remain separate acceptance work.
+The [release-status record](release-status.json) distinguishes the current source version, the latest verified Git tag, the latest published GitHub Release and npm availability. **0.13.0 is on main and available by signed Git tag for Swift, but npm and the corresponding GitHub Release are still pending.** The machine-readable [specification baseline](release-spec-baseline.json) is a dated official-source review, not a promise of continuously monitored standards currency. Full MIDI-CI v1.2.1 Property Exchange runtime recovery and third-party interoperability remain separate acceptance work.
 
 ## Agent maintenance
 

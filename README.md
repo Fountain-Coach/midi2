@@ -6,7 +6,7 @@
 
 Lightweight Swift library and reference implementations for the Universal MIDI Packet (UMP) model and bridging between MIDI 2.0 and legacy CoreMIDI hosts. Also includes **midi2.js**, a cross-browser, CoreMIDI-free TypeScript/JavaScript MIDI 2.0 protocol library.
 
-The protected **main** branch contains **source/package version 0.13.0** (release candidate, **not yet released**), tracking MIDI-CI M2-101-UM v1.2.1 with SHA-256-pinned source evidence and typed Property Exchange ACK/NAK flow control. The Swift installation snippet below targets the last verified Git tag (v0.12.8; signature status not independently established); the GitHub Releases listing still identifies v0.11.0 as the latest released edition. The public npm registry does not currently expose `@fountain-coach/midi2` (404 verified 2026-11-09); a 0.13.0 tag, GitHub release or npm publication must not be assumed until verified.
+The protected **main** branch contains **source/package version 0.13.0**, tracking MIDI-CI M2-101-UM v1.2.1 with SHA-256-pinned source evidence and tested Property Exchange ACK/NAK types. The **signed `v0.13.0` Git tag is available for Swift Package Manager** (Ed25519 signature verified locally; GitHub account-level signature verification not independently established). The matching GitHub Release is **draft-only**; the last published GitHub Release remains `v0.11.0`. The npm registry still does **not** expose `@fountain-coach/midi2` (404 checked 2026-11-09). This is **not a complete Swift-and-npm public release**.
 
 The repository's runtime claim is deliberately bounded: the named Swift and TypeScript core software surfaces are tested and runtime-complete within the declared boundary. This does not claim every optional MIDI 2.0 extension, host adapter, or physical-device interoperability.
 
@@ -50,7 +50,7 @@ The skill is repository-scoped and domain-agnostic: publication hosts, subdomain
 Add to your `Package.swift`:
 ```swift
 dependencies: [
-    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.12.8")
+    .package(url: "https://github.com/Fountain-Coach/midi2.git", from: "0.13.0")
 ]
 ```
 

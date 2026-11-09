@@ -349,3 +349,27 @@ Acceptance: source PR with README and generator, release-status JSON,
 checked scenario export, docs/claims gates, repo tests where touched,
 read-only derived site diff and independent HTTPS/signed release receipt.
 Rollback: keep immutable predecessor; do not modify main outside PR.
+
+
+---
+
+## 2026-11-09 signed Git tag and npm-gated public release
+
+Verified: v0.13.0 is an SSH-signed annotated Git tag, pushed and verified
+to target fb007d34367de86414ad7621159741e2849c827a. The existing
+Ed25519 identity passed local signature verification without a new secret.
+Fresh release build: 376 Swift tests and 213 TypeScript tests passed,
+one TypeScript skipped. npm pack dry run: eight files and no PDFs/keys.
+Draft GitHub Release v0.13.0 exists, but is not public.
+
+Remaining blocker: npm account is unauthenticated (ENEEDAUTH); the public
+package @fountain-coach/midi2 returns 404. No assumption of npm ownership,
+physical interoperability, GitHub Verified signature status, or published
+GitHub Release. Issue #207 remains open.
+
+Source scope: repair the owner README, changelog, machine release status and
+generated homepage so that a signed public Swift Git tag, a draft GitHub
+Release and unpublished npm are distinct facts. Protected PR and CI, then
+native exact-host EstatePublisher with source hashes, immutable predecessor
+and independent HTTPS verification. No re-release of 0.13.0 binary/JS or
+changes to the other separately owned sites.

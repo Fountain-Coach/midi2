@@ -113,6 +113,7 @@ The declared owned core software surface is runtime-complete across the Swift an
 
 **Exclusions:**
 - This is bounded to the named core software surface; it is not a claim that every optional MIDI2 extension or host adapter is implemented.
+- MIDI-CI v1.2.1 PE ACK/NAK status/detail types are implemented and tested; actual flow-control session dispatch and legacy Notify receive behavior remain separately unproven and are not part of this bounded completeness claim.
 - It does not claim physical MIDI2 hardware interoperability.
 
 ## `hardware-interoperability` — not-claimed

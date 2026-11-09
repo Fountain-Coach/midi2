@@ -309,11 +309,14 @@ The authoritative package exposes every generic RTP-MIDI2 host capability needed
 
 **Planned steps:**
 - [x] Verify newest source and inspect pages/bit fields and prior version.
-- [ ] Record new version and rights-preserving retrieval with exact SHA-256; source not in Git.
-- [ ] Promote source-provenance schema/OpenAPI and inverse corpus to v1.2.1, preserving source-to-representation mapping; regenerate, do not hand-edit reports.
-- [ ] Implement typed MIDI-CI ACK/NAK PE flow control in Swift and TypeScript, focused positive/negative tests, including no silent legacy Notify promotion.
-- [ ] Update Swift and TypeScript release-candidate metadata to a coherent new version with changelog; run full Swift and JS tests, CI-equivalent evidence and staleness gates.
-- [ ] Open PR; green CI, maintainer merge, release authority, signed tag and publication remain distinct verified terminal states.
+- [x] Record new version and rights-preserving retrieval with exact SHA-256; source is gitignored and not committed; CI source retrieval succeeded.
+- [x] Promote source-provenance schema/OpenAPI and inverse corpus to v1.2.1 with source-to-representation mapping; generated reports pass reverse-traceability, mutation and freshness checks.
+- [x] Implement typed MIDI-CI ACK/NAK PE flow-control status/details in Swift and TypeScript, focused positive/negative tests; legacy Notify is not silently promoted.
+- [x] Prepare both package manifests/lockfiles for 0.13.0; Mac Swift build/test 376/376 PASS, TypeScript 213 PASS + 1 skipped, ESM/CJS/DTS builds PASS.
+- [x] Open draft PR #206 linked to #205, with distinct source/semver/claim boundaries; old M2-124 PR #203 stays out of this candidate.
+- [x] Add source-currency snapshot and automated spec/version consistency gate, bounded by explicit catalogue review date 2026-11-09. Future standards versions still require an updated review; this is not dynamic external currency monitoring.
+- [ ] Green GitHub CI including coverage, independent review, protected main merge, release authority, signed tag and publication receipts remain distinct terminal gates.
+- [ ] End-to-end 1.2.1 Property Exchange ACK/NAK session dispatch and legacy Notify receive compatibility must be proven before a complete 1.2.1 PE runtime compliance claim.
 
 **DoD:** exact latest MIDI Association M2-101-UM v1.2.1 source pinned; type-checked v1.2.1 PE ACK/NAK behavior and tests; versioned corpus/derived artifacts consistent; both packages have the same new semver; no new third-party PDF redistribution; green local tests and GitHub CI; published version only after owning maintainer approval, signed tag, and npm/GitHub release receipts.
 

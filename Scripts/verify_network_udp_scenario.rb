@@ -53,7 +53,13 @@ if ARGV.include?("--admission")
   blockers = []
   blockers << "M2-124-UM v1.0.1 source hash and page mapping absent" unless spec["source_verified"] && spec["source_hash"].to_s.match?(/\A[0-9a-f]{64}\z/) && spec["source_page_map"]
   blockers << "standards-facing NetworkMidi2Session not implemented" unless File.file?(File.join(ROOT, implementation["target"]))
-  blockers << "independent software-peer acceptance receipt absent" # No acceptance receipt path has yet been admitted.
+  receipt = scenario.fetch("evidence")["independent_software_peer_receipt"]
+  valid_receipt = receipt.is_a?(Hash) && receipt["independent_software_peer"] == true &&
+    receipt["initiator_executable_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/) &&
+    receipt["responder_executable_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/) &&
+    receipt["packet_capture_sha256"].to_s.match?(/\A[0-9a-f]{64}\z/) &&
+    receipt["run_id"].to_s.length > 0
+  blockers << "independent software-peer acceptance receipt absent or incomplete" unless valid_receipt
   unless blockers.empty?
     blockers.each { |blocker| warn "not-established: #{blocker}" }
     exit 2

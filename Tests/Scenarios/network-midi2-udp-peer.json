@@ -176,6 +176,7 @@
       ]
     },
     "evidence": {
+      "independent_software_peer_receipt": null,
       "required": [
         "specification-file-sha256-and-page-references",
         "source-revision-and-resolved-dependencies",

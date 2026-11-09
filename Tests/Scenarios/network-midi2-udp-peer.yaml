@@ -125,6 +125,7 @@ scenario:
       - independent-peer-unavailable
       - unreviewed-security-or-permission-boundary
   evidence:
+    independent_software_peer_receipt: null # Must be independently witnessed; not an in-process fixture
     required:
       - specification-file-sha256-and-page-references
       - source-revision-and-resolved-dependencies

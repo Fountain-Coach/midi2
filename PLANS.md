@@ -326,7 +326,8 @@ The authoritative package exposes every generic RTP-MIDI2 host capability needed
 - [x] Inspect the current transport and core evidence boundary; resolve governance and select one system-boundary scenario.
 - [x] Author the candidate scenario with explicit failure, cancellation, timeout, packet-loss and independent-peer witness requirements.
 - [ ] Admit a source-verified M2-124-UM v1.0.1 artifact by hash and page/section delta audit; keep third-party PDF redistribution rights separate.
-- [ ] Generate and check the executable scenario projection against the instrument scenario runner before any runtime edits.
+- [x] Generate and check a deterministic YAML-to-JSON scenario projection and add a CI structure/claim-boundary gate. This is a **candidate contract projection**, not yet an executable runner-admitted scenario.
+- [ ] Check the projected scenario against the appropriate admitted scenario runner; no such execution authority is established for this kit-only transport candidate yet.
 - [ ] Implement the smallest source-verified `NetworkMidi2Session` slice in `MIDI2Transports`, with focused positive/negative tests.
 - [ ] Run the Swift kit tests, source/claim gates and independent external software-peer session; record source/build/run tuple and trace evidence.
 - [ ] Seek independent instrument admission, release the kit by semver, and only then integrate a consumer with the unchanged IDL operation plane.

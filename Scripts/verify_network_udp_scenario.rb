@@ -5,6 +5,7 @@
 # This is not a transport implementation or a conformance certificate.
 require "yaml"
 require "json"
+require "digest"
 
 ROOT = File.expand_path("..", __dir__)
 SOURCE = File.join(ROOT, "Tests/Scenarios/network-midi2-udp-peer.yaml")
@@ -40,6 +41,26 @@ implementation = scenario.fetch("implementation")
 topology = scenario.fetch("topology")
 claim = scenario.fetch("claim_boundary")
 fail_contract("wrong spec/version") unless spec["document"] == "M2-124-UM" && spec["required_version"] == "1.0.1"
+if spec["source_verified"]
+  evidence_path = File.join(ROOT, "docs/network-midi2-transport-evidence.json")
+  fail_contract("verified source lacks a checked evidence manifest") unless File.file?(evidence_path)
+  source_evidence = JSON.parse(File.read(evidence_path))
+  fail_contract("source/version hash drift") unless source_evidence["document"] == spec["document"] &&
+    source_evidence["documentVersion"] == spec["required_version"] &&
+    source_evidence.dig("verification", "sourcePdfSHA256") == spec["source_hash"]
+  fail_contract("source verification lacks page references") unless spec["source_page_map"].is_a?(Hash) &&
+    spec["source_page_map"].keys.sort == ["examples", "framing", "invitation", "ping_bye", "states", "ump_data"].sort
+  implemented = source_evidence.fetch("implemented")
+  fail_contract("code/test references missing") unless [implemented["source"], implemented["tests"]].all? { |p| p && File.file?(File.join(ROOT, p)) }
+  fail_contract("unsupported public interoperability claim") unless source_evidence.fetch("deliberatelyUnclaimed").include?("two-process cross-implementation interoperability")
+  if (pdf_index = ARGV.index("--verify-pdf"))
+    path = ARGV[pdf_index + 1]
+    fail_contract("--verify-pdf requires a readable local PDF path") unless path && File.file?(path)
+    digest = Digest::SHA256.file(path).hexdigest
+    fail_contract("local PDF does not match recorded source digest") unless digest == spec["source_hash"]
+    puts "source-pdf: verified SHA-256 #{digest} (source is not committed)"
+  end
+end
 fail_contract("transport namespace changes IDL") unless implementation["requires_new_idl_topic"] == false && implementation["changes_existing_idl"] == false
 fail_contract("incumbent RTP implementation missing from boundary") unless implementation["incumbent_transport"] == "Sources/MIDI2Transports/RTPMidiSession.swift"
 fail_contract("no independent peer topology") unless topology.dig("initiator", "process") != topology.dig("responder", "process")

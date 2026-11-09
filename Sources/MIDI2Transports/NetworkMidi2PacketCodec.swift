@@ -11,6 +11,7 @@ public enum NetworkMidi2PacketError: Error, Equatable, Sendable {
     case udpPacketTooLarge
     case invalidEndpointName
     case invalidProductInstanceID
+    case invalidCapabilities
 }
 
 public struct NetworkMidi2Command: Equatable, Sendable {
@@ -102,6 +103,8 @@ public enum NetworkMidi2PacketCodec {
     public static func invitation(
         endpointName: String, productInstanceID: String, capabilities: UInt8 = 0
     ) throws -> NetworkMidi2Command {
+        // Section 6.4 D2...D7 are reserved; emit only D0 and D1.
+        guard capabilities & 0xFC == 0 else { throw NetworkMidi2PacketError.invalidCapabilities }
         let name = Array(endpointName.utf8)
         guard !name.isEmpty, name.count <= 98, !name.contains(0) else {
             throw NetworkMidi2PacketError.invalidEndpointName
@@ -122,6 +125,38 @@ public enum NetworkMidi2PacketCodec {
             specificData: specificData,
             payload: words(from: nameBytes + productBytes)
         )
+    }
+
+    /// §6.5: the host's Accepted command uses the same name/ID payload as
+    /// Invitation but has code 0x10 and a zero reserved capability byte.
+    /// Building this command does not grant host authorization or admission.
+    public static func invitationAccepted(
+        endpointName: String, productInstanceID: String
+    ) throws -> NetworkMidi2Command {
+        let offered = try invitation(endpointName: endpointName,
+                                     productInstanceID: productInstanceID)
+        return try NetworkMidi2Command(
+            code: 0x10, specificData: offered.specificData & 0xFF00,
+            payload: offered.payload
+        )
+    }
+
+    /// §§6.13-6.14: the Ping ID is a 32-bit payload, not specificData.
+    public static func ping(id: UInt32) throws -> NetworkMidi2Command {
+        try NetworkMidi2Command(code: 0x20, payload: [id])
+    }
+
+    public static func pingReply(id: UInt32) throws -> NetworkMidi2Command {
+        try NetworkMidi2Command(code: 0x21, payload: [id])
+    }
+
+    /// §§6.16-6.17: Bye reason occupies the first specificData byte.
+    public static func bye(reason: UInt8) throws -> NetworkMidi2Command {
+        try NetworkMidi2Command(code: 0xF0, specificData: UInt16(reason) << 8)
+    }
+
+    public static func byeReply() throws -> NetworkMidi2Command {
+        try NetworkMidi2Command(code: 0xF1)
     }
 
     /// Section 7.1: sequence belongs to the sender's established session.

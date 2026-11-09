@@ -1,0 +1,115 @@
+{
+  "schemaVersion": 1,
+  "document": "M2-124-UM",
+  "documentVersion": "1.0.1",
+  "title": "User Datagram Protocol for Universal MIDI Packets (Network MIDI 2.0 UDP)",
+  "publisher": "The MIDI Association and AMEI",
+  "published": "2025-12-03",
+  "verification": {
+    "observed": "2026-11-09",
+    "source": "https://midi.org/network-midi-2-0",
+    "sourcePdfSHA256": "21262fe97d69ff99f194d7bc0b78a566e431687a78e0a4cdb4cbc12ad894dd24",
+    "sourcePdfPages": 56,
+    "preRevision": {
+      "version": "1.0",
+      "sha256": "b60efa0e6ec74d86e674825445faa889267d065014189dec979bf4aa854da049",
+      "source": "https://amei-music.github.io/midi2.0-docs/amei-pdf/M2-124-UM_v1-0_Network-MIDI-2-0-UDP.pdf"
+    },
+    "rights": "Copyright MIDI Association/AMEI; source PDFs were examined locally only and are not committed.",
+    "deltaBoundary": "Selected codec sections §§5.1–5.5 and §7.1 have unchanged operative framing requirements between 1.0 and 1.0.1 in the extracted text; §5.4 text corrects a reference and appendix pagination shifts. This is not a complete revision-delta audit."
+  },
+  "implemented": {
+    "status": "bounded-codec-candidate",
+    "source": "Sources/MIDI2Transports/NetworkMidi2PacketCodec.swift",
+    "tests": "Tests/MIDI2Tests/NetworkMidi2PacketCodecTests.swift",
+    "scenarios": [
+      "Tests/Scenarios/network-midi2-udp-peer.yaml",
+      "Tests/Scenarios/network-midi2-udp-peer.json"
+    ],
+    "facts": [
+      {
+        "sourcePages": [
+          21
+        ],
+        "sections": [
+          "5.1",
+          "5.2"
+        ],
+        "assertion": "single MIDI signature and conservative sender MTU policy"
+      },
+      {
+        "sourcePages": [
+          21,
+          22,
+          23,
+          24
+        ],
+        "sections": [
+          "5.3",
+          "5.4",
+          "5.5"
+        ],
+        "assertion": "network byte order, command header, payload length measured in words, unknown codes preserved"
+      },
+      {
+        "sourcePages": [
+          28,
+          29,
+          30
+        ],
+        "sections": [
+          "6.4",
+          "6.5"
+        ],
+        "assertion": "invitation and accepted-identity formatting, UTF-8 endpoint name, ASCII product ID"
+      },
+      {
+        "sourcePages": [
+          37,
+          38,
+          39,
+          40,
+          41
+        ],
+        "sections": [
+          "6.13",
+          "6.14",
+          "6.16",
+          "6.17"
+        ],
+        "assertion": "framing-only Ping/PingReply and Bye/ByeReply constants"
+      },
+      {
+        "sourcePages": [
+          42
+        ],
+        "sections": [
+          "7.1"
+        ],
+        "assertion": "UMP data command maximum 64 words and sequence field encoding"
+      },
+      {
+        "sourcePages": [
+          51,
+          52
+        ],
+        "sections": [
+          "Appendix A.1"
+        ],
+        "assertion": "selected example invitation and UMP clock vectors"
+      }
+    ]
+  },
+  "deliberatelyUnclaimed": [
+    "NetworkMidi2Session implementation",
+    "discovery, invitation timing, and full session-state transitions",
+    "source-specific NAK and Bye dispatch rules",
+    "authentication, authority, and instrument admission",
+    "complete UMP-message validation",
+    "FEC/retransmission/packet-loss recovery",
+    "two-process cross-implementation interoperability",
+    "physical hardware interoperability",
+    "MIDI Association certification",
+    "FCIS instrument release or website publication"
+  ]
+}

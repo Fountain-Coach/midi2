@@ -115,6 +115,44 @@ final class NetworkMidi2PacketCodecTests: XCTestCase {
         XCTAssertEqual(withCapabilities.specificData, 0x0103)
     }
 
+    func testInvitationReservedCapabilityBitsCannotBeEmitted() throws {
+        let valid = try NetworkMidi2PacketCodec.invitation(
+            endpointName: "Controller", productInstanceID: "Device A", capabilities: 0x03
+        )
+        XCTAssertEqual(valid.specificData & 0x00FF, 0x0003)
+        XCTAssertThrowsError(try NetworkMidi2PacketCodec.invitation(
+            endpointName: "Controller", productInstanceID: "Device A", capabilities: 0x04
+        )) {
+            XCTAssertEqual($0 as? NetworkMidi2PacketError, .invalidCapabilities)
+        }
+    }
+
+    func testAcceptedInvitationUsesZeroReservedByteAndSameIdentity() throws {
+        let accepted = try NetworkMidi2PacketCodec.invitationAccepted(
+            endpointName: "Bühne", productInstanceID: "Fountain Stage"
+        )
+        XCTAssertEqual(accepted.code, 0x10)
+        XCTAssertEqual(accepted.specificData & 0x00FF, 0)
+        XCTAssertEqual(try NetworkMidi2PacketCodec.decode(
+            NetworkMidi2PacketCodec.encode([accepted])), [accepted])
+    }
+
+    func testPingAndByeFieldLayouts() throws {
+        let commands = [
+            try NetworkMidi2PacketCodec.ping(id: 0x1122_3344),
+            try NetworkMidi2PacketCodec.pingReply(id: 0x1122_3344),
+            try NetworkMidi2PacketCodec.bye(reason: 0x01),
+            try NetworkMidi2PacketCodec.byeReply()
+        ]
+        let datagram = try NetworkMidi2PacketCodec.encode(commands)
+        XCTAssertEqual(Array(datagram.prefix(12)), [
+            0x4D, 0x49, 0x44, 0x49, 0x20, 0x01, 0, 0,
+            0x11, 0x22, 0x33, 0x44
+        ])
+        XCTAssertEqual(commands[2].specificData, 0x0100)
+        XCTAssertEqual(try NetworkMidi2PacketCodec.decode(datagram), commands)
+    }
+
     func testBoundedDatagramEmission() throws {
         let commands = try (0..<6).map { _ in
             try NetworkMidi2Command(code: 0x20, payload: Array(repeating: 0, count: 255))

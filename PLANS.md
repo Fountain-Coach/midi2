@@ -322,3 +322,30 @@ The authoritative package exposes every generic RTP-MIDI2 host capability needed
 **DoD:** exact latest MIDI Association M2-101-UM v1.2.1 source pinned; type-checked v1.2.1 PE ACK/NAK behavior and tests; versioned corpus/derived artifacts consistent; both packages have the same new semver; no new third-party PDF redistribution; green local tests and GitHub CI; published version only after owning maintainer approval, signed tag, and npm/GitHub release receipts.
 
 **Rollback:** PR branch only; production main, npm, release tags and PR #203 unchanged until acceptance.
+
+---
+
+## 2026-11-09 MIDI2 publication status reconciliation
+
+Intent: Replace stale release-candidate branch wording and publish an owner-sourced
+homepage distinction between current core spec, merged source version, Git tag,
+GitHub Release and npm availability. No core implementation or spec alteration.
+
+Source history: main 09f046b; MIDI-CI v1.2.1; Swift and TS 0.13.0;
+latest Git tag v0.12.8, latest GitHub Release v0.11.0; public npm 404
+as verified 2026-11-09. Scenario checked JSON exists in Git but was not
+included in the generated website.
+
+Governance: Ch.07 goal fidelity/PR policy; ch.08 evidence authority;
+ch.92 public estate projection; ch.158 static delivery source separation.
+Forbidden: treating npm, hardware interop or unsigned tag as proven;
+writing directly to canonical publication copies; uploading copyrighted PDFs.
+Conflicts: none in scoped source/docs task. Excluded: M2-124 PR #203,
+PE session acceptance #205, release credentials and signed tag #207,
+independently owned status/instruments pages unless a specific stale claim
+rather than missing version is identified.
+
+Acceptance: source PR with README and generator, release-status JSON,
+checked scenario export, docs/claims gates, repo tests where touched,
+read-only derived site diff and independent HTTPS/signed release receipt.
+Rollback: keep immutable predecessor; do not modify main outside PR.

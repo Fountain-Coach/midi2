@@ -6,7 +6,7 @@
 
 Lightweight Swift library and reference implementations for the Universal MIDI Packet (UMP) model and bridging between MIDI 2.0 and legacy CoreMIDI hosts. Also includes **midi2.js**, a cross-browser, CoreMIDI-free TypeScript/JavaScript MIDI 2.0 protocol library.
 
-The current **0.13.0 release-candidate branch** tracks MIDI-CI M2-101-UM v1.2.1 with SHA-256 pinned source evidence and typed Property Exchange ACK/NAK flow control. The Swift installation snippet below targets the last verified Git tag (v0.12.8; signature status not independently established); the GitHub Releases listing still identifies v0.11.0 as the latest released edition. The public npm registry does not currently expose `@fountain-coach/midi2` (404 verified 2026-11-09); a 0.13.0 tag, GitHub release or npm publication must not be assumed until verified.
+The protected **main** branch contains **source/package version 0.13.0** (release candidate, **not yet released**), tracking MIDI-CI M2-101-UM v1.2.1 with SHA-256-pinned source evidence and typed Property Exchange ACK/NAK flow control. The Swift installation snippet below targets the last verified Git tag (v0.12.8; signature status not independently established); the GitHub Releases listing still identifies v0.11.0 as the latest released edition. The public npm registry does not currently expose `@fountain-coach/midi2` (404 verified 2026-11-09); a 0.13.0 tag, GitHub release or npm publication must not be assumed until verified.
 
 The repository's runtime claim is deliberately bounded: the named Swift and TypeScript core software surfaces are tested and runtime-complete within the declared boundary. This does not claim every optional MIDI 2.0 extension, host adapter, or physical-device interoperability.
 

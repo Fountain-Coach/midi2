@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "fountain-coach.midi2.release-status.v1",
+  "reviewedAt": "2026-11-09",
+  "source": {
+    "repository": "https://github.com/Fountain-Coach/midi2",
+    "branch": "main",
+    "packageVersion": "0.13.0",
+    "state": "source-merged-release-candidate",
+    "versionIntroducedInCommit": "09f046b1980a152f4363aeef50f750ce2bc524f7"
+  },
+  "normativeCorpus": {
+    "manifest": "docs/spec-provenance.json",
+    "reviewedAt": "2026-11-09",
+    "midiCi": {
+      "document": "M2-101-UM",
+      "version": "1.2.1"
+    },
+    "scope": "six-document core corpus; date-bound review; not continuous standards monitoring"
+  },
+  "distribution": {
+    "verifiedLatestGitTag": "v0.12.8",
+    "gitTagSignatureVerified": false,
+    "verifiedLatestGitHubRelease": "v0.11.0",
+    "publicNpmPackage": "@fountain-coach/midi2",
+    "publicNpmState": "not-available-on-2026-11-09",
+    "sourceVersionAlreadyPublished": false
+  },
+  "implementation": {
+    "midiCiPeFlowControl": "typed-ack-nak-status-fields-tested",
+    "fullPeRuntimeAndLegacyNotify": "not-independently-established",
+    "m2_124UdpSession": "candidate-unmerged",
+    "thirdPartySoftwarePeerInterop": "not-established",
+    "physicalDeviceInterop": "not-claimed"
+  },
+  "evidence": {
+    "specBaseline": "docs/release-spec-baseline.json",
+    "claimRegister": "docs/claims.json",
+    "candidateFlowControlScenario": "Tests/Scenarios/midi-ci-v121-pe-flow-control.json",
+    "releaseGateIssue": "https://github.com/Fountain-Coach/midi2/issues/207",
+    "remainingPeIssue": "https://github.com/Fountain-Coach/midi2/issues/205",
+    "networkTransportCandidate": "https://github.com/Fountain-Coach/midi2/pull/203"
+  }
+}

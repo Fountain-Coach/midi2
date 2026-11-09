@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import html
+import json
 import re
 import shutil
 import subprocess
@@ -31,6 +32,8 @@ MACHINE_FILES = [
     "docs/normative-source-inventory.json", "docs/normative-source-dispositions.json", "docs/runtime-completeness.json",
     "docs/spec-provenance.json", "docs/generated/normative-coverage.md", "docs/generated/spec-traceability.md",
     "docs/quiet-frame-gap-closure.yaml", "docs/publication-estate-audit.json",
+    "docs/release-spec-baseline.json", "docs/release-status.json",
+    "Tests/Scenarios/midi-ci-v121-pe-flow-control.json",
 ]
 HOST = "midi2.fountain.coach"
 LOGO = "https://fountain.coach/assets/fountain-coach-logo.png"
@@ -55,6 +58,10 @@ def markdown_html(root: Path, source: str) -> str:
     rendered = rendered.replace('../Scripts/build_docs_site.py', 'https://github.com/Fountain-Coach/midi2/blob/main/Scripts/build_docs_site.py')
     rendered = rendered.replace('../Scripts/publish_docs_site.sh', 'https://github.com/Fountain-Coach/midi2/blob/main/Scripts/publish_docs_site.sh')
     rendered = rendered.replace('midi2.full.object.json', 'https://github.com/Fountain-Coach/midi2/blob/main/midi2.full.object.json')
+    rendered = rendered.replace(
+        '../Tests/Scenarios/midi-ci-v121-pe-flow-control.yaml',
+        'https://github.com/Fountain-Coach/midi2/blob/main/Tests/Scenarios/midi-ci-v121-pe-flow-control.yaml',
+    )
     rendered = rendered.replace('../https://', 'https://')
     return re.sub(r'href="(?!https?://)([^\"]+)\.md(#[^\"]+)?"', r'href="\1.html\2"', rendered)
 
@@ -82,10 +89,38 @@ def shell(page_title: str, canonical: str, content: str, revision: str, active: 
     return f'''<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light dark"><meta name="fountain:publication-role" content="MIDI2 machine-readable specification and implementation documentation"><meta name="fountain:publication-state" content="Published documentation projection"><title>{html.escape(page_title)} — MIDI2 · Fountain Coach</title><meta name="description" content="{html.escape(page_title)}: published MIDI2 documentation, contracts, implementation boundaries, and evidence."><link rel="canonical" href="{canonical_url}"><link rel="icon" href="{LOGO}"><meta property="og:type" content="article"><meta property="og:site_name" content="Fountain Coach MIDI2"><meta property="og:title" content="{html.escape(page_title)} — MIDI2"><meta property="og:description" content="Published MIDI2 documentation and evidence."><meta property="og:url" content="{canonical_url}"><meta property="og:image" content="{LOGO}"><meta property="og:image:alt" content="Fountain Coach logo"><meta property="og:image:width" content="460"><meta property="og:image:height" content="460"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="{html.escape(page_title)} — MIDI2"><meta name="twitter:image" content="{LOGO}"><script type="application/ld+json">{structured}</script><link rel="stylesheet" href="/assets/site.css"></head><body><a class="skip-link" href="#main">Skip to content</a><header class="topbar"><a class="wordmark" href="https://fountain.coach/" aria-label="Fountain Coach home"><img src="{LOGO}" alt="Fountain Coach logo"><span>FOUNTAIN COACH<small>MIDI2 · MACHINE-READABLE SPECIFICATION</small></span></a><nav class="estate-nav" aria-label="Fountain Coach publications">{estate_nav()}</nav><div class="topbar-actions"><button class="theme-button" type="button" data-theme-toggle aria-pressed="false">Theme: system</button><button class="menu-button" type="button" data-menu-button aria-controls="reading-index" aria-expanded="false">Index</button></div></header><div class="workspace"><nav class="chapter-rail" id="reading-index" aria-label="MIDI2 documentation index"><div class="rail-label">READING INDEX</div><a class="rail-home" href="/">MIDI2 overview</a>{''.join(links)}<div class="rail-label machine-label">MACHINE ARTIFACTS</div>{machine_links}</nav><main id="main" class="canvas"><nav class="breadcrumbs" aria-label="Breadcrumb"><a href="https://fountain.coach/">Fountain Coach</a><span aria-hidden="true"> › </span><a href="https://{HOST}/">MIDI2</a><span aria-hidden="true"> › </span><span aria-current="page">{html.escape(page_title)}</span></nav><div class="canvas-kicker">FCIS · MIDI2 · <span class="publication-state">PUBLISHED PROJECTION</span></div><article>{content}</article><footer class="footer"><div class="footer-estate"><strong>Fountain Coach publication estate</strong><a href="https://fountain.coach/">Identity</a><a href="https://book.fountain.coach/">Book · human reference</a><a href="https://governance.fountain.coach/">Governance · rules and authority</a><a href="https://instruments.fountain.coach/">Instruments · MIDI2 catalog</a><a href="https://status.fountain.coach/">Status · company and legal context</a></div><div class="footer-legal"><a href="https://governance.fountain.coach/legal/">Legal notices</a><a href="https://governance.fountain.coach/privacy/">Privacy</a><a href="https://governance.fountain.coach/accessibility/">Accessibility</a><a href="https://governance.fountain.coach/copyright/">Copyright</a><a href="https://governance.fountain.coach/compliance/">EU compliance</a><a href="https://github.com/Fountain-Coach/midi2">Source and provenance</a></div><span>Public documentation projection · MIDI Association documents remain normative · hardware interoperability is not claimed.</span><small>Generated from commit {html.escape(revision)}</small></footer></main></div><script src="/assets/site.js" defer></script></body></html>'''
 
 
-def build_index(output: Path, revision: str) -> None:
+def release_status_content(root: Path) -> str:
+    status = json.loads((root / "docs/release-status.json").read_text())
+    version = status["source"]["packageVersion"]
+    spec = status["normativeCorpus"]["midiCi"]["version"]
+    last_tag = status["distribution"]["verifiedLatestGitTag"]
+    last_release = status["distribution"]["verifiedLatestGitHubRelease"]
+    review_date = status["reviewedAt"]
+    return (
+        '<section class="index-section release-status" aria-labelledby="release-heading">'
+        '<div class="section-heading"><div><div class="eyebrow">RELEASE AND STANDARDS STATUS</div>'
+        '<h2 id="release-heading">Source current. Public release pending.</h2></div>'
+        '<p>Distinct evidence authorities, reviewed ' + html.escape(review_date) + '.</p></div>'
+        '<div class="release-status-grid">'
+        '<div><strong>' + html.escape(version) + '</strong><span>Swift and TypeScript source on main</span></div>'
+        '<div><strong>MIDI-CI v' + html.escape(spec) + '</strong><span>Latest verified core specification revision</span></div>'
+        '<div><strong>' + html.escape(last_tag) + '</strong><span>Latest verified Git tag; signature unverified</span></div>'
+        '<div><strong>' + html.escape(last_release) + '</strong><span>Latest public GitHub Release</span></div>'
+        '</div><p>The public npm package is not yet available. PE ACK/NAK fields are tested,'
+        ' but full recovery, hardware interoperability, and certification are not established. '
+        '<a href="/docs/release-status.json">Release evidence</a> · '
+        '<a href="/docs/release-spec-baseline.json">Specification baseline</a> · '
+        '<a href="/docs/claim-register.html">Verified claims</a>.</p></section>'
+    )
+
+
+def build_index(root: Path, output: Path, revision: str) -> None:
     cards = ''.join(f'<a class="index-card" href="/{slug(source)}"><span class="eyebrow">DOCUMENTATION</span><h2>{html.escape(title_for(source, fallback))}</h2><p>{html.escape(source)}</p></a>' for source, fallback in PAGES)
     machine = ''.join(f'<a class="machine" href="/{html.escape(source)}">{html.escape(source)}</a>' for source in MACHINE_FILES)
     content = f'''<div class="eyebrow">PUBLIC MIDI2 PROJECTION · SOURCE-TRACEABLE DOCUMENTATION</div><h1>MIDI2 documentation</h1><p class="lead">The machine-readable MIDI 2.0 object, its normative coverage, implementation boundaries, and engineering evidence—published as a human-readable projection of <a href="https://github.com/Fountain-Coach/midi2">Fountain-Coach/midi2</a>.</p><section class="index-section"><div class="section-heading"><div><div class="eyebrow">READING INDEX</div><h2>Read the contract from source to evidence.</h2></div><p>Governance supplies the publication rules. This subdomain supplies the MIDI2 specification, object, implementation, and verification record.</p></div><div class="index-grid">{cards}</div></section><section class="index-section"><div class="section-heading"><div><div class="eyebrow">MACHINE ARTIFACTS</div><h2>Inspect the canonical projections.</h2></div><p>These files are published for agents and engineers; their source commit and paths remain explicit.</p></div><div class="machine-list">{machine}</div></section><section class="boundary"><div class="eyebrow">CLAIM BOUNDARY</div><p>The repository maintains a versioned, source-traceable machine-readable MIDI2 representation. MIDI Association documents remain normative. Runtime completeness and physical hardware interoperability are separate claims.</p></section>'''
+    target = '<section class="index-section"><div class="section-heading">'
+    assert target in content
+    content = content.replace(target, release_status_content(root) + target, 1)
     (output / "index.html").write_text(shell("MIDI2 documentation", "/", content, revision, "/"), encoding="utf-8")
 
 
@@ -95,7 +130,7 @@ def main() -> int:
     if output.exists(): shutil.rmtree(output)
     output.mkdir(parents=True); revision = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
     (output / "assets").mkdir(); shutil.copy2(root / "Scripts/docs-site.css", output / "assets/site.css"); shutil.copy2(root / "Scripts/docs-site.js", output / "assets/site.js")
-    build_index(output, revision)
+    build_index(root, output, revision)
     for source, fallback in PAGES:
         if source == "README.md": continue
         route = "/" + slug(source); target = output / Path(source).with_suffix(".html"); target.parent.mkdir(parents=True, exist_ok=True)

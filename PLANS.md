@@ -373,3 +373,23 @@ Release and unpublished npm are distinct facts. Protected PR and CI, then
 native exact-host EstatePublisher with source hashes, immutable predecessor
 and independent HTTPS verification. No re-release of 0.13.0 binary/JS or
 changes to the other separately owned sites.
+
+---
+
+## 2026-11-09 published v0.13.0 GitHub source release
+
+The signed v0.13.0 tag targets commit
+fb007d34367de86414ad7621159741e2849c827a. The existing GitHub
+release draft was published at
+https://github.com/Fountain-Coach/midi2/releases/tag/v0.13.0,
+and GitHub marks it Latest (2026-11-09T11:11:39Z).
+Release notes explicitly state that npm is NOT PUBLISHED. This is the
+Swift/Git source release, not an inference of complete Property Exchange,
+Network MIDI 2.0, hardware interoperability or certification.
+
+This source-only PR aligns the README, docs, changelog, status JSON and
+public site generator. The protected main remains authoritative. The npm
+credential/ownership gate is still open under issue #207: public npm
+0.13.0 and package integrity need actual registry receipts. Publish the
+source projection by the typed MIDI2 EstatePublisher with immutable
+rollback, exact commit and independent HTTPS hash readback.

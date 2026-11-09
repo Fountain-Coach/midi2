@@ -19,11 +19,11 @@ def check() -> None:
     catalog=json.loads((ROOT/"docs/spec-provenance.json").read_text())
     npm=json.loads((ROOT/"midi2.js/package.json").read_text())
     lock=json.loads((ROOT/"midi2.js/package-lock.json").read_text())
-    assert status["schemaVersion"]=="fountain-coach.midi2.release-status.v2"
+    assert status["schemaVersion"]=="fountain-coach.midi2.release-status.v3"
     source=status["source"]
     assert source["branch"]=="main"
     assert re.fullmatch(r"[a-f0-9]{40}",source["versionIntroducedInCommit"])
-    assert source["state"]=="signed-git-tag-available-npm-and-github-release-pending"
+    assert source["state"]=="signed-source-and-github-release-published-npm-pending"
     assert source["packageVersion"]==baseline["release_candidate"]
     assert source["packageVersion"]==npm["version"]==lock["version"]
     assert source["packageVersion"]==lock["packages"][""]["version"]
@@ -39,11 +39,14 @@ def check() -> None:
     assert distribution["gitTagSignatureVerifiedLocally"] is True
     assert distribution["gitHubSignatureVerification"] == "not-independently-established"
     assert distribution["gitTagTargetCommit"] == "fb007d34367de86414ad7621159741e2849c827a"
-    assert distribution["draftGitHubReleaseTag"] == distribution["verifiedLatestGitTag"]
+    assert distribution["gitHubReleaseState"] == "published"
+    assert distribution["publishedGitHubReleaseTag"] == distribution["verifiedLatestGitHubRelease"]
+    assert distribution["publishedGitHubReleaseUrl"] == "https://github.com/Fountain-Coach/midi2/releases/tag/v0.13.0"
+    assert distribution["publishedGitHubReleaseAt"] == "2026-11-09T11:11:39Z"
     assert distribution["publicNpmState"]=="not-available-on-2026-11-09"
     assert distribution["publicNpmPackage"]==npm["name"]
     assert distribution["verifiedLatestGitTag"]=="v0.13.0"
-    assert distribution["verifiedLatestGitHubRelease"]=="v0.11.0"
+    assert distribution["verifiedLatestGitHubRelease"]=="v0.13.0"
     assert status["implementation"]["physicalDeviceInterop"]=="not-claimed"
     assert status["implementation"]["m2_124UdpSession"]=="candidate-unmerged"
     for rel in status["evidence"].values():
@@ -60,8 +63,8 @@ def check() -> None:
     assert "docs/release-spec-baseline.json" in machine
     assert "Tests/Scenarios/midi-ci-v121-pe-flow-control.json" in machine
     overview=module.release_status_content(ROOT)
-    assert "Swift tag signed. npm release pending." in overview
-    for value in (source["packageVersion"],"MIDI-CI v1.2.1","v0.13.0","v0.11.0"):
+    assert "GitHub source release published. npm pending." in overview
+    for value in (source["packageVersion"],"MIDI-CI v1.2.1","v0.13.0","v0.13.0"):
         assert value in overview,value
     assert 'href="/docs/release-status.json"' in overview
     assert 'href="/docs/release-spec-baseline.json"' in overview

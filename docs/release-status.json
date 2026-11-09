@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "fountain-coach.midi2.release-status.v2",
+  "schemaVersion": "fountain-coach.midi2.release-status.v3",
   "reviewedAt": "2026-11-09",
   "source": {
     "repository": "https://github.com/Fountain-Coach/midi2",
     "branch": "main",
     "packageVersion": "0.13.0",
-    "state": "signed-git-tag-available-npm-and-github-release-pending",
+    "state": "signed-source-and-github-release-published-npm-pending",
     "versionIntroducedInCommit": "09f046b1980a152f4363aeef50f750ce2bc524f7"
   },
   "normativeCorpus": {
@@ -19,15 +19,18 @@
   },
   "distribution": {
     "verifiedLatestGitTag": "v0.13.0",
-    "verifiedLatestGitHubRelease": "v0.11.0",
+    "verifiedLatestGitHubRelease": "v0.13.0",
     "publicNpmPackage": "@fountain-coach/midi2",
     "publicNpmState": "not-available-on-2026-11-09",
     "gitTagTargetCommit": "fb007d34367de86414ad7621159741e2849c827a",
     "gitTagSignatureVerifiedLocally": true,
     "gitHubSignatureVerification": "not-independently-established",
     "swiftGitTagAvailable": true,
-    "draftGitHubReleaseTag": "v0.13.0",
-    "npmAndPublishedGitHubReleaseComplete": false
+    "npmAndPublishedGitHubReleaseComplete": false,
+    "gitHubReleaseState": "published",
+    "publishedGitHubReleaseTag": "v0.13.0",
+    "publishedGitHubReleaseUrl": "https://github.com/Fountain-Coach/midi2/releases/tag/v0.13.0",
+    "publishedGitHubReleaseAt": "2026-11-09T11:11:39Z"
   },
   "implementation": {
     "midiCiPeFlowControl": "typed-ack-nak-status-fields-tested",

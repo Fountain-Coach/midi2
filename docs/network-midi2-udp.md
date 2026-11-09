@@ -4,10 +4,12 @@
 
 ## What exists
 
-The `MIDI2Transports` package now has a standalone **stateless datagram framing codec**:
+The `MIDI2Transports` package now has a **stateless datagram framing codec and an isolated, no-I/O session-control component**:
 
 - `Sources/MIDI2Transports/NetworkMidi2PacketCodec.swift` — M2-124 big-endian signature and command headers, multiple command packets, bounded UMP Data payloads and invitation identity encoding.
 - `Tests/MIDI2Tests/NetworkMidi2PacketCodecTests.swift` — exact-byte appendix vectors, reserved-bits rejection, invalid lengths, identity bounds, sequence values and sender/receiver size-policy distinction.
+- `Sources/MIDI2Transports/NetworkMidi2ProtocolSession.swift` — **in-memory, per-peer session-control slice**: explicit host admission decision, invitation/accept/pending, Ping/Ping Reply, unsupported-command NAK, Bye/Bye Reply and pre-session UMP refusal. It contains no network I/O.
+- `Tests/MIDI2Tests/NetworkMidi2ProtocolSessionTests.swift` — source-referenced positive and refusal scenarios for the session-control slice. These fixtures do not prove authorization in a real host or peer interoperability.
 - `Tests/Scenarios/network-midi2-udp-peer.yaml` — versioned *candidate* system-boundary scenario, with a generated JSON projection, a source manifest parity gate, negative cases and independent-peer terminal evidence requirements.
 
 The existing RTPMidiSession remains unchanged. No application IDL topic, package dependency or Fountain authorisation rule is added.

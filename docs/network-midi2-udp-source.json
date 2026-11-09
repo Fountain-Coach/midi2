@@ -58,7 +58,7 @@
   },
   "implementationBoundary": {
     "kit": "MIDI2Transports",
-    "implemented": "stateless datagram framing and deterministic invitation/UMP Data encoding and decoding",
+    "implemented": "stateless datagram framing and bounded in-memory, per-peer session-control handling; no UDP sockets or independent interoperability",
     "notEstablished": [
       "NetworkMidi2Session",
       "mDNS/DNS-SD discovery",
@@ -67,7 +67,8 @@
       "FEC or retransmit",
       "independent software-peer interoperability",
       "hardware interoperability",
-      "MIDI Association conformance certification"
+      "MIDI Association conformance certification",
+      "full M2-124-UM session control and retries"
     ],
     "existingRTPTransportUnchanged": true,
     "applicationIDLOperationsUnchanged": true

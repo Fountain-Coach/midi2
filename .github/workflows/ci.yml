@@ -52,6 +52,7 @@ jobs:
           python3 Scripts/generate_normative_coverage.py --check
           python3 Scripts/verify_normative_coverage.py
           python3 Scripts/verify_spec_release_candidate.py
+          ruby Scripts/verify_midi_ci_121_scenario.rb
           python3 -m unittest discover -s Tests -p 'test_spec_provenance.py' -v
           python3 -m unittest discover -s Tests -p 'test_normative_coverage.py' -v
       - name: Verify evidence-backed claim register

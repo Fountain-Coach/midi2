@@ -28,6 +28,7 @@ The guarded publication helper is [`Scripts/publish_docs_site.sh`](../Scripts/pu
 ### Bidirectional standards contract
 - **[Current source manifest](spec-provenance.json)** — six-document corpus; MIDI-CI M2-101-UM v1.2.1; exact version/hash and no new PDF redistribution
 - **[Claim Register](claim-register.md)** — machine-verified representation, runtime and hardware evidence boundaries
+- **[MIDI-CI 1.2.1 scenario](../Tests/Scenarios/midi-ci-v121-pe-flow-control.yaml)** — checked JSON-projected typed ACK/NAK evidence with explicit not-yet-established end-to-end limits.
 - **[Normative Coverage Report](generated/normative-coverage.md)** - complete machine-readable inverse corpus report with per-source representations
 - **[Normative Coverage Methodology](normative-coverage-methodology.md)** - extraction, status, scope, and claim boundaries
 - **[Normative Behavior Model](normative-behavior.json)** - machine-readable protocol state machines and invariants linked from the inverse ledger

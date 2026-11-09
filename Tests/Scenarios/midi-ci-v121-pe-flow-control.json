@@ -1,0 +1,138 @@
+{
+  "scenario": {
+    "id": "midi2.midi-ci-1-2-1.property-exchange-flow-control",
+    "version": "0.1.0",
+    "owner": "Fountain-Coach/midi2",
+    "kind": "normative-implementation",
+    "status": "candidate",
+    "authority": {
+      "document": "M2-101-UM",
+      "version": "1.2.1",
+      "sha256": "f3c3c63d768f049a387c79998081da284a1baf8605ca10d246e9a52258056e6f",
+      "source_manifest": "docs/spec-provenance.json",
+      "source_sections": {
+        "ack": "5.10.2-5.10.3, Table 14, p.34",
+        "nak": "5.11.2-5.11.3, Table 16, pp.36-37",
+        "legacy_notify": "8.13, p.58"
+      }
+    },
+    "implementation": {
+      "swift": "Sources/MIDI2/MidiCiPEFlowControl.swift",
+      "typescript": "midi2.js/src/midi-ci-pe-flow-control.ts",
+      "schema_pointer": "#/$defs/MidiCiPEFlowControl",
+      "release_candidate": "0.13.0"
+    },
+    "preconditions": [
+      "hash-pinned-source-reviewed",
+      "no-third-party-pdf-redistributed",
+      "preexisting-source-version-retained-in-history"
+    ],
+    "cases": [
+      {
+        "id": "ack-send-next-chunks",
+        "input": {
+          "action": "sendNextChunks",
+          "original_subid2": 52,
+          "stream": 5,
+          "chunk": 308
+        },
+        "expected": {
+          "sysex_subid2": 125,
+          "fields": [
+            52,
+            17,
+            0,
+            5,
+            52,
+            2,
+            0,
+            0
+          ]
+        },
+        "terminal": "typed-ack-round-trip-exact"
+      },
+      {
+        "id": "nak-resend-last-chunk",
+        "input": {
+          "action": "resendMostRecentChunk",
+          "original_subid2": 53,
+          "stream": 127,
+          "chunk": 16383
+        },
+        "expected": {
+          "sysex_subid2": 127,
+          "fields": [
+            53,
+            18,
+            0,
+            127,
+            127,
+            127,
+            0,
+            0
+          ]
+        },
+        "terminal": "typed-nak-round-trip-exact"
+      },
+      {
+        "id": "mismatch-ack-status-subid",
+        "input": {
+          "subid2": 127,
+          "status": 17
+        },
+        "terminal": "refused"
+      },
+      {
+        "id": "legacy-notify-is-not-new-ack",
+        "input": {
+          "subid2": 63,
+          "status": 17
+        },
+        "terminal": "refused-as-new-flow-control"
+      },
+      {
+        "id": "reserved-nonzero-status-data",
+        "input": {
+          "subid2": 125,
+          "status": 17,
+          "data": 1
+        },
+        "terminal": "refused"
+      },
+      {
+        "id": "chunk-number-out-of-range",
+        "input": {
+          "chunk": 16384
+        },
+        "terminal": "refused"
+      }
+    ],
+    "witnesses": {
+      "swift": "Tests/MIDI2Tests/MidiCiPEFlowControlTests.swift",
+      "typescript": "midi2.js/src/__tests__/midi-ci-pe-flow-control.test.ts",
+      "schema": "midi2.full.closed.schema.json",
+      "openapi": "midi2.full.openapi.json",
+      "release_guard": "Scripts/verify_spec_release_candidate.py"
+    },
+    "terminal_predicates": {
+      "typed_slice_established": [
+        "swift-and-typescript-reference-vectors-agree",
+        "exact-source-version-and-sha-verified",
+        "no-legacy-notify-promoted-to-ack",
+        "all-positive-and-negative-tests-pass"
+      ],
+      "external_or_full_runtime_not_established": [
+        "complete-muid-routed-sysex-envelope-and-transaction",
+        "flow-control-retransmit-recovery",
+        "receiving-legacy-notify-backward-compatibility",
+        "independent-software-peer-interoperability",
+        "hardware-interoperability"
+      ]
+    },
+    "release_boundary": {
+      "package_versions_can_be-reviewed": true,
+      "full-spec-compliance-claim": false,
+      "publication-requires-release-authority": true
+    }
+  }
+}

@@ -315,6 +315,7 @@ The authoritative package exposes every generic RTP-MIDI2 host capability needed
 - [x] Prepare both package manifests/lockfiles for 0.13.0; Mac Swift build/test 376/376 PASS, TypeScript 213 PASS + 1 skipped, ESM/CJS/DTS builds PASS.
 - [x] Open draft PR #206 linked to #205, with distinct source/semver/claim boundaries; old M2-124 PR #203 stays out of this candidate.
 - [x] Add source-currency snapshot and automated spec/version consistency gate, bounded by explicit catalogue review date 2026-11-09. Future standards versions still require an updated review; this is not dynamic external currency monitoring.
+- [x] Add versioned, checked YAML/JSON MIDI-CI 1.2.1 PE flow-control scenario and CI guard. This establishes typed/negative vectors only; it is not an accepted end-to-end peer scenario.
 - [ ] Green GitHub CI including coverage, independent review, protected main merge, release authority, signed tag and publication receipts remain distinct terminal gates.
 - [ ] End-to-end 1.2.1 Property Exchange ACK/NAK session dispatch and legacy Notify receive compatibility must be proven before a complete 1.2.1 PE runtime compliance claim.
 

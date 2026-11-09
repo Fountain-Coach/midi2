@@ -1,96 +1,395 @@
-#!/usr/bin/env python3
-"""Date-bound source/release/publication consistency check for MIDI2.
+# PLANS Protocol (FCIS RFC 0001)
 
-This proves a structured source snapshot and site-generator contract, not
-that npm/GitHub distribution or external hardware interoperability occurred.
-"""
-from __future__ import annotations
+## Active: cross-machine Discovery repair (2026-09-21)
 
-import importlib.util
-import json
-import re
-from pathlib import Path
+Goal: make the existing midi2umpd Discovery responder answer a remote RTP peer.
+Scope: UDP reply address, multi-packet framing/dispatch, complete SysEx8
+reassembly, and Discovery envelope serialization. Reuse MidiCiDiscoveryResponder.
+Acceptance: bidirectional transport and incomplete-fragment regression tests;
+build and activate the exact candidate on Linux; decode its Discovery response
+on the remote initiator. Promote to main only after this exchange succeeds.
+Non-goals: protocol redesign, enrollment, Store admission, unrelated CI changes.
 
-ROOT=Path(__file__).resolve().parents[1]
+## Purpose
+Define the planning protocol for multi-step or high-risk work in this repository. Plans capture intent, scope, and acceptance criteria before implementation begins.
 
-def check() -> None:
-    status=json.loads((ROOT/"docs/release-status.json").read_text())
-    baseline=json.loads((ROOT/"docs/release-spec-baseline.json").read_text())
-    catalog=json.loads((ROOT/"docs/spec-provenance.json").read_text())
-    npm=json.loads((ROOT/"midi2.js/package.json").read_text())
-    lock=json.loads((ROOT/"midi2.js/package-lock.json").read_text())
-    assert status["schemaVersion"]=="fountain-coach.midi2.release-status.v3"
-    source=status["source"]
-    assert source["branch"]=="main"
-    assert re.fullmatch(r"[a-f0-9]{40}",source["versionIntroducedInCommit"])
-    assert source["state"]=="signed-source-and-github-release-published-npm-pending"
-    assert source["packageVersion"]==baseline["release_candidate"]
-    assert source["packageVersion"]==npm["version"]==lock["version"]
-    assert source["packageVersion"]==lock["packages"][""]["version"]
-    manifest=(ROOT/"Package.swift").read_text()
-    assert f'let packageVersion = "{source["packageVersion"]}"' in manifest
-    assert status["normativeCorpus"]["midiCi"]["version"]==catalog["specifications"]["M2-101-UM"]["version"]==baseline["declared_core_versions"]["M2-101-UM"]
-    assert status["normativeCorpus"]["reviewedAt"]==baseline["catalog_reviewed_on"]
-    assert status["reviewedAt"]==baseline["catalog_reviewed_on"]
+## When a Plan Is Required
+A plan is required when work is:
+- Multi-step or cross-cutting across packages
+- Release-related or security-sensitive
+- Likely to change public APIs, CI, or compliance artifacts
+- Non-trivial refactors or migrations
 
-    distribution=status["distribution"]
-    assert distribution["swiftGitTagAvailable"] is True
-    assert distribution["npmAndPublishedGitHubReleaseComplete"] is False
-    assert distribution["gitTagSignatureVerifiedLocally"] is True
-    assert distribution["gitHubSignatureVerification"] == "not-independently-established"
-    assert distribution["gitTagTargetCommit"] == "fb007d34367de86414ad7621159741e2849c827a"
-    assert distribution["gitHubReleaseState"] == "published"
-    assert distribution["publishedGitHubReleaseTag"] == distribution["verifiedLatestGitHubRelease"]
-    assert distribution["publishedGitHubReleaseUrl"] == "https://github.com/Fountain-Coach/midi2/releases/tag/v0.13.0"
-    assert distribution["publishedGitHubReleaseAt"] == "2026-11-09T11:11:39Z"
-    assert distribution["publicNpmState"]=="not-available-on-2026-11-09"
-    assert distribution["publicNpmPackage"]==npm["name"]
-    assert distribution["verifiedLatestGitTag"]=="v0.13.0"
-    assert distribution["verifiedLatestGitHubRelease"]=="v0.13.0"
-    assert status["implementation"]["physicalDeviceInterop"]=="not-claimed"
-    assert status["implementation"]["m2_124UdpSession"]=="candidate-unmerged"
-    for rel in status["evidence"].values():
-        if not rel.startswith("https://"):
-            assert (ROOT/rel).is_file(),rel
+## Plan Format (Template)
+A plan must answer **what** and **why**, not **how**. Use this template in issues, PRs, or planning docs:
 
-    script=ROOT/"Scripts/build_docs_site.py"
-    spec=importlib.util.spec_from_file_location("midi2_build_docs_site",script)
-    assert spec is not None and spec.loader is not None
-    module=importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    machine=set(module.MACHINE_FILES)
-    assert "docs/release-status.json" in machine
-    assert "docs/release-spec-baseline.json" in machine
-    assert "Tests/Scenarios/midi-ci-v121-pe-flow-control.json" in machine
-    overview=module.release_status_content(ROOT)
-    assert "GitHub source release published. npm pending." in overview
-    for value in (source["packageVersion"],"MIDI-CI v1.2.1","v0.13.0","v0.13.0"):
-        assert value in overview,value
-    assert 'href="/docs/release-status.json"' in overview
-    assert 'href="/docs/release-spec-baseline.json"' in overview
-    assert "interoperability" in overview
+```
+Goal:
+Scope:
+Non-goals:
+Constraints:
+Dependencies:
+Risks:
+Steps:
+  - [ ] Step 1 (intent + outcome)
+  - [ ] Step 2 (intent + outcome)
+Validation:
+Acceptance Criteria:
+```
 
-if __name__=="__main__":
-    check()
-    print("MIDI2 RELEASE/PUBLICATION STATUS: PASS (dated source snapshot; not a published-release claim)")
+## Status Conventions
+- `pending` / `in_progress` / `completed`
+- One `in_progress` step at a time
+
+## Storage
+Plans may live in:
+- The PR description
+- An issue description
+- A dedicated planning document referenced by the PR
+
+## Relationship to Skills
+Execution details belong in `.codex/skills/*/SKILL.md`. Plans should link to relevant skills rather than include procedures.
+
+---
+
+Goal:
+Align this repo with FCIS-VRT naming by migrating VRT-Protocol protocol baselines and references to VRT-Protocol, while preserving any legacy aliases needed for compatibility.
+Scope:
+Docs, tests, and scripts that reference VRT-Protocol protocol baselines.
+Non-goals:
+Renaming internal runtime identifiers or changing baseline content.
+Constraints:
+Keep existing baselines intact; update references and paths without altering data.
+Dependencies:
+Org-level FCIS-VRT standard and repo-wide rename agreement.
+Risks:
+Broken links or test failures if any path updates are missed.
+Steps:
+  - [x] Rename docs/pb-vrt to docs/vrt-protocol and update references.
+  - [x] Rename VRT-Protocol test names/paths to VRT-Protocol.
+  - [x] Update documentation to reflect FCIS-VRT Protocol terminology and legacy alias mapping.
+Validation:
+Search for VRT-Protocol references and ensure all paths resolve; run JS tests if needed.
+
+---
+
+Goal:
+Make issue #129's PDF-to-semantic-object traceability claim mechanically verifiable on every commit.
+Scope:
+Canonical schema provenance, schema/OpenAPI parity, generated traceability artifacts, executable verification, mutation coverage, and CI integration.
+Non-goals:
+Claim complete runtime implementation or hardware interoperability; change the MIDI2 semantic contract; add Reframe-specific operations to this repository.
+Constraints:
+The closed JSON Schema remains canonical for semantic assertions; provenance must be embedded in that object and generated reports must not become independent authorities.
+Dependencies:
+The checked-in MIDI Association PDF set, existing schema/OpenAPI artifacts, Swift and TypeScript test trees, and the protected-main pull-request workflow.
+Risks:
+Existing documentation contains stale manual percentages and pending rows; replacing it with generated output may expose real gaps that must remain explicit until resolved.
+Steps:
+  - [ ] Add a machine-readable provenance manifest and embed provenance/verification metadata into every normative schema definition.
+  - [ ] Add deterministic verification and report generation, including schema/OpenAPI parity and test-reference resolution.
+  - [ ] Add mutation tests proving the verifier fails for removed/invalid provenance, missing tests, schema drift, and stale generated reports.
+  - [ ] Run the full source-repository validation and resolve every finding within the issue's semantic-traceability scope.
+  - [ ] Commit and push through a pull request; close issue #129 only after all acceptance gates pass.
+Validation:
+Run `python3 Scripts/verify_spec_provenance.py`, its mutation suite, `python3 Scripts/verify_docs.py`, Swift tests, and midi2.js check/test/build gates as applicable.
+Acceptance Criteria:
+Every normative schema definition has valid source provenance and verification metadata; generated documents are current; the closed schema and OpenAPI provenance are equivalent; CI fails on the specified mutations; no unresolved traceability status remains inside the published semantic claim.
+
+---
+
+Goal:
+Close the owned software-runtime gaps without making a physical-hardware claim.
+Scope:
+Swift and TypeScript core runtime parity, Profile session behavior, negative validation, machine-readable runtime boundary, current conformance documentation, and CI verification.
+Non-goals:
+Physical MIDI2 device interoperability, hardware MIDI-CI/JR acceptance, optional host-adapter completeness, and VRT-only visual baselines.
+Constraints:
+The MIDI2 semantic contract remains unchanged. Runtime completeness is bounded to the named core surface in `docs/runtime-completeness.json`; hardware must remain excluded.
+Dependencies:
+The committed schema/provenance and claim registers, existing Swift/TypeScript tests, and protected-main pull-request workflow.
+Risks:
+Historical audit prose can overstate or understate current implementation; the machine-readable ledger and executable verification are authoritative for this bounded claim.
+Steps:
+  - [x] Read the repository operating guide and validation/claim requirements; record the boundary and exclusions.
+  - [x] Add TypeScript Profile session runtime parity and lifecycle tests.
+  - [x] Add the machine-readable runtime completeness ledger, generated report, and verifier.
+  - [x] Reconcile the current conformance checklist and claim register with executable evidence.
+  - [ ] Run the full Swift/TypeScript/docs validation and inspect the resulting diff.
+  - [ ] Commit and push through a pull request; do not claim hardware interoperability.
+Validation:
+`swift test`, `npm run ci --prefix midi2.js`, `python3 Scripts/verify_runtime_completeness.py`, `python3 Scripts/verify_claims.py`, and documentation/provenance checks.
+Acceptance Criteria:
+The owned core software boundary is explicit and verified by both runtime test suites; Profile behavior is parity-tested; CI rejects a stale or hardware-claiming runtime ledger; hardware interoperability remains explicitly excluded.
+
+Governance reading record:
+- Chapters read — repository `AGENTS.md` invariants and claim boundary; `.codex/skills/governance-read/SKILL.md` floor/resolution rules; `.codex/skills/repo-ops/SKILL.md` validation contract.
+- What they forbid here — claiming physical hardware behavior from software tests; changing the MIDI2 IDL; bypassing runtime validation; treating stale documentation as operational authority.
+- Conflicts — none found between the repository guide, the claim register policy, and this bounded runtime objective.
+- Excluded, and why — Reframe governance chapters and GUI/live-drive skills are outside this MIDI2 source-repository runtime task; hardware and optional host adapters are explicitly non-goals.
+
+---
+
+Goal:
+Implement and release the bounded Swift and TypeScript MIDI2 runtime surfaces corresponding to the modeled normative behavior, with cross-language evidence.
+Scope:
+MIDI Clip file lifecycle parity, existing negotiation/profile/property/UMP runtime surfaces, tests, generated coverage evidence, and the Swift/TypeScript package release.
+Non-goals:
+Physical hardware interoperability, optional host adapters, and changing the MIDI Association semantic contract.
+Constraints:
+Do not promote a modeled behavior without executable evidence; preserve the explicit runtime and hardware claim boundaries.
+Dependencies:
+The merged normative coverage ledger, existing Swift/TypeScript implementations, local package toolchains, and protected-main release workflow.
+Risks:
+Version or generated-artifact drift could publish a package whose evidence does not match the source. Release gates must run locally before publication.
+Steps:
+  - [x] Audit existing Swift and TypeScript implementations and identify the genuine cross-language gap.
+  - [ ] Add MIDI Clip API parity and cross-language tests.
+  - [ ] Promote only tested modeled behaviors and regenerate reports.
+  - [ ] Run Swift, TypeScript, documentation, provenance, and claim validation.
+  - [ ] Bump both package versions, publish through a PR, and create the release artifacts.
+Validation:
+Swift tests; `npm run check`, `npm test`, `npm run build`; provenance, coverage, runtime, claims, and documentation verifiers; clean diff and package dry run.
+Acceptance Criteria:
+The Swift and TypeScript packages expose tested MIDI Clip lifecycle behavior; promoted runtime evidence is reproducible; package versions and changelog agree; no hardware interoperability claim is added.
+
+---
+
+Goal:
+Publish only evidence-backed MIDI2 claims with explicit scope and exclusions.
+Scope:
+Machine-readable claim register, generated public claim documentation, README/dashboard links, and CI verification.
+Non-goals:
+Claim global runtime completeness or physical MIDI2 hardware interoperability.
+Constraints:
+Semantic traceability, measured test results, feature-level runtime support, and hardware evidence remain separate claim classes.
+Dependencies:
+Issue #129 provenance gate and the feature-level conformance checklist.
+Risks:
+Historical audit documents contain broader or older status language; the claim register must be the public boundary for current claims.
+Steps:
+  - [ ] Define each allowed claim with a reason, evidence paths, status, and exclusions.
+  - [ ] Generate the human-readable claim register from the canonical JSON source.
+  - [ ] Reject missing evidence, unscoped statuses, stale generated output, and unsupported global claims in CI.
+  - [ ] Align README and compliance dashboard with the claim register.
+Validation:
+Run `python3 Scripts/generate_claim_register.py --check`, `python3 Scripts/verify_claims.py`, the provenance gates, documentation verification, Swift tests, and midi2.js checks/tests/build.
+Acceptance Criteria:
+The repository can claim semantic traceability, provenance parity, automated verification, measured test results, and explicitly partial feature-level runtime support; it explicitly does not claim global runtime completeness or hardware interoperability.
+
+---
+
+Goal:
+Add a bidirectional, machine-verifiable normative coverage contract for the declared MIDI 2.0 source corpus.
+Scope:
+The six declared MIDI Association PDFs, source hashes and version records, normative requirement ledger, reverse verifier, generated coverage report, provenance fallback policy, mutation tests, CI, claim register, and MIDI-vs-Fountain Coach boundary documentation.
+Non-goals:
+Claiming complete runtime implementation, physical hardware interoperability, or completion of the unresolved source-prose audit before the ledger contains source-backed dispositions.
+Constraints:
+The existing object-to-source provenance verifier remains authoritative and is strengthened rather than replaced. The MIDI Association remains normative. Fountain Coach extensions cannot satisfy MIDI requirements without explicit justification.
+Dependencies:
+The checked-in PDF corpus, `midi2.full.closed.schema.json`, `midi2.full.openapi.json`, and the protected-main pull-request workflow.
+Risks:
+The current object mapping does not by itself inventory every normative prose rule. The ledger therefore records explicit unresolved audit frontiers and the public claim remains partial.
+Steps:
+  - [x] Add exact corpus hashes, scope metadata, source policy, and remove generic provenance fallback.
+  - [x] Add the canonical normative requirement ledger with structural dispositions and explicit unresolved source-audit frontiers.
+  - [x] Add reverse verification, generated coverage reporting, methodology, third-party source notice, and extension boundary.
+  - [x] Add mutation tests for ledger deletion, broken representation, version/hash drift, and missing schema provenance; wire gates into CI.
+  - [x] Update claim register and documentation indexes without claiming full specification coverage.
+  - [ ] Decompose every unresolved audit frontier into source-backed normative requirements or explicit exclusions.
+Validation:
+Run `python3 Scripts/generate_spec_traceability.py --check`, `python3 Scripts/verify_spec_provenance.py`, `python3 Scripts/generate_normative_coverage.py --check`, `python3 Scripts/verify_normative_coverage.py`, both Python mutation suites, `python3 Scripts/verify_docs.py`, `python3 Scripts/verify_claims.py`, Swift tests, and midi2.js checks/tests/build as applicable.
+Acceptance Criteria:
+An external reviewer can identify the exact corpus and hashes, inspect every current ledger disposition and representation target, detect missing schema-to-ledger links, detect source/version/hash drift, reproduce the generated report, and see the six unresolved limitations without a misleading percentage or global conformance claim.
+
+Governance reading record:
+- Chapters/readings applied — repository `AGENTS.md`; `.codex/skills/spec-pdf-to-schema/SKILL.md`; repository claim-register and publication-boundary guidance.
+- What they require here — preserve the canonical schema contract; cite PDF pages; validate generated artifacts; distinguish semantic, runtime, and hardware claims; never use stale prose as operational authority.
+- Conflicts — none found.
+- Excluded, and why — GUI/live-drive and Reframe runtime skills are outside this static MIDI2 corpus/accounting task; physical hardware remains explicitly out of scope.
+
+---
+
+Goal:
+Build the next layer of the full machine-readable MIDI 2.0 object by promoting verified behavioral protocol slices from prose-only dispositions into canonical state-machine data.
+Scope:
+Property Exchange subscription lifecycle, Stream Configuration negotiation, MIDI-CI Profile lifecycle, and Mixed Data Set transfer; the normative ledger, reverse verifier, generated report, methodology, and focused mutation tests.
+Non-goals:
+Claiming that the complete six-document corpus is now implemented; claiming hardware interoperability; inventing behavioral semantics not supported by repository source, tests, or cited specification material.
+Constraints:
+The closed JSON Schema remains the structural object. Behavioral protocol rules must be represented in a separate machine-readable model and linked from the inverse ledger. Existing object-to-source provenance remains unchanged.
+Dependencies:
+`docs/spec-provenance.json`, `docs/normative-requirements.json`, `midi2.full.closed.schema.json`, existing Swift/TypeScript protocol implementations and tests.
+Risks:
+Some existing prose summarizes implementation behavior without a complete source-page extraction. Those items must remain explicitly bounded or unresolved until the source audit is complete.
+Steps:
+  - [x] Read repository operating, validation, schema-mapping, and claim-boundary guidance; record the phase boundary.
+  - [x] Inventory existing behavioral implementations and verification artifacts.
+  - [ ] Add canonical machine-readable behavioral state machines and invariants for the verified slices.
+  - [ ] Link every modeled slice from the normative ledger and validate model references in reverse coverage verification.
+  - [ ] Regenerate coverage artifacts, add mutation coverage, and run focused/full validation.
+  - [ ] Record remaining corpus gaps without upgrading the full-specification claim.
+Validation:
+`python3 Scripts/verify_normative_coverage.py`, generated report freshness, mutation tests, `swift test`, `npm run ci --prefix midi2.js`, `python3 Scripts/verify_claims.py`, `python3 Scripts/verify_docs.py`, and `git diff --check`.
+Acceptance Criteria:
+The repository contains a canonical machine-readable behavioral model with source, implementation, and test links; the inverse verifier rejects missing or invalid model references; the report distinguishes structural, operational, runtime, and unresolved coverage; no public claim implies full runtime or hardware conformance.
+
+Governance reading record:
+- Chapters/readings applied — repository `AGENTS.md` (PR-only changes, schema contract, evidence boundaries); Reframe governance 07 (planning, authority, no invented semantics); Reframe governance 08 (artifact-backed claims and validation); `.codex/skills/governance-read/SKILL.md`; `.codex/skills/spec-pdf-to-schema/SKILL.md`; `.codex/skills/repo-ops/SKILL.md`.
+- What they forbid here — treating prose or screenshots as protocol authority; forcing behavioral rules into JSON Schema; claiming runtime or hardware completeness from static/model tests; editing without a phase plan.
+- Conflicts — none found between the user’s request for the full object and the repository’s requirement to make incomplete coverage explicit.
+- Excluded, and why — GUI/live-drive, deployment, and physical-device acceptance are outside this static protocol-model phase; the remaining source-prose audit stays visible as unresolved or explicitly bounded work.
+
+---
+
+Goal:
+Implement the remaining modeled frontiers as owned Swift and TypeScript runtime behavior and release the bounded software claim.
+Scope:
+Compatibility selection, MIDI-CI transaction failure, Profile channel allocation, Property Exchange resource errors, UMP ordering/reserved-value validation, parity tests, runtime evidence, claims, and the v0.11.0 package release.
+Non-goals:
+Physical MIDI 2.0 hardware interoperability, external-device acceptance, and optional host adapters.
+Constraints:
+Every promoted behavior must have executable negative-path evidence in both languages; the MIDI Association remains normative and software validation must not be described as hardware proof.
+Dependencies:
+The merged v0.10.0 provenance/coverage/runtime gates and the protected-main pull-request workflow.
+Risks:
+Modeled state machines may be broader than a bounded helper API. The implementation ledger therefore names the exact software symbols and tests rather than claiming the full physical protocol environment.
+Steps:
+  - [x] Add cross-language stateful APIs for all five remaining modeled frontiers.
+  - [x] Add parity and negative-path tests; run Swift and TypeScript suites.
+  - [x] Promote the five behavior records and add runtime completeness evidence while retaining hardware exclusion.
+  - [x] Regenerate runtime and claim reports; run provenance, coverage, claims, docs, and diff checks.
+  - [ ] Bump package versions, publish through a pull request, merge, and create release artifacts.
+Validation:
+`swift test --parallel`, `npm run ci --prefix midi2.js`, runtime/provenance/normative/claim/docs verifiers, generated-artifact freshness, and `git diff --check`.
+Acceptance Criteria:
+All five remaining modeled frontiers have tested Swift and TypeScript software surfaces; the core software claim is evidence-backed; hardware interoperability remains excluded; v0.11.0 artifacts are prepared through the PR workflow.
+
+---
+
+Goal:
+Promote the RTP-MIDI2 host capabilities currently duplicated in the estate workspace into the authoritative Fountain-Coach/midi2 transport package, then let estate consumers depend on that owned implementation directly.
+Scope:
+RTPMidiSession Bonjour peer discovery, typed peer connection, pre-bound UDP descriptor adoption, datagram delivery of 32/64-bit UMP and contiguous SysEx8-style 128-bit packet sequences, focused tests, changelog, and public runtime documentation.
+Non-goals:
+Estate-specific joining-machine capability names, static-release semantics, owner authorization, Caddy behavior, or Keychain policy; those remain estate-layer concerns.
+Constraints:
+Preserve existing explicit-listen/explicit-connect semantics, fail closed on listener/bind errors, keep Linux and Network.framework behavior aligned, and make no hardware-interoperability claim.
+Dependencies:
+Current main at a9813fa21fd416a6ff27d76cd57c57012e082922 and existing MIDI2Transports loopback coverage.
+Risks:
+The workspace duplicate accumulated APIs beyond the released package. Migration must preserve existing one-message behavior while adding only generic transport capabilities supported by focused tests.
+Steps:
+  - [x] Compare the estate duplicate with authoritative MIDI2Transports and identify generic deltas.
+  - [x] Move generic discovery, typed peer, descriptor-adoption, and multi-packet SysEx8 datagram support into the authoritative transport.
+  - [x] Add focused tests for 32/64/128-bit sends, multi-packet 128-bit datagrams, descriptor adoption, and typed discovery where deterministic.
+  - [x] Run Swift tests and repository documentation/claim gates relevant to the change.
+  - [ ] Publish through the protected PR workflow and then repoint estate consumers to the merged revision.
+Validation:
+`swift test --filter RTPMidiSessionTests`, descriptor tests, full `swift test`, documentation verification, claim verification, and `git diff --check`.
+Acceptance Criteria:
+The authoritative package exposes every generic RTP-MIDI2 host capability needed by joining-machine consumers; existing transport behavior remains tested; estate-specific semantics stay out of midi2; no second transport implementation is needed by EstatePublisher.
+
+---
+
+## Active: current normative MIDI-CI spec and package version gate (2026-11-09)
+
+**Intent:** Make the MIDI2 source corpus, Swift/TypeScript implementation and release-candidate versions agree with the newest verified M2-101-UM v1.2.1, without falsely claiming independent interoperability or silently distributing copyrighted PDFs.
+
+**History-first:** main at `b596c7e8b2f1b1fd12b430b72cb79dae54c23a8a`, package versions Swift+TS 0.12.8, current core manifest MIDI-CI v1.2. Separate PR #203 is a candidate for M2-124 v1.0.1 but is NOT merged and cannot be released as though it were. Existing source-based inventory, dispositions, inverse ledger and generated full object are tied to the older v1.2 PDF.
+
+**Source evidence:** Official M2-101-UM v1.2.1 (published 2025-12-18), 76 pages, PDF SHA-256 `f3c3c63d768f049a387c79998081da284a1baf8605ca10d246e9a52258056e6f`. Older v1.2 source SHA-256 `bba165c24d6fd6d4464b514da3f3cbcc4f7db4171057aa8a31f8910ea0037f3b`. Its v1.2.1 version-history states PE Notify is replaced by MIDI-CI ACK/NAK and adds PE flow-control codes. ACK 0x11 "send next chunks" (§5.10.2, Table 14, p.34); NAK 0x12 "resend most recent chunk" (§5.11.2, Table 16, p.36). Rendered page images inspected. Manufacturer-ID Appendix added, plus editorial corrections. The PDF explicitly forbids redistribution; no commit or public copy of new source is authorized.
+
+**Governance reading record:**
+- Chapters read: 07 no broad/invented scope or bypassing PR; 08 independent evidence must not be collapsed; 73 scenario terminal assertions; 91/93 IDL versus kit authority, release/admission separation. Normative authority is the source PDF; source-to-schema mapping follows the `spec-pdf-to-schema` skill.
+- Forbidden: altering a hash without versioned corpus update, claiming hardware interop, labeling source-count completeness as runtime conformance, publishing copyrighted PDF, releasing unmerged candidate PR #203, or tagging before CI and release approval.
+- Conflicts: the published catalogue can lag; the title/version/history of the retrieved official signed-off source take precedence for M2-101-UM. Release policy requires signed tags, protected-main merge and green CI; these remain separate from candidate branch version preparation.
+- Excluded: M2-124 network socket implementation/PR #203, Reframe GUI, FCIS instrument admission, hardware, production publishing and npm release until independent acceptance.
+
+**Planned steps:**
+- [x] Verify newest source and inspect pages/bit fields and prior version.
+- [x] Record new version and rights-preserving retrieval with exact SHA-256; source is gitignored and not committed; CI source retrieval succeeded.
+- [x] Promote source-provenance schema/OpenAPI and inverse corpus to v1.2.1 with source-to-representation mapping; generated reports pass reverse-traceability, mutation and freshness checks.
+- [x] Implement typed MIDI-CI ACK/NAK PE flow-control status/details in Swift and TypeScript, focused positive/negative tests; legacy Notify is not silently promoted.
+- [x] Prepare both package manifests/lockfiles for 0.13.0; Mac Swift build/test 376/376 PASS, TypeScript 213 PASS + 1 skipped, ESM/CJS/DTS builds PASS.
+- [x] Open draft PR #206 linked to #205, with distinct source/semver/claim boundaries; old M2-124 PR #203 stays out of this candidate.
+- [x] Add source-currency snapshot and automated spec/version consistency gate, bounded by explicit catalogue review date 2026-11-09. Future standards versions still require an updated review; this is not dynamic external currency monitoring.
+- [x] Add versioned, checked YAML/JSON MIDI-CI 1.2.1 PE flow-control scenario and CI guard. This establishes typed/negative vectors only; it is not an accepted end-to-end peer scenario.
+- [ ] Green GitHub CI including coverage, independent review, protected main merge, release authority, signed tag and publication receipts remain distinct terminal gates.
+- [ ] End-to-end 1.2.1 Property Exchange ACK/NAK session dispatch and legacy Notify receive compatibility must be proven before a complete 1.2.1 PE runtime compliance claim.
+
+**DoD:** exact latest MIDI Association M2-101-UM v1.2.1 source pinned; type-checked v1.2.1 PE ACK/NAK behavior and tests; versioned corpus/derived artifacts consistent; both packages have the same new semver; no new third-party PDF redistribution; green local tests and GitHub CI; published version only after owning maintainer approval, signed tag, and npm/GitHub release receipts.
+
+**Rollback:** PR branch only; production main, npm, release tags and PR #203 unchanged until acceptance.
+
+---
+
+## 2026-11-09 MIDI2 publication status reconciliation
+
+Intent: Replace stale release-candidate branch wording and publish an owner-sourced
+homepage distinction between current core spec, merged source version, Git tag,
+GitHub Release and npm availability. No core implementation or spec alteration.
+
+Source history: main 09f046b; MIDI-CI v1.2.1; Swift and TS 0.13.0;
+latest Git tag v0.12.8, latest GitHub Release v0.11.0; public npm 404
+as verified 2026-11-09. Scenario checked JSON exists in Git but was not
+included in the generated website.
+
+Governance: Ch.07 goal fidelity/PR policy; ch.08 evidence authority;
+ch.92 public estate projection; ch.158 static delivery source separation.
+Forbidden: treating npm, hardware interop or unsigned tag as proven;
+writing directly to canonical publication copies; uploading copyrighted PDFs.
+Conflicts: none in scoped source/docs task. Excluded: M2-124 PR #203,
+PE session acceptance #205, release credentials and signed tag #207,
+independently owned status/instruments pages unless a specific stale claim
+rather than missing version is identified.
+
+Acceptance: source PR with README and generator, release-status JSON,
+checked scenario export, docs/claims gates, repo tests where touched,
+read-only derived site diff and independent HTTPS/signed release receipt.
+Rollback: keep immutable predecessor; do not modify main outside PR.
+
+
+---
+
+## 2026-11-09 signed Git tag and npm-gated public release
+
+Verified: v0.13.0 is an SSH-signed annotated Git tag, pushed and verified
+to target fb007d34367de86414ad7621159741e2849c827a. The existing
+Ed25519 identity passed local signature verification without a new secret.
+Fresh release build: 376 Swift tests and 213 TypeScript tests passed,
+one TypeScript skipped. npm pack dry run: eight files and no PDFs/keys.
+Draft GitHub Release v0.13.0 exists, but is not public.
+
+Remaining blocker: npm account is unauthenticated (ENEEDAUTH); the public
+package @fountain-coach/midi2 returns 404. No assumption of npm ownership,
+physical interoperability, GitHub Verified signature status, or published
+GitHub Release. Issue #207 remains open.
+
+Source scope: repair the owner README, changelog, machine release status and
+generated homepage so that a signed public Swift Git tag, a draft GitHub
+Release and unpublished npm are distinct facts. Protected PR and CI, then
+native exact-host EstatePublisher with source hashes, immutable predecessor
+and independent HTTPS verification. No re-release of 0.13.0 binary/JS or
+changes to the other separately owned sites.
 
 ---
 
 ## 2026-11-09 published v0.13.0 GitHub source release
 
-The signed v0.13.0 source tag already existed and targeted commit
-fb007d34367de86414ad7621159741e2849c827a. Its GitHub Release,
-previously a draft, has now been published publicly at
-https://github.com/Fountain-Coach/midi2/releases/tag/v0.13.0
-and GitHub reports it as Latest, published 2026-11-09T11:11:39Z.
-Release notes explicitly state npm NOT PUBLISHED, and no full PE,
-M2-124, hardware interoperability or certification claim is inferred.
+The signed v0.13.0 tag targets commit
+fb007d34367de86414ad7621159741e2849c827a. The existing GitHub
+release draft was published at
+https://github.com/Fountain-Coach/midi2/releases/tag/v0.13.0,
+and GitHub marks it Latest (2026-11-09T11:11:39Z).
+Release notes explicitly state that npm is NOT PUBLISHED. This is the
+Swift/Git source release, not an inference of complete Property Exchange,
+Network MIDI 2.0, hardware interoperability or certification.
 
-This source-only PR reconciles README, documentation index, CHANGELOG,
-versioned release-status JSON, its verifier and public site builder.
-No new Git tag, package version, normative source, runtime code or
-cross-site estate change is required. The separate npm credential blocker
-remains recorded in issue #207. Do not mark complete until the npm registry
-lists the exact package version with verified package integrity and public
-install acceptance. After protected CI/merge, publish this documentation
-only to MIDI2 via EstatePublisher with immutable rollback and digest readback.
+This source-only PR aligns the README, docs, changelog, status JSON and
+public site generator. The protected main remains authoritative. The npm
+credential/ownership gate is still open under issue #207: public npm
+0.13.0 and package integrity need actual registry receipts. Publish the
+source projection by the typed MIDI2 EstatePublisher with immutable
+rollback, exact commit and independent HTTPS hash readback.

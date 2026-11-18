@@ -1,5 +1,7 @@
 # midi2
 
+> **FCIS architecture:** The [FCIS standalone Go stack specification](https://github.com/Fountain-Coach/.github/blob/main/FCIS-STACK.md) describes how authenticated FCIS Hosts use MIDI 2.0/MIDI-CI. This repository retains ownership of its protocol implementations and interoperability evidence; the Go FCIS target makes no new hardware-interoperability claim.
+
 [![CI](https://github.com/Fountain-Coach/midi2/workflows/CI/badge.svg)](https://github.com/Fountain-Coach/midi2/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 <!-- TODO: Add coverage badge when coverage reporting is configured -->
